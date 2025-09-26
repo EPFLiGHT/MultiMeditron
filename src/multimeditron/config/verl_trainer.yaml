@@ -64,13 +64,13 @@ actor_rollout_ref:
     load_format: auto
     dtype: bfloat16
     name: sglang
-    log_prob_micro_batch_size_per_gpu: 16
+    log_prob_micro_batch_size_per_gpu: 32
   actor:
     fsdp_config:
       model_dtype: bfloat16
     ppo_mini_batch_size: 256
     # ppo_micro_batch_size: 16
-    ppo_micro_batch_size_per_gpu: 4 
+    ppo_micro_batch_size_per_gpu: 16 
     use_dynamic_bsz: false
     ppo_max_token_len_per_gpu: 16384
   ref:

@@ -125,7 +125,8 @@ RUN pip3 install --upgrade pip && pip3 install -U \
         nvidia-ml-py flashinfer-python
 RUN pip3 install --upgrade pip && pip3 install -v -U --no-build-isolation \
         "sglang[test]==0.5.2" sgl_kernel
-RUN pip3 uninstall -y pynvml
+RUN pip3 uninstall -y pynvml datasets && \
+    pip3 install datasets
 
 # Add code tunnel for remote code development directly on the docker image
 RUN mkdir -p /tmp/code
