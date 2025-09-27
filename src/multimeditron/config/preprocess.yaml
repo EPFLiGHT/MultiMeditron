@@ -1,0 +1,25 @@
+defaults:
+  - _self_
+
+source:
+  type: jsonl # Supported types: 'hf', 'jsonl'
+  kwargs:
+    path: ./mock_dataset/mock_dataset.jsonl
+
+tokenizer:
+  enable: false
+  model: null
+  use_fast: true
+  attachment_token: <|reserved_special_token_0|>
+
+output: ./mock_dataset/mock_dataset.parquet
+num_processes: 8
+
+processes:
+  - type: python
+    kwargs:
+      func: |
+        {
+          "prompt": data["prompt"],
+          "response": data["response"],
+        }
