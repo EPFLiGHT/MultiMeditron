@@ -1,7 +1,7 @@
 import warnings
 
 from multimeditron.model.prompt_tokenizers import NUM_EMBEDDINGS_KEY
-from ..modality import AbstractModality, ModalityConfig
+from ..modality import ModalityWithProjectionConfig, ModalityWithProjection
 import torch
 from transformers import AutoImageProcessor, VisionTextDualEncoderModel, CLIPModel, AutoModel
 from multimeditron.dataset.registry.registry import ModalityRegistry
@@ -34,10 +34,10 @@ class ImageConfig(ModalityConfig):
         self.clip_name = clip_name
 
 
-class ImageModality(AbstractModality):
+class ImageModality(ModalityWithProjection):
     config_class = ImageConfig
 
-    def __init__(self, config: ModalityConfig):
+    def __init__(self, config: ModalityWithProjectionConfig):
         super().__init__(config)
 
         self.vision_tower_name = config.clip_name
@@ -79,6 +79,3 @@ class ImageModality(AbstractModality):
     def from_dict(cls, config_args, **kwargs):
         return ImageConfig.from_dict(config_args, **kwargs)
 
-    # @property
-    # def num_patches_per_entry(self) -> int:
-    #     return self._num_patches_per_entry

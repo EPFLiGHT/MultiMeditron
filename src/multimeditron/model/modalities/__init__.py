@@ -1,4 +1,4 @@
-from multimeditron.model.modality_imp.image_modality_pe import PEImageConfig, PEImageModality
+from .image_modality_pe import PEImageConfig, PEImageModality
 from .image_modality import ImageModality, ImageConfig
 from .three_d_modality import CTModality, CTConfig
 from .image_modality_moe import ImageModality as MoEImageModality, ImageConfig as MoEImageConfig
