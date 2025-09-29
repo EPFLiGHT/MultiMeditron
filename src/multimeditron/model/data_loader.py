@@ -3,7 +3,8 @@ from typing import Dict, List, Any, Optional, Union, Iterator
 from transformers import PreTrainedTokenizerBase
 from transformers.data.data_collator import DataCollatorMixin
 from dataclasses import dataclass
-from multimeditron.model.modality import ModalityWithProjection
+# from multimeditron.model.modality import ModalityWithProjection
+from multimeditron.model.modalities import BaseModalityProcessor
 from multimeditron.dataset.preprocessor.modality_preprocessor import SamplePreprocessor
 from multimeditron.utils import pydantic_enum
 from enum import IntEnum, auto
@@ -16,8 +17,8 @@ IGNORE_TOKEN_INDEX = -100  # This value is hardcoded in the transformers library
 @dataclass
 class DataCollatorForMultimodal(DataCollatorMixin):
     tokenizer: PreTrainedTokenizerBase
-    modality_processors: Dict[str, ModalityWithProjection]
-    attachment_token_idx:int
+    modality_processors: Dict[str, BaseModalityProcessor]
+    attachment_token_idx: int
     tokenizer_type: str
     padding: Union[bool, str] = True
     pad_to_multiple_of: Optional[int] = None
@@ -50,10 +51,10 @@ class DataCollatorForMultimodal(DataCollatorMixin):
         stackable_features = {"input_ids", "labels", "attention_mask"}
 
         modality_preprocessor = SamplePreprocessor(
-                tokenizer=self.tokenizer,
-                tokenizer_type=self.tokenizer_type,
-                modality_processors=self.modality_processors,
-                attachment_token_idx=self.attachment_token_idx,
+            tokenizer=self.tokenizer,
+            tokenizer_type=self.tokenizer_type,
+            modality_processors=self.modality_processors,
+            attachment_token_idx=self.attachment_token_idx,
         )
         
         processed_samples = modality_preprocessor.process_modality_to_tensor(raw_features)

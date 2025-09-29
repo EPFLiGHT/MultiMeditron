@@ -2,29 +2,16 @@ from transformers import PreTrainedModel, PretrainedConfig
 import torch.nn as nn
 import torch
 
-class MLPProjectorConfig(PretrainedConfig):
-    def __init__(self, modality_size: int,
-                 projected_size: int,
-                 **kwargs):
-        super().__init__(**kwargs)
-        self.modality_size = modality_size
-        self.projected_size = projected_size
+from .base import AbstractProjector
 
-
-class MLPProjector(PreTrainedModel):
-    """
-
-    """
-    def __init__(self, config: MLPProjectorConfig, *inputs, **kwargs):
-        super().__init__(config, *inputs, **kwargs)
-
-
+class MLPProjector(AbstractProjector):
+    def __init__(self, modality_size: int, projected_size: int):
         self.projection = nn.Sequential(
-                nn.Linear(config.modality_size, config.modality_size, dtype=self.dtype),
+                nn.Linear(modality_size, modality_size, dtype=self.dtype),
                 nn.GELU(),
-                nn.Linear(config.modality_size, config.projected_size, dtype=self.dtype),
+                nn.Linear(modality_size, projected_size, dtype=self.dtype),
                 nn.GELU(),
-                nn.Linear(config.projected_size, config.projected_size, dtype=self.dtype),
+                nn.Linear(projected_size, projected_size, dtype=self.dtype),
         )
 
 

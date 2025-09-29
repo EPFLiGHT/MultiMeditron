@@ -1,22 +1,14 @@
-import warnings
 from multimeditron.model.prompt_tokenizers import NUM_EMBEDDINGS_KEY
-from ..modality import AbstractModality, ModalityConfig
+from multimeditron.model.modalities.base import AutoModality, BaseModality, BaseModalityConfig, BaseModalityProcessor
+from multimeditron.model.projectors.base import AutoProjectorLoader
 import torch
-from transformers import AutoImageProcessor, CLIPModel, AutoModel
-from multimeditron.dataset.registry.registry import ModalityRegistry
-import numpy as np
-from PIL import Image
-import io
-from typing import Optional, Dict, Any, List
-from multimeditron.model.modality_imp.gating import GatingNetwork, GatingNetworkConfig
+from transformers import AutoModel
+from typing import Dict, Any, List
 
 
-class ImageConfig(ModalityConfig):
-    model_type = "moe_meditron_clip"
-
+class MOEImageConfig(BaseModalityConfig):
     def __init__(
         self,
-        modality_name: Optional[str] = None,
         max_batch_size: int = 32,
         use_bias_proj: bool = True,
         expert_clip_names: List[str] = [
@@ -25,10 +17,10 @@ class ImageConfig(ModalityConfig):
         ],
         gating_path: str = None,
         top_k_experts: int = 1,
+        projection_type: str = "mlp",
         **kwargs,
     ):
         super().__init__(
-            modality_name=modality_name,
             max_batch_size=max_batch_size,
             use_bias_proj=use_bias_proj,
             modality_type="image",
@@ -38,18 +30,35 @@ class ImageConfig(ModalityConfig):
         self.expert_clip_names = expert_clip_names
         self.top_k_experts = top_k_experts
         self.gating_path = gating_path
+        self.projection_type = projection_type
 
+class MOEImageProcessor(BaseModalityProcessor):
+    def __init__(self, config: MOEImageConfig):
+        super().__init__(config)
 
-class ImageModality(AbstractModality):
-    config_class = ImageConfig
+    def process(self, modality: Dict[str, Any]):
+        processed_modality = modality.copy()
 
-    def __init__(self, config: ImageConfig):
+        image = modality["value"]
+
+        pixel_values = self.image_processor(images=image, return_tensors="pt")["pixel_values"][0]
+        processed_modality["value"] = pixel_values
+        processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry
+
+        return processed_modality
+
+@AutoModality.register("meditron_clip_moe")
+class MOEImageModality(BaseModality):
+    config_class = MOEImageConfig
+    preprocessor_class = MOEImageProcessor
+
+    def __init__(self, config: MOEImageConfig):
         super().__init__(config)
 
         self.experts = torch.nn.ModuleList()
 
         self._embedding_size = None
-        for idx, clip_name in enumerate(config.expert_clip_names):
+        for clip_name in config.expert_clip_names:
             expert_model = AutoModel.from_pretrained(clip_name, trust_remote_code=True)
 
             if self._embedding_size is None:
@@ -62,11 +71,13 @@ class ImageModality(AbstractModality):
         self.gating_network = AutoModel.from_pretrained(config.gating_path)
         self.image_processor = self.gating_network.processor
 
+        self.projector = AutoProjectorLoader.from_model_type(config.model_type)
+
     def forward(self, inputs) -> torch.FloatTensor:
         device = next(self.experts[0].parameters()).device
         inputs = torch.stack(inputs, dim=0).to(device)
 
-        logits, topk_indices, weights = self.gating_network(inputs)
+        _logits, _topk_indices, weights = self.gating_network(inputs)
         
         if self.training:
             # Use all experts
@@ -84,24 +95,19 @@ class ImageModality(AbstractModality):
 
             return weighted_output
 
-           
-    def modality_to_tensor(self, modality) -> Dict[str, Any]:
-        processed_modality = modality.copy()
-
-        image = modality["value"]
-        if isinstance(modality["value"], dict):
-            image = Image.open(io.BytesIO(image["bytes"]))
-
-        pixel_values = self.image_processor(images=image, return_tensors="pt")["pixel_values"][0]
-        processed_modality["value"] = pixel_values
-        processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry
-
-        return processed_modality
-
     @property
     def embedding_size(self) -> int:
         return self._embedding_size
 
-    @classmethod
-    def from_dict(cls, config_args, **kwargs):
-        return ImageConfig.from_dict(config_args, **kwargs)
+    def freeze_modality_only(self):
+        for params in self.gating_network:
+            params.requires_grad = False
+        
+        for expert in self.experts:
+            for params in expert:
+                params.requires_grad = False
+
+
+    def freeze_projection_only(self):
+        for params in self.projector:
+            params.requires_grad = False

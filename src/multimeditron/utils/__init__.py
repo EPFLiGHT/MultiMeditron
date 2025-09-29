@@ -10,7 +10,6 @@ def get_torch_dtype(dtype: torch.dtype | str) -> torch.dtype:
     if not isinstance(dtype, torch.dtype):
         dtype = getattr(torch, dtype)
         assert isinstance(dtype, torch.dtype)
-
     return dtype
 
 def pydantic_enum[E: enum.Enum](enum_cls: type[E]) -> type[E]:

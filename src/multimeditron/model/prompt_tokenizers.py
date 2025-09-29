@@ -5,7 +5,6 @@ import torch
 import copy
 import numpy as np
 from torch.nn.utils.rnn import pad_sequence
-from transformers.models.deprecated.transfo_xl.tokenization_transfo_xl import tokenize_numbers
 
 from multimeditron.model.constants import (
     NUM_EMBEDDINGS_KEY, CONVERSATIONS_KEY, TEXT_KEY,
@@ -288,9 +287,6 @@ class Llama3PromptTokenizer(PromptTokenizer):
                            modalities: List[List[Dict[str, Any]]], 
                            add_eos_token=True, 
                            add_generation_prompt=False) -> List[Dict[str, Any]]:
-
-
-
         # Expand the attachments
         tokenized_results = []
         for conv, mod in zip(conversation, modalities):
@@ -306,7 +302,6 @@ class Llama3PromptTokenizer(PromptTokenizer):
                 modalities_for_message=mod
             )
 
-            
             # Don't want to predict pad tokens
             labels = torch.where(attention_mask == 0, IGNORE_TOKEN_INDEX, input_ids)
 
@@ -325,8 +320,6 @@ class Llama3PromptTokenizer(PromptTokenizer):
 
         return tokenized_results
 
-    
-        
 class ApertusPromptTokenizer(PromptTokenizer):
     def __init__(self, tokenizer: PreTrainedTokenizerBase,
                  modalities_num_embeddings: Dict[str, Optional[int]],
@@ -344,7 +337,6 @@ class ApertusPromptTokenizer(PromptTokenizer):
                                add_eos_token=True, 
                                add_generation_prompt=False,
                                padding=True) -> List[Dict[str, Any]]:
-
 
         tokenized_results = []
 
@@ -412,7 +404,7 @@ def replace_between_tags_v2(tensor, left_tag, right_tag, replace_value=-100):
 
 
 TOKENIZER_MAP = {
-        "llama" : Llama3PromptTokenizer,
-        "apertus" : ApertusPromptTokenizer
+    "llama": Llama3PromptTokenizer,
+    "apertus": ApertusPromptTokenizer
 }
 
