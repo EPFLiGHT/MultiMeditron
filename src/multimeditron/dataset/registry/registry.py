@@ -2,8 +2,15 @@ import abc
 from typing import Dict, Any
 import os
 import numpy as np
+import logging
+from multimeditron.utils import print_warning_once
+
+
+logger = logging.getLogger(__name__)
 
 class ModalityRegistry(abc.ABC):
+    registry_type: str
+
     @abc.abstractmethod
     def check_sample(self, sample: Dict[str, Any]) -> bool:
         ...
@@ -17,25 +24,24 @@ class ModalityRegistry(abc.ABC):
 
     def __enter__(self):
         return self
-
-    def registry_type(self) -> str:
-        if not hasattr(self, 'registry_type'):
-            raise AttributeError(f"Attribute {registry_type} doesn't exist")
-        return self.registry_type
             
 
 def get_registry(registry_type: str) -> ModalityRegistry:
     from multimeditron.dataset.registry.fs_registry import FileSystemImageRegistry
-    from multimeditron.dataset.registry.hdf5_registry import HDF5ImageRegistry
     from multimeditron.dataset.registry.wids_registry import WIDSImageRegistry
 
     match registry_type:
-        case "hdf5":
-            return HDF5ImageRegistry
-
         case "wids":
             return WIDSImageRegistry
+        
+        case "fs":
+            return FileSystemImageRegistry
 
         case _:
+            print_warning_once(
+                f"Unrecognized registry type {registry_type}, current legacy behavior is to use FileSystemImageRegistry. This will raise an error in future versions."
+            )
             return FileSystemImageRegistry
+            # Future versions:
+            # raise ValueError(f"Unrecognized registry type {registry_type}")
 
