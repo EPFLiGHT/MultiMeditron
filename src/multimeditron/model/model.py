@@ -6,8 +6,8 @@ from transformers import PreTrainedModel, PretrainedConfig, AutoModel, AutoConfi
 from transformers.modeling_outputs import CausalLMOutputWithPast
 from dataclasses import dataclass
 
-from multimeditron.model.modalities import BaseModalityProcessor, AutoModality
-from .modalities import BaseModalityConfig, BaseModality, AutoModel
+from multimeditron.model.modalities import BaseModalityProcessor, AutoModality, BaseModalityConfig, BaseModality
+from multimeditron.utils import get_torch_dtype
 from ..utils import get_torch_dtype 
 import logging
 import json
@@ -191,7 +191,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         for modality_config in config.modalities:
             # Retrieve the modality and the number of patches per entry
             modality = AutoModel.from_config(modality_config)
-            processor = AutoProcessor.from_config(modality_config)
+            processor = AutoModality.preprocessor_from_name(modality_config.model_type, modality_config)
 
             # Ensure there is a single modality per type
             if modality_config.modality_type in self.modalities_by_type:
@@ -348,8 +348,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         for modality_name, processed_modality_stack in processed_multimodal_inputs['stacked'].items():
             modality = self._get_modality_by_name(modality_name)
 
-            embedded_modality_stack = modality(
-                processed_modality_stack)
+            embedded_modality_stack = modality(processed_modality_stack)
 
             embedded_tokens[processed_multimodal_inputs['batch_idx'][modality_name],
                             processed_multimodal_inputs['token_range'][modality_name]] = \

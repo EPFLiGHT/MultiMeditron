@@ -1,11 +1,12 @@
-from typing import Optional
-from multimeditron.model.modality_imp import MODALITY_CONFIG_FROM_MODEL_TYPE
 from multimeditron.model.model import MultimodalConfig, MultiModalModelForCausalLM, bootstrap
 from multimeditron.model.data_loader import DataCollatorForMultimodal
 from multimeditron.train.trainer import MultimodalTrainer, TRAINING_MAPPING
 from multimeditron.profiling import NvtxAnnotationCallback
 from transformers import AutoTokenizer, TrainingArguments
 from datasets import concatenate_datasets, load_dataset, load_from_disk
+from multimeditron.model.modalities import AutoModality
+from multimeditron.dataset.loader import AutoModalityLoader
+from multimeditron.model.model import MultiModalModelForCausalLM, MultimodalConfig
 from tqdm import tqdm
 import torch
 import os
@@ -82,10 +83,14 @@ def train(config: str,
     # Get modalities from configuration
     modalities_config = []
     for modality in config_dict["modalities"]:
-        config_cls = MODALITY_CONFIG_FROM_MODEL_TYPE[modality["model_type"]]
-        modalities_config.append(config_cls(**modality["config"]))
-    
-    
+        modalities_config.append(AutoModality.config_from_dict(modality))
+
+    modalities_loader = dict()
+    for loader in config_dict["loaders"]:
+        loader_type = loader.pop("loader_type")
+        modality_type = loader.pop("modality_type")
+        modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader)
+
     import deepspeed
     with deepspeed.zero.Init(dtype=torch.bfloat16):
         if config_dict.get("base_model", None) is None:
@@ -119,6 +124,7 @@ def train(config: str,
                 padding="longest",
                 tokenizer=tokenizer, 
                 modality_processors=processors,
+                modality_loaders=modalities_loader,
                 tokenizer_type=config_dict["tokenizer_type"],
                 attachment_token_idx=attachment_token_idx,
                 max_length=config_dict.get("max_length", None),

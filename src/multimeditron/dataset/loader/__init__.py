@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List
-from multimeditron.model.prompt_tokenizers import MODALITIES_KEY, MODALITIES_TYPE_KEY
+from multimeditron.model.constants import MODALITIES_KEY, MODALITY_TYPE_KEY
 
 
 class BaseModalityLoader(ABC):
@@ -30,9 +30,9 @@ class BaseModalityLoader(ABC):
 
         # Add additional kwargs to modalities
         for modality in sample[MODALITIES_KEY]:
-            modality_loader = loaders.get(modality[MODALITIES_TYPE_KEY], None)
+            modality_loader = loaders.get(modality[MODALITY_TYPE_KEY], None)
             if modality_loader is None:
-                raise ValueError(f"Modality loader for type '{modality[MODALITIES_TYPE_KEY]}' not found.")
+                raise ValueError(f"Modality loader for type '{modality[MODALITY_TYPE_KEY]}' not found.")
 
             modality_preprocessed = modality.copy()
             modality_preprocessed["value"] = modality_loader(modality)
@@ -51,12 +51,11 @@ class AutoModalityLoader:
         def decorator(cls):
             if not issubclass(cls, BaseModalityLoader):
                 raise ValueError(f"Class {cls.__name__} must inherit from AbstractModalityLoader to be registered.")
-            modality_type = cls.name
-            if modality_type in c._registry:
-                raise ValueError(f"Modality type '{modality_type}' is already registered.")
+            if name in c._registry:
+                raise ValueError(f"Modality type '{name}' is already registered.")
 
             setattr(cls, "name", name)
-            c._registry[modality_type] = cls
+            c._registry[name] = cls
 
             return cls
         return decorator

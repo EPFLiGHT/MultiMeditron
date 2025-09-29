@@ -1,16 +1,13 @@
-from torch.utils.data import Dataset, IterableDataset
-from typing import Dict, List, Any, Optional, Union, Iterator
+from typing import Dict, List, Any, Optional, Union
 from transformers import PreTrainedTokenizerBase
 from transformers.data.data_collator import DataCollatorMixin
 from dataclasses import dataclass
 # from multimeditron.model.modality import ModalityWithProjection
+from multimeditron.dataset.loader import BaseModalityLoader
 from multimeditron.model.modalities import BaseModalityProcessor
-from multimeditron.dataset.preprocessor.modality_preprocessor import SamplePreprocessor
-from multimeditron.utils import pydantic_enum
-from enum import IntEnum, auto
+from multimeditron.dataset.preprocessor import SamplePreprocessor
 import torch
-from multimeditron.model.prompt_tokenizers import MODALITIES_KEY, NUM_EMBEDDINGS_KEY
-from torch.nn.utils.rnn import pad_sequence
+from multimeditron.model.constants import MODALITIES_KEY, MODALITY_TYPE_KEY, MODALITY_VALUE_KEY
 
 IGNORE_TOKEN_INDEX = -100  # This value is hardcoded in the transformers library
 
@@ -18,6 +15,7 @@ IGNORE_TOKEN_INDEX = -100  # This value is hardcoded in the transformers library
 class DataCollatorForMultimodal(DataCollatorMixin):
     tokenizer: PreTrainedTokenizerBase
     modality_processors: Dict[str, BaseModalityProcessor]
+    modality_loaders: Dict[str, BaseModalityLoader]
     attachment_token_idx: int
     tokenizer_type: str
     padding: Union[bool, str] = True
@@ -56,7 +54,10 @@ class DataCollatorForMultimodal(DataCollatorMixin):
             modality_processors=self.modality_processors,
             attachment_token_idx=self.attachment_token_idx,
         )
-        
+
+        # Load modality values
+        raw_features = [BaseModalityLoader.merge_modalities(f, self.modality_loaders) for f in raw_features]
+
         processed_samples = modality_preprocessor.process_modality_to_tensor(raw_features)
         features = modality_preprocessor.tokenize(processed_samples, add_generation_prompt=self.add_generation_prompt)
 
@@ -68,18 +69,17 @@ class DataCollatorForMultimodal(DataCollatorMixin):
         for key in text_features.keys():
             if key in stackable_features:
                 text_features[key] = torch.stack(text_features[key])
-
         batch.update(text_features)
 
         # Create modality stacks and compute batch indices/token ranges
-        modality_types = set(pm['type'] for sample in features for pm in sample["modalities"])
+        modality_types = set(pm[MODALITY_TYPE_KEY] for sample in features for pm in sample[MODALITIES_KEY])
         multimodal_multi_idx = {modality_type: [] for modality_type in modality_types}
         multimodal_stacks = {modality_type: [] for modality_type in modality_types}
 
         for batch_idx, sample in enumerate(features):
-            for sample_idx, pm in enumerate(sample["modalities"]):
-                multimodal_multi_idx[pm['type']].append((batch_idx, pm['token_range']))
-                multimodal_stacks[pm['type']].append(pm["value"])
+            for pm in sample[MODALITIES_KEY]:
+                multimodal_multi_idx[pm[MODALITY_TYPE_KEY]].append((batch_idx, pm['token_range']))
+                multimodal_stacks[pm[MODALITY_TYPE_KEY]].append(pm[MODALITY_VALUE_KEY])
 
         multimodal_batch_idx = {}
         multimodal_token_range = {}
@@ -95,7 +95,6 @@ class DataCollatorForMultimodal(DataCollatorMixin):
     
         for modality_type, stack in multimodal_stacks.items():
             multimodal_stacked[modality_type] = stack
-
 
         batch['processed_multimodal_inputs'] = {
             'batch_idx': multimodal_batch_idx,

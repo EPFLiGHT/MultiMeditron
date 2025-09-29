@@ -1,8 +1,8 @@
 from multimeditron.model.prompt_tokenizers import NUM_EMBEDDINGS_KEY
 from multimeditron.model.modalities.base import BaseModality, BaseModalityConfig, AutoModality, BaseModalityProcessor
-from multimeditron.model.projectors.base import AutoProjectorLoader
+from multimeditron.model.projectors.mlp import MLPProjector
 import torch
-from transformers import AutoImageProcessor, AutoModel
+from transformers import AutoImageProcessor, AutoModel, AutoConfig
 
 from typing import Dict, Any
 
@@ -10,6 +10,7 @@ from typing import Dict, Any
 class ImageConfig(BaseModalityConfig):
     def __init__(
         self,
+        hidden_size: int = 1024,
         max_batch_size: int = 32,
         clip_name: str = "openai/clip-vit-large-patch14",
         projection_type: str = "mlp",
@@ -18,6 +19,7 @@ class ImageConfig(BaseModalityConfig):
         super().__init__(
             max_batch_size=max_batch_size,
             modality_type="image",
+            hidden_size=hidden_size,
             kwargs=kwargs
         )
 
@@ -28,7 +30,12 @@ class ImageConfig(BaseModalityConfig):
 class ImageProcessor(BaseModalityProcessor):
     def __init__(self, config):
         super().__init__(config)
+        assert config.clip_name is not None, "clip_name must be specified in the config"
+
         self.image_processor = AutoImageProcessor.from_pretrained(config.clip_name)
+        
+        feature_extractor_config = AutoConfig.from_pretrained(config.clip_name, trust_remote_code=True)
+        self._num_patches_per_entry = (feature_extractor_config.vision_config.image_size // feature_extractor_config.vision_config.patch_size) ** 2
 
     def process(self, modality: Dict[str, Any]):
         processed_modality = modality.copy()
@@ -49,12 +56,13 @@ class ImageModality(BaseModality):
         super().__init__(config)
 
         self.vision_tower_name = config.clip_name
+        assert self.vision_tower_name is not None, "vision_tower_name must be specified in the config"
 
         self.feature_extractor = AutoModel.from_pretrained(self.vision_tower_name, trust_remote_code=True)
         self._embedding_size = self.feature_extractor.vision_embed_dim
         self._num_patches_per_entry = (self.feature_extractor.vision_model.config.image_size // self.feature_extractor.vision_model.config.patch_size) ** 2
 
-        self.projector = AutoProjectorLoader.from_model_type(config.projection_type)
+        self.projector = MLPProjector(self._embedding_size, config.hidden_size, dtype=self.dtype)
 
     def __call__(self, inputs) -> torch.FloatTensor:
         inputs = torch.stack(inputs, dim=0)
@@ -74,9 +82,9 @@ class ImageModality(BaseModality):
         return ImageConfig.from_dict(config_args, **kwargs)
 
     def freeze_modality_only(self):
-        for parameters in self.feature_extractor:
+        for parameters in self.feature_extractor.parameters():
             parameters.requires_grad = False
 
     def freeze_projection_only(self):
-        for parameters in self.projector:
+        for parameters in self.projector.parameters():
             parameters.requires_grad = False

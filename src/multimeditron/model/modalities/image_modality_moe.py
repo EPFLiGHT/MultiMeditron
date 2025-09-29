@@ -1,6 +1,6 @@
 from multimeditron.model.prompt_tokenizers import NUM_EMBEDDINGS_KEY
 from multimeditron.model.modalities.base import AutoModality, BaseModality, BaseModalityConfig, BaseModalityProcessor
-from multimeditron.model.projectors.base import AutoProjectorLoader
+from multimeditron.model.projectors.mlp import MLPProjector
 import torch
 from transformers import AutoModel
 from typing import Dict, Any, List
@@ -9,6 +9,7 @@ from typing import Dict, Any, List
 class MOEImageConfig(BaseModalityConfig):
     def __init__(
         self,
+        hidden_size: int = 1024,
         max_batch_size: int = 32,
         use_bias_proj: bool = True,
         expert_clip_names: List[str] = [
@@ -24,8 +25,10 @@ class MOEImageConfig(BaseModalityConfig):
             max_batch_size=max_batch_size,
             use_bias_proj=use_bias_proj,
             modality_type="image",
+            hidden_size=hidden_size,
             kwargs=kwargs,
         )
+        assert gating_path is not None, "gating_path must be specified in the config"
 
         self.expert_clip_names = expert_clip_names
         self.top_k_experts = top_k_experts
@@ -47,7 +50,7 @@ class MOEImageProcessor(BaseModalityProcessor):
 
         return processed_modality
 
-@AutoModality.register("meditron_clip_moe")
+@AutoModality.register("moe_meditron_clip")
 class MOEImageModality(BaseModality):
     config_class = MOEImageConfig
     preprocessor_class = MOEImageProcessor
@@ -71,7 +74,7 @@ class MOEImageModality(BaseModality):
         self.gating_network = AutoModel.from_pretrained(config.gating_path)
         self.image_processor = self.gating_network.processor
 
-        self.projector = AutoProjectorLoader.from_model_type(config.model_type)
+        self.projector = MLPProjector(self._embedding_size, config.hidden_size)
 
     def forward(self, inputs) -> torch.FloatTensor:
         device = next(self.experts[0].parameters()).device
@@ -100,14 +103,14 @@ class MOEImageModality(BaseModality):
         return self._embedding_size
 
     def freeze_modality_only(self):
-        for params in self.gating_network:
+        for params in self.gating_network.parameters():
             params.requires_grad = False
         
         for expert in self.experts:
-            for params in expert:
+            for params in expert.parameters():
                 params.requires_grad = False
 
 
     def freeze_projection_only(self):
-        for params in self.projector:
+        for params in self.projector.parameters():
             params.requires_grad = False

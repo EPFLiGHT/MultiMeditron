@@ -7,7 +7,7 @@ from transformers import AutoModel, AutoConfig, AutoProcessor, PretrainedConfig,
 
 class BaseModalityConfig(PretrainedConfig):
     def __init__(self,
-                 hidden_size: int,
+                 hidden_size: int = 1024,
                  modality_type: Optional[str] = None,
                  max_batch_size: int = 32,
                  **kwargs):
@@ -60,19 +60,6 @@ class BaseModality(ABC, PreTrainedModel):
         """
         return None
 
-    @abstractmethod
-    def modality_to_tensor(self, modality: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Abstract method to convert a modality into a tensor representation.
-
-        Args:
-            modality (Dict[str, Any]): Input modality data.
-
-        Returns:
-            Dict[str, Any]: Tensor representation of the modality.
-        """
-        ...
-
     def get_config(self) -> BaseModalityConfig:
         """
         Retrieve the configuration object associated with the modality.
@@ -81,17 +68,6 @@ class BaseModality(ABC, PreTrainedModel):
             ModalityConfig: The configuration object.
         """
         return self.config
-
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        """
-        Name of the modality.
-
-        Returns:
-            str: The name of the modality.
-        """
-        ...
     
     @abstractmethod
     def freeze_projection_only(self):
@@ -151,13 +127,13 @@ class AutoModality:
     def from_pretrained(c, *args, **kwargs) -> BaseModality:
         model = AutoModel.from_pretrained(*args, **kwargs)
         if not isinstance(model, BaseModality):
-            raise ValueError(f"Model loaded is not an instance of BaseModality. Got {type(model)}")
+            raise ValueError(f"Model loaded is not an instance of BaseModality. Got {type(model)}. Available values are {list(c._registry.keys())}")
         return model
     
     @classmethod
     def preprocessor_from_name(c, name: str, *args, **kwargs) -> BaseModalityProcessor:
         if name not in c._registry:
-            raise ValueError(f"Modality name '{name}' is not registered.")
+            raise ValueError(f"Modality name '{name}' is not registered. Available values are {list(c._registry.keys())}")
         preprocessor_class = c._registry[name].preprocessor_class
         assert preprocessor_class is not None, f"Modality class '{name}' does not have a preprocessor_class defined."
         return preprocessor_class(*args, **kwargs)
@@ -166,7 +142,7 @@ class AutoModality:
     def config_from_dict(c, config: dict, **kwargs) -> BaseModalityConfig:
         assert "model_type" in config, "Config dictionary must contain a 'model_type' key."
         if config["model_type"] not in c._registry:
-            raise ValueError(f"Modality name '{config['model_type']}' is not registered.")
+            raise ValueError(f"Modality name '{config['model_type']}' is not registered. Available values are {list(c._registry.keys())}")
         config_class = c._registry[config["model_type"]].config_class
         assert config_class is not None, f"Modality class '{config['model_type']}' does not have a config_class defined."
         return config_class.from_dict(config, **kwargs)

@@ -11,8 +11,8 @@ warnings.simplefilter("error", PIL.Image.DecompressionBombWarning)
 
 @AutoModalityLoader.register("raw-image")
 class RawImageLoader(BaseModalityLoader):
-    def __init__(self, base_path: Union[str, pathlib.Path]):
-        self.base_path = base_path
+    def __init__(self):
+        super().__init__()
 
     def load(self, sample: Dict[str, Any]) -> np.ndarray:
         image_bytes = sample["value"]["bytes"]

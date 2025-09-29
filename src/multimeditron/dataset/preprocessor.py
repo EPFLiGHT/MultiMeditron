@@ -13,10 +13,10 @@ class SamplePreprocessor:
         attachment_token_idx: int,
     ):
         self.modalities_num_embeddings = None
-        if modality_processors is not None:
-            self.modalities_num_embeddings = {
-                mod_name: processor.num_patches_per_entry for mod_name, processor in modality_processors.items()
-            }
+        # if modality_processors is not None:
+        #     self.modalities_num_embeddings = {
+        #         mod_name: processor.config.num_patches_per_entry for mod_name, processor in modality_processors.items()
+        #     }
         
         tokenizer_cls = TOKENIZER_MAP[tokenizer_type]
 

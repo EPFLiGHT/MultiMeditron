@@ -11,6 +11,7 @@ warnings.simplefilter("error", PIL.Image.DecompressionBombWarning)
 @AutoModalityLoader.register("fs-image")
 class FileSystemImageLoader(BaseModalityLoader):
     def __init__(self, base_path: Union[str, pathlib.Path]):
+        super().__init__()
         self.base_path = base_path
 
     def load(self, sample: Dict[str, Any]) -> np.ndarray:

@@ -1,19 +1,16 @@
-from transformers import PreTrainedModel, PretrainedConfig
 import torch.nn as nn
 import torch
 
-from .base import AbstractProjector
-
-class MLPProjector(AbstractProjector):
-    def __init__(self, modality_size: int, projected_size: int):
+class MLPProjector(nn.Module):
+    def __init__(self, modality_size: int, projected_size: int, dtype: torch.dtype = torch.bfloat16):
+        super().__init__()
         self.projection = nn.Sequential(
-                nn.Linear(modality_size, modality_size, dtype=self.dtype),
-                nn.GELU(),
-                nn.Linear(modality_size, projected_size, dtype=self.dtype),
-                nn.GELU(),
-                nn.Linear(projected_size, projected_size, dtype=self.dtype),
+            nn.Linear(modality_size, modality_size, dtype=dtype),
+            nn.GELU(),
+            nn.Linear(modality_size, projected_size, dtype=dtype),
+            nn.GELU(),
+            nn.Linear(projected_size, projected_size, dtype=dtype),
         )
-
 
     def forward(self, hidden_state: torch.Tensor) -> torch.FloatTensor:
         """
