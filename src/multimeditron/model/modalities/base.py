@@ -6,11 +6,30 @@ import torch
 from transformers import AutoModel, AutoConfig, AutoProcessor, PretrainedConfig, PreTrainedModel
 
 class BaseModalityConfig(PretrainedConfig):
+    """
+    Configuration class for defining modality parameters.
+
+    This configuration is used as the base for all modality-specific configurations.
+
+    Attributes:
+        hidden_size (int): The size of the hidden layers' representation.
+        modality_type (Optional[str]): The type of modality (e.g., 'ClipImage', 'ClipAudio').
+        max_batch_size (int): The maximum batch size supported by the modality.
+    """
     def __init__(self,
                  hidden_size: int = 1024,
                  modality_type: Optional[str] = None,
                  max_batch_size: int = 32,
                  **kwargs):
+        """
+        Initializes the BaseModalityConfig.
+
+        Args:
+            hidden_size (int): The size of the hidden layers' representation. Default is 1024.
+            modality_type (Optional[str]): The type of modality (e.g., 'ClipImage', 'ClipAudio'). Default is None.
+            max_batch_size (int): The maximum batch size supported by the modality. Default is 32.
+            **kwargs: Additional keyword arguments passed to the PretrainedConfig initializer.
+        """
         self.modality_type = modality_type  # e.g., 'ClipImage', 'ClipAudio'
         self.max_batch_size = max_batch_size
         self.hidden_size = hidden_size
@@ -18,20 +37,72 @@ class BaseModalityConfig(PretrainedConfig):
         super().__init__(**kwargs)
 
 class BaseModalityProcessor(ABC, ProcessorMixin):
+    """
+    Abstract base class for modality processors.
+
+    The BaseModalityProcessor defines a standard interface for processing inputs of a specific modality.
+    Subclasses must implement the abstract `process` method.
+
+    Attributes:
+        config (BaseModalityConfig): Configuration object for the processor.
+    """
     def __init__(self, config: BaseModalityConfig):
+        """
+        Initializes the BaseModalityProcessor with the given configuration.
+
+        Args:
+            config (BaseModalityConfig): Configuration object for the processor.
+        """
         self.config = config
 
     @abstractmethod
-    def process(self, inputs: Dict[str, Any]) -> torch.Tensor:
+    def process(self, modality: Dict[str, Any]) -> torch.Tensor:
+        """
+        Abstract method for processing modality.
+
+        Args:
+            modality (Dict[str, Any]): Input data to be processed.
+
+        Returns:
+            torch.Tensor: Processed tensor.
+        """
         raise NotImplementedError
-    
-    def __call__(self, inputs: Dict[str, Any]) -> torch.Tensor:
-        return self.process(inputs)
+
+    def __call__(self, modality: Dict[str, Any]) -> torch.Tensor:
+        """
+        Makes the processor callable, processing the given modality.
+
+        Args:
+            modality (Dict[str, Any]): Input data to be processed.
+
+        Returns:
+            torch.Tensor: Processed tensor.
+        """
+        return self.process(modality)
 
 class BaseModality(ABC, PreTrainedModel):
+    """
+    Abstract base class for modality models.
+
+    This base class defines the common interface and attributes for all modality models.
+    Subclasses must implement the abstract methods `embedding_size`, `freeze_projection_only`, and `freeze_modality_only`.
+
+    Attributes:
+        config (BaseModalityConfig): Configuration object for the modality.
+        config_class (type): Class reference for the configuration.
+        tokenizer (Optional[Any]): Tokenizer associated with the model, if any.
+        _dtype (torch.dtype): Data type for the model's tensors.
+    """
     preprocessor_class: type = None
 
     def __init__(self, config: BaseModalityConfig, dtype: torch.dtype = torch.bfloat16):
+        """
+        Initializes the BaseModality with the given configuration and data type.
+
+        Args:
+            config (BaseModalityConfig): Configuration object for the modality.
+            dtype (torch.dtype): Data type for the model's tensors. Default is torch.bfloat16.
+        """
         super().__init__(config)
 
         self.config = config
@@ -99,6 +170,15 @@ class BaseModality(ABC, PreTrainedModel):
 
 
 class AutoModality:
+    """
+    A class for managing modality registration and retrieval.
+
+    The AutoModality class provides a centralized registry for modality subclasses. It handles the registration of modality classes,
+    and allows users to retrieve pretrained models, processors, and configurations for specific modalities.
+
+    Attributes:
+        _registry (dict): Internal dictionary storing registered modality classes, indexed by name.
+    """
     _registry = {}
 
     def __init__(self):

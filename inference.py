@@ -5,11 +5,9 @@ from transformers import AutoTokenizer
 import logging
 import os
 
-from multimeditron.dataset.preprocessor import modality_preprocessor
-from multimeditron.dataset.registry.fs_registry import FileSystemImageRegistry
 from multimeditron.model.model import MultiModalModelForCausalLM 
-from multimeditron.dataset.preprocessor.modality_preprocessor import ModalityRetriever, SamplePreprocessor
 from multimeditron.model.data_loader import DataCollatorForMultimodal
+from multimeditron.dataset.loader import FileSystemImageLoader
 import argparse
 
 default_model = "ClosedMeditron/Mulimeditron-Proj-CLIP-generalist"
@@ -80,15 +78,13 @@ sample3 = {
 
 
 
-modality_retriever = ModalityRetriever(registry=FileSystemImageRegistry(base_path=os.getcwd()))
-sample1 = modality_retriever.merge_modality_with_sample(sample1)
-sample2 = modality_retriever.merge_modality_with_sample(sample2)
-sample3 = modality_retriever.merge_modality_with_sample(sample3)
+loader = FileSystemImageLoader(base_path=os.getcwd())
 
 collator = DataCollatorForMultimodal(
         tokenizer=tokenizer,
         tokenizer_type="llama",
-        modality_processors=model.processors(), 
+        modality_processors=model.processors(),
+        modality_loaders={"image" : loader},
         attachment_token_idx=attachment_token_idx,
         add_generation_prompt=True
 )

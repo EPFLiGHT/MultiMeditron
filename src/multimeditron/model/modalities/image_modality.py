@@ -8,6 +8,21 @@ from typing import Dict, Any
 
 
 class ImageConfig(BaseModalityConfig):
+    """
+    Configuration class for the Image Modality. Extends the BaseModalityConfig.
+
+    Attributes:
+        hidden_size (int): Dimension of the hidden layer for the projection network.
+        max_batch_size (int): Maximum batch size for processing.
+        clip_name (str): Name of the CLIP model to use as the feature extractor.
+        projection_type (str): Type of projection network (e.g., "mlp").
+
+    Example:
+        >>> config = ImageConfig(hidden_size=512, max_batch_size=16, clip_name="openai/clip-vit-base-patch32")
+        >>> print(config.clip_name)
+        openai/clip-vit-base-patch32
+    """
+
     def __init__(
         self,
         hidden_size: int = 4096,
@@ -16,6 +31,16 @@ class ImageConfig(BaseModalityConfig):
         projection_type: str = "mlp",
         **kwargs
     ):
+        """
+        Initializes the ImageConfig.
+
+        Args:
+            hidden_size (int): Dimension of the hidden layer for the projection network.
+            max_batch_size (int): Maximum batch size for processing.
+            clip_name (str): Name of the CLIP model to use as the feature extractor.
+            projection_type (str): Type of projection network (e.g., "mlp").
+            **kwargs: Additional keyword arguments.
+        """
         super().__init__(
             max_batch_size=max_batch_size,
             modality_type="image",
@@ -28,23 +53,49 @@ class ImageConfig(BaseModalityConfig):
 
 
 class ImageProcessor(BaseModalityProcessor):
+    """
+    A processor for handling image data. It uses a pretrained CLIP model for processing image inputs into tensors.
+
+    Attributes:
+        image_processor (AutoImageProcessor): An instance of a pretrained image processor.
+        _num_patches_per_entry (int): The number of patches per image entry, based on image and patch size.
+    """
+
     def __init__(self, config):
+        """
+        Initializes the ImageProcessor with the specified configuration.
+
+        Args:
+            config (ImageConfig): The configuration object specifying CLIP model details and other parameters.
+
+        Raises:
+            AssertionError: If `clip_name` is not specified in the configuration.
+        """
         super().__init__(config)
         assert config.clip_name is not None, "clip_name must be specified in the config"
 
         self.image_processor = AutoImageProcessor.from_pretrained(config.clip_name)
-        
+
         feature_extractor_config = AutoConfig.from_pretrained(config.clip_name, trust_remote_code=True)
         self._num_patches_per_entry = (feature_extractor_config.vision_config.image_size // feature_extractor_config.vision_config.patch_size) ** 2
 
-    def process(self, modality: Dict[str, Any]):
+    def process(self, modality: Dict[str, Any]) -> torch.Tensor:
+        """
+        Processes the input image modality into a tensor suitable for model consumption.
+
+        Args:
+            modality (Dict[str, Any]): The input image data, where "value" is the key for image data.
+
+        Returns:
+            torch.Tensor: The processed tensor representation of the image.
+        """
         processed_modality = modality.copy()
         image = modality["value"]
 
         processed_modality["value"] = self.image_processor(images=image, return_tensors="pt")["pixel_values"][0]
         processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry
 
-        return processed_modality
+        return processed_modality["value"]
 
 
 @AutoModality.register("meditron_clip")

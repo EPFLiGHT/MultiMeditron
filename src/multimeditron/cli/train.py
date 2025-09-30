@@ -10,14 +10,13 @@ from multimeditron.model.model import MultiModalModelForCausalLM, MultimodalConf
 from tqdm import tqdm
 import torch
 import os
-import argparse
 import yaml
 from PIL import PngImagePlugin
 from datasets import config as datasets_config
 import wandb
 import multiprocessing
 import click
-from multimeditron.cli import EPILOG, CONFIG_PATH, main_cli
+from multimeditron.cli import EPILOG, main_cli
 import logging
 
 logger = logging.getLogger(__name__)
@@ -121,13 +120,11 @@ def train(config: str,
             model=model,
             args=training_args,
             data_collator=DataCollatorForMultimodal(
-                padding="longest",
                 tokenizer=tokenizer, 
                 modality_processors=processors,
                 modality_loaders=modalities_loader,
                 tokenizer_type=config_dict["tokenizer_type"],
                 attachment_token_idx=attachment_token_idx,
-                max_length=config_dict.get("max_length", None),
             ),
             train_dataset=dataset,
             training_mode=TRAINING_MAPPING[config_dict["training_mode"]],
