@@ -122,7 +122,7 @@ class AutoModalityLoader:
         raise RuntimeError("AutoModalityLoader should not be instantiated directly. Please use the 'from_name' method.")
 
     @classmethod
-    def register(cls, name: str):
+    def register(c, name: str):
         """
         Register a modality loader class under a specific name.
 
@@ -135,16 +135,16 @@ class AutoModalityLoader:
         Raises:
             ValueError: If the class is not a subclass of `BaseModalityLoader` or if the name is already registered.
         """
-        def decorator(cls):
-            if not issubclass(cls, BaseModalityLoader):
-                raise ValueError(f"Class {cls.__name__} must inherit from AbstractModalityLoader to be registered.")
-            if name in cls._registry:
+        def decorator(clazz):
+            if not issubclass(clazz, BaseModalityLoader):
+                raise ValueError(f"Class {clazz.__name__} must inherit from AbstractModalityLoader to be registered.")
+            if name in c._registry:
                 raise ValueError(f"Modality type '{name}' is already registered.")
 
-            setattr(cls, "name", name)
-            cls._registry[name] = cls
+            setattr(clazz, "name", name)
+            c._registry[name] = clazz
 
-            return cls
+            return clazz
         return decorator
     
     @classmethod

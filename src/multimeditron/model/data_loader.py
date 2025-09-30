@@ -32,6 +32,7 @@ class DataCollatorForMultimodal(DataCollatorMixin):
     attachment_token_idx: int
     tokenizer_type: str
     add_generation_prompt: bool = False
+    return_tensors: str = "pt"
 
     def torch_call(self, raw_features: List[Dict[str, Any]]) -> Dict[str, Any]:
         """

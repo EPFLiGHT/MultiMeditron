@@ -79,7 +79,7 @@ class ImageProcessor(BaseModalityProcessor):
         feature_extractor_config = AutoConfig.from_pretrained(config.clip_name, trust_remote_code=True)
         self._num_patches_per_entry = (feature_extractor_config.vision_config.image_size // feature_extractor_config.vision_config.patch_size) ** 2
 
-    def process(self, modality: Dict[str, Any]) -> torch.Tensor:
+    def process(self, modality: Dict[str, Any]) -> Dict[str, Any]:
         """
         Processes the input image modality into a tensor suitable for model consumption.
 
@@ -95,7 +95,7 @@ class ImageProcessor(BaseModalityProcessor):
         processed_modality["value"] = self.image_processor(images=image, return_tensors="pt")["pixel_values"][0]
         processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry
 
-        return processed_modality["value"]
+        return processed_modality
 
 
 @AutoModality.register("meditron_clip")

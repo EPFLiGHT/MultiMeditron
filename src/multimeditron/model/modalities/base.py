@@ -56,7 +56,7 @@ class BaseModalityProcessor(ABC, ProcessorMixin):
         self.config = config
 
     @abstractmethod
-    def process(self, modality: Dict[str, Any]) -> torch.Tensor:
+    def process(self, modality: Dict[str, Any]) -> Dict[str, Any]:
         """
         Abstract method for processing modality.
 
@@ -64,11 +64,11 @@ class BaseModalityProcessor(ABC, ProcessorMixin):
             modality (Dict[str, Any]): Input data to be processed.
 
         Returns:
-            torch.Tensor: Processed tensor.
+            Dict[str, Any]: The original sample with the processed modality
         """
         raise NotImplementedError
 
-    def __call__(self, modality: Dict[str, Any]) -> torch.Tensor:
+    def __call__(self, modality: Dict[str, Any]) -> Dict[str, Any]:
         """
         Makes the processor callable, processing the given modality.
 
@@ -76,7 +76,7 @@ class BaseModalityProcessor(ABC, ProcessorMixin):
             modality (Dict[str, Any]): Input data to be processed.
 
         Returns:
-            torch.Tensor: Processed tensor.
+            Dict[str, Any]: The original sample with the processed modality
         """
         return self.process(modality)
 
