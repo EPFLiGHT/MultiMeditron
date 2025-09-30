@@ -10,7 +10,7 @@ from typing import Dict, Any
 class ImageConfig(BaseModalityConfig):
     def __init__(
         self,
-        hidden_size: int = 1024,
+        hidden_size: int = 4096,
         max_batch_size: int = 32,
         clip_name: str = "openai/clip-vit-large-patch14",
         projection_type: str = "mlp",
