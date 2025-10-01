@@ -8,7 +8,6 @@ from dataclasses import dataclass
 
 from multimeditron.model.modalities import BaseModalityProcessor, AutoModality, BaseModalityConfig, BaseModality
 from multimeditron.utils import get_torch_dtype
-from ..utils import get_torch_dtype 
 import logging
 import json
 import tempfile
