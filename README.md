@@ -53,12 +53,13 @@ sample = {
     "modalities" : modalities
 }
 
-modality_retriever = ModalityRetriever(registry=FileSystemImageRegistry(base_path=os.getcwd()))
+loader = FileSystemImageLoader(base_path=os.getcwd())
 
 collator = DataCollatorForMultimodal(
         tokenizer=tokenizer,
         tokenizer_type="llama",
-        modality_processors=model.processors(), 
+        modality_processors=model.processors(),
+        modality_loaders={"image" : loader},
         attachment_token_idx=attachment_token_idx,
         add_generation_prompt=True
 )
