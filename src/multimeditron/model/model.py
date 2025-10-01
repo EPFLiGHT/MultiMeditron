@@ -108,11 +108,6 @@ class MultimodalConfig(PretrainedConfig):
         modalities = []
         for modality_dict in modalities_dict_list:
             modalities.append(AutoModality.config_from_dict(modality_dict))
-            # Hacky stuff
-            # with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as tmp_file:
-            #     json.dump(modality_dict, tmp_file,
-            #               ensure_ascii=False, indent=2)
-            # modalities.append(AutoConfig.from_pretrained(tmp_file.name))
 
         if kwargs["return_unused_kwargs"]:
             config, kwargs = super().from_dict(config_dict, **kwargs)
@@ -292,8 +287,6 @@ class MultiModalModelForCausalLM(PreTrainedModel):
             params.requires_grad = True
 
     def processors(self) -> Dict[str, BaseModalityProcessor]:
-        # TODO: Fixme
-        # return {modality.get_config().modality_type: modality for modality in self.modalities}
         return self.processors_by_type
 
     def get_model(self):

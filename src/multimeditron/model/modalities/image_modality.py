@@ -1,4 +1,4 @@
-from multimeditron.model.prompt_tokenizers import NUM_EMBEDDINGS_KEY
+from multimeditron.model.constants import NUM_EMBEDDINGS_KEY, MODALITY_VALUE_KEY
 from multimeditron.model.modalities.base import BaseModality, BaseModalityConfig, AutoModality, BaseModalityProcessor
 from multimeditron.model.projectors.mlp import MLPProjector
 import torch
@@ -90,9 +90,9 @@ class ImageProcessor(BaseModalityProcessor):
             torch.Tensor: The processed tensor representation of the image.
         """
         processed_modality = modality.copy()
-        image = modality["value"]
+        image = modality[MODALITY_VALUE_KEY]
 
-        processed_modality["value"] = self.image_processor(images=image, return_tensors="pt")["pixel_values"][0]
+        processed_modality[MODALITY_VALUE_KEY] = self.image_processor(images=image, return_tensors="pt")["pixel_values"][0]
         processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry
 
         return processed_modality
