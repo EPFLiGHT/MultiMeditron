@@ -5,7 +5,7 @@ from dataclasses import dataclass
 # from multimeditron.model.modality import ModalityWithProjection
 from multimeditron.dataset.loader import BaseModalityLoader
 from multimeditron.model.modalities import BaseModalityProcessor
-from multimeditron.dataset.preprocessor import SamplePreprocessor
+from multimeditron.dataset.sample_preprocessor import SamplePreprocessor
 import torch
 from multimeditron.model.constants import MODALITIES_KEY, MODALITY_TYPE_KEY, MODALITY_VALUE_KEY, IGNORE_TOKEN_INDEX
 
