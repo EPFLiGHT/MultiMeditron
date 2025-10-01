@@ -86,9 +86,10 @@ def train(config: str,
 
     modalities_loader = dict()
     for loader in config_dict["loaders"]:
-        loader_type = loader.pop("loader_type")
-        modality_type = loader.pop("modality_type")
-        modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader)
+        loader_copy = loader.copy()
+        loader_type = loader_copy.pop("loader_type")
+        modality_type = loader_copy.pop("modality_type")
+        modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader_copy)
 
     import deepspeed
     with deepspeed.zero.Init(dtype=torch.bfloat16):
