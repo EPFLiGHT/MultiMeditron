@@ -16,14 +16,6 @@ class DataCollatorForMultimodal(DataCollatorMixin):
 
     This class is designed to handle datasets containing multiple modalities (e.g., text, images, etc.).
     It processes and collates the data into a format suitable for multimodal model training and inference.
-
-    Attributes:
-        tokenizer (PreTrainedTokenizerBase): The tokenizer used for text processing.
-        modality_processors (Dict[str, BaseModalityProcessor]): A dictionary mapping modality types to their respective processors.
-        modality_loaders (Dict[str, BaseModalityLoader]): A dictionary mapping modality types to their loaders for handling specific data types.
-        attachment_token_idx (int): The token index used for attaching modalities to the input sequence.
-        tokenizer_type (str): The type of tokenizer used (e.g., llama, apertus).
-        add_generation_prompt (bool, optional): Whether to add a generation prompt to the input. Defaults to False.
     """
 
     tokenizer: PreTrainedTokenizerBase
@@ -48,11 +40,14 @@ class DataCollatorForMultimodal(DataCollatorMixin):
                     Information about additional modalities in the sample. Each modality contains:
                     - type (str): Type of the modality (e.g., 'image', 'audio').
                     - value (Any): Data associated with the modality.
+
                 or:
+
                 - text (str):
                     The text content of the sample.
                 - modalities (List[Dict[str, Any]]):
                     Information about additional modalities in the sample. Each modality contains:
+
                     - type (str): Type of the modality (e.g., 'image', 'audio').
                     - value (Any): Data associated with the modality.
 
@@ -60,24 +55,27 @@ class DataCollatorForMultimodal(DataCollatorMixin):
             Dict[str, Any]:
                 A dictionary structured as follows:
 
-                - input_ids (torch.Tensor):
-                    Batch tensor of tokenized input sequences.
-                - labels (torch.Tensor):
-                    Batch tensor of tokenized labels.
-                - attention_mask (torch.Tensor):
-                    Batch tensor indicating padded positions (0 for padding, 1 otherwise).
-                - position_ids (torch.Tensor):
-                    Batch tensor of position indices for each token in the sequence.
-                - processed_multimodal_inputs (Dict[str, Any]):
+                    - input_ids (torch.Tensor):
+                        Batch tensor of tokenized input sequences.
+                    - labels (torch.Tensor):
+                        Batch tensor of tokenized labels.
+                    - attention_mask (torch.Tensor):
+                        Batch tensor indicating padded positions (0 for padding, 1 otherwise).
+                    - position_ids (torch.Tensor):
+                        Batch tensor of position indices for each token in the sequence.
+                    - processed_multimodal_inputs (Dict[str, Any]):
+
                     Contains processed modality data with keys:
-                    - batch_idx (Dict[str, torch.Tensor]):
-                        Maps modality types to tensors indicating which batch sample each token belongs to.
-                    - token_range (Dict[str, torch.Tensor]):
-                        Maps modality types to tensors specifying the token range for each modality.
-                    - stacked (Dict[str, List[Any]]):
-                        Stores lists of modality values grouped by their types.
+
+                        - batch_idx (Dict[str, torch.Tensor]):
+                            Maps modality types to tensors indicating which batch sample each token belongs to.
+                        - token_range (Dict[str, torch.Tensor]):
+                            Maps modality types to tensors specifying the token range for each modality.
+                        - stacked (Dict[str, List[Any]]):
+                            Stores lists of modality values grouped by their types.
 
         The function performs the following steps:
+
             1. Separates input features by modality.
             2. Loads and processes modality-related data.
             3. Converts lists of modality features into tensors using the modality processors.

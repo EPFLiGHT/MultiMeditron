@@ -3,15 +3,33 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. Placeholder for a cooler banner
+.. image:: _static/light_logo.png
+    :alt: LiGHT logo
+    :align: center
+    :width: 200px
+
 MultiMeditron documentation
-===========================
+###########################
 
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
+🎉 Latest Updates
+=================
 
+2025/09:
+    - First version of the MultiMeditron pipeline!
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+📚 Documentation
+================
+
+* :doc:`Contributor guide </guides/guide>`: Guide for contributing to MultiMeditron and adding new modalities
+* :doc:`Reference manual </modules>`: Full reference manual of all the codebase
+
+.. .. toctree::
+..     :glob:
+..     :maxdepth: 2
+..     :caption: Contents:
+..
+..     guides/guide
+..     modules
+..
 

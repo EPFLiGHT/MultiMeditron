@@ -311,7 +311,6 @@ class MultiModalModelForCausalLM(PreTrainedModel):
     def set_input_embeddings(self, value):
         self.model.set_input_embeddings(value)
 
-
     def embed_modalities_with_text(self, input_ids: torch.Tensor, processed_multimodal_inputs: List[Dict[str, Any]]):
         """
         Embeds multimodal inputs alongside text tokens in a unified embedding space.
@@ -551,11 +550,8 @@ def bootstrap(config, tokenizer, attachment_token_idx, modalities_config):
         - LLM is initialized with the pretrained weights
         - The modalities embedders are initialized with pretrained weights
         - The modalities projector are initialized randomly
-
-    Args:
-        
-
     """
+
     multimodal_config = MultimodalConfig(
         hidden_size=config["token_size"],
         vocab_size=len(tokenizer),
