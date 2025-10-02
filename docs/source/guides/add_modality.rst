@@ -26,11 +26,11 @@ In order to add a new modality, we must first understand how the training pipeli
    digraph G {
        rankdir=LR;
 
-       A [label="Block 1"];
-       B [label="Block 2"];
-       C [label="Block 3"];
+       A [label="Raw modality"];
+       B [label="torch.Tensor"];
+       C [label="torch.Tensor"];
 
-       A -> B [label="First transition"];
-       B -> C [label="Second transition"];
+       A -> B [label="modality processing"];
+       B -> C [label="modality embedding"];
    }
 

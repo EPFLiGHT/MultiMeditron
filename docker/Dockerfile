@@ -1,5 +1,8 @@
 ARG NGC_VERSION="25.05-py3"
 
+# To build documentation + cool utilies
+RUN apt install graphviz, ffmpeg, tmux
+
 FROM nvcr.io/nvidia/pytorch:$NGC_VERSION 
 COPY . /workspace/MultiMeditron
 
