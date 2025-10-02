@@ -14,7 +14,8 @@ fi
 SUBMIT_DIR="${SLURM_SUBMIT_DIR:-$PWD}"
 REPO_DIR="$(cd "${SUBMIT_DIR}/.." && pwd)"         # -> .../meditron/MultiMeditron
 APP_REL="ui/app.py"                                # app lives in ui/
-MODEL_DIR="/capstor/store/cscs/swissai/a127/homes/theoschiff/models/MultiMeditron-8B-Clip/checkpoint-813"
+# MODEL_DIR="/capstor/store/cscs/swissai/a127/homes/theoschiff/models/MultiMeditron-8B-Clip/checkpoint-813"
+MODEL_DIR="/capstor/store/cscs/swissai/a127/homes/mzhang/models/multimeditron/MultiMeditron-Llama-8B-Alignment-Generalist/checkpoint-314/"
 BASE_PATH="/capstor/store/cscs/swissai/a127/homes/theoschiff"       # where our images live for FileSystemImageRegistry
 PORT=49200
 HOST="0.0.0.0"

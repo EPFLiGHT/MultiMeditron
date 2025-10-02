@@ -7,8 +7,7 @@ import gradio as gr
 from typing import List, Tuple
 
 from transformers import AutoTokenizer
-from multimeditron.dataset.preprocessor.modality_preprocessor import ModalityRetriever
-from multimeditron.dataset.registry.fs_registry import FileSystemImageRegistry
+from multimeditron.dataset.loader import FileSystemImageLoader
 from multimeditron.model.model import MultiModalModelForCausalLM
 from multimeditron.model.data_loader import DataCollatorForMultimodal
 
@@ -46,16 +45,14 @@ special_tokens = {"additional_special_tokens": [ATTACHMENT_TOKEN]}
 tokenizer.add_special_tokens(special_tokens)
 attachment_token_idx = tokenizer.convert_tokens_to_ids(ATTACHMENT_TOKEN)
 
-use_device_map = torch.cuda.is_available() and torch.cuda.device_count() > 1
 
 try:
     model = MultiModalModelForCausalLM.from_pretrained(
         model_name,
         dtype=torch.bfloat16,
-        use_safetensors=True,
-        device_map="auto" if use_device_map else None,
-    )
-    print(model)
+        use_safetensors=True
+    ).to("cuda")
+    # print(model)
 except Exception as e:
     raise RuntimeError(
         f"Failed to load model from local path '{model_name}'. "
@@ -63,23 +60,18 @@ except Exception as e:
         f"Original error: {e}"
     )
 
-if not use_device_map:
-    model = model.to("cuda")
-
 if getattr(model, "resize_token_embeddings", None):
     model.resize_token_embeddings(len(tokenizer))
 
-# Modality + collator utilities
-modality_retriever = ModalityRetriever(
-    registry=FileSystemImageRegistry(base_path=args.base_path)
-)
+loader = FileSystemImageLoader(base_path=os.getcwd())
 
 collator = DataCollatorForMultimodal(
     tokenizer=tokenizer,
     tokenizer_type="llama",
     modality_processors=model.processors(),
     attachment_token_idx=attachment_token_idx,
-    add_generation_prompt=True
+    add_generation_prompt=True,
+    modality_loaders={"image": loader},
 )
 
 # ==========================
@@ -92,7 +84,6 @@ def build_modalities(all_image_paths: List[str]):
 @torch.inference_mode()
 def generate_reply(conversations, modalities, temperature=0.7, max_new_tokens=512, top_p=0.95):
     sample = {"conversations": conversations, "modalities": modalities}
-    sample = modality_retriever.merge_modality_with_sample(sample)
     batch = collator([sample]) 
 
     print("Sample keys", sample.keys())
@@ -107,12 +98,9 @@ def generate_reply(conversations, modalities, temperature=0.7, max_new_tokens=51
             do_sample=True,
             max_new_tokens=int(max_new_tokens)
         )
-
-    print("Outputs:", outputs)
     text = tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True)[0]
 
     print(text)
-
     return text
 
 # ==========================
