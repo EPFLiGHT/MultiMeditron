@@ -92,18 +92,6 @@ def build_modalities(all_image_paths: List[str]):
     """Return list[dict] acceptable by the collator, using cluster-local paths."""
     return [dict(type="image", value=p) for p in all_image_paths]
 
-def build_conversations(history: List[Tuple[str, str]]) -> List[dict]:
-    """
-    Gradio chat history format: list of (user, assistant).
-    Convert to model's conversation list of {"role":"user"/"assistant","content":...}.
-    """
-    conv = []
-    for u, a in history:
-        conv.append({"role": "user", "content": u})
-        if a is not None and a.strip():
-            conv.append({"role": "assistant", "content": a})
-    return conv
-
 @torch.inference_mode()
 def generate_reply(conversations, modalities, temperature=0.7, max_new_tokens=512, top_p=0.95):
     sample = {"conversations": conversations, "modalities": modalities}
@@ -155,7 +143,7 @@ with gr.Blocks(title="Multimeditron Chat") as demo:
 
     # states: list of image paths & chat history
     state_images = gr.State([])   # List[str]
-    state_history = gr.State([])  # List[Tuple[user, assistant]]
+    state_history = gr.State([])   # List[{"role": "user"|"assistant", "content": str}]
 
     def on_image_upload(new_files, img_state):
         # accept new img and append to state
@@ -176,25 +164,24 @@ with gr.Blocks(title="Multimeditron Chat") as demo:
         return [], [], [], []  # chat, history state, image state, gallery
 
     def on_send(message, chat_hist, img_paths, temp, topp, mnt):
+        # chat_hist is a list of {"role": "...", "content": "..."}
+        chat_hist = chat_hist or []
+        img_paths = img_paths or []
+
         if not message or not message.strip():
             return gr.update(), chat_hist, img_paths
 
-        # We keep the token in the user message so it’s part of the conversation text.
-        if img_paths:
-            user_msg = f"{ATTACHMENT_TOKEN} {message}"
-        else:
-            user_msg = message
+        # Prepend ATTACHMENT_TOKEN if images are attached
+        user_text = f"{ATTACHMENT_TOKEN} {message}" if img_paths else message
 
-        # append user turn to history (assistant placeholder None for now)
-        hist = (chat_hist or []) + [(user_msg, None)]
-        convs = build_conversations(hist)
+        # 1) add the user message (messages format)
+        new_hist = chat_hist + [{"role": "user", "content": user_text}]
 
-        # build modalities from ALL current images so prior images persist
-        modalities = build_modalities(img_paths or [])
-
+        # 2) build modalities & generate
+        modalities = build_modalities(img_paths)
         try:
             reply = generate_reply(
-                conversations=convs,
+                conversations=new_hist,     # already messages-format
                 modalities=modalities,
                 temperature=temp,
                 max_new_tokens=mnt,
@@ -203,9 +190,13 @@ with gr.Blocks(title="Multimeditron Chat") as demo:
         except Exception as e:
             reply = f"[Generation error] {e}"
 
-        # update the last tuple with assistant reply
-        hist[-1] = (user_msg, reply)
-        return hist, hist, img_paths
+        # 3) append assistant message
+        new_hist.append({"role": "assistant", "content": reply})
+
+        # Return to: Chatbot, history state, images state
+        return new_hist, new_hist, img_paths
+
+
 
     # Callbacks
     images.upload(on_image_upload, inputs=[images, state_images], outputs=[state_images, current_images_gallery])
