@@ -125,7 +125,7 @@ def generate_reply(conversations, modalities, temperature=0.7, max_new_tokens=51
 # Gradio app
 # ==========================
 with gr.Blocks(title="Multimeditron Chat") as demo:
-    gr.Markdown("# Multimodal Chat (Multimeditron)\nUpload images any time and chat with the model.")
+    gr.Markdown("# Multimeditron Base Chat 🩺 \nUpload images any time and chat with the model.")
 
     with gr.Row():
         with gr.Column(scale=3):
@@ -237,7 +237,8 @@ if __name__ == "__main__":
             server_name=args.server_name,
             server_port=args.server_port,
             share=args.share,
-            show_error=True,   
+            show_error=True,
+            prevent_thread_lock=False,   # keeps the process alive
         )
         logging.info("Gradio app exited cleanly.")
     except KeyboardInterrupt:

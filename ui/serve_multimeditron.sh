@@ -21,7 +21,7 @@ set -x
 export HF_TOKEN="${HF_TOKEN}"
 export HF_HOME=/capstor/store/cscs/swissai/a127/homes/theoschiff/hf_home
 
-export CUDA_LAUNCHING_BLOCKING=0
+export CUDA_LAUNCH_BLOCKING=0
 
 
 ######################
