@@ -29,14 +29,11 @@ args, _ = parser.parse_known_args()
 ATTACHMENT_TOKEN = "<|reserved_special_token_0|>"
 model_name = args.model_checkpoint
 
-# for local-only loading 
-LOCAL_ONLY_KW = dict(local_files_only=True)
-
 # ==========================
 # Load tokenizer + model
 # ==========================
 try:
-    tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="left", **LOCAL_ONLY_KW)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="left")
 except Exception as e:
     raise RuntimeError(
         f"Failed to load tokenizer from local path '{model_name}'. "
@@ -57,8 +54,8 @@ try:
         dtype=torch.bfloat16,
         use_safetensors=True,
         device_map="auto" if use_device_map else None,
-        **LOCAL_ONLY_KW,
     )
+    print(model)
 except Exception as e:
     raise RuntimeError(
         f"Failed to load model from local path '{model_name}'. "
@@ -98,6 +95,10 @@ def generate_reply(conversations, modalities, temperature=0.7, max_new_tokens=51
     sample = modality_retriever.merge_modality_with_sample(sample)
     batch = collator([sample]) 
 
+    print("Sample keys", sample.keys())
+
+    print(len(sample['modalities']), "modalities in the sample.")
+
     with torch.autocast("cuda", dtype=torch.bfloat16):
         outputs = model.generate(
             batch=batch,
@@ -106,7 +107,12 @@ def generate_reply(conversations, modalities, temperature=0.7, max_new_tokens=51
             do_sample=True,
             max_new_tokens=int(max_new_tokens)
         )
+
+    print("Outputs:", outputs)
     text = tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True)[0]
+
+    print(text)
+
     return text
 
 # ==========================
@@ -171,7 +177,6 @@ with gr.Blocks(title="Multimeditron Chat") as demo:
         if not message or not message.strip():
             return gr.update(), chat_hist, img_paths
 
-        # Prepend ATTACHMENT_TOKEN if images are attached
         user_text = f"{ATTACHMENT_TOKEN} {message}" if img_paths else message
 
         # 1) add the user message (messages format)
@@ -179,6 +184,9 @@ with gr.Blocks(title="Multimeditron Chat") as demo:
 
         # 2) build modalities & generate
         modalities = build_modalities(img_paths)
+
+        print("Generating with modalities:", modalities)
+        print("new hist:", new_hist)
         try:
             reply = generate_reply(
                 conversations=new_hist,     # already messages-format
@@ -229,7 +237,6 @@ if __name__ == "__main__":
             server_port=args.server_port,
             share=args.share,
             show_error=True,
-            prevent_thread_lock=False,   # keeps the process alive
         )
         logging.info("Gradio app exited cleanly.")
     except KeyboardInterrupt:
