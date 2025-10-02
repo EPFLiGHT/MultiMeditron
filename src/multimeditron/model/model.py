@@ -2,13 +2,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Optional, List, Union, Tuple, Any, Dict
-from transformers import PreTrainedModel, PretrainedConfig, AutoModel, AutoConfig, AutoModelForCausalLM
+from transformers import PreTrainedModel, PretrainedConfig, AutoModel, AutoConfig, AutoProcessor, AutoModelForCausalLM
 from transformers.modeling_outputs import CausalLMOutputWithPast
 from dataclasses import dataclass
 
-from .modality import ModalityWithProjection, ModalityConfig
-from ..utils import get_torch_dtype 
-from .modality_imp import *  # In order to register the modality classes
+from multimeditron.model.modalities import BaseModalityProcessor, AutoModality, BaseModalityConfig, BaseModality
+from multimeditron.utils import get_torch_dtype
 import logging
 import json
 import tempfile
@@ -20,13 +19,12 @@ class MultimodalConfig(PretrainedConfig):
     """
     Configuration class for a multimodal model that integrates various modalities with a language model.
     """
-
     model_type = "multimodal"
 
     def __init__(
         self,
         vocab_size: Optional[int] = None,
-        modalities: List[ModalityConfig] = [],
+        modalities: List[BaseModalityConfig] = [],
         attachment_token_idx: int = 1,
         pad_token_idx: int = 0,
         eos_token_idx: int = 0,
@@ -109,11 +107,7 @@ class MultimodalConfig(PretrainedConfig):
 
         modalities = []
         for modality_dict in modalities_dict_list:
-            # Hacky stuff
-            with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as tmp_file:
-                json.dump(modality_dict, tmp_file,
-                          ensure_ascii=False, indent=2)
-            modalities.append(AutoConfig.from_pretrained(tmp_file.name))
+            modalities.append(AutoModality.config_from_dict(modality_dict))
 
         if kwargs["return_unused_kwargs"]:
             config, kwargs = super().from_dict(config_dict, **kwargs)
@@ -185,11 +179,13 @@ class MultiModalModelForCausalLM(PreTrainedModel):
 
         # Add the language model to the transformer
         self.modalities_by_type = {}
+        self.processors_by_type = {}
         self.modalities = nn.ModuleList()
 
         for modality_config in config.modalities:
             # Retrieve the modality and the number of patches per entry
             modality = AutoModel.from_config(modality_config)
+            processor = AutoModality.preprocessor_from_name(modality_config.model_type, modality_config)
 
             # Ensure there is a single modality per type
             if modality_config.modality_type in self.modalities_by_type:
@@ -197,15 +193,9 @@ class MultiModalModelForCausalLM(PreTrainedModel):
                     f"Modality type {modality_config.modality_type} has already been registered"
                 )
 
-            self.modalities_by_type[modality_config.modality_type] = len(
-                self.modalities)
-            self.modalities.append(
-                ModalityWithProjection(
-                    modality,
-                    hidden_size=self.model.config.hidden_size,
-                    dtype=dtype,
-                )
-            )
+            self.modalities_by_type[modality_config.modality_type] = modality
+            self.processors_by_type[modality_config.modality_type] = processor
+            self.modalities.append(modality)
 
         # Post init
         self.post_init()
@@ -296,22 +286,23 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         for params in self.model.parameters():
             params.requires_grad = True
 
-    def processors(self) -> Dict[str, ModalityWithProjection]:
-        return {modality.get_config().modality_type: modality for modality in self.modalities}
+    def processors(self) -> Dict[str, BaseModalityProcessor]:
+        return self.processors_by_type
 
     def get_model(self):
         return self.model
 
-    def _get_modality_by_name(self, name: str) -> ModalityWithProjection:
+    def _get_modality_by_name(self, name: str) -> BaseModality:
         if name not in self.modalities_by_type:
             raise KeyError(
                 f"No modality registered in the model that can handle modality named: {name}"
             )
-        index = self.modalities_by_type[name]
-        modality = self.modalities[index]
-        if not isinstance(modality, ModalityWithProjection):
+
+        modality = self.modalities_by_type[name]
+        if not isinstance(modality, BaseModality):
             raise TypeError(
                 f"Registered modality {name} is not of type ModalityWithProjection")
+
         return modality
 
     def get_input_embeddings(self):
@@ -349,8 +340,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         for modality_name, processed_modality_stack in processed_multimodal_inputs['stacked'].items():
             modality = self._get_modality_by_name(modality_name)
 
-            embedded_modality_stack = modality(
-                processed_modality_stack)
+            embedded_modality_stack = modality(processed_modality_stack)
 
             embedded_tokens[processed_multimodal_inputs['batch_idx'][modality_name],
                             processed_multimodal_inputs['token_range'][modality_name]] = \

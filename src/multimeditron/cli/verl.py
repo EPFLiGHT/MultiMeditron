@@ -1,3 +1,4 @@
+from typing import Optional
 from multimeditron.cli import EPILOG, CONFIG_PATH, main_cli
 from .utils import split_host_port
 import yaml
@@ -18,12 +19,12 @@ logger = logging.getLogger(__name__)
 @click.option("--config-out", "-o", type=click.Path(), help="Path to save the final configuration used for training (in YAML format).")
 @click.pass_context
 def verl(ctx,
-         config: str = None,
+         config: Optional[str] = None,
          trust_remote_code: bool = False,
          verbose: bool = False,
          debug: bool = False,
          dryrun: bool = False,
-         config_out: str = None):
+         config_out: Optional[str] = None):
     from hydra import initialize_config_dir, compose
 
     if config is None:

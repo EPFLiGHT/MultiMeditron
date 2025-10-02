@@ -127,7 +127,6 @@ class TaskRunner:
         # print(trainer_config)
         # return
 
-        breakpoint()
         trainer = RayPPOTrainer(
             config=cfg,
             tokenizer=tokenizer,
@@ -149,18 +148,20 @@ def collate_fn(x):
     return x
 
 def compute_score(data_source, solution_str, ground_truth, extra_info):
-    if extra_info is None or "question" not in extra_info or "url" not in extra_info:
-        raise ValueError("Extra info is required and must contain 'question' and 'url'")
+    # print(extra_info)
+    # if extra_info is None or "question" not in extra_info or "url" not in extra_info:
+    #     raise ValueError("Extra info is required and must contain 'question' and 'url'")
     
-    do_print = False
-    if random.randint(0, 512) == 1:  
-        do_print = True
-    if do_print:
-        print(f"Response Case: {solution_str}, Question: {extra_info['question']}, GT: {ground_truth}")
+    # do_print = False
+    # if random.randint(0, 512) == 1:  
+    #     do_print = True
+    # if do_print:
+    #     print(f"Response Case: {solution_str}, Question: {extra_info['question']}, GT: {ground_truth}")
 
     response = solution_str
     response_lower = response.lower()
     score = response_lower.count("a") / len(response_lower) if len(response_lower) > 0 else 0
+    print(f"Score: {score}")
 
     return {
         "score": score,

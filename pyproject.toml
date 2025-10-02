@@ -34,7 +34,6 @@ dependencies = [
     "wandb",
     "deprecated",
     "benchy @ git+https://github.com/lukasgd/benchy.git@slurm",
-    "perception_models @ git+https://github.com/MichelDucartier/perception_models.git",
     "flash-attn",
     "datasets @ git+https://github.com/Androz2091/simon-huggingface-datasets.git"
 ]

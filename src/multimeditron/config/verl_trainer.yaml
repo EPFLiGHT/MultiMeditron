@@ -8,8 +8,8 @@ defaults:
 
 data:
   max_prompt_length: 512
-  trust_remote_code: ${trust_remote_code}
   max_response_length: 1024
+  trust_remote_code: ${trust_remote_code}
   train_batch_size: 8
   val_batch_size: 8
   train_files:
@@ -29,6 +29,15 @@ critic:
   model:
     trust_remote_code: ${trust_remote_code}
 
+algorithm:
+  adv_estimator: grpo
+  use_kl_in_reward: false
+  kl_ctrl:
+    kl_coef: 0.0
+  filter_groups:
+    enable: true
+    metric: acc
+    max_num_gen_batches: 0 # Non-positive integer mean no upper limit
 
 reward_model:
   enable: false
@@ -52,21 +61,22 @@ actor_rollout_ref:
     max_num_batched_tokens: 8192
     max_num_seqs: 1024
     n: 1
-    load_format: hf
+    load_format: auto
     dtype: bfloat16
-    name: hf
+    name: sglang
+    log_prob_micro_batch_size_per_gpu: 16
   actor:
     fsdp_config:
       model_dtype: bfloat16
     ppo_mini_batch_size: 256
-    # ppo_micro_batch_size: null
+    # ppo_micro_batch_size: 16
     ppo_micro_batch_size_per_gpu: 4 
     use_dynamic_bsz: false
     ppo_max_token_len_per_gpu: 16384
   ref:
+    log_prob_micro_batch_size_per_gpu: ${actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu}
     fsdp_config:
       model_dtype: bfloat16
-
 
 global_profiler:
   enable: false

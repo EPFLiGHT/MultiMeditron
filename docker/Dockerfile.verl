@@ -1,0 +1,141 @@
+# Notice on driver versions support:
+#
+# +----------------+-----------------------------------------------+
+# | CTK VERSION    |  Driver range for minor version compatiblity  |
+# +----------------+----------------------+------------------------+
+# |                | Min                  | Max                    |
+# +----------------+----------------------+------------------------+
+# | 13.x           | >= 580               | N/A                    |
+# +----------------+----------------------+------------------------+
+# | 12.x           | >= 525               | < 580                  |
+# +----------------+----------------------+------------------------+
+# | 11.x           | >= 450               | < 525                  |
+# +----------------+----------------------+------------------------+
+# 
+# 
+# Notice that this image is based on CUDA 12.9.1. From pytorch 25.03 onwards, implementation of pip constaint
+# have been added at `/etc/pip/constraint.txt` to ensure all versions of all python packages and pytorch matches.
+#
+# For more information feel free to check the documentation for thos images at the following links: 
+#  - https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/rel-25-08.html
+#  - https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch
+# FROM nvcr.io/nvidia/pytorch:25.06-py3 AS base
+FROM nvidia/cuda:12.9.0-devel-ubuntu24.04 AS base
+
+# Enable caching for `apt` packages in Docker.
+# https://docs.docker.com/engine/reference/builder/#run---mounttypecache
+RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > \
+    /etc/apt/apt.conf.d/keep-cache
+
+ARG DEBIAN_FRONTEND=noninteractive
+# sed is only used as a hack to remove comments from the file apt.txt.
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential ca-certificates curl git htop \
+        btop netcat-traditional openssh-server openssl sudo tmux  \
+        tree vim zsh ffmpeg wget \
+        linux-tools-common linux-tools-generic python3 \
+        python3-pip python3-venv && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install miniforge as system-wide python package are holy in ubuntu
+RUN mkdir /tmp/install
+WORKDIR /tmp/install
+RUN wget -O Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" && \
+    bash Miniforge3.sh -b -p /opt/conda && \
+    /opt/conda/bin/conda create -n py312 python=3.12
+WORKDIR /
+RUN rm -rf /tmp/install
+RUN echo "source activate py312" >> ~/.bashrc
+ENV PATH="/opt/conda/bin:$PATH"
+ENV PATH="/opt/conda/envs/py312/bin:$PATH"
+ENV TRITON_PTXAS_PATH="/usr/local/cuda/bin/ptxas"
+
+RUN pip3 install --upgrade pip && \
+    pip3 install torch --index-url https://download.pytorch.org/whl/cu129
+RUN pip3 install --upgrade pip && \
+    pip3 install \
+      requests ninja pytest numpy scipy build nvidia-ml-py cuda-python einops \
+      nvidia-nvshmem-cu12 nvidia-cutlass-dsl 'apache-tvm-ffi>=0.1.0b6' \
+      'nvidia-cudnn-frontend>=1.13.0' 'nvidia-cudnn-cu12>=9.11.0.98'
+RUN conda install -n py312 -y mpi4py
+
+########################################################################
+# Download Z-Shell enhancements.
+FROM docker.io/alpine/git:2.40.1 AS git-pure
+
+ARG PURE_URL=https://github.com/sindresorhus/pure.git
+ARG ZSHA_URL=https://github.com/zsh-users/zsh-autosuggestions.git
+ARG ZSHS_URL=https://github.com/zsh-users/zsh-syntax-highlighting.git
+
+RUN git clone --depth 1 ${PURE_URL} /opt/zsh/pure
+RUN git clone --depth 1 ${ZSHA_URL} /opt/zsh/zsh-autosuggestions
+RUN git clone --depth 1 ${ZSHS_URL} /opt/zsh/zsh-syntax-highlighting
+
+########################################################################
+# This stage is the final user-agnostic (generic) stage.
+# This layer can be distributed so that subsequent users
+
+FROM base AS final
+
+ENV HYDRA_FULL_ERROR=1
+
+# A final record of the dependencies from pip freeze.
+# RUN pip freeze > ${DEPENDENCIES_DIR}/requirements-freeze-final.txt
+# RUN pip list --format freeze > ${DEPENDENCIES_DIR}/requirements-list-final.txt
+
+# Shell configuration.
+ENV ZSH_ENHANCE_DIR=/etc/zsh/enhance
+ARG PURE_PATH=${ZSH_ENHANCE_DIR}/pure
+ARG ZSHA_PATH=${ZSH_ENHANCE_DIR}/zsh-autosuggestions
+ARG ZSHS_PATH=${ZSH_ENHANCE_DIR}/zsh-syntax-highlighting
+COPY --from=git-pure /opt/zsh/pure ${PURE_PATH}
+COPY --from=git-pure /opt/zsh/zsh-autosuggestions ${ZSHA_PATH}
+COPY --from=git-pure /opt/zsh/zsh-syntax-highlighting ${ZSHS_PATH}
+RUN {   echo "fpath+=${PURE_PATH}"; \
+        echo "autoload -Uz promptinit; promptinit"; \
+        echo "prompt pure"; \
+        echo "source ${ZSHA_PATH}/zsh-autosuggestions.zsh"; \
+        echo "source ${ZSHS_PATH}/zsh-syntax-highlighting.zsh"; \
+        echo "alias ls='ls --color=auto'"; \
+        echo "alias ll='ls -lh'"; \
+        echo "alias update-env-file='source \${PROJECT_ROOT_AT}/installation/docker-amd64-cuda/update-env-file.sh'"; \
+    } >> /etc/zsh/zshrc
+
+# Installing required dependencies
+RUN pip3 install --upgrade pip && pip3 install -U \
+      ninja accelerate datasets "transformers==4.56.2" \
+      codetiming dill hydra-core pandas wandb      \
+      "pyarrow>=15.0.0" pybind11 pylatexenc        \
+      pybase64 mooncake-transfer-engine zmq        \
+      uvloop fastapi openai partial_json_parser    \
+      sentencepiece compressed_tensors msgspec     \
+      nest_asyncio torchao xgrammar                \
+      uvicorn python-multipart torch_memory_saver  \
+      "debugpy>=1.8.0"
+
+# This variable has been found through trial and errors, increase at you
+# own risk. In case of an emergency exists are located at the front and back of
+# the airplane.
+ENV MAX_JOBS=8
+RUN pip3 install --upgrade pip && pip3 install -U --no-build-isolation --use-pep517 \
+        "flash-attn==2.8.3"
+RUN pip3 install --upgrade pip && pip3 install -U \
+        nvidia-ml-py flashinfer-python
+RUN pip3 install --upgrade pip && pip3 install -v -U --no-build-isolation \
+        "sglang[test]==0.5.2" sgl_kernel
+RUN pip3 uninstall -y pynvml
+
+# Add code tunnel for remote code development directly on the docker image
+RUN mkdir -p /tmp/code
+WORKDIR /tmp/code
+RUN curl -Lk 'https://code.visualstudio.com/sha/download?build=stable&os=cli-alpine-arm64' --output vscode_cli.tar.gz && \
+    tar -xf vscode_cli.tar.gz && \
+    mv ./code /usr/bin
+WORKDIR /
+RUN rm -rf /tmp/code
+
+# Entrypoint command (zsh)
+CMD ["/bin/zsh"]
+

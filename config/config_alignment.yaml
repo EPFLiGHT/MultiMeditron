@@ -1,66 +1,53 @@
 base_llm: meta-llama/Llama-3.1-8B-Instruct
-base_model: 
+base_model: null
 attachment_token: <|reserved_special_token_0|>
 tokenizer_type: llama
 token_size: 4096
 
+loaders:
+  - loader_type: raw-image
+    modality_type: image
+
 modalities:
-  # - model_type: meditron_perception_encoder
-  #   config:
-  #     pe_name: PE-Lang-L14-448
-  #- model_type: meditron_clip
-   # config:
-    #   clip_name: openai/clip-vit-large-patch14
-  - model_type: moe_meditron_clip
-    config:
-       clip_name: openai/clip-vit-large-patch14
+  - model_type: meditron_clip
+    clip_name: openai/clip-vit-large-patch14
+    hidden_size: 4096
 
 training_mode: ALIGNMENT
 
 datasets:
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/BUSI
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/COVID_US
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/ct2
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/DDTI
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/iu_xray
+  # - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/BUSI
+  # - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/COVID_US
+  # - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/ct2
+  # - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/DDTI
+  # - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/iu_xray
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/llava_instruct
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/llava_pretrain
-  # - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/medtrinity_pretrain_1
-  # - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/medtrinity_pretrain_2
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/llava_pretrain_cleaned
+  # - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/medtrinity_conversations_1
+  # - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/medtrinity_conversations_2
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/pixmo_anything
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/PMC_VQA
-  # - packed_path: /mloscratch/users/merged_mediset/modality_merged/image_cleaned/BUSI
-  # - packed_path: /mloscratch/users/merged_mediset/modality_merged/image_cleaned/COVID_US
-  # - packed_path: /mloscratch/users/merged_mediset/modality_merged/image_cleaned/DDTI
-  # - packed_path: /mloscratch/users/merged_mediset/modality_merged/image_cleaned/PMC_VQA
-  # - packed_path: /mloscratch/users/merged_mediset/modality_merged/image_cleaned/ct2
-  # - packed_path: /mloscratch/users/merged_mediset/modality_merged/image_cleaned/iu_xray
-  # - packed_path: /mloscratch/users/merged_mediset/modality_merged/image_cleaned/llava_instruct
-  # - packed_path: /mloscratch/users/merged_mediset/modality_merged/image_cleaned/llava_pretrain
-  # - packed_path: /mloscratch/users/merged_mediset/modality_merged/image_cleaned/medtrinity_pretrain_1
-  # - packed_path: /mloscratch/users/merged_mediset/modality_merged/image_cleaned/medtrinity_pretrain_2
-  # - packed_path: /mloscratch/users/merged_mediset/modality_merged/image_cleaned/pixmo_anything
-  # - packed_path: /mloscratch/users/merged_mediset/modality_merged/image_cleaned/mammoth_ov_filtered
-  # - packed_path: /mloscratch/users/merged_mediset/modality_merged/image_cleaned/pixmo_qa 
+  # - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/PMC_VQA
+  # - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/cleaned/image/image_mammoth
 
 training_args:
-  output_dir: models/MultiMeditron-8B-Alignment-Image-PE/July8
+  output_dir: models/multimeditron/MultiMeditron-Llama-8B-Alignment-Generalist
   dataloader_num_workers: 16  # > 0 not supported for IterableDataset, cf. https://github.com/huggingface/datasets/issues/5984
   dataloader_prefetch_factor: 4
   remove_unused_columns: false
   ddp_find_unused_parameters: false # Test to reduce memory
   learning_rate: 1.0e-4
   bf16: true
-  per_device_train_batch_size: 1  # note that training_args.n_gpu and training_args.train_batch_size show faulty values
+  per_device_train_batch_size: 4  # note that training_args.n_gpu and training_args.train_batch_size show faulty values
                                   # with deepspeed -> use deepspeed_plugin instead (besides training_args.distributed_state.num_processes == WORLD_SIZE)
-  gradient_accumulation_steps: 16
-  num_train_epochs: 2
+  gradient_accumulation_steps: 8
+  num_train_epochs: 1
   gradient_checkpointing: true
   gradient_checkpointing_kwargs:
     use_reentrant: true
-  save_strategy: epoch
+  save_strategy: steps
+  save_steps: 0.25
   max_grad_norm: 1.0
-  run_name: MultiMeditron-8B-Alignment-Image-PE-Norm     # Set the name for the run
+  run_name: MultiMeditron-Llama-8B-Alignment-Generalist     # Set the name for the run
   deepspeed: ./config/deepspeed.json
   accelerator_config:
     dispatch_batches: false

@@ -145,7 +145,6 @@ class MultimodalTrainer(Trainer):
 
         # Pytorch profiler (avoid with NGC Pytorch 24.11-25.01)
         if self.enable_pytorch_profiling:
-
             from torch.profiler import profile, ProfilerActivity
 
             wait_steps = int(
@@ -174,33 +173,26 @@ class MultimodalTrainer(Trainer):
                 # record_shapes=True,
                 with_stack=True,
                 # profile_memory=True,
-                # # with_flops=True,
+                # with_flops=True,
                 schedule=torch.profiler.schedule(
                     wait=wait_steps, warmup=warmup_steps, active=active_steps),
                 on_trace_ready=trace_handler,
                 experimental_config=torch._C._profiler._ExperimentalConfig(
                     verbose=True)
             ) as profiler:
-
                 self.profiler = profiler
-
                 return super().train(*args, **kwargs)
 
         else:
-
             return super().train(*args, **kwargs)
 
     def training_step(self, *args, **kwargs):
-
         if self.enable_pytorch_profiling:
-
             from torch.profiler import record_function
-
             with record_function("training_step"):
                 ret = super().training_step(*args, **kwargs)
 
             self.profiler.step()
-
             return ret
         else:
             return super().training_step(*args, **kwargs)
