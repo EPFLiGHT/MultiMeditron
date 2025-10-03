@@ -265,7 +265,6 @@ if __name__ == "__main__":
             server_port=args.server_port,
             share=args.share,
             show_error=True,
-            favicon_path=LOGO_PATH,
         )
         logging.info("Gradio app exited cleanly.")
     except KeyboardInterrupt:
