@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 import PIL
 from transformers import PreTrainedModel, PretrainedConfig
 from torchvision import models
@@ -45,15 +45,24 @@ class GatingNetwork(PreTrainedModel):
 
     config_class = GatingNetworkConfig
 
-    def __init__(self, config: GatingNetworkConfig):
+    def __init__(self, config: GatingNetworkConfig, resnet_path: Optional[str] = None):
         """
         Initializes the GatingNetwork model.
         Args:
             config (GatingNetworkConfig): The configuration for the model.
         """
         super().__init__(config)
-        self.resnet = models.resnet50()
-        self.resnet.fc = nn.Linear(self.resnet.fc.in_features, config.num_labels)
+        
+        # Load pretrained gating weights
+        if resnet_path is not None:
+            resnet_weights = torch.load(resnet_path)
+            self.resnet = models.resnet50(pretrained=False)
+            self.resnet.fc = nn.Linear(self.resnet.fc.in_features, config.num_labels)
+            self.resnet.load_state_dict(resnet_weights)
+        else:
+            self.resnet = models.resnet50()
+            self.resnet.fc = nn.Linear(self.resnet.fc.in_features, config.num_labels)
+
         self.top_k = config.top_k
         self.image_processor = AutoImageProcessor.from_pretrained(config.image_processor_path)
 
