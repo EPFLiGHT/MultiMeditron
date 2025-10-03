@@ -39,10 +39,28 @@ You can pull the latest MultiMeditron docker image from Docker Hub. Run the foll
             docker pull michelducartier24/multimeditron-git:latest-arm64
 
 
+We also provide Docker images that runs on specific versions of the GitHub repository:
+
+.. tabs::
+
+    .. tab:: AMD64
+
+        .. code-block:: bash
+
+            docker pull michelducartier24/multimeditron-git:<commit-hash>-amd64
+    
+    .. tab:: ARM64
+
+        .. code-block:: bash
+            
+            docker pull michelducartier24/multimeditron-git:<commit-hash>-arm64
+
+Retrieve the commit hash that you need, and replace the `<commit-hash>` placeholder with the real commit hash.
+
 MultiMeditron inference
 -----------------------
 
-Once you have installed MultiMeditron, you can run inference on your images. Here is an example script to run inference using the pip installation:
+Once you have installed MultiMeditron, you can run inference on your images. Here is an example script to run inference using the pip installation. In this example, we are loading a model based on Llama 3.1 model.
 
 .. code-block:: python
 
