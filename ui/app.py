@@ -86,10 +86,6 @@ def generate_reply(conversations, modalities, temperature=0.7, max_new_tokens=51
     sample = {"conversations": conversations, "modalities": modalities}
     batch = collator([sample]) 
 
-    print("Sample keys", sample.keys())
-
-    print(len(sample['modalities']), "modalities in the sample.")
-
     with torch.autocast("cuda", dtype=torch.bfloat16):
         outputs = model.generate(
             batch=batch,
@@ -99,8 +95,6 @@ def generate_reply(conversations, modalities, temperature=0.7, max_new_tokens=51
             max_new_tokens=int(max_new_tokens)
         )
     text = tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True)[0]
-
-    print(text)
     return text
 
 # ==========================
@@ -116,12 +110,18 @@ with gr.Blocks(title="Multimeditron Chat") as demo:
                 height=500,
                 type="messages"  # (user, assistant)
             )
-            user_input = gr.Textbox(placeholder="Type your message…", lines=3, autofocus=True)
-            send_btn = gr.Button("Send", variant="primary")
+            with gr.Group(elem_id="input-wrap"):
+                user_input = gr.Textbox(
+                    placeholder="Ask Multimeditron anything",
+                    lines=1, # will submit on enter
+                    autofocus=True,
+                    show_label=False,
+                )
+                send_btn = gr.Button("Send Chat ➤", variant="primary", elem_id="send-btn")
             clear_btn = gr.Button("New Chat")
 
         with gr.Column(scale=2):
-            gr.Markdown("### Images")
+            gr.Markdown("### Images 🩻")
             images = gr.File(
                 label="Add images (they stay attached across turns until cleared)",
                 file_types=[".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff", ".gif"],
@@ -130,7 +130,7 @@ with gr.Blocks(title="Multimeditron Chat") as demo:
             current_images_gallery = gr.Gallery(label="Currently attached images", columns=3, height=300)
             remove_images_btn = gr.Button("Clear Attached Images")
 
-            with gr.Accordion("Generation Settings", open=False):
+            with gr.Accordion("Generation Settings ⚙️", open=False):
                 temperature = gr.Slider(0.0, 1.5, value=0.7, step=0.05, label="Temperature")
                 top_p = gr.Slider(0.1, 1.0, value=0.95, step=0.05, label="Top-p")
                 max_new_tokens = gr.Slider(16, 2048, value=512, step=16, label="Max New Tokens")
@@ -165,19 +165,25 @@ with gr.Blocks(title="Multimeditron Chat") as demo:
         if not message or not message.strip():
             return gr.update(), chat_hist, img_paths
 
-        user_text = f"{ATTACHMENT_TOKEN} {message}" if img_paths else message
+        # What the user sees in the chat (no special token)
+        user_message = message
 
-        # 1) add the user message (messages format)
-        new_hist = chat_hist + [{"role": "user", "content": user_text}]
+        
+        prompt_for_model = f"{ATTACHMENT_TOKEN} {message}" if img_paths else message
 
-        # 2) build modalities & generate
+        # add the user message to the visible history (no token shown)
+        new_hist = chat_hist + [{"role": "user", "content": user_message}]
+
+        # build per-turn modalities only from current img_paths
         modalities = build_modalities(img_paths)
 
-        print("Generating with modalities:", modalities)
-        print("new hist:", new_hist)
+        # conversations for the model = visible history, but last user msg replaced with tokenized version
+        convs_for_model = list(new_hist)  
+        convs_for_model[-1] = {"role": "user", "content": prompt_for_model}
+
         try:
             reply = generate_reply(
-                conversations=new_hist,     # already messages-format
+                conversations=convs_for_model,
                 modalities=modalities,
                 temperature=temp,
                 max_new_tokens=mnt,
@@ -186,11 +192,11 @@ with gr.Blocks(title="Multimeditron Chat") as demo:
         except Exception as e:
             reply = f"[Generation error] {e}"
 
-        # 3) append assistant message
+        # append assistant reply to visible history
         new_hist.append({"role": "assistant", "content": reply})
 
-        # Return to: Chatbot, history state, images state
-        return new_hist, new_hist, img_paths
+        # clear image state so next turn doesn't auto-attach images
+        return new_hist, new_hist, []
 
 
 
