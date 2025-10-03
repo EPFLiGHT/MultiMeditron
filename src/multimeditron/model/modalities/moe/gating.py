@@ -60,7 +60,7 @@ class GatingNetwork(PreTrainedModel):
             self.resnet.fc = nn.Linear(self.resnet.fc.in_features, config.num_labels)
             self.resnet.load_state_dict(resnet_weights)
         else:
-            self.resnet = models.resnet50()
+            self.resnet = models.resnet50(weights=None)
             self.resnet.fc = nn.Linear(self.resnet.fc.in_features, config.num_labels)
 
         self.top_k = config.top_k
