@@ -67,6 +67,8 @@ In this walkthrough, we will show how to load images and how to create a simple 
 Modality loader
 ^^^^^^^^^^^^^^^
 
+Here is an example to load images from bytes:
+
 .. code-block:: python
 
     import os
@@ -75,21 +77,16 @@ Modality loader
     import pathlib
     import numpy as np
     import PIL
+    import io
 
-    @AutoModalityLoader.register("fs-image")
-    class FileSystemImageLoader(BaseModalityLoader):
-        def __init__(self, base_path: Union[str, pathlib.Path]):
+    @AutoModalityLoader.register("raw-image")
+    class RawImageLoader(BaseModalityLoader):
+        def __init__(self):
             super().__init__()
-            self.base_path = base_path
 
         def load(self, sample: Dict[str, Any]) -> PIL.Image.Image:
-            image_path = os.path.join(self.base_path, sample["value"])
-
-            if not os.path.exists(image_path):
-                raise FileNotFoundError(f"Image file {image_path} not found")
-            
-            # Load png/jpg/jpeg images
-            image = PIL.Image.open(image_path).convert("RGB")
+            image_bytes = sample["value"]["bytes"]
+            image = PIL.Image.open(io.BytesIO(image_bytes)).convert("RGB")
             return image
 
 
@@ -98,5 +95,11 @@ The `load` function takes a dictionary that contains a key `"value"` and returns
 Modality configuration
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The configuration, processor, model architecture follows the same philosophy as Huggingface custom model
+The configuration, processor, model architecture follows the same philosophy as `Huggingface custom model`_.
+
+.. _Huggingface custom model: https://huggingface.co/docs/transformers/custom_models
+
+The configuration file configures both the processor and the modality:
+
+
 
