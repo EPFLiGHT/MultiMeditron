@@ -225,4 +225,6 @@ class AutoModality:
             raise ValueError(f"Modality name '{config['model_type']}' is not registered. Available values are {list(c._registry.keys())}")
         config_class = c._registry[config["model_type"]].config_class
         assert config_class is not None, f"Modality class '{config['model_type']}' does not have a config_class defined."
-        return config_class.from_dict(config, **kwargs)
+        modality_config = config_class.from_dict(config, **kwargs)
+        
+        return modality_config

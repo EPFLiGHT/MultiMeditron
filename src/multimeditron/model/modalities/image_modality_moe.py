@@ -1,8 +1,9 @@
 from multimeditron.model.constants import NUM_EMBEDDINGS_KEY, MODALITY_VALUE_KEY
 from multimeditron.model.modalities.base import AutoModality, BaseModality, BaseModalityConfig, BaseModalityProcessor
+from multimeditron.model.modalities.moe.gating import GatingNetwork
 from multimeditron.model.projectors.mlp import MLPProjector
 import torch
-from transformers import AutoModel
+from transformers import AutoModel, AutoImageProcessor, AutoConfig
 from typing import Dict, Any, List
 
 
@@ -16,7 +17,8 @@ class MOEImageConfig(BaseModalityConfig):
             "openai/clip-vit-large-patch14", 
             "openai/clip-vit-large-patch14"
         ],
-        gating_path: str = None,
+        image_processor: str = "openai/clip-vit-large-patch14",
+        gating_path: str = "",
         top_k_experts: int = 1,
         projection_type: str = "mlp",
         **kwargs,
@@ -28,16 +30,22 @@ class MOEImageConfig(BaseModalityConfig):
             hidden_size=hidden_size,
             kwargs=kwargs,
         )
-        assert gating_path is not None, "gating_path must be specified in the config"
 
         self.expert_clip_names = expert_clip_names
         self.top_k_experts = top_k_experts
         self.gating_path = gating_path
         self.projection_type = projection_type
+        self.image_processor = image_processor
+
 
 class MOEImageProcessor(BaseModalityProcessor):
     def __init__(self, config: MOEImageConfig):
         super().__init__(config)
+        self.image_processor = AutoImageProcessor.from_pretrained(config.image_processor)
+
+        processor_config = AutoConfig.from_pretrained(config.image_processor, trust_remote_code=True)
+        self._num_patches_per_entry = (processor_config.vision_config.image_size // processor_config.vision_config.patch_size) ** 2
+
 
     def process(self, modality: Dict[str, Any]):
         processed_modality = modality.copy()
@@ -49,6 +57,7 @@ class MOEImageProcessor(BaseModalityProcessor):
         processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry
 
         return processed_modality
+
 
 @AutoModality.register("moe_meditron_clip")
 class MOEImageModality(BaseModality):
@@ -71,12 +80,12 @@ class MOEImageModality(BaseModality):
 
         self._num_patches_per_entry = (self.experts[0].config.image_size // self.experts[0].config.patch_size) ** 2
 
-        self.gating_network = AutoModel.from_pretrained(config.gating_path)
-        self.image_processor = self.gating_network.processor
+        self.gating_network = GatingNetwork.from_pretrained(config.gating_path)
+        self.image_processor = self.gating_network.image_processor
 
         self.projector = MLPProjector(self._embedding_size, config.hidden_size)
 
-    def forward(self, inputs) -> torch.FloatTensor:
+    def forward(self, inputs) -> torch.Tensor:
         device = next(self.experts[0].parameters()).device
         inputs = torch.stack(inputs, dim=0).to(device)
 
@@ -96,7 +105,13 @@ class MOEImageModality(BaseModality):
 
             weighted_output = (stacked_expert_outputs * weights).sum(dim=1)
 
-            return weighted_output
+            projected = self.projector(weighted_output)
+
+            return projected
+
+        else:
+            # Evaluation mode
+            raise NotImplementedError("Evaluation mode not implemented yet.")
 
     @property
     def embedding_size(self) -> int:
@@ -110,7 +125,8 @@ class MOEImageModality(BaseModality):
             for params in expert.parameters():
                 params.requires_grad = False
 
-
     def freeze_projection_only(self):
         for params in self.projector.parameters():
             params.requires_grad = False
+
+

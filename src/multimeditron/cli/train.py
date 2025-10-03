@@ -8,6 +8,7 @@ from multimeditron.model.modalities import AutoModality
 from multimeditron.dataset.loader import AutoModalityLoader
 from multimeditron.model.model import MultiModalModelForCausalLM, MultimodalConfig
 from tqdm import tqdm
+import deepspeed
 import torch
 import os
 import yaml
@@ -91,7 +92,6 @@ def train(config: str,
         modality_type = loader_copy.pop("modality_type")
         modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader_copy)
 
-    import deepspeed
     with deepspeed.zero.Init(dtype=torch.bfloat16):
         if config_dict.get("base_model", None) is None:
             model = bootstrap(config_dict, tokenizer, attachment_token_idx, modalities_config)
