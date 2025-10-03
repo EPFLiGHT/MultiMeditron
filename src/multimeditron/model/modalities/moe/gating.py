@@ -56,7 +56,7 @@ class GatingNetwork(PreTrainedModel):
         # Load pretrained gating weights
         if resnet_path is not None:
             resnet_weights = torch.load(resnet_path)
-            self.resnet = models.resnet50(pretrained=False)
+            self.resnet = models.resnet50(weights=None)
             self.resnet.fc = nn.Linear(self.resnet.fc.in_features, config.num_labels)
             self.resnet.load_state_dict(resnet_weights)
         else:
