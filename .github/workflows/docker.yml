@@ -9,17 +9,17 @@ on:
 jobs:
   docker-amd:
     runs-on: ubuntu-latest
-    environment: secrets 
+    environment: docker 
 
     steps:
-      - name: Delete huge unnecessary tools folder
+      - name: Move Docker storage to /mnt for more disk space
         run: |
-          rm -rf /opt/hostedtoolcache
-          sudo swapoff -a
-          sudo rm -f /swapfile
-          sudo apt clean
-          df -h
-        
+          sudo systemctl stop docker
+          sudo rm -rf /var/lib/docker
+          sudo mkdir /mnt/docker
+          sudo ln -s /mnt/docker /var/lib/docker
+          sudo systemctl start docker
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -38,11 +38,13 @@ jobs:
           context: .
           file: docker/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/multimeditron-git:latest-amd64
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/multimeditron-git:latest-amd64
+            ${{ secrets.DOCKER_USERNAME }}/multimeditron-git:${{ github.sha }}-amd64
 
   docker-arm:
     runs-on: ubuntu-24.04-arm
-    environment: secrets 
+    environment: docker 
 
     steps:
       - name: Checkout repository
@@ -63,5 +65,7 @@ jobs:
           context: .
           file: docker/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/multimeditron-git:latest-arm64
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/multimeditron-git:latest-arm64
+            ${{ secrets.DOCKER_USERNAME }}/multimeditron-git:${{ github.sha }}-arm64
 
