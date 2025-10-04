@@ -174,9 +174,9 @@ from multimeditron.dataset.loader.image.bytes import RawImageLoader
 from multimeditron.dataset.loader.image.fs import FileSystemImageLoader
 
 __all__ = [
-    BaseModalityLoader,
-    AutoModalityLoader,
-    RawImageLoader,
-    FileSystemImageLoader,
+    "BaseModalityLoader",
+    "AutoModalityLoader",
+    "RawImageLoader",
+    "FileSystemImageLoader",
 ]
 
