@@ -8,5 +8,6 @@ This section contains user guides and tutorials for the MultiMeditron project.
    :caption: Contents:
 
    quickstart
+   add_modality
    
 
