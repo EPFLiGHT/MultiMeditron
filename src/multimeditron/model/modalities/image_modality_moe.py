@@ -13,16 +13,26 @@ class MOEImageConfig(BaseModalityConfig):
         hidden_size: int = 1024,
         max_batch_size: int = 32,
         use_bias_proj: bool = True,
-        expert_clip_names: List[str] = [
-            "openai/clip-vit-large-patch14", 
-            "openai/clip-vit-large-patch14"
-        ],
+        expert_clip_names: List[str] = [],
         image_processor: str = "openai/clip-vit-large-patch14",
         gating_path: str = "",
         top_k_experts: int = 1,
         projection_type: str = "mlp",
         **kwargs,
     ):
+        """
+        Config for Mixture of Experts (MoE) Image Modality using CLIP models as experts.
+        Args:
+            hidden_size (int): The hidden size of the output embeddings.
+            max_batch_size (int): The maximum batch size for processing.
+            use_bias_proj (bool): Whether to use bias in the projection layer.
+            expert_clip_names (List[str]): List of pretrained CLIP model names to be used as experts.
+            image_processor (str): Pretrained image processor name for preprocessing images.
+            gating_path (str): Path to the pretrained gating network.
+            top_k_experts (int): Number of top experts to select during inference.
+            projection_type (str): Type of projection layer to use ("mlp" supported).
+            **kwargs: Additional keyword arguments.
+        """
         super().__init__(
             max_batch_size=max_batch_size,
             use_bias_proj=use_bias_proj,
@@ -39,6 +49,10 @@ class MOEImageConfig(BaseModalityConfig):
 
 
 class MOEImageProcessor(BaseModalityProcessor):
+    """
+    Processor for Mixture of Experts (MoE) Image Modality.
+    Uses a pretrained image processor to convert raw images into pixel values.
+    """
     def __init__(self, config: MOEImageConfig):
         super().__init__(config)
         self.image_processor = AutoImageProcessor.from_pretrained(config.image_processor)
@@ -61,6 +75,13 @@ class MOEImageProcessor(BaseModalityProcessor):
 
 @AutoModality.register("moe_meditron_clip")
 class MOEImageModality(BaseModality):
+    """
+    Mixture of Experts (MoE) Image Modality using CLIP models as experts.
+    Combines multiple pretrained CLIP models as experts and uses a gating network to select and weight their outputs.
+    During training, all experts are used and their outputs are weighted by the gating network.
+    During evaluation, only the top-k experts are used (not implemented yet).
+    """
+
     config_class = MOEImageConfig
     preprocessor_class = MOEImageProcessor
 
@@ -81,7 +102,6 @@ class MOEImageModality(BaseModality):
         self._num_patches_per_entry = (self.experts[0].config.image_size // self.experts[0].config.patch_size) ** 2
 
         self.gating_network = GatingNetwork.from_pretrained(config.gating_path)
-        self.image_processor = self.gating_network.image_processor
 
         self.projector = MLPProjector(self._embedding_size, config.hidden_size)
 
