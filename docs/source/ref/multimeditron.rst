@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    multimeditron.cli
+   multimeditron.dataset
    multimeditron.model
    multimeditron.train
    multimeditron.utils

@@ -13,15 +13,8 @@ class SamplePreprocessor:
     and processing modality-specific data into tensors. It serves as the
     intermediary between the raw input data and the model-ready format,
     leveraging modality-specific processing logic and tokenizers.
-
-    Attributes:
-        modalities_num_embeddings (Optional[int]): Number of embeddings for modalities,
-            initialized as None but can be set externally.
-        prompt_tokenizer (BasePromptTokenizer): Tokenizer responsible for tokenizing
-            input samples based on the provided tokenizer type.
-        modality_processors (Dict[str, BaseModalityProcessor]): A mapping of modality
-            types to their respective processing classes.
     """
+    
     def __init__(
         self,
         tokenizer: PreTrainedTokenizerBase,
@@ -56,12 +49,15 @@ class SamplePreprocessor:
         Args:
             samples (List[Dict[str, Any]]): A batch of input samples where each sample is a dictionary containing
                 raw data to be tokenized.
-            **kwargs: Additional arguments to customize the tokenization process.
+            kwargs: Additional arguments to customize the tokenization process.
 
         Returns:
             List[Dict[str, Any]]: A list of dictionaries representing tokenized samples.
 
         Example:
+
+        .. code-block:: python
+
             samples = [
                 {"conversations": 
                     {
@@ -88,6 +84,9 @@ class SamplePreprocessor:
             List[Dict[str, Any]]: A list of dictionaries where each dictionary has processed modality data represented as tensors.
 
         Example:
+    
+        .. code-block:: python
+
             samples = [
                 {"modalities": [
                     {"type": "image", "value": "image"}

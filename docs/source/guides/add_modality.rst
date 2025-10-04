@@ -87,11 +87,12 @@ Here is an example to load images from bytes:
             image = PIL.Image.open(io.BytesIO(image_bytes)).convert("RGB")
             return image
 
-A modality loader should always inherit from `BaseModalityLoader` and be registered using the python annotation :meth:`multimeditron.model.modalities.AutoModalityLoader.register`
+A modality loader should always inherit from :class:`~multimeditron.dataset.loader.BaseModalityLoader` and be registered using the python annotation :meth:`~multimeditron.model.modalities.base.AutoModalityLoader.register`
 
-The `load` function has the following signature:
-- Input: A dictionary that contains a key :code:`"value"`, i.e. `{"value" : <something>}`. This is the case for every modality. The actual format of the value field depends on the dataset format. See `TODO`
-- Output returns the raw modality (here a `PIL.Image.Image`).
+The :code:`load` function has the following signature:
+
+- Input: A dictionary that contains a key :code:`"value"`, i.e. :code:`{"value" : <something>}`. This is the case for every modality. The actual format of the value field depends on the dataset format. See `TODO`
+- Output returns the raw modality (here a :class:`PIL.Image.Image`).
 
 
 Modality configuration
@@ -134,3 +135,10 @@ The configuration file configures both the processor and the modality:
             self.projection_type = projection_type
 
 
+Every configuration needs to inherit :class:`~multimeditron.model.modalities.base.BaseModalityConfig` and call the :code:`__init__` function from :code:`BaseModalityConfig` wth the arguments:
+
+- :code:`max_batch_size`: the maximum amount of modalities that can be processed in a single batch by the `forward` function of the modality embedder
+- :code:`modality_type`: which modality type does this processor/modality pair handle. This field should match the :code:`"type"` field in the dataset. See `TODO`
+- :code:`hidden_size`: the projected shape of the modality embedder (i.e. the size of a LLM token embedding)
+
+This configuration can be arbitrarily expanded with any JSON-serializable attributes. See `Huggingface custom model`_

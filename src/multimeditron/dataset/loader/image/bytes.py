@@ -15,6 +15,9 @@ class RawImageLoader(BaseModalityLoader):
     Loader for raw image bytes.
     Expects the sample dictionary to have a "value" key containing a dictionary with a "bytes" key holding the raw image bytes.
     Example:
+
+    .. code-block:: python
+
         loader = RawImageLoader()
         sample = {"value": {"bytes": b'...'}, "type": "image"}
         image = loader.load(sample)
@@ -31,8 +34,10 @@ class RawImageLoader(BaseModalityLoader):
     def load(self, sample: Dict[str, Any]) -> PIL.Image.Image:
         """
         Load an image from raw bytes.
+
         Args:
             sample (Dict[str, Any]): A dictionary containing at least the "value" key with a dictionary that has a "bytes" key holding the raw image bytes.
+
         Returns:
             PIL.Image.Image: The loaded image as a PIL Image object.
         """

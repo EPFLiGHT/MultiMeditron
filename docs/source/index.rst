@@ -21,15 +21,15 @@ MultiMeditron documentation
 📚 Documentation
 ================
 
-* :doc:`Contributor guide </guides/guide>`: Guide for contributing to MultiMeditron and adding new modalities
-* :doc:`Reference manual </modules>`: Full reference manual of all the codebase
+.. * :doc:`Contributor guide </guides/guide>`: Guide for contributing to MultiMeditron and adding new modalities
+.. * :doc:`Reference manual </ref/modules>`: Full reference manual of all the codebase
 
-.. .. toctree::
-..     :glob:
-..     :maxdepth: 2
-..     :caption: Contents:
-..
-..     guides/guide
-..     modules
-..
+.. toctree::
+    :glob:
+    :maxdepth: 1
+    :caption: Contents:
+
+    User Guide <guides/guide>
+    Reference <ref/modules>
+
 
