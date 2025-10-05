@@ -16,19 +16,22 @@ jobs:
     steps:
       - name: Installing dependencies
         run: |
-          pip3 install sphinx_tabs
+          pip3 install sphinx-tabs
           pip3 install shibuya
 
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+
       - name: Build HTML
         uses: ammaraskar/sphinx-action@master
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: html-docs
           path: docs/build/html/
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: github.ref == 'refs/heads/main'
