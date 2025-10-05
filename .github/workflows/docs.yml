@@ -12,6 +12,10 @@ jobs:
     permissions:
       contents: write
     steps:
+    - name: Installing dependencies
+        run: |
+          pip3 install sphinx_tabs
+          pip3 install shibuya
     - uses: actions/checkout@v4
       with:
         persist-credentials: false
