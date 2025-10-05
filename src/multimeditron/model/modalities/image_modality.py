@@ -110,12 +110,12 @@ class ImageModality(BaseModality):
         assert self.vision_tower_name is not None, "vision_tower_name must be specified in the config"
 
         self.feature_extractor = AutoModel.from_pretrained(self.vision_tower_name, trust_remote_code=True)
-        self._embedding_size = self.feature_extractor.vision_embed_dim
+        self.embedding_size = self.feature_extractor.vision_embed_dim
         self._num_patches_per_entry = (self.feature_extractor.vision_model.config.image_size // self.feature_extractor.vision_model.config.patch_size) ** 2
 
-        self.projector = MLPProjector(self._embedding_size, config.hidden_size, dtype=self.dtype)
+        self.projector = MLPProjector(self.embedding_size, config.hidden_size, dtype=self.dtype)
 
-    def __call__(self, inputs) -> torch.FloatTensor:
+    def forward(self, inputs) -> torch.FloatTensor:
         inputs = torch.stack(inputs, dim=0)
         inputs = inputs.to(self.feature_extractor.device)
         image_features = self.feature_extractor.vision_model(inputs).last_hidden_state[:, 1:, :]
@@ -124,10 +124,6 @@ class ImageModality(BaseModality):
 
         return projected
 
-    @property
-    def embedding_size(self) -> int:
-        return self._embedding_size
-    
     @classmethod
     def from_dict(cls, config_args, **kwargs):
         return ImageConfig.from_dict(config_args, **kwargs)

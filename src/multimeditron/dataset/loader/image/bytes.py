@@ -1,6 +1,7 @@
 import os
 from typing import Dict, Any, Union
 from multimeditron.dataset.loader import BaseModalityLoader, AutoModalityLoader
+from multimeditron.model.constants import MODALITY_VALUE_KEY
 import pathlib
 import numpy as np
 import PIL
@@ -42,6 +43,6 @@ class RawImageLoader(BaseModalityLoader):
             PIL.Image.Image: The loaded image as a PIL Image object.
         """
 
-        image_bytes = sample["value"]["bytes"]
+        image_bytes = sample[MODALITY_VALUE_KEY]["bytes"]
         image = PIL.Image.open(io.BytesIO(image_bytes)).convert("RGB")
         return image

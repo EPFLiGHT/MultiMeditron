@@ -110,27 +110,6 @@ class BaseModality(ABC, PreTrainedModel):
         self.tokenizer = None
         self._dtype = dtype
 
-    @property
-    @abstractmethod
-    def embedding_size(self) -> int:
-        """
-        Abstract property that must be implemented to return the embedding size of the modality.
-
-        Returns:
-            int: The size of the embedding vector.
-        """
-        ...
-
-    @property
-    def num_patches_per_entry(self) -> Optional[int]:
-        """
-        Property that returns the number of patches per entry, if applicable.
-
-        Returns:
-            Optional[int]: Number of patches per entry, or None if not applicable.
-        """
-        return None
-
     def get_config(self) -> BaseModalityConfig:
         """
         Retrieve the configuration object associated with the modality.

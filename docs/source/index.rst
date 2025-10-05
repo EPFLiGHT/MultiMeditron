@@ -18,6 +18,20 @@ MultiMeditron documentation
 2025/09:
     - First version of the MultiMeditron pipeline!
 
+
+✨ Overview
+===========
+
+MultiMeditron is a scalable and modular pipeline to train multimodal models.
+
+Features:
+
+- **Modular modality**: Designed to be easily expanded to any types of modality
+- **Scalable**: Scalable to multinode training and efficient GPU memory usage using Deepspeed
+- **Configurable**: Trainings can be configured using a single YAML configuration file
+- **Easy to install**: We provide Docker images for easier reproducibility
+
+
 📚 Documentation
 ================
 

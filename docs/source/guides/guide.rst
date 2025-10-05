@@ -1,4 +1,4 @@
-User guides
+User Guides
 ===========
 
 This section contains user guides and tutorials for the MultiMeditron project. 
@@ -9,5 +9,7 @@ This section contains user guides and tutorials for the MultiMeditron project.
 
    quickstart
    add_modality
+   dataset_format
+   training
    
 
