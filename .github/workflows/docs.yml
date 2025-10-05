@@ -25,11 +25,14 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Build API
+        run: |
+          sphinx-apidoc -o docs/source/ref src/multimeditron
+
       - name: Build HTML
         uses: ammaraskar/sphinx-action@master
         with:
           docs-folder: docs
-          build-command: "sphinx-apidoc -o source/ref ../src/multimeditron && make html"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
