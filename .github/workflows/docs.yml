@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-docs:
     runs-on: ubuntu-latest
 
     permissions:
@@ -21,18 +21,16 @@ jobs:
           python3 -m pip install sphinx-tabs
           python3 -m pip install shibuya
 
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
       - name: Build API
-        run: |
-          sphinx-apidoc -o docs/source/ref src/multimeditron
+        run: sphinx-apidoc -o docs/source/ref src/multimeditron
 
       - name: Build HTML
-        uses: ammaraskar/sphinx-action@master
-        with:
-          docs-folder: docs
+        run: cd docs && make html
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
