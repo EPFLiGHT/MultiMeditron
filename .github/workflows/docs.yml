@@ -14,17 +14,13 @@ jobs:
       contents: write
 
     steps:
-
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
 
       - name: Build HTML
         uses: ammaraskar/sphinx-action@master
-        pre-build-command: |
-          apt update -y &&  apt install -y graphviz
-          pip3 install sphinx-tabs
-          pip3 install shibuya
+        pre-build-command: "apt update -y && apt install -y graphviz && pip3 install sphinx-tabs && pip3 install shibuya"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
