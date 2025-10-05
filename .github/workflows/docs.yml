@@ -18,8 +18,7 @@ jobs:
         run: |
           sudo apt update -y 
           sudo apt install -y graphviz 
-          python3 -m pip install sphinx-tabs
-          python3 -m pip install shibuya
+          pip install ".[docs]"
 
       - name: Checkout repository
         uses: actions/checkout@v4

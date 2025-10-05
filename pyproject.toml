@@ -17,13 +17,11 @@ requires-python = ">=3.10"
 
 dependencies = [
     "numpy<2.0.0",
-    "h5py",
     "click",
     "ray",
     "hydra-core",
     "pydantic",
     "pydanclick",
-    "webdataset",
     "transformers",
     "einops",
     "monai==1.3.2",
@@ -39,7 +37,27 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = []
+dev = [
+    "sphinx",
+    "sphinx-tabs",
+    "shibuya"
+]
+docs = [
+    "sphinx",
+    "sphinx-tabs",
+    "shibuya"
+    "transformers",
+    "numpy<2.0.0",
+    "click",
+    "ray",
+    "hydra-core",
+    "pydantic",
+    "pydanclick",
+    "transformers",
+    "deepspeed",
+    "wandb",
+    "datasets @ git+https://github.com/Androz2091/simon-huggingface-datasets.git"
+]
 
 [project.scripts]
 multimeditron = "multimeditron.cli:main_cli"
