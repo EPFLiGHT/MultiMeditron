@@ -16,8 +16,8 @@ jobs:
     steps:
       - name: Install deps
         run: |
-          apt update -y 
-          apt install -y graphviz 
+          sudo apt update -y 
+          sudo apt install -y graphviz 
           python3 -m pip install sphinx-tabs
           python3 -m pip install shibuya
 
