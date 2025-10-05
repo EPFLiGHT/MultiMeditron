@@ -20,7 +20,9 @@ jobs:
 
       - name: Build HTML
         uses: ammaraskar/sphinx-action@master
-        pre-build-command: "apt update -y && apt install -y graphviz && pip3 install sphinx-tabs && pip3 install shibuya"
+        with:
+          docs-folder: docs
+          pre-build-command: "apt update -y && apt install -y graphviz && pip3 install sphinx-tabs && pip3 install shibuya"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
