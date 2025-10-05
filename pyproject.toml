@@ -32,31 +32,17 @@ dependencies = [
     "wandb",
     "deprecated",
     "benchy @ git+https://github.com/lukasgd/benchy.git@slurm",
-    "flash-attn",
     "datasets @ git+https://github.com/Androz2091/simon-huggingface-datasets.git"
 ]
 
 [project.optional-dependencies]
-dev = [
-    "sphinx",
-    "sphinx-tabs",
-    "shibuya"
+flash-attn = [
+    "flash-attn",
 ]
 docs = [
     "sphinx",
     "sphinx-tabs",
     "shibuya",
-    "transformers",
-    "numpy<2.0.0",
-    "click",
-    "ray",
-    "hydra-core",
-    "pydantic",
-    "pydanclick",
-    "transformers",
-    "deepspeed",
-    "wandb",
-    "datasets @ git+https://github.com/Androz2091/simon-huggingface-datasets.git"
 ]
 
 [project.scripts]
