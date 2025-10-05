@@ -45,7 +45,7 @@ dev = [
 docs = [
     "sphinx",
     "sphinx-tabs",
-    "shibuya"
+    "shibuya",
     "transformers",
     "numpy<2.0.0",
     "click",
