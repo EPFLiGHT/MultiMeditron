@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Install deps
-        runs: |
+        run: |
           apt update -y 
           apt install -y graphviz 
           python3 -m pip install sphinx-tabs
