@@ -1,3 +1,6 @@
+.. role:: bash(code)
+   :language: bash
+
 Quickstart
 ==========
 
@@ -10,13 +13,18 @@ To install MultiMeditron, you can either use pip or a prebuilt docker image.
 
 Pip Installation
 ~~~~~~~~~~~~~~~~
-You can install MultiMeditron using pip. Run the following command in your terminal:
+You can install MultiMeditron using pip. Note that this installation supposes that you already have :code:`torch` installed! 
+If not, go on the following `link`_, select the relevant torch version and your CUDA driver version and run the given command.
+
+.. _link: https://pytorch.org/get-started/locally/
+
+Then run the following command in your terminal:
 
 .. code-block:: bash
 
     git clone https://github.com/EPFLiGHT/MultiMeditron.git
     cd MultiMeditron 
-    pip install -e .
+    pip install -e ".[flash-attn]"
 
 
 Docker Installation
@@ -56,6 +64,10 @@ We also provide Docker images that runs on specific versions of the GitHub repos
             docker pull michelducartier24/multimeditron-git:<commit-hash>-arm64
 
 Retrieve the commit hash that you need, and replace the `<commit-hash>` placeholder with the real commit hash.
+
+.. note::
+   On certain systems with custom permissions on volumes, the Docker image won't give you enough permissions or won't give you a username for the UID because they are not included in :bash:`/etc/passwd`.
+   Please check :ref:`docker-permission`
 
 MultiMeditron inference
 -----------------------

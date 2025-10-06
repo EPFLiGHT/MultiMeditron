@@ -10,5 +10,6 @@ This section contains user guides and tutorials for the MultiMeditron project.
    add_modality
    dataset_format
    training
+   known_issues
    
 
