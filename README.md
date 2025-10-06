@@ -7,7 +7,7 @@ MultiMeditron is a multimodal LLM built by students and researchers from [LiGHT 
 To download the project. Execute the following commands:
 
 ```
-git clone https://github.com/OpenMeditron/MultiMeditron.git
+git clone https://github.com/EPFLiGHT/MultiMeditron.git
 cd MultiMeditron
 python3 -m venv .venv
 source .venv/bin/activate
