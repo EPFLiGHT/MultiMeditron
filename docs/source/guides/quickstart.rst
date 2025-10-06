@@ -94,8 +94,8 @@ Once you have installed MultiMeditron, you can run inference on your images. Her
     tokenizer.add_special_tokens(special_tokens)
     attachment_token_idx = tokenizer.convert_tokens_to_ids(ATTACHMENT_TOKEN)
 
-    model = MultiModalModelForCausalLM.from_pretrained("path/to/trained/model")
-    model.to("cuda")
+    model = MultiModalModelForCausalLM.from_pretrained("path/to/trained/model", device_map="auto")
+    model.eval()
 
     modalities = [{"type" : "image", "value" : "path/to/image"}]
     conversations = [{
