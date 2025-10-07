@@ -10,24 +10,24 @@ class GatingNetworkConfig(PretrainedConfig):
     """
     Configuration class for the Gating Network model.
     Attributes:
-        num_labels (int): Number of output classes for the gating network (number of experts).
+        num_classes (int): Number of output classes for the gating network (number of experts).
         top_k (int): Number of top predictions to consider for gating.
     """
     model_type = "gating_network"
 
-    def __init__(self, num_labels: int = 2, 
+    def __init__(self, num_classes: int = 2, 
                  top_k: int = 1, 
                  image_processor_path: str = "openai/clip-vit-large-patch14",
                  **kwargs):
         """
         Initializes the GatingNetworkConfig.
         Args:
-            num_labels (int): Number of output classes for the gating network (number of experts).
+            num_classes (int): Number of output classes for the gating network (number of experts).
             top_k (int): Number of top predictions to consider for gating.
             **kwargs: Additional keyword arguments.
         """
         super().__init__(**kwargs)
-        self.num_labels = num_labels
+        self.num_classes = num_classes
         self.top_k = top_k
         self.image_processor_path = image_processor_path
 
@@ -57,11 +57,11 @@ class GatingNetwork(PreTrainedModel):
         if resnet_path is not None:
             resnet_weights = torch.load(resnet_path)
             self.resnet = models.resnet50(weights=None)
-            self.resnet.fc = nn.Linear(self.resnet.fc.in_features, config.num_labels)
+            self.resnet.fc = nn.Linear(self.resnet.fc.in_features, config.num_classes)
             self.resnet.load_state_dict(resnet_weights)
         else:
             self.resnet = models.resnet50(weights=None)
-            self.resnet.fc = nn.Linear(self.resnet.fc.in_features, config.num_labels)
+            self.resnet.fc = nn.Linear(self.resnet.fc.in_features, config.num_classes)
 
         self.top_k = config.top_k
         self.image_processor = AutoImageProcessor.from_pretrained(config.image_processor_path)
@@ -75,9 +75,9 @@ class GatingNetwork(PreTrainedModel):
             pixel_values (torch.Tensor): Input image tensor of shape (batch_size, channels, height, width).
 
         Returns:
-            logits (torch.Tensor): Logits for each expert of shape (batch_size, num_labels).
+            logits (torch.Tensor): Logits for each expert of shape (batch_size, num_classes).
             topk_indices (torch.Tensor): Indices of the top-k experts of shape (batch_size, top_k).
-            weights (torch.Tensor): Softmax weights for each expert of shape (batch_size, num_labels).
+            weights (torch.Tensor): Softmax weights for each expert of shape (batch_size, num_classes).
         """
 
         logits = self.resnet(pixel_values)
