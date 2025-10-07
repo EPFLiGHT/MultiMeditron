@@ -52,7 +52,6 @@ torch = ["torch"]
 [project.scripts]
 multimeditron = "multimeditron.cli:main_cli"
 mm = "multimeditron.cli:main_cli"
-train_expert = ""
 
 [tool.setuptools]
 package-dir = {"" = "src"}
