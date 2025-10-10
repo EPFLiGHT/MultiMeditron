@@ -11,7 +11,6 @@ class MOEImageConfig(BaseModalityConfig):
     def __init__(
         self,
         hidden_size: int = 1024,
-        max_batch_size: int = 32,
         use_bias_proj: bool = True,
         expert_clip_names: List[str] = [],
         image_processor: str = "openai/clip-vit-large-patch14",
@@ -24,7 +23,6 @@ class MOEImageConfig(BaseModalityConfig):
         Config for Mixture of Experts (MoE) Image Modality using CLIP models as experts.
         Args:
             hidden_size (int): The hidden size of the output embeddings.
-            max_batch_size (int): The maximum batch size for processing.
             use_bias_proj (bool): Whether to use bias in the projection layer.
             expert_clip_names (List[str]): List of pretrained CLIP model names to be used as experts.
             image_processor (str): Pretrained image processor name for preprocessing images.
@@ -34,7 +32,6 @@ class MOEImageConfig(BaseModalityConfig):
             **kwargs: Additional keyword arguments.
         """
         super().__init__(
-            max_batch_size=max_batch_size,
             use_bias_proj=use_bias_proj,
             modality_type="image",
             hidden_size=hidden_size,
