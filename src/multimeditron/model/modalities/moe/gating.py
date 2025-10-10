@@ -18,6 +18,7 @@ class GatingNetworkConfig(PretrainedConfig):
     def __init__(self, num_classes: int = 2, 
                  top_k: int = 1, 
                  image_processor_path: str = "openai/clip-vit-large-patch14",
+                 class_names : List[str] = [],
                  **kwargs):
         """
         Initializes the GatingNetworkConfig.
@@ -30,6 +31,7 @@ class GatingNetworkConfig(PretrainedConfig):
         self.num_classes = num_classes
         self.top_k = top_k
         self.image_processor_path = image_processor_path
+        self.class_names = class_names
 
 
 class GatingNetwork(PreTrainedModel):

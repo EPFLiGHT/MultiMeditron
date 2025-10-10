@@ -86,6 +86,8 @@ class MOEImageModality(BaseModality):
         super().__init__(config)
 
         self.experts = torch.nn.ModuleList()
+        self.expert_names: List[str] = list(config.expert_clip_names)
+        assert len(self.expert_names) > 0, "config.expert_clip_names must be non-empty.
 
         self._embedding_size = None
         for clip_name in config.expert_clip_names:
@@ -100,6 +102,21 @@ class MOEImageModality(BaseModality):
 
         self.gating_network = GatingNetwork.from_pretrained(config.gating_path)
 
+        gate_class_names: List[str] = getattr(self.gating_network.config, "class_names", []) or []
+        if gate_class_names:
+            # Build perm[class_idx] = expert_idx
+            name_to_expert_idx = {name: i for i, name in enumerate(self.expert_names)}
+            try:
+                perm_list = [name_to_expert_idx[name] for name in gate_class_names]
+            except KeyError as e:
+                raise ValueError(f"Gating class name {e} not found in expert_clip_names: {self.expert_names}")
+        else:
+            num_experts = len(self.experts)
+            perm_list = list(range(num_experts))
+
+        # register permutation as a non-persistent buffer
+        self.register_buffer("_gating_to_expert_perm", torch.tensor(perm_list, dtype=torch.long), persistent=False)
+
         self.projector = MLPProjector(self._embedding_size, config.hidden_size)
 
     def forward(self, inputs) -> torch.Tensor:
@@ -107,7 +124,7 @@ class MOEImageModality(BaseModality):
         inputs = torch.stack(inputs, dim=0).to(device)
 
         _logits, _topk_indices, weights = self.gating_network(inputs)
-        
+
         if self.training:
             # Use all experts
             expert_outputs = []
@@ -118,7 +135,11 @@ class MOEImageModality(BaseModality):
 
             # stacked_expert_outputs shape: (num_experts, batch_size, num_patches, embedding_size)
             stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
+
+            perm = self._gating_to_expert_perm  # shape (N,)
+            weights = weights.index_select(dim=-1, index=perm)  # -> (B, N_experts)
             weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, 1, 1, num_experts)
+            # topk_indices = perm[topk_indices]      
 
             weighted_output = (stacked_expert_outputs * weights).sum(dim=1)
 
