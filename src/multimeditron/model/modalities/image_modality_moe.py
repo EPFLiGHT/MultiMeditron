@@ -87,7 +87,7 @@ class MOEImageModality(BaseModality):
 
         self.experts = torch.nn.ModuleList()
         self.expert_names: List[str] = list(config.expert_clip_names)
-        assert len(self.expert_names) > 0, "config.expert_clip_names must be non-empty.
+        assert len(self.expert_names) > 0, "config.expert_clip_names must be non-empty"
 
         self._embedding_size = None
         for clip_name in config.expert_clip_names:
@@ -128,22 +128,24 @@ class MOEImageModality(BaseModality):
         if self.training:
             # Use all experts
             expert_outputs = []
-            for expert in self.experts:
+            for i, expert in enumerate(self.experts):
                 expert_out = expert(inputs).last_hidden_state[:, 1:, :]
-
                 expert_outputs.append(expert_out)
 
             # stacked_expert_outputs shape: (num_experts, batch_size, num_patches, embedding_size)
             stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
 
+
             perm = self._gating_to_expert_perm  # shape (N,)
             weights = weights.index_select(dim=-1, index=perm)  # -> (B, N_experts)
-            weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, 1, 1, num_experts)
+            weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, num_experts, 1, 1)
+
             # topk_indices = perm[topk_indices]      
 
             weighted_output = (stacked_expert_outputs * weights).sum(dim=1)
-
             projected = self.projector(weighted_output)
+
+
 
             return projected
 
