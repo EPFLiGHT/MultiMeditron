@@ -35,7 +35,7 @@ class MOEImageConfigPEP(BaseModalityConfig):
             use_bias_proj=use_bias_proj,
             modality_type="image",
             hidden_size=hidden_size,
-            kwargs=kwargs,
+            **kwargs,
         )
 
         self.expert_clip_names = expert_clip_names
@@ -51,7 +51,7 @@ class MOEImageProcessorPEP(BaseModalityProcessor):
     Per Expert Projection (PEP) version.
     Uses a pretrained image processor to convert raw images into pixel values.
     """
-    def __init__(self, config: MOEImageConfig):
+    def __init__(self, config: MOEImageConfigPEP):
         super().__init__(config)
         self.image_processor = AutoImageProcessor.from_pretrained(config.image_processor)
 
@@ -81,10 +81,10 @@ class MOEImageModalityPEP(BaseModality):
     During evaluation, only the top-k experts are used (not implemented yet).
     """
 
-    config_class = MOEImageConfig
-    preprocessor_class = MOEImageProcessor
+    config_class = MOEImageConfigPEP
+    preprocessor_class = MOEImageProcessorPEP
 
-    def __init__(self, config: MOEImageConfig):
+    def __init__(self, config: MOEImageConfigPEP):
         super().__init__(config)
 
         self.experts = torch.nn.ModuleList()
@@ -154,8 +154,8 @@ class MOEImageModalityPEP(BaseModality):
                 params.requires_grad = False
 
     def freeze_projection_only(self):
-        # freezes all projectors
-        for projector in self.projectors():
-            projector.requires_grad = False
+        for projector in self.projectors:
+            for p in projector.parameters():
+                p.requires_grad = False
 
 

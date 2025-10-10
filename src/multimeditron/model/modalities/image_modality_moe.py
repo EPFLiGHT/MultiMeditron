@@ -104,7 +104,7 @@ class MOEImageModality(BaseModality):
 
         gate_class_names: List[str] = getattr(self.gating_network.config, "class_names", []) or []
         if gate_class_names:
-            # Build perm[class_idx] = expert_idx
+            # build perm[class_idx] = expert_idx
             name_to_expert_idx = {name: i for i, name in enumerate(self.expert_names)}
             try:
                 perm_list = [name_to_expert_idx[name] for name in gate_class_names]
