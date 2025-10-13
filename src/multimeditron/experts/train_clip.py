@@ -151,7 +151,7 @@ class ModelArguments:
 
 @dataclass
 class DatasetConfig:
-    dataset_name: Optional[str] = field(
+    dataset_path: Optional[str] = field(
         default=None,
         metadata={"help": "The name of the dataset to use (via the datasets library)."},
     )
@@ -274,12 +274,12 @@ def get_combined_dataset(
     logger.info(f"Loading datasets: {dataset_configs}")
     for config in dataset_configs:
         # Load individual dataset
-        if config.get("dataset_name", None) is None:
+        if config.get("dataset_path", None) is None:
             assert len(config) == 1
             config = config[list(config.keys())[0]]
         config = DatasetConfig(**config)
 
-        if config.dataset_name.endswith(".jsonl"):  # path to a jsonl
+        if config.dataset_path.endswith(".jsonl"):  # path to a jsonl
             dataset = load_dataset(
                 "json",
                 config.dataset_config_name,
@@ -288,11 +288,11 @@ def get_combined_dataset(
                 data_dir=config.data_dir,
                 token=model_args.token,
                 trust_remote_code=model_args.trust_remote_code,
-                data_files=config.dataset_name,
+                data_files=config.dataset_path,
             )
         else:
             dataset = load_dataset(
-                config.dataset_name,
+                config.dataset_path,
                 config.dataset_config_name,
                 cache_dir=model_args.cache_dir,
                 keep_in_memory=False,
@@ -308,12 +308,12 @@ def get_combined_dataset(
                 return {
                     config.caption_column: row[config.caption_column],
                     config.image_column: os.path.join(
-                        os.path.dirname(config.dataset_name),
+                        os.path.dirname(config.dataset_path),
                         row[config.image_column][0]["value"],
                     ),
                 }
 
-            if config.dataset_name.endswith(".jsonl"):
+            if config.dataset_path.endswith(".jsonl"):
                 dataset["train"] = dataset["train"].map(find_img_path)
 
             dataset["train"] = (
@@ -619,14 +619,14 @@ def main(config_path: str):
         "tasks": "contrastive-image-text-modeling",
     }
     for dataset in data_args.dataset_configs:
-        if dataset.get("dataset_name", None) is None:
+        if dataset.get("dataset_path", None) is None:
             assert len(dataset) == 1
             dataset = dataset[list(dataset.keys())[0]]
         dataset = DatasetConfig(**dataset)
-        if dataset.dataset_name is not None:
+        if dataset.dataset_path is not None:
             if not hasattr(kwargs, "dataset_tags"):
                 kwargs["dataset_tags"] = []
-            kwargs["dataset_tags"].append(dataset.dataset_name)
+            kwargs["dataset_tags"].append(dataset.dataset_path)
 
     trainer.create_model_card(**kwargs)
 
