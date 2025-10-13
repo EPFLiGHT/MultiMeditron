@@ -93,10 +93,12 @@ vision_model_name: "openai/clip-vit-base-patch32"
 text_model_name: "naver/splade-v3"
 remove_unused_columns: false
 do_train: true
-per_device_train_batch_size: 64
+per_device_eval_batch_size: 64
 dataloader_drop_last: true
 overwrite_output_dir: true
 save_steps: 150
+fp16: true
+bf16: true
 """
 
                 with open(config_filepath+".yaml", "w") as f:
