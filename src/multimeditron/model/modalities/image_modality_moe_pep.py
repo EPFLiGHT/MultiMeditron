@@ -71,7 +71,7 @@ class MOEImageProcessorPEP(BaseModalityProcessor):
         return processed_modality
 
 
-@AutoModality.register("moe_pep_meditron_clip")
+@AutoModality.register("moe_meditron_clip_pep")
 class MOEImageModalityPEP(BaseModality):
     """
     Mixture of Experts (MoE) Image Modality using CLIP models as experts.
@@ -89,12 +89,17 @@ class MOEImageModalityPEP(BaseModality):
 
         self.experts = torch.nn.ModuleList()
 
+        in_dims: List[int] = [] # collect in_dims for each expert
+        self.expert_names: List[str] = list(config.expert_clip_names)
         self._embedding_size = None
+
         for clip_name in config.expert_clip_names:
             expert_model = AutoModel.from_pretrained(clip_name, trust_remote_code=True)
 
             if self._embedding_size is None:
                 self._embedding_size = expert_model.vision_embed_dim
+                in_dims.append(expert_model.vision_embed_dim)
+
             self.experts.append(expert_model.vision_model)
             
 
@@ -108,8 +113,7 @@ class MOEImageModalityPEP(BaseModality):
             raise ValueError(f"Unsupported projection_type: {config.projection_type}")
 
         self.projectors = torch.nn.ModuleList(
-            [make_projector(expert.vision_embed_dim, config.hidden_size)
-             for expert in self.experts]
+            [make_projector(in_dim, config.hidden_size) for in_dim in in_dims]
         )
 
         self.gating_network = GatingNetwork.from_pretrained(config.gating_path)
@@ -127,7 +131,7 @@ class MOEImageModalityPEP(BaseModality):
             expert_projector_outputs = []
             for expert, projector in zip(self.experts, self.projectors):
                 expert_out = expert(inputs).last_hidden_state[:, 1:, :]
-                expert_outputs.append(projector(expert_out))
+                expert_outputs.append(projector(expert_out)) # project per expert
 
             # stacked_expert_outputs shape: (num_experts, batch_size, num_patches, embedding_size)
             stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
