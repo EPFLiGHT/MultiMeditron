@@ -13,12 +13,11 @@ class ImageConfig(BaseModalityConfig):
 
     Attributes:
         hidden_size (int): Dimension of the hidden layer for the projection network.
-        max_batch_size (int): Maximum batch size for processing.
         clip_name (str): Name of the CLIP model to use as the feature extractor.
         projection_type (str): Type of projection network (e.g., "mlp").
 
     Example:
-        >>> config = ImageConfig(hidden_size=512, max_batch_size=16, clip_name="openai/clip-vit-base-patch32")
+        >>> config = ImageConfig(hidden_size=512, clip_name="openai/clip-vit-base-patch32")
         >>> print(config.clip_name)
         openai/clip-vit-base-patch32
     """
@@ -26,7 +25,6 @@ class ImageConfig(BaseModalityConfig):
     def __init__(
         self,
         hidden_size: int = 4096,
-        max_batch_size: int = 32,
         clip_name: str = "openai/clip-vit-large-patch14",
         projection_type: str = "mlp",
         **kwargs
@@ -36,13 +34,11 @@ class ImageConfig(BaseModalityConfig):
 
         Args:
             hidden_size (int): Dimension of the hidden layer for the projection network.
-            max_batch_size (int): Maximum batch size for processing.
             clip_name (str): Name of the CLIP model to use as the feature extractor.
             projection_type (str): Type of projection network (e.g., "mlp").
             **kwargs: Additional keyword arguments.
         """
         super().__init__(
-            max_batch_size=max_batch_size,
             modality_type="image",
             hidden_size=hidden_size,
             kwargs=kwargs

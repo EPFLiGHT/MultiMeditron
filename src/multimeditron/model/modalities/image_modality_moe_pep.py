@@ -7,10 +7,10 @@ from transformers import AutoModel, AutoImageProcessor, AutoConfig
 from typing import Dict, Any, List
 
 
-class MOEImageConfig(BaseModalityConfig):
+class MOEImageConfigPEP(BaseModalityConfig):
     def __init__(
         self,
-        hidden_size: int = 1024,
+        hidden_size: int = 4096,
         use_bias_proj: bool = True,
         expert_clip_names: List[str] = [],
         image_processor: str = "openai/clip-vit-large-patch14",
@@ -20,7 +20,7 @@ class MOEImageConfig(BaseModalityConfig):
         **kwargs,
     ):
         """
-        Config for Mixture of Experts (MoE) Image Modality using CLIP models as experts.
+        Config for Mixture of Experts (MoE) Image Modality using CLIP models as experts with per expert projection.
         Args:
             hidden_size (int): The hidden size of the output embeddings.
             use_bias_proj (bool): Whether to use bias in the projection layer.
@@ -35,7 +35,7 @@ class MOEImageConfig(BaseModalityConfig):
             use_bias_proj=use_bias_proj,
             modality_type="image",
             hidden_size=hidden_size,
-            kwargs=kwargs,
+            **kwargs,
         )
 
         self.expert_clip_names = expert_clip_names
@@ -45,12 +45,13 @@ class MOEImageConfig(BaseModalityConfig):
         self.image_processor = image_processor
 
 
-class MOEImageProcessor(BaseModalityProcessor):
+class MOEImageProcessorPEP(BaseModalityProcessor):
     """
     Processor for Mixture of Experts (MoE) Image Modality.
+    Per Expert Projection (PEP) version.
     Uses a pretrained image processor to convert raw images into pixel values.
     """
-    def __init__(self, config: MOEImageConfig):
+    def __init__(self, config: MOEImageConfigPEP):
         super().__init__(config)
         self.image_processor = AutoImageProcessor.from_pretrained(config.image_processor)
 
@@ -70,24 +71,23 @@ class MOEImageProcessor(BaseModalityProcessor):
         return processed_modality
 
 
-@AutoModality.register("moe_meditron_clip")
-class MOEImageModality(BaseModality):
+@AutoModality.register("moe_pep_meditron_clip")
+class MOEImageModalityPEP(BaseModality):
     """
     Mixture of Experts (MoE) Image Modality using CLIP models as experts.
     Combines multiple pretrained CLIP models as experts and uses a gating network to select and weight their outputs.
+    Uses Per Expert Projection (PEP) where each expert has its own projection layer.
     During training, all experts are used and their outputs are weighted by the gating network.
     During evaluation, only the top-k experts are used (not implemented yet).
     """
 
-    config_class = MOEImageConfig
-    preprocessor_class = MOEImageProcessor
+    config_class = MOEImageConfigPEP
+    preprocessor_class = MOEImageProcessorPEP
 
-    def __init__(self, config: MOEImageConfig):
+    def __init__(self, config: MOEImageConfigPEP):
         super().__init__(config)
 
         self.experts = torch.nn.ModuleList()
-        self.expert_names: List[str] = list(config.expert_clip_names)
-        assert len(self.expert_names) > 0, "config.expert_clip_names must be non-empty"
 
         self._embedding_size = None
         for clip_name in config.expert_clip_names:
@@ -95,59 +95,47 @@ class MOEImageModality(BaseModality):
 
             if self._embedding_size is None:
                 self._embedding_size = expert_model.vision_embed_dim
-
             self.experts.append(expert_model.vision_model)
+            
 
         self._num_patches_per_entry = (self.experts[0].config.image_size // self.experts[0].config.patch_size) ** 2
+        assert len(self.experts) > 0, "No experts provided in config.expert_clip_names."
+
+        # per-expert projectors
+        def make_projector(in_dim: int, out_dim: int):
+            if config.projection_type == "mlp":
+                return MLPProjector(in_dim, out_dim)
+            raise ValueError(f"Unsupported projection_type: {config.projection_type}")
+
+        self.projectors = torch.nn.ModuleList(
+            [make_projector(expert.vision_embed_dim, config.hidden_size)
+             for expert in self.experts]
+        )
 
         self.gating_network = GatingNetwork.from_pretrained(config.gating_path)
 
-        gate_class_names: List[str] = getattr(self.gating_network.config, "class_names", []) or []
-        if gate_class_names:
-            # build perm[class_idx] = expert_idx
-            name_to_expert_idx = {name: i for i, name in enumerate(self.expert_names)}
-            try:
-                perm_list = [name_to_expert_idx[name] for name in gate_class_names]
-            except KeyError as e:
-                raise ValueError(f"Gating class name {e} not found in expert_clip_names: {self.expert_names}")
-        else:
-            num_experts = len(self.experts)
-            perm_list = list(range(num_experts))
-
-        # register permutation as a non-persistent buffer
-        self.register_buffer("_gating_to_expert_perm", torch.tensor(perm_list, dtype=torch.long), persistent=False)
-
-        self.projector = MLPProjector(self._embedding_size, config.hidden_size)
-
+        
     def forward(self, inputs) -> torch.Tensor:
         device = next(self.experts[0].parameters()).device
         inputs = torch.stack(inputs, dim=0).to(device)
 
         _logits, _topk_indices, weights = self.gating_network(inputs)
-
+        
         if self.training:
             # Use all experts
             expert_outputs = []
-            for i, expert in enumerate(self.experts):
+            expert_projector_outputs = []
+            for expert, projector in zip(self.experts, self.projectors):
                 expert_out = expert(inputs).last_hidden_state[:, 1:, :]
-                expert_outputs.append(expert_out)
+                expert_outputs.append(projector(expert_out))
 
             # stacked_expert_outputs shape: (num_experts, batch_size, num_patches, embedding_size)
             stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
-
-
-            perm = self._gating_to_expert_perm  # shape (N,)
-            weights = weights.index_select(dim=-1, index=perm)  # -> (B, N_experts)
-            weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, num_experts, 1, 1)
-
-            # topk_indices = perm[topk_indices]      
+            weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, 1, 1, num_experts)
 
             weighted_output = (stacked_expert_outputs * weights).sum(dim=1)
-            projected = self.projector(weighted_output)
 
-
-
-            return projected
+            return weighted_output
 
         else:
             # Evaluation mode
@@ -166,7 +154,8 @@ class MOEImageModality(BaseModality):
                 params.requires_grad = False
 
     def freeze_projection_only(self):
-        for params in self.projector.parameters():
-            params.requires_grad = False
+        for projector in self.projectors:
+            for p in projector.parameters():
+                p.requires_grad = False
 
 
