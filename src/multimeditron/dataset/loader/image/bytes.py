@@ -1,6 +1,7 @@
 import os
 from typing import Dict, Any, Union
 from multimeditron.dataset.loader import BaseModalityLoader, AutoModalityLoader
+from multimeditron.model.constants import MODALITY_VALUE_KEY
 import pathlib
 import numpy as np
 import PIL
@@ -15,6 +16,9 @@ class RawImageLoader(BaseModalityLoader):
     Loader for raw image bytes.
     Expects the sample dictionary to have a "value" key containing a dictionary with a "bytes" key holding the raw image bytes.
     Example:
+
+    .. code-block:: python
+
         loader = RawImageLoader()
         sample = {"value": {"bytes": b'...'}, "type": "image"}
         image = loader.load(sample)
@@ -31,12 +35,17 @@ class RawImageLoader(BaseModalityLoader):
     def load(self, sample: Dict[str, Any]) -> PIL.Image.Image:
         """
         Load an image from raw bytes.
+
         Args:
             sample (Dict[str, Any]): A dictionary containing at least the "value" key with a dictionary that has a "bytes" key holding the raw image bytes.
+
         Returns:
             PIL.Image.Image: The loaded image as a PIL Image object.
         """
 
-        image_bytes = sample["value"]["bytes"]
+        if isinstance(sample[MODALITY_VALUE_KEY], PIL.Image.Image):
+            return sample[MODALITY_VALUE_KEY]
+
+        image_bytes = sample[MODALITY_VALUE_KEY]["bytes"]
         image = PIL.Image.open(io.BytesIO(image_bytes)).convert("RGB")
         return image

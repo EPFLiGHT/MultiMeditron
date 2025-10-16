@@ -9,6 +9,7 @@ from multimeditron.dataset.loader import AutoModalityLoader
 from multimeditron.model.model import MultiModalModelForCausalLM, MultimodalConfig
 from tqdm import tqdm
 import deepspeed
+import deepspeed
 import torch
 import os
 import yaml
@@ -28,6 +29,10 @@ def is_dataset_folder(folder: str) -> bool:
     return os.path.exists(os.path.join(folder, datasets_config.DATASET_INFO_FILENAME)) and \
         os.path.exists(os.path.join(folder, datasets_config.DATASET_STATE_JSON_FILENAME))
 
+def is_jsonl(path: str) -> bool:
+    filename, extension = os.path.splitext(path)
+    return extension == ".jsonl"
+
 def build_datasets(config):
     packed_datasets = []
     
@@ -37,6 +42,8 @@ def build_datasets(config):
     for ds_config in tqdm(config["datasets"], desc="Concatenating datasets"):
         if is_dataset_folder(ds_config["packed_path"]):
             dataset = load_from_disk(ds_config['packed_path'])
+        elif is_jsonl(ds_config["packed_path"]):
+            dataset = load_dataset("json", data_files=ds_config["packed_path"])["train"]
         else:
             dataset = load_dataset(ds_config["packed_path"], num_proc=num_proc)["train"]
         
@@ -80,31 +87,28 @@ def train(config: str,
     # Create a model
     torch.set_default_dtype(torch.bfloat16)
     
-    # Get modalities from configuration
-    modalities_config = []
-    for modality in config_dict["modalities"]:
-        modalities_config.append(AutoModality.config_from_dict(modality))
-
     modalities_loader = dict()
-    for loader in config_dict["loaders"]:
-        loader_copy = loader.copy()
-        loader_type = loader_copy.pop("loader_type")
-        modality_type = loader_copy.pop("modality_type")
-        modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader_copy)
+    with deepspeed.zero.Init(dtype=torch.bfloat16):
+        if config_dict.get("base_model", None) is None:
+            # Get modalities from configuration
+            modalities_config = []
+            for modality in config_dict.get("modalities", []):
+                modalities_config.append(AutoModality.config_from_dict(modality))
+
+            for loader in config_dict["loaders"]:
+                loader_copy = loader.copy()
+                loader_type = loader_copy.pop("loader_type")
+                modality_type = loader_copy.pop("modality_type")
+                modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader_copy)
 
     with deepspeed.zero.Init(dtype=torch.bfloat16):
         if config_dict.get("base_model", None) is None:
             model = bootstrap(config_dict, tokenizer, attachment_token_idx, modalities_config)
         else:
-            multimodal_config = MultimodalConfig(
-                    hidden_size=config_dict["token_size"],
-                    vocab_size=len(tokenizer),
-                    attachment_token_idx=attachment_token_idx,
-                    eos_token_idx=tokenizer.convert_tokens_to_ids(tokenizer.eos_token),
-                    modalities=modalities_config,
-                    llm_path=config_dict["base_llm"],
-            )
-            model = MultiModalModelForCausalLM.from_pretrained(config_dict["base_model"], config=multimodal_config)
+            model = MultiModalModelForCausalLM.from_pretrained(config_dict["base_model"], 
+                                                               truncation=config_dict.get("truncation", False),
+                                                               max_sequence_length=config_dict.get("max_sequence_length", None)
+                                                               )
     
     model.train()
     
@@ -133,7 +137,7 @@ def train(config: str,
             callbacks=trainer_callbacks,
     )
     
-    if torch.distributed.get_rank() ==0:
+    if torch.distributed.get_rank() == 0:
         run = wandb.init(project="MultiMeditron", config = config_dict ,name = config_dict["training_args"]["run_name"])
     
         import json
@@ -143,7 +147,7 @@ def train(config: str,
     
     trainer.train()
     
-    if torch.distributed.get_rank() ==0:
+    if torch.distributed.get_rank() == 0:
         run.finish()
     
     if torch.distributed.is_initialized():

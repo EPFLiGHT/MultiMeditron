@@ -128,6 +128,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
     as the text tokens and processes them through a shared transformer model.
 
     The model architecture consists of:
+
     1. A base language model (like Llama-3)
     2. Multiple modality processors (one for each supported modality)
     3. Projection layers to map modality embeddings to the language model's embedding space
@@ -228,6 +229,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         Freezes model parameters for alignment training.
 
         This method prepares the model for alignment training by:
+
         1. Freezing only the modality parts of each modality processor (keeping projections trainable)
         2. Freezing the entire language model
 
@@ -244,6 +246,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         Freezes modality parameters for language model fine-tuning.
 
         This method prepares the model for language model fine-tuning by:
+
         1. Freezing all modality processors completely (including projections)
         2. Making the language model parameters trainable
 
@@ -260,6 +263,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         Freezes partial parameters for end-to-end training.
 
         This method prepares the model for end-to-end training by:
+
         1. Freezing only the modality parts of each modality processor (keeping projections trainable)
         2. Making the language model parameters trainable
 
@@ -276,6 +280,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         Unfreezes all model parameters for full training.
 
         This method makes all parameters of the model trainable by:
+
         1. Unfreezing all modality processors (both core encoders and projections)
         2. Making the language model parameters trainable
 
@@ -305,12 +310,17 @@ class MultiModalModelForCausalLM(PreTrainedModel):
 
         return modality
 
-    def get_input_embeddings(self):
+    def get_input_embeddings(self) -> torch.nn.Embedding:
+        """
+        Returns embeddings of the LLM model
+        """
         return self.model.get_input_embeddings()
 
-    def set_input_embeddings(self, value):
+    def set_input_embeddings(self, value: torch.nn.Embedding):
+        """
+        Set input embeddings of the LLM model to the given value
+        """
         self.model.set_input_embeddings(value)
-
 
     def embed_modalities_with_text(self, input_ids: torch.Tensor, processed_multimodal_inputs: List[Dict[str, Any]]):
         """
@@ -334,6 +344,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
             torch.Tensor: Combined embeddings of text and multimodal inputs,
                           shape [batch_size, seq_len, hidden_size].
         """
+
         embedded_tokens = self.model.get_input_embeddings()(input_ids)
 
         # Compute the projection and scatter into embedded token sequence
@@ -551,11 +562,8 @@ def bootstrap(config, tokenizer, attachment_token_idx, modalities_config):
         - LLM is initialized with the pretrained weights
         - The modalities embedders are initialized with pretrained weights
         - The modalities projector are initialized randomly
-
-    Args:
-        
-
     """
+
     multimodal_config = MultimodalConfig(
         hidden_size=config["token_size"],
         vocab_size=len(tokenizer),

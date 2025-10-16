@@ -15,6 +15,9 @@ class FileSystemImageLoader(BaseModalityLoader):
     Expects the sample dictionary to have a "value" key containing the relative path to the image file.
     The base_path parameter specifies the root directory where images are stored.
     Example:
+
+    .. code-block:: python
+
         loader = FileSystemImageLoader(base_path="/path/to/images")
         sample = {"value": "image1.jpg", "type": "image"}
         image = loader.load(sample)

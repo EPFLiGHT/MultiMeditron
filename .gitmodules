@@ -1,3 +1,6 @@
 [submodule "third-party/verl"]
 	path = third-party/verl
 	url = git@github.com:EPFLiGHT/verl.git
+[submodule "third-party/sglang"]
+	path = third-party/sglang
+	url = git@github.com:EPFLiGHT/sglang.git

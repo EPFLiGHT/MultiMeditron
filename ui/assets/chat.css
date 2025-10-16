@@ -1,0 +1,67 @@
+/* two-column app layout */
+#main {
+  min-width: 700px;
+  display: flex;
+  flex-direction: column;
+}
+
+#chat-wrap { order: 1; }
+#gen-settings { order: 2; }
+
+#main .gr-multimodal-textbox textarea,
+#main .gr-textbox textarea,
+#main .gr-multimodal-textbox [contenteditable="true"],
+#main .gr-textbox [contenteditable="true"] {
+  max-height: 120px !important;   
+  overflow-y: auto !important;     
+  resize: none !important;        
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+#main .gr-multimodal-textbox .wrap,
+#main .gr-textbox .wrap {
+  max-height: 140px !important;
+}
+
+/* ~75% page width */
+html, body {
+  height: 100%;
+  overflow-y: auto;
+}
+.gradio-container {
+  width: 75vw !important;
+  max-width: 75vw !important;
+  min-width: 1100px;
+  margin: 0 auto;
+}
+
+/* title & descr */
+h1 {
+  text-align: center;
+  margin: 8px 0 6px;
+}
+.desc-center { text-align: center; }
+#app-row { gap: 16px; }
+#sidebar { width: 220px; }
+#main .gr-chatbot, #main .gradio-chatbot {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+.gr-chatbot .message img {
+  max-width: 100%;
+  height: auto;
+  max-height: 320px;
+  border-radius: 8px;
+}
+
+#sidebar-logo, #sidebar-logo img {
+  width: 180px;
+  height: auto;
+  object-fit: contain;
+}
+
+#sidebar-newchat { margin-top: 10px; }
+.gr-chatbot .message { border-radius: 14px !important; }
