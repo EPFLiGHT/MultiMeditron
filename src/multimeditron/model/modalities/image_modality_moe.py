@@ -58,7 +58,8 @@ class MOEImageProcessor(BaseModalityProcessor):
 
         processor_config = AutoConfig.from_pretrained(config.image_processor, trust_remote_code=True)
         self._num_patches_per_entry = (processor_config.vision_config.image_size // processor_config.vision_config.patch_size) ** 2
-
+        self.top_k_experts = config.top_k_experts
+        self.fusion_method = config.fusion_method
 
     def process(self, modality: Dict[str, Any]):
         processed_modality = modality.copy()
@@ -96,7 +97,7 @@ class MOEImageModality(BaseModality):
         self.expert_names: List[str] = list(config.expert_clip_names)
         assert len(self.expert_names) > 0, "config.expert_clip_names must be non-empty"
 
-        self.embedding_size = -1
+        self.embedding_size = None
         for clip_name in config.expert_clip_names:
             expert_model = AutoModel.from_pretrained(clip_name, trust_remote_code=True)
 
@@ -152,7 +153,7 @@ class MOEImageModality(BaseModality):
 
                 weights = weights.index_select(dim=-1, index=perm)  # -> (B, N_experts)
                 weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, num_experts, 1, 1)
-                
+
                 weighted_output = (stacked_expert_outputs * weights).sum(dim=1)
                 fused = (stacked_expert_outputs * weights).sum(dim=1)
             else:

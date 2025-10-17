@@ -59,6 +59,8 @@ class MOEImageProcessorPEP(BaseModalityProcessor):
 
         processor_config = AutoConfig.from_pretrained(config.image_processor, trust_remote_code=True)
         self._num_patches_per_entry = (processor_config.vision_config.image_size // processor_config.vision_config.patch_size) ** 2
+        self.top_k_experts = config.top_k_experts
+        self.fusion_method = config.fusion_method
 
 
     def process(self, modality: Dict[str, Any]):
