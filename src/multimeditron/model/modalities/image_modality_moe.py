@@ -108,6 +108,7 @@ class MOEImageModality(BaseModality):
 
         self._num_patches_per_entry = (self.experts[0].config.image_size // self.experts[0].config.patch_size) ** 2
 
+        self.fusion_method = config.fusion_method
         self.gating_network = GatingNetwork.from_pretrained(config.gating_path)
 
         gate_class_names: List[str] = getattr(self.gating_network.config, "class_names", []) or []
@@ -124,7 +125,6 @@ class MOEImageModality(BaseModality):
 
         # register permutation as a non-persistent buffer
         self.register_buffer("_gating_to_expert_perm", torch.tensor(perm_list, dtype=torch.long), persistent=False)
-
         self.projector = MLPProjector(self.embedding_size, config.hidden_size)
 
     def forward(self, inputs) -> torch.Tensor:

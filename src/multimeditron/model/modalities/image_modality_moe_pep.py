@@ -121,10 +121,12 @@ class MOEImageModalityPEP(BaseModality):
                 return MLPProjector(in_dim, out_dim)
             raise ValueError(f"Unsupported projection_type: {config.projection_type}")
 
+
         self.projectors = torch.nn.ModuleList(
             [make_projector(in_dim, config.hidden_size) for in_dim in in_dims]
         )
 
+        self.fusion_method = config.fusion_method
         self.gating_network = GatingNetwork.from_pretrained(config.gating_path)
 
         
