@@ -15,7 +15,7 @@ class MOEImageConfigPEP(BaseModalityConfig):
         expert_clip_names: List[str] = [],
         image_processor: str = "openai/clip-vit-large-patch14",
         gating_path: str = "",
-        top_k_experts: int = 1,
+        top_k_experts: int = 5,
         projection_type: str = "mlp",
         fusion_method: str = "weighted_average",
         **kwargs,
@@ -60,6 +60,7 @@ class MOEImageProcessorPEP(BaseModalityProcessor):
         processor_config = AutoConfig.from_pretrained(config.image_processor, trust_remote_code=True)
         self._num_patches_per_entry = (processor_config.vision_config.image_size // processor_config.vision_config.patch_size) ** 2
         self.top_k_experts = config.top_k_experts
+
         self.fusion_method = config.fusion_method
 
 
@@ -98,22 +99,38 @@ class MOEImageModalityPEP(BaseModality):
 
         self.experts = torch.nn.ModuleList()
 
-        in_dims: List[int] = [] # collect in_dims for each expert
+        in_dims: List[int] = []  # collect in_dims for each expert
         self.expert_names: List[str] = list(config.expert_clip_names)
-        self._embedding_size = None
+        self._native_embed_dim = None              # track experts’ native (pre-proj) dim
+        self._embedding_size = config.hidden_size  # post-projection dim seen by the LLM
 
         for clip_name in config.expert_clip_names:
             expert_model = AutoModel.from_pretrained(clip_name, trust_remote_code=True)
 
-            if self._embedding_size is None:
-                self._embedding_size = expert_model.vision_embed_dim
-                in_dims.append(expert_model.vision_embed_dim)
+            # robustly get the vision embedding dim across CLIP impls
+            if hasattr(expert_model, "vision_embed_dim"):
+                vision_dim = expert_model.vision_embed_dim
+            else:
+                vision_dim = getattr(expert_model.vision_model.config, "hidden_size")
+
+            if self._native_embed_dim is None:
+                self._native_embed_dim = vision_dim  # set once, for reference
+            in_dims.append(vision_dim)               # append for EVERY expert
 
             self.experts.append(expert_model.vision_model)
-            
 
-        self._num_patches_per_entry = (self.experts[0].config.image_size // self.experts[0].config.patch_size) ** 2
         assert len(self.experts) > 0, "No experts provided in config.expert_clip_names."
+
+        self._num_patches_per_entry = (
+            self.experts[0].config.image_size // self.experts[0].config.patch_size
+        ) ** 2
+
+        # All experts must share the same patch grid for simple append.
+        for e in self.experts[1:]:
+            assert (
+                e.config.patch_size == self.experts[0].config.patch_size
+                and e.config.image_size == self.experts[0].config.image_size
+            ), "sequence_append requires identical (image_size, patch_size) across experts."
 
         # per-expert projectors
         def make_projector(in_dim: int, out_dim: int):
@@ -121,42 +138,46 @@ class MOEImageModalityPEP(BaseModality):
                 return MLPProjector(in_dim, out_dim)
             raise ValueError(f"Unsupported projection_type: {config.projection_type}")
 
-
         self.projectors = torch.nn.ModuleList(
             [make_projector(in_dim, config.hidden_size) for in_dim in in_dims]
         )
 
+        assert (
+            len(self.projectors) == len(self.experts)
+        ), f"PEP expects one projector per expert, got {len(self.projectors)} vs {len(self.experts)}"
+
         self.fusion_method = config.fusion_method
         self.gating_network = GatingNetwork.from_pretrained(config.gating_path)
 
-        
     def forward(self, inputs) -> torch.Tensor:
         device = next(self.experts[0].parameters()).device
-        inputs = torch.stack(inputs, dim=0).to(device)
+        inputs = torch.stack(inputs, dim=0).to(device)  # (B, C, H, W)
 
-        _logits, _topk_indices, weights = self.gating_network(inputs)
+        _logits, _topk_indices, weights = self.gating_network(inputs)  # weights: (B, E)
 
         if self.training:
-            # Use all experts
+            # Use all experts: project per expert, then fuse
             expert_outputs = []
-            expert_projector_outputs = []
             for expert, projector in zip(self.experts, self.projectors):
+                # expert_out: (B, 1+P, D_native); drop CLS → (B, P, D_native)
                 expert_out = expert(inputs).last_hidden_state[:, 1:, :]
-                expert_outputs.append(projector(expert_out)) # project per expert
+                # project to hidden_size per expert: (B, P, H)
+                expert_outputs.append(projector(expert_out))
 
-            # stacked_expert_outputs shape: (num_experts, batch_size, num_patches, embedding_size)
+            # stacked_expert_outputs: (B, E, P, H)
             stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
 
             if self.fusion_method == "sequence_append":
-                # as each expert has the same P (patch_size) -> if mix ViT experts with different P, need to handle differently
-                # stacked_expert_outputs: (B, E, P, H)
-                concat = torch.flatten(stacked_expert_outputs, start_dim=1, end_dim=2)  # (B, E*P, H)
-
+                # concat along the sequence axis → (B, E*P, H)
+                concat = torch.flatten(stacked_expert_outputs, start_dim=1, end_dim=2)
                 return concat
+
             elif self.fusion_method == "weighted_average":
-                weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, 1, 1, num_experts)
-                weighted_output = (stacked_expert_outputs * weights).sum(dim=1)
+                # weights: (B, E) → (B, E, 1, 1)
+                weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, num_experts, 1, 1)
+                weighted_output = (stacked_expert_outputs * weights).sum(dim=1)  # (B, P, H)
                 return weighted_output
+
             else:
                 raise ValueError(f"Unsupported fusion_method: {self.fusion_method}")
 
@@ -166,12 +187,12 @@ class MOEImageModalityPEP(BaseModality):
 
     @property
     def embedding_size(self) -> int:
-        return self._embedding_size
+        return self._embedding_size  # post-projection dim 
 
     def freeze_modality_only(self):
         for params in self.gating_network.parameters():
             params.requires_grad = False
-        
+
         for expert in self.experts:
             for params in expert.parameters():
                 params.requires_grad = False
@@ -180,5 +201,3 @@ class MOEImageModalityPEP(BaseModality):
         for projector in self.projectors:
             for p in projector.parameters():
                 p.requires_grad = False
-
-
