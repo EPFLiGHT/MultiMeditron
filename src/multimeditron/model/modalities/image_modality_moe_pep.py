@@ -17,6 +17,7 @@ class MOEImageConfigPEP(BaseModalityConfig):
         gating_path: str = "",
         top_k_experts: int = 1,
         projection_type: str = "mlp",
+        fusion_method: str = "weighted_average",
         **kwargs,
     ):
         """
@@ -43,6 +44,7 @@ class MOEImageConfigPEP(BaseModalityConfig):
         self.gating_path = gating_path
         self.projection_type = projection_type
         self.image_processor = image_processor
+        self.fusion_method = fusion_method
 
 
 class MOEImageProcessorPEP(BaseModalityProcessor):
@@ -66,7 +68,12 @@ class MOEImageProcessorPEP(BaseModalityProcessor):
 
         pixel_values = self.image_processor(images=image, return_tensors="pt")["pixel_values"][0]
         processed_modality[MODALITY_VALUE_KEY] = pixel_values
-        processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry
+        if self.fusion_method == "sequence_append":
+            processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry * self.top_k_experts
+        elif self.fusion_method == "weighted_average":
+            processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry 
+        else:
+            raise ValueError(f"Unsupported fusion_method: {self.fusion_method}")
 
         return processed_modality
 
@@ -124,7 +131,7 @@ class MOEImageModalityPEP(BaseModality):
         inputs = torch.stack(inputs, dim=0).to(device)
 
         _logits, _topk_indices, weights = self.gating_network(inputs)
-        
+
         if self.training:
             # Use all experts
             expert_outputs = []
@@ -137,9 +144,16 @@ class MOEImageModalityPEP(BaseModality):
             stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
             weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, 1, 1, num_experts)
 
-            weighted_output = (stacked_expert_outputs * weights).sum(dim=1)
-
-            return weighted_output
+            if self.fusion_method == "sequence_append":
+                # Repeat weights along num_patches dimension
+                # as each expert has the same P (patch_size) -> if mix ViT experts with different P, need to handle differently
+                concat = torch.cat(torch.unbind(stacked_expert_outputs, dim=1), dim=1)  # Shape: (batch_size, num_experts * num_patches, embedding_size)
+                return concat
+            elif self.fusion_method == "weighted_average":
+                weighted_output = (stacked_expert_outputs * weights).sum(dim=1)
+                return weighted_output
+            else:
+                raise ValueError(f"Unsupported fusion_method: {self.fusion_method}")
 
         else:
             # Evaluation mode
