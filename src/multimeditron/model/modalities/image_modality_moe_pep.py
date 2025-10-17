@@ -142,14 +142,15 @@ class MOEImageModalityPEP(BaseModality):
 
             # stacked_expert_outputs shape: (num_experts, batch_size, num_patches, embedding_size)
             stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
-            weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, 1, 1, num_experts)
 
             if self.fusion_method == "sequence_append":
-                # Repeat weights along num_patches dimension
                 # as each expert has the same P (patch_size) -> if mix ViT experts with different P, need to handle differently
-                concat = torch.cat(torch.unbind(stacked_expert_outputs, dim=1), dim=1)  # Shape: (batch_size, num_experts * num_patches, embedding_size)
+                # stacked_expert_outputs: (B, E, P, H)
+                concat = torch.flatten(stacked_expert_outputs, start_dim=1, end_dim=2)  # (B, E*P, H)
+
                 return concat
             elif self.fusion_method == "weighted_average":
+                weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, 1, 1, num_experts)
                 weighted_output = (stacked_expert_outputs * weights).sum(dim=1)
                 return weighted_output
             else:
