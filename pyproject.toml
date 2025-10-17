@@ -46,8 +46,6 @@ docs = [
     "sphinx-tabs",
     "shibuya",
 ]
-dev = []
-torch = ["torch"]
 
 [project.scripts]
 multimeditron = "multimeditron.cli:main_cli"

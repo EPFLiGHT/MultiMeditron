@@ -130,9 +130,6 @@ def main(config_path: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     os.makedirs("logs", exist_ok=True)
 
-    # with open("../train_all.sh", "w") as f:
-    #     f.write("\n".join(f"accelerate launch train.py {current_dir}/configurations/{config_file} --multi_gpu --num_processes 4 &> {current_dir}/logs/log_{config_file[:-5]}.txt" for config_file in sorted(os.listdir("configurations")) if not os.path.exists(f"logs/log_{config_file[:-5]}.txt") and "xr" in config_file and "2" in config_file) + "\n")
-
 if __name__ == "__main__":
     config_path = sys.argv[1] if len(sys.argv) > 1 else None
     if config_path:
