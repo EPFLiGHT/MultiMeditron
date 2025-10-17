@@ -17,6 +17,7 @@ class MOEImageConfig(BaseModalityConfig):
         gating_path: str = "",
         top_k_experts: int = 1,
         projection_type: str = "mlp",
+        fusion_method: str = "weighted_average",
         **kwargs,
     ):
         """
@@ -43,6 +44,7 @@ class MOEImageConfig(BaseModalityConfig):
         self.gating_path = gating_path
         self.projection_type = projection_type
         self.image_processor = image_processor
+        self.fusion_method = fusion_method
 
 
 class MOEImageProcessor(BaseModalityProcessor):
@@ -65,7 +67,12 @@ class MOEImageProcessor(BaseModalityProcessor):
 
         pixel_values = self.image_processor(images=image, return_tensors="pt")["pixel_values"][0]
         processed_modality[MODALITY_VALUE_KEY] = pixel_values
-        processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry
+        if self.fusion_method == "sequence_append":
+            processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry * self.top_k_experts
+        elif self.fusion_method == "weighted_average":
+            processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry 
+        else:
+            raise ValueError(f"Unknown fusion_method: {self.fusion_method}")
 
         return processed_modality
 
@@ -134,18 +141,24 @@ class MOEImageModality(BaseModality):
 
             # stacked_expert_outputs shape: (num_experts, batch_size, num_patches, embedding_size)
             stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
-
-
-            perm = self._gating_to_expert_perm  # shape (N,)
-            weights = weights.index_select(dim=-1, index=perm)  # -> (B, N_experts)
-            weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, num_experts, 1, 1)
-
             # topk_indices = perm[topk_indices]      
 
-            weighted_output = (stacked_expert_outputs * weights).sum(dim=1)
-            projected = self.projector(weighted_output)
+            if self.fusion_method == "sequence_append":
+                # as each expert has the same P (patch_size) -> if mix ViT experts with different P, need to handle differently
+                # stacked_expert_outputs: (B, E, P, H)
+                fused = torch.flatten(stacked_expert_outputs, start_dim=1, end_dim=2)  # (B, E*P, H)
+            elif self.fusion_method == "weighted_average":
+                perm = self._gating_to_expert_perm  # shape (N,)
 
+                weights = weights.index_select(dim=-1, index=perm)  # -> (B, N_experts)
+                weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, num_experts, 1, 1)
+                
+                weighted_output = (stacked_expert_outputs * weights).sum(dim=1)
+                fused = (stacked_expert_outputs * weights).sum(dim=1)
+            else:
+                raise ValueError(f"Unsupported fusion_method: {self.fusion_method}")
 
+            projected = self.projector(fused)
 
             return projected
 
