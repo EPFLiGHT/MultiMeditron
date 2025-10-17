@@ -7,14 +7,14 @@ from datasets import concatenate_datasets, load_dataset, load_from_disk
 from multimeditron.model.modalities import AutoModality
 from multimeditron.dataset.loader import AutoModalityLoader
 from multimeditron.model.model import MultiModalModelForCausalLM, MultimodalConfig
-from tqdm import tqdm
-import deepspeed
+from tqdm import tqdm as _tqdm
 import deepspeed
 import torch
 import os
 import yaml
 from PIL import PngImagePlugin
 from datasets import config as datasets_config
+
 import wandb
 import multiprocessing
 import click
