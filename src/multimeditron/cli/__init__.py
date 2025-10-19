@@ -24,4 +24,6 @@ def main_cli():
 
 from .preprocess import *
 from .verl import *
+from .debug import *
 from .train import *
+from .experts import *

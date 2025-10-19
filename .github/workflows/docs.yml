@@ -1,0 +1,50 @@
+name: "Sphinx: Render docs"
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install deps
+        run: |
+          sudo apt update -y 
+          sudo apt install -y graphviz 
+          pip install ".[docs]"
+
+      - name: Build API
+        run: sphinx-apidoc -o docs/source/ref src/multimeditron
+
+      - name: Build HTML
+        run: cd docs && make html
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-docs
+          path: docs/build/html/
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build/html
+          force_orphan: true
+
+

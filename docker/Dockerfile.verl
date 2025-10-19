@@ -61,6 +61,22 @@ RUN pip3 install --upgrade pip && \
       'nvidia-cudnn-frontend>=1.13.0' 'nvidia-cudnn-cu12>=9.11.0.98'
 RUN conda install -n py312 -y mpi4py
 
+# Install nsjail runtime dependencies in base image
+RUN apt-get update -y && \
+    apt-get install -y libc6 libstdc++6 libprotobuf32 libnl-route-3-200 && \
+    rm -rf /var/lib/apt/lists/*
+
+########################################################################
+# Build nsjail in separated image
+FROM base AS build-nsjail
+
+RUN apt-get update -y && \
+    apt-get install -y \
+       autoconf bison flex gcc g++ libprotobuf-dev \
+       libnl-route-3-dev libtool make pkg-config protobuf-compiler git
+RUN git clone https://github.com/google/nsjail.git --depth 1 -b 3.4 /nsjail && \
+    cd /nsjail && make clean && make
+
 ########################################################################
 # Download Z-Shell enhancements.
 FROM docker.io/alpine/git:2.40.1 AS git-pure
@@ -78,8 +94,9 @@ RUN git clone --depth 1 ${ZSHS_URL} /opt/zsh/zsh-syntax-highlighting
 # This layer can be distributed so that subsequent users
 
 FROM base AS final
-
 ENV HYDRA_FULL_ERROR=1
+
+COPY --from=build-nsjail /nsjail/nsjail /bin
 
 # A final record of the dependencies from pip freeze.
 # RUN pip freeze > ${DEPENDENCIES_DIR}/requirements-freeze-final.txt
@@ -125,7 +142,9 @@ RUN pip3 install --upgrade pip && pip3 install -U \
         nvidia-ml-py flashinfer-python
 RUN pip3 install --upgrade pip && pip3 install -v -U --no-build-isolation \
         "sglang[test]==0.5.2" sgl_kernel
-RUN pip3 uninstall -y pynvml
+RUN pip3 uninstall -y pynvml datasets && \
+    pip3 install datasets
+
 
 # Add code tunnel for remote code development directly on the docker image
 RUN mkdir -p /tmp/code
@@ -136,6 +155,10 @@ RUN curl -Lk 'https://code.visualstudio.com/sha/download?build=stable&os=cli-alp
 WORKDIR /
 RUN rm -rf /tmp/code
 
+# Cleanup duty to make the docker image as lightweight as possible
+RUN rm -rf /var/lib/apt/lists/* && \
+    apt-get clean && \
+    pip cache purge
+
 # Entrypoint command (zsh)
 CMD ["/bin/zsh"]
-

@@ -1,0 +1,36 @@
+hydra:
+  searchpath:
+    - pkg://multimeditron.config
+
+defaults:
+  - preprocess-ds
+  - _self_
+
+source:
+  type: hf # Supported types: 'hf', 'jsonl'
+  kwargs:
+    path: nvidia/Llama-Nemotron-Post-Training-Dataset
+    split: code
+
+tokenizer:
+  enable: false
+  model: null
+  use_fast: true
+  attachment_token: <|reserved_special_token_0|>
+
+output: /capstor/store/cscs/swissai/a127/meditron/multimediset/reasoning/nemotron-post-training-code.parquet
+num_processes: 32
+
+processes:
+  - type: python
+    kwargs:
+      remove_columns: ['input', 'output', 'category', 'license', 'reasoning', 'generator', 'used_in_training', 'version', 'system_prompt']
+      imports: ['re']
+      func:
+        - output_p = re.sub(r"<think>(([^<]|<(?!\/think>))*)<\/think>", '', data["output"], flags=re.MULTILINE).strip()
+        - code_p = list(re.finditer(r"```python\n(([^`]|`(?!``))*)\n```", output_p))
+        - |
+          {
+            "prompt": data["input"][0]["content"],
+            "response": code_p[-1].group(1).strip() if len(code_p) > 0 else output_p,
+          }

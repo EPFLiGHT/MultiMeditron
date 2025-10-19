@@ -1,0 +1,43 @@
+# Notice: TACO make use of dataset script that are no longer supported, need to
+# downgrade datasets to datasets<=3.6.0 to load the dataset.
+hydra:
+  searchpath:
+    - pkg://multimeditron.config
+
+defaults:
+  - preprocess-ds
+  - _self_
+
+source:
+  type: hf # Supported types: 'hf', 'jsonl'
+  kwargs:
+    path: BAAI/TACO
+    split: train
+
+tokenizer:
+  enable: false
+  model: null
+  use_fast: true
+  attachment_token: <|reserved_special_token_0|>
+
+output: /capstor/store/cscs/swissai/a127/meditron/multimediset/reasoning/taco.parquet
+num_processes: 128
+
+processes:
+  - type: python
+    kwargs:
+      remove_columns: [
+        'question', 'solutions', 'starter_code', 'input_output', 'name', 'url', 'Expected Auxiliary Space', 'Expected Time Complexity',
+        'raw_tags', 'skill_types', 'tags', 'source',
+        'date', 'picture_num',
+      ]
+      imports: ['re']
+      func: |
+        {
+          "prompt": data["question"],
+          "solution": data["solutions"],
+          "checks": data["input_output"],
+        }
+  - type: shuffle
+    kwargs:
+      seed: 42

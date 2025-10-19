@@ -89,12 +89,12 @@ class MOEImageModality(BaseModality):
         self.expert_names: List[str] = list(config.expert_clip_names)
         assert len(self.expert_names) > 0, "config.expert_clip_names must be non-empty"
 
-        self._embedding_size = None
+        self.embedding_size = -1
         for clip_name in config.expert_clip_names:
             expert_model = AutoModel.from_pretrained(clip_name, trust_remote_code=True)
 
-            if self._embedding_size is None:
-                self._embedding_size = expert_model.vision_embed_dim
+            if self.embedding_size is None:
+                self.embedding_size = expert_model.vision_embed_dim
 
             self.experts.append(expert_model.vision_model)
 
@@ -117,7 +117,7 @@ class MOEImageModality(BaseModality):
         # register permutation as a non-persistent buffer
         self.register_buffer("_gating_to_expert_perm", torch.tensor(perm_list, dtype=torch.long), persistent=False)
 
-        self.projector = MLPProjector(self._embedding_size, config.hidden_size)
+        self.projector = MLPProjector(self.embedding_size, config.hidden_size)
 
     def forward(self, inputs) -> torch.Tensor:
         device = next(self.experts[0].parameters()).device
@@ -153,9 +153,6 @@ class MOEImageModality(BaseModality):
             # Evaluation mode
             raise NotImplementedError("Evaluation mode not implemented yet.")
 
-    @property
-    def embedding_size(self) -> int:
-        return self._embedding_size
 
     def freeze_modality_only(self):
         for params in self.gating_network.parameters():

@@ -1,0 +1,43 @@
+hydra:
+  searchpath:
+    - pkg://multimeditron.config
+
+defaults:
+  - preprocess-ds
+  - _self_
+
+source:
+  type: hf # Supported types: 'hf', 'jsonl'
+  kwargs:
+    path: trl-lib/math_shepherd
+    split: train
+
+tokenizer:
+  enable: false
+  model: null
+  use_fast: true
+  attachment_token: <|reserved_special_token_0|>
+
+output: /capstor/store/cscs/swissai/a127/meditron/multimediset/reasoning/math-shepherd.parquet
+num_processes: 128
+
+processes:
+  - type: python-filter
+    kwargs:
+      func: |
+        all(k for k in data["labels"])
+
+  - type: python
+    kwargs:
+      remove_columns: ['labels', 'completions']
+      imports: ['re']
+      func: |
+        {
+          "prompt": [{"content": data["prompt"], "role": "user"}],
+          "reward_model": {"ground_truth": data["completions"]},
+          "data_source": "math-shepherd",
+        }
+  
+  - type: shuffle
+    kwargs:
+      seed: 42

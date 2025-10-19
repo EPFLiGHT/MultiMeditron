@@ -7,7 +7,7 @@ MultiMeditron is a multimodal LLM built by students and researchers from [LiGHT 
 To download the project. Execute the following commands:
 
 ```
-git clone https://github.com/OpenMeditron/MultiMeditron.git
+git clone https://github.com/EPFLiGHT/MultiMeditron.git
 cd MultiMeditron
 python3 -m venv .venv
 source .venv/bin/activate
@@ -53,12 +53,13 @@ sample = {
     "modalities" : modalities
 }
 
-modality_retriever = ModalityRetriever(registry=FileSystemImageRegistry(base_path=os.getcwd()))
+loader = FileSystemImageLoader(base_path=os.getcwd())
 
 collator = DataCollatorForMultimodal(
         tokenizer=tokenizer,
         tokenizer_type="llama",
-        modality_processors=model.processors(), 
+        modality_processors=model.processors(),
+        modality_loaders={"image" : loader},
         attachment_token_idx=attachment_token_idx,
         add_generation_prompt=True
 )
@@ -144,7 +145,7 @@ The instruction-tuning format follows a similar format.
 
 If you have your dataset in a JSONL format, you can convert it to the parquet/arrow format by running the following command:
 ```
-python merge_inputs -c path/to/config.yaml
+python merge_inputs.py -c path/to/config.yaml
 ```
 
 Where the `config.yaml` file is described later.

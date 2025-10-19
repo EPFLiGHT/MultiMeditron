@@ -1,15 +1,3 @@
-"""
-This module provides classes and utilities for handling modality loaders in the MultiMeditron framework.
-
-Main components:
-- `BaseModalityLoader`: An abstract base class for defining the structure of modality loaders.
-- `AutoModalityLoader`: A registry and factory for managing modality loaders.
-
-Key Features:
-- Centralized management of modality loaders.
-- Dynamic registration and instantiation of modality loader classes.
-- Support for merging multiple modalities in a structured way.
-"""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -20,9 +8,6 @@ from multimeditron.model.constants import MODALITIES_KEY, MODALITY_TYPE_KEY, MOD
 class BaseModalityLoader(ABC):
     """
     Abstract base class for modality loaders.
-
-    Attributes:
-        name (str): Name of the modality loader. Automatically set when registered.
     """
 
     name: str # automatically set when registered
@@ -58,14 +43,13 @@ class BaseModalityLoader(ABC):
     def load_modalities(sample: Dict[str, Any], loaders: Dict[str, BaseModalityLoader]):
         """
         Load modalities in a sample using the provided modality loaders.
-        This function loads the modality if needed using the loader defined in `loaders`
-        For instance:
-            If `loaders` is a dictionary containing an element `"image" : FileSystemImageLoader`,
-            then this function assumes that every samples store images as path and load the image
-            using the `FileSystemImageLoader`
+        This function loads the modality if needed using the loader defined in :code:`loaders`
+        For instance: If :code:`loaders` is a dictionary containing an element :code:`"image" : FileSystemImageLoader`,
+        then this function assumes that every samples store images as path and load the image
+        using the :code:`FileSystemImageLoader`
 
-        Note that each sample should contain a key `MODALITY_TYPE_KEY` defining what kind of modality this is
-        (for instance "image"). And a key `MODALITY_VALUE_KEY` defining the value of the modality,
+        Note that each sample should contain a key :code:`MODALITY_TYPE_KEY` defining what kind of modality this is
+        (for instance "image"). And a key :code:`MODALITY_VALUE_KEY` defining the value of the modality,
         this could be a path or the bytes of the images for instance.
 
         Args:
@@ -104,8 +88,8 @@ class AutoModalityLoader:
     """
     Loader registry to automatically manage and instantiate modality loaders.
 
-    The `AutoModalityLoader` acts as a central registry for different modality loader classes, enabling easy registration,
-    instantiation, and retrieval of loaders. Each loader must inherit from `BaseModalityLoader` to be compatible.
+    The :code:`AutoModalityLoader` acts as a central registry for different modality loader classes, enabling easy registration,
+    instantiation, and retrieval of loaders. Each loader must inherit from :code:`BaseModalityLoader` to be compatible.
 
     Attributes:
         _registry (Dict[str, Type[BaseModalityLoader]]): Internal registry of modality loader classes keyed by name.
@@ -114,7 +98,7 @@ class AutoModalityLoader:
 
     def __init__(self):
         """
-        Prevent instantiation of `AutoModalityLoader` directly.
+        Prevent instantiation of :code:`AutoModalityLoader` directly.
 
         Raises:
             RuntimeError: Always raised to enforce usage of class methods.
@@ -133,7 +117,7 @@ class AutoModalityLoader:
             Callable: A decorator to register the loader class.
 
         Raises:
-            ValueError: If the class is not a subclass of `BaseModalityLoader` or if the name is already registered.
+            ValueError: If the class is not a subclass of :code:`BaseModalityLoader` or if the name is already registered.
         """
         def decorator(clazz):
             if not issubclass(clazz, BaseModalityLoader):
@@ -174,9 +158,9 @@ from multimeditron.dataset.loader.image.bytes import RawImageLoader
 from multimeditron.dataset.loader.image.fs import FileSystemImageLoader
 
 __all__ = [
-    BaseModalityLoader,
-    AutoModalityLoader,
-    RawImageLoader,
-    FileSystemImageLoader,
+    "BaseModalityLoader",
+    "AutoModalityLoader",
+    "RawImageLoader",
+    "FileSystemImageLoader",
 ]
 
