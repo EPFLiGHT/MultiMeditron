@@ -89,7 +89,7 @@ class MOEImageModality(BaseModality):
         self.expert_names: List[str] = list(config.expert_clip_names)
         assert len(self.expert_names) > 0, "config.expert_clip_names must be non-empty"
 
-        self.embedding_size = -1
+        self.embedding_size = None
         for clip_name in config.expert_clip_names:
             expert_model = AutoModel.from_pretrained(clip_name, trust_remote_code=True)
 
