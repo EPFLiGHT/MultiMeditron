@@ -105,7 +105,7 @@ def train(config: str,
             modalities_config = []
             for modality in config_dict.get("modalities", []):
                 modalities_config.append(AutoModality.config_from_dict(modality))
-
+        else:
             for loader in config_dict["loaders"]:
                 loader_copy = loader.copy()
                 loader_type = loader_copy.pop("loader_type")
