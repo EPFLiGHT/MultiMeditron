@@ -1,9 +1,10 @@
 from multimeditron.model.constants import NUM_EMBEDDINGS_KEY, MODALITY_VALUE_KEY
 from multimeditron.model.modalities.base import AutoModality, BaseModality, BaseModalityConfig, BaseModalityProcessor
 from multimeditron.model.modalities.moe.gating import GatingNetwork
+from multimeditron.model.modalities.moe.gating import GatingNetwork
 from multimeditron.model.projectors.mlp import MLPProjector
 import torch
-from transformers import AutoModel, AutoImageProcessor, AutoConfig
+from transformers import AutoModel, AutoImageProcessor, AutoConfig, AutoImageProcessor, AutoConfig
 from typing import Dict, Any, List
 
 
@@ -15,11 +16,26 @@ class MOEImageConfig(BaseModalityConfig):
         expert_clip_names: List[str] = [],
         image_processor: str = "openai/clip-vit-large-patch14",
         gating_path: str = "",
+        expert_clip_names: List[str] = [],
+        image_processor: str = "openai/clip-vit-large-patch14",
+        gating_path: str = "",
         top_k_experts: int = 1,
         projection_type: str = "mlp",
         fusion_method: str = "weighted_average",
         **kwargs,
     ):
+        """
+        Config for Mixture of Experts (MoE) Image Modality using CLIP models as experts.
+        Args:
+            hidden_size (int): The hidden size of the output embeddings.
+            use_bias_proj (bool): Whether to use bias in the projection layer.
+            expert_clip_names (List[str]): List of pretrained CLIP model names to be used as experts.
+            image_processor (str): Pretrained image processor name for preprocessing images.
+            gating_path (str): Path to the pretrained gating network.
+            top_k_experts (int): Number of top experts to select during inference.
+            projection_type (str): Type of projection layer to use ("mlp" supported).
+            **kwargs: Additional keyword arguments.
+        """
         """
         Config for Mixture of Experts (MoE) Image Modality using CLIP models as experts.
         Args:
@@ -52,6 +68,10 @@ class MOEImageProcessor(BaseModalityProcessor):
     Processor for Mixture of Experts (MoE) Image Modality.
     Uses a pretrained image processor to convert raw images into pixel values.
     """
+    """
+    Processor for Mixture of Experts (MoE) Image Modality.
+    Uses a pretrained image processor to convert raw images into pixel values.
+    """
     def __init__(self, config: MOEImageConfig):
         super().__init__(config)
         self.image_processor = AutoImageProcessor.from_pretrained(config.image_processor)
@@ -78,6 +98,7 @@ class MOEImageProcessor(BaseModalityProcessor):
         return processed_modality
 
 
+
 @AutoModality.register("moe_meditron_clip")
 class MOEImageModality(BaseModality):
     """
@@ -96,7 +117,10 @@ class MOEImageModality(BaseModality):
         self.experts = torch.nn.ModuleList()
         self.expert_names: List[str] = list(config.expert_clip_names)
         assert len(self.expert_names) > 0, "config.expert_clip_names must be non-empty"
+        self.expert_names: List[str] = list(config.expert_clip_names)
+        assert len(self.expert_names) > 0, "config.expert_clip_names must be non-empty"
 
+        self.embedding_size = None
         self.embedding_size = None
         for clip_name in config.expert_clip_names:
             expert_model = AutoModel.from_pretrained(clip_name, trust_remote_code=True)
@@ -128,14 +152,17 @@ class MOEImageModality(BaseModality):
         self.projector = MLPProjector(self.embedding_size, config.hidden_size)
 
     def forward(self, inputs) -> torch.Tensor:
+    def forward(self, inputs) -> torch.Tensor:
         device = next(self.experts[0].parameters()).device
         inputs = torch.stack(inputs, dim=0).to(device)
 
         _logits, _topk_indices, weights = self.gating_network(inputs)
 
+
         if self.training:
             # Use all experts
             expert_outputs = []
+            for i, expert in enumerate(self.experts):
             for i, expert in enumerate(self.experts):
                 expert_out = expert(inputs).last_hidden_state[:, 1:, :]
                 expert_outputs.append(expert_out)
@@ -179,5 +206,7 @@ class MOEImageModality(BaseModality):
     def freeze_projection_only(self):
         for params in self.projector.parameters():
             params.requires_grad = False
+
+
 
 
