@@ -274,6 +274,23 @@ class MultiModalModelForCausalLM(PreTrainedModel):
             modality.freeze_modality_only()
         for params in self.model.parameters():
             params.requires_grad = True
+    
+    def freeze_for_moe_alignment(self):
+        """
+        Freezes language model parameters for MoE alignment training.
+        This method prepares the model for MoE alignment training by:
+
+        1. Freezing only the language model parameters
+        2. Making all modality processors trainable
+        3. making the projection layers trainable
+
+        This configuration is useful when aligning modality representations with
+        the language model's embedding space while keeping the core LM frozen.
+        """
+        for modality in self.modalities:
+            modality.unfreeze_all()
+        for params in self.model.parameters():
+            params.requires_grad = False
 
     def unfreeze(self):
         """
