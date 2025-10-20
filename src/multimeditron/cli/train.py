@@ -100,17 +100,19 @@ def train(config: str,
     
     modalities_loader = dict()
     with deepspeed.zero.Init(dtype=torch.bfloat16):
+        for loader in config_dict.get("loaders", []):
+            loader_copy = loader.copy()
+            loader_type = loader_copy.pop("loader_type")
+            modality_type = loader_copy.pop("modality_type")
+            modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader_copy)
+
         if config_dict.get("base_model", None) is None:
             # Get modalities from configuration
             modalities_config = []
             for modality in config_dict.get("modalities", []):
                 modalities_config.append(AutoModality.config_from_dict(modality))
-        else:
-            for loader in config_dict["loaders"]:
-                loader_copy = loader.copy()
-                loader_type = loader_copy.pop("loader_type")
-                modality_type = loader_copy.pop("modality_type")
-                modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader_copy)
+        
+    
 
     with deepspeed.zero.Init(dtype=torch.bfloat16):
         if config_dict.get("base_model", None) is None:
