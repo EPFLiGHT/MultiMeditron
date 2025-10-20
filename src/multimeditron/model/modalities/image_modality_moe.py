@@ -1,7 +1,6 @@
 from multimeditron.model.constants import NUM_EMBEDDINGS_KEY, MODALITY_VALUE_KEY
 from multimeditron.model.modalities.base import AutoModality, BaseModality, BaseModalityConfig, BaseModalityProcessor
 from multimeditron.model.modalities.moe.gating import GatingNetwork
-from multimeditron.model.modalities.moe.gating import GatingNetwork
 from multimeditron.model.projectors.mlp import MLPProjector
 import torch
 from transformers import AutoModel, AutoImageProcessor, AutoConfig, AutoImageProcessor, AutoConfig
@@ -16,26 +15,11 @@ class MOEImageConfig(BaseModalityConfig):
         expert_clip_names: List[str] = [],
         image_processor: str = "openai/clip-vit-large-patch14",
         gating_path: str = "",
-        expert_clip_names: List[str] = [],
-        image_processor: str = "openai/clip-vit-large-patch14",
-        gating_path: str = "",
         top_k_experts: int = 1,
         projection_type: str = "mlp",
         fusion_method: str = "weighted_average",
         **kwargs,
     ):
-        """
-        Config for Mixture of Experts (MoE) Image Modality using CLIP models as experts.
-        Args:
-            hidden_size (int): The hidden size of the output embeddings.
-            use_bias_proj (bool): Whether to use bias in the projection layer.
-            expert_clip_names (List[str]): List of pretrained CLIP model names to be used as experts.
-            image_processor (str): Pretrained image processor name for preprocessing images.
-            gating_path (str): Path to the pretrained gating network.
-            top_k_experts (int): Number of top experts to select during inference.
-            projection_type (str): Type of projection layer to use ("mlp" supported).
-            **kwargs: Additional keyword arguments.
-        """
         """
         Config for Mixture of Experts (MoE) Image Modality using CLIP models as experts.
         Args:
@@ -64,10 +48,6 @@ class MOEImageConfig(BaseModalityConfig):
 
 
 class MOEImageProcessor(BaseModalityProcessor):
-    """
-    Processor for Mixture of Experts (MoE) Image Modality.
-    Uses a pretrained image processor to convert raw images into pixel values.
-    """
     """
     Processor for Mixture of Experts (MoE) Image Modality.
     Uses a pretrained image processor to convert raw images into pixel values.
@@ -152,7 +132,6 @@ class MOEImageModality(BaseModality):
         self.projector = MLPProjector(self.embedding_size, config.hidden_size)
 
     def forward(self, inputs) -> torch.Tensor:
-    def forward(self, inputs) -> torch.Tensor:
         device = next(self.experts[0].parameters()).device
         inputs = torch.stack(inputs, dim=0).to(device)
 
@@ -162,7 +141,6 @@ class MOEImageModality(BaseModality):
         if self.training:
             # Use all experts
             expert_outputs = []
-            for i, expert in enumerate(self.experts):
             for i, expert in enumerate(self.experts):
                 expert_out = expert(inputs).last_hidden_state[:, 1:, :]
                 expert_outputs.append(expert_out)
@@ -187,7 +165,6 @@ class MOEImageModality(BaseModality):
                 raise ValueError(f"Unsupported fusion_method: {self.fusion_method}")
 
             projected = self.projector(fused)
-
             return projected
 
         else:
