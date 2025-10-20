@@ -142,7 +142,6 @@ class MOEImageModality(BaseModality):
 
             # stacked_expert_outputs shape: (num_experts, batch_size, num_patches, embedding_size)
             stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
-            # topk_indices = perm[topk_indices]      
 
             if self.fusion_method == "sequence_append":
                 # as each expert has the same P (patch_size) -> if mix ViT experts with different P, need to handle differently
@@ -153,8 +152,6 @@ class MOEImageModality(BaseModality):
 
                 weights = weights.index_select(dim=-1, index=perm)  # -> (B, N_experts)
                 weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, num_experts, 1, 1)
-
-                weighted_output = (stacked_expert_outputs * weights).sum(dim=1)
                 fused = (stacked_expert_outputs * weights).sum(dim=1)
             else:
                 raise ValueError(f"Unsupported fusion_method: {self.fusion_method}")
