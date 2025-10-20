@@ -9,7 +9,7 @@ loaders:
     modality_type: image
 
 modalities:
-  - model_type: moe_meditron_clip
+  - model_type: moe_meditron_clip_pep
     image_processor: openai/clip-vit-base-patch32
     hidden_size: 4096
     expert_clip_names:
@@ -19,7 +19,7 @@ modalities:
       - ClosedMeditron/MedExpert-Ultrasound
       - ClosedMeditron/MedExpert-Xray
     gating_path: ClosedMeditron/MultiMeditron-Gating
-    fusion_method: weighted_average
+    fusion_method: sequence_append
 
 training_mode: ALIGNMENT
 
@@ -32,7 +32,7 @@ datasets:
   
 
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/cookbook/moe_avg_shared/MultiMeditron-8B-moe-avg-shared-alignment
+  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/moe_cat_pep/MultiMeditron-8B-moe-cat-pep-alignment
   dataloader_num_workers: 16  # > 0 not supported for IterableDataset, cf. https://github.com/huggingface/datasets/issues/5984
   dataloader_prefetch_factor: 4
   remove_unused_columns: false
@@ -49,7 +49,7 @@ training_args:
   save_strategy: steps
   save_steps: 0.25
   max_grad_norm: 1.0
-  run_name: MultiMeditron-8B-moe-avg-shared-alignment
+  run_name: MultiMeditron-8B-moe-cat-pep-alignment
   deepspeed: ./config/deepspeed.json
   accelerator_config:
     dispatch_batches: false

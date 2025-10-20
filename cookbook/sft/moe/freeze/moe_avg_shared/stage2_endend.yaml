@@ -1,5 +1,5 @@
 base_llm: meta-llama/Llama-3.1-8B-Instruct
-base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/cookbook/moe_cat_pep/MultiMeditron-8B-moe-cat-pep-alignment
+base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/moe_avg_shared/MultiMeditron-8B-moe-avg-shared-alignment
 attachment_token: <|reserved_special_token_0|>
 tokenizer_type: llama
 token_size: 4096
@@ -13,7 +13,7 @@ loaders:
     modality_type: image
 
 modalities:
-  - model_type: moe_meditron_clip_pep
+  - model_type: moe_meditron_clip
     image_processor: openai/clip-vit-base-patch32
     hidden_size: 4096
     expert_clip_names:
@@ -23,7 +23,7 @@ modalities:
       - ClosedMeditron/MedExpert-Ultrasound
       - ClosedMeditron/MedExpert-Xray
     gating_path: ClosedMeditron/MultiMeditron-Gating
-    fusion_method: sequence_append
+    fusion_method: weighted_average
 
 training_mode: END2END
 
@@ -38,7 +38,7 @@ datasets:
  
 
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/cookbook/moe_cat_pep/MultiMeditron-8B-moe-cat-pep-end2end
+  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/moe_avg_shared/MultiMeditron-8B-moe-avg-shared-end2end
   dataloader_num_workers: 16  # > 0 not supported for IterableDataset, cf. https://github.com/huggingface/datasets/issues/5984
   dataloader_prefetch_factor: 4
   remove_unused_columns: false
@@ -55,7 +55,7 @@ training_args:
   save_strategy: steps
   save_steps: 0.25
   max_grad_norm: 1.0
-  run_name: MultiMeditron-8B-moe-cat-pep-end2end
+  run_name: MultiMeditron-8B-moe-avg-shared-end2end
   deepspeed: ./config/deepspeed.json
   accelerator_config:
     dispatch_batches: false
