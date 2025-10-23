@@ -161,9 +161,6 @@ class MOEImageModalityPEP(BaseModality):
 
         _logits, _topk_indices, weights = self.gating_network(inputs)  # weights: (B, E)
         
-        torch.set_printoptions(sci_mode=False)
-        print(weights)
-
         if self.training:
             # Use all experts: project per expert, then fuse
             expert_outputs = []
