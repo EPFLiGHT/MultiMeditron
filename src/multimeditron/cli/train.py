@@ -98,19 +98,17 @@ def train(config: str,
     # Create a model
     torch.set_default_dtype(torch.bfloat16)
     
-    modalities_loader = dict()
-    with deepspeed.zero.Init(dtype=torch.bfloat16):
-        if config_dict.get("base_model", None) is None:
-            # Get modalities from configuration
-            modalities_config = []
-            for modality in config_dict.get("modalities", []):
-                modalities_config.append(AutoModality.config_from_dict(modality))
 
-            for loader in config_dict["loaders"]:
-                loader_copy = loader.copy()
-                loader_type = loader_copy.pop("loader_type")
-                modality_type = loader_copy.pop("modality_type")
-                modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader_copy)
+    modalities_config = []
+    for modality in config_dict.get("modalities", []):
+        modalities_config.append(AutoModality.config_from_dict(modality))
+
+    modalities_loader = dict()
+    for loader in config_dict["loaders"]:
+        loader_copy = loader.copy()
+        loader_type = loader_copy.pop("loader_type")
+        modality_type = loader_copy.pop("modality_type")
+        modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader_copy)
 
     with deepspeed.zero.Init(dtype=torch.bfloat16):
         if config_dict.get("base_model", None) is None:
@@ -118,9 +116,8 @@ def train(config: str,
         else:
             model = MultiModalModelForCausalLM.from_pretrained(config_dict["base_model"], 
                                                                truncation=config_dict.get("truncation", False),
-                                                               max_sequence_length=config_dict.get("max_sequence_length", None)
-                                                               )
-    
+                                                               max_sequence_length=config_dict.get("max_sequence_length", None))
+
     model.train()
     
     processors = model.processors()

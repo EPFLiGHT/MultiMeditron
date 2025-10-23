@@ -130,9 +130,7 @@ class ImageModality(BaseModality):
         for parameters in self.projector.parameters():
             parameters.requires_grad = True
 
-    def freeze_projection_only(self):
-        for parameters in self.projector.parameters():
-            parameters.requires_grad = False
+    def unfreeze_modality(self):
         for parameters in self.feature_extractor.parameters():
             parameters.requires_grad = True
 

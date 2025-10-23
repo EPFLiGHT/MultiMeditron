@@ -1,3 +1,4 @@
+import uuid
 from multimeditron.model.constants import NUM_EMBEDDINGS_KEY, MODALITY_VALUE_KEY
 from multimeditron.model.modalities.base import AutoModality, BaseModality, BaseModalityConfig, BaseModalityProcessor
 from multimeditron.model.modalities.moe.gating import GatingNetwork
@@ -13,7 +14,7 @@ class MOEImageConfigPEP(BaseModalityConfig):
         hidden_size: int = 4096,
         use_bias_proj: bool = True,
         expert_clip_names: List[str] = [],
-        image_processor: str = "openai/clip-vit-large-patch14",
+        image_processor: str = "openai/clip-vit-base-patch32",
         gating_path: str = "",
         top_k_experts: int = 5,
         projection_type: str = "mlp",
@@ -46,7 +47,6 @@ class MOEImageConfigPEP(BaseModalityConfig):
         self.image_processor = image_processor
         self.fusion_method = fusion_method
 
-
 class MOEImageProcessorPEP(BaseModalityProcessor):
     """
     Processor for Mixture of Experts (MoE) Image Modality.
@@ -71,6 +71,8 @@ class MOEImageProcessorPEP(BaseModalityProcessor):
 
         pixel_values = self.image_processor(images=image, return_tensors="pt")["pixel_values"][0]
         processed_modality[MODALITY_VALUE_KEY] = pixel_values
+        
+
         if self.fusion_method == "sequence_append":
             processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry * self.top_k_experts
         elif self.fusion_method == "weighted_average":
@@ -149,11 +151,18 @@ class MOEImageModalityPEP(BaseModality):
         self.fusion_method = config.fusion_method
         self.gating_network = GatingNetwork.from_pretrained(config.gating_path)
 
+        self.modality_frozen = not self.training
+
+
     def forward(self, inputs) -> torch.Tensor:
-        device = next(self.experts[0].parameters()).device
-        inputs = torch.stack(inputs, dim=0).to(device)  # (B, C, H, W)
+        inputs = torch.stack(inputs, dim=0)  # (B, C, H, W)
+
+        # self.gating_network.eval()
 
         _logits, _topk_indices, weights = self.gating_network(inputs)  # weights: (B, E)
+        
+        torch.set_printoptions(sci_mode=False)
+        print(weights)
 
         if self.training:
             # Use all experts: project per expert, then fuse
@@ -189,6 +198,14 @@ class MOEImageModalityPEP(BaseModality):
     def embedding_size(self) -> int:
         return self._embedding_size  # post-projection dim 
 
+    def train(self, mode: bool = True):
+        super().train(mode)
+
+        if self.modality_frozen:
+            self.gating_network.eval()
+
+        return self
+
     def freeze_modality_only(self):
         for params in self.gating_network.parameters():
             params.requires_grad = False
@@ -197,7 +214,13 @@ class MOEImageModalityPEP(BaseModality):
             for params in expert.parameters():
                 params.requires_grad = False
 
-    def freeze_projection_only(self):
+        self.gating_network.eval()
+        self.modality_frozen = True
+        
+    def unfreeze_modality(self):
         for projector in self.projectors:
             for p in projector.parameters():
-                p.requires_grad = False
+                p.requires_grad = True
+
+        self.gating_network.train()
+        self.modality_frozen = False

@@ -126,6 +126,8 @@ class MOEImageModality(BaseModality):
         # register permutation as a non-persistent buffer
         self.register_buffer("_gating_to_expert_perm", torch.tensor(perm_list, dtype=torch.long), persistent=False)
         self.projector = MLPProjector(self.embedding_size, config.hidden_size)
+        
+        self.modality_frozen = not self.training
 
     def forward(self, inputs) -> torch.Tensor:
         device = next(self.experts[0].parameters()).device
@@ -164,6 +166,15 @@ class MOEImageModality(BaseModality):
             # Evaluation mode
             raise NotImplementedError("Evaluation mode not implemented yet.")
 
+   
+    def train(self, mode: bool = True):
+        super().train(mode)
+
+        if self.modality_frozen:
+            self.gating_network.eval()
+
+        return self
+
 
     def freeze_modality_only(self):
         for params in self.gating_network.parameters():
@@ -173,8 +184,14 @@ class MOEImageModality(BaseModality):
             for params in expert.parameters():
                 params.requires_grad = False
 
-    def freeze_projection_only(self):
+        self.gating_network.train()
+        self.modality_frozen = True
+
+    def unfreeze_modality(self):
         for params in self.projector.parameters():
-            params.requires_grad = False
+            params.requires_grad = True
+
+        self.gating_network.train()
+        self.modality_frozen = False
 
 
