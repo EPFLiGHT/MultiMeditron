@@ -51,6 +51,7 @@ class MOEImageProcessor(BaseModalityProcessor):
     """
     Processor for Mixture of Experts (MoE) Image Modality.
     Uses a pretrained image processor to convert raw images into pixel values.
+    Prepares processing for the fusion method between experts' outputs.
     """
     def __init__(self, config: MOEImageConfig):
         super().__init__(config)
@@ -68,6 +69,7 @@ class MOEImageProcessor(BaseModalityProcessor):
 
         pixel_values = self.image_processor(images=image, return_tensors="pt")["pixel_values"][0]
         processed_modality[MODALITY_VALUE_KEY] = pixel_values
+        # Determine number of embeddings based on fusion method
         if self.fusion_method == "sequence_append":
             processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry * self.top_k_experts
         elif self.fusion_method == "weighted_average":
@@ -95,8 +97,6 @@ class MOEImageModality(BaseModality):
         super().__init__(config)
 
         self.experts = torch.nn.ModuleList()
-        self.expert_names: List[str] = list(config.expert_clip_names)
-        assert len(self.expert_names) > 0, "config.expert_clip_names must be non-empty"
         self.expert_names: List[str] = list(config.expert_clip_names)
         assert len(self.expert_names) > 0, "config.expert_clip_names must be non-empty"
 
@@ -127,7 +127,7 @@ class MOEImageModality(BaseModality):
             num_experts = len(self.experts)
             perm_list = list(range(num_experts))
 
-        # register permutation as a non-persistent buffer
+        # register permutation as a non-persistent buffer 
         self.register_buffer("_gating_to_expert_perm", torch.tensor(perm_list, dtype=torch.long), persistent=False)
         self.projector = MLPProjector(self.embedding_size, config.hidden_size)
 
@@ -154,6 +154,7 @@ class MOEImageModality(BaseModality):
                 # stacked_expert_outputs: (B, E, P, H)
                 fused = torch.flatten(stacked_expert_outputs, start_dim=1, end_dim=2)  # (B, E*P, H)
             elif self.fusion_method == "weighted_average":
+                # apply permutation to weights to align with expert order
                 perm = self._gating_to_expert_perm  # shape (N,)
 
                 weights = weights.index_select(dim=-1, index=perm)  # -> (B, N_experts)
@@ -172,7 +173,7 @@ class MOEImageModality(BaseModality):
             raise NotImplementedError("Evaluation mode not implemented yet.")
 
 
-    def freeze_modality_only(self):
+    def freeze_experts_and_gating(self):
         for params in self.gating_network.parameters():
             params.requires_grad = False
         

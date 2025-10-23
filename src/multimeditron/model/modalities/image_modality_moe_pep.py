@@ -71,6 +71,7 @@ class MOEImageProcessorPEP(BaseModalityProcessor):
 
         pixel_values = self.image_processor(images=image, return_tensors="pt")["pixel_values"][0]
         processed_modality[MODALITY_VALUE_KEY] = pixel_values
+        # Determine number of embeddings based on fusion method
         if self.fusion_method == "sequence_append":
             processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry * self.top_k_experts
         elif self.fusion_method == "weighted_average":
@@ -127,6 +128,7 @@ class MOEImageModalityPEP(BaseModality):
 
         # All experts must share the same patch grid for simple append.
         for e in self.experts[1:]:
+            # ensure consistent patch/grid sizes across experts
             assert (
                 e.config.patch_size == self.experts[0].config.patch_size
                 and e.config.image_size == self.experts[0].config.image_size
@@ -138,10 +140,12 @@ class MOEImageModalityPEP(BaseModality):
                 return MLPProjector(in_dim, out_dim)
             raise ValueError(f"Unsupported projection_type: {config.projection_type}")
 
+        # create one projector per expert
         self.projectors = torch.nn.ModuleList(
             [make_projector(in_dim, config.hidden_size) for in_dim in in_dims]
         )
 
+        # check we do have one projector per expert
         assert (
             len(self.projectors) == len(self.experts)
         ), f"PEP expects one projector per expert, got {len(self.projectors)} vs {len(self.experts)}"
@@ -189,7 +193,8 @@ class MOEImageModalityPEP(BaseModality):
     def embedding_size(self) -> int:
         return self._embedding_size  # post-projection dim 
 
-    def freeze_modality_only(self):
+    def freeze_experts_and_gating(self):
+        """Freeze experts and the gating network; leave projectors trainable."""
         for params in self.gating_network.parameters():
             params.requires_grad = False
 
@@ -198,6 +203,9 @@ class MOEImageModalityPEP(BaseModality):
                 params.requires_grad = False
 
     def freeze_projection_only(self):
+        """
+        Freeze only the projection layers, allowing experts and gating to be trained.
+        """
         for projector in self.projectors:
             for p in projector.parameters():
                 p.requires_grad = False
