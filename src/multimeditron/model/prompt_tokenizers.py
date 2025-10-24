@@ -260,7 +260,7 @@ class PromptTokenizer(abc.ABC):
             labels = torch.where(input_ids == self.attachment_token_idx, self.ignore_index, input_ids)
             
             # Don't want to predict the pad tokens
-            labels = torch.where(attention_mask == 0, IGNORE_TOKEN_INDEX, input_ids)
+            labels = torch.where(attention_mask == 0, IGNORE_TOKEN_INDEX, labels)
 
             tokenized_results.append({
                 "input_ids": input_ids,
