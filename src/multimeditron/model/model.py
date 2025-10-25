@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Optional, List, Union, Tuple, Any, Dict
+from typing import Optional, List, Union, Tuple, Any, Dict, Callable
 from transformers import PreTrainedModel, PretrainedConfig, AutoModel, AutoConfig, AutoProcessor, AutoModelForCausalLM
 from transformers.modeling_outputs import CausalLMOutputWithPast
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from multimeditron.model.modalities import BaseModalityProcessor, AutoModality, BaseModalityConfig, BaseModality
 from multimeditron.utils import get_torch_dtype
@@ -13,6 +13,154 @@ import json
 import tempfile
 
 logger = logging.getLogger(__name__)
+
+@dataclass
+class ChatTemplate:
+    """
+    A generic chat template class to serialize conversation messages
+    for different LLM families (LLaMA, Qwen, Apertus, etc.).
+    """
+    name: str = "custom"
+    roles: Dict[str, str] = field(default_factory=lambda: {
+        "user": "user",
+        "assistant": "assistant",
+        "system": "system"
+    })
+    bos_token: Optional[str] = None
+    eos_token: Optional[str] = None
+    stop_tokens: List[str] = field(default_factory=list)
+
+    # Explicit delimiters for each message type
+    delimiters: Dict[str, Dict[str, str]] = field(default_factory=dict)
+
+    # Optional serialization override
+    serialize_fn: Optional[Callable[[List[Dict[str, str]]], str]] = None
+
+    # ================================================================
+
+    def format(self, messages: List[Dict[str, str]]) -> str:
+        """Serialize a list of messages into the model’s expected chat format."""
+        if self.serialize_fn:
+            return self.serialize_fn(messages)
+
+        # Default: apply delimiters per role
+        text = []
+        if self.bos_token:
+            text.append(self.bos_token)
+
+        for msg in messages:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            d = self.delimiters.get(role, {})
+            start, end = d.get("start", ""), d.get("end", "")
+            text.append(f"{start}{content}{end}")
+
+        if self.eos_token:
+            text.append(self.eos_token)
+        return "\n".join(text)
+
+    # ================================================================
+    # Built-in templates
+    # ================================================================
+
+    @staticmethod
+    def from_name(name: str) -> "ChatTemplate":
+        templates = {
+            "llama": ChatTemplate.llama,
+            "apertus": ChatTemplate.apertus,
+            "qwen3": ChatTemplate.qwen3,
+        }
+        if name not in templates:
+            raise ValueError(f"Unknown chat template name: {name}")
+        return templates[name]()
+
+    # -------------------------------
+    # LLaMA / Mistral / Vicuna style
+    # -------------------------------
+    @staticmethod
+    def llama() -> "ChatTemplate":
+        delimiters = {
+            "system": {"start": "<<SYS>>\n", "end": "\n<</SYS>>"},
+            "user": {"start": "[INST] ", "end": " [/INST]"},
+            "assistant": {"start": "", "end": ""},
+        }
+
+        def serialize(messages: List[Dict[str, str]]) -> str:
+            system_msg = ""
+            user_chunks = []
+            for msg in messages:
+                role = msg["role"]
+                if role == "system":
+                    system_msg = msg["content"]
+                elif role == "user":
+                    user_chunks.append(f"[INST] {msg['content']} [/INST]")
+                elif role == "assistant":
+                    user_chunks[-1] += f" {msg['content']}"
+            sys_prefix = f"<<SYS>>\n{system_msg}\n<</SYS>>\n\n" if system_msg else ""
+            return f"<s>[INST] {sys_prefix}{' '.join(user_chunks)} [/INST]"
+
+        return ChatTemplate(
+            name="llama",
+            bos_token="<s>",
+            eos_token="</s>",
+            stop_tokens=["</s>"],
+            delimiters=delimiters,
+            serialize_fn=serialize,
+        )
+
+    # -------------------------------
+    # Apertus style
+    # -------------------------------
+    @staticmethod
+    def apertus() -> "ChatTemplate":
+        delimiters = {
+            "system": {"start": "<SPECIAL_61>", "end": "<SPECIAL_62>"},
+            "developer": {"start": "<SPECIAL_63>", "end": "<SPECIAL_64>"},
+            "user": {"start": "<SPECIAL_65>", "end": "<SPECIAL_66>"},
+            "assistant": {"start": "", "end": ""},
+        }
+
+        def serialize(messages: List[Dict[str, str]]) -> str:
+            parts = []
+            for msg in messages:
+                role = msg["role"]
+                d = delimiters.get(role, {"start": "", "end": ""})
+                parts.append(f"{d['start']}{msg['content']}{d['end']}")
+            return "\n".join(parts)
+
+        return ChatTemplate(
+            name="apertus",
+            eos_token="<eos>",
+            stop_tokens=["<eos>"],
+            delimiters=delimiters,
+            serialize_fn=serialize,
+        )
+
+    # -------------------------------
+    # Qwen 3 / ChatML style
+    # -------------------------------
+    @staticmethod
+    def qwen3() -> "ChatTemplate":
+        delimiters = {
+            "system": {"start": "<|im_start|>system\n", "end": "<|im_end|>"},
+            "user": {"start": "<|im_start|>user\n", "end": "<|im_end|>"},
+            "assistant": {"start": "<|im_start|>assistant\n", "end": "<|im_end|>"},
+        }
+
+        def serialize(messages: List[Dict[str, str]]) -> str:
+            parts = []
+            for msg in messages:
+                d = delimiters.get(msg["role"], {"start": "", "end": ""})
+                parts.append(f"{d['start']}{msg['content']}{d['end']}")
+            return "\n".join(parts)
+
+        return ChatTemplate(
+            name="qwen3",
+            stop_tokens=["<|im_end|>"],
+            delimiters=delimiters,
+            serialize_fn=serialize,
+        )
+
 
 @dataclass
 class MultimodalConfig(PretrainedConfig):
