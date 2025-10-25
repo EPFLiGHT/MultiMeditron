@@ -10,9 +10,11 @@ from multimeditron.model.constants import (
     NUM_EMBEDDINGS_KEY, CONVERSATIONS_KEY, TEXT_KEY,
     MODALITIES_KEY, IGNORE_TOKEN_INDEX
 )
+from multimeditron.model.model import ChatTemplate
 
-class PromptTokenizer(abc.ABC):
+class PromptTokenizer:
     def __init__(self, tokenizer: PreTrainedTokenizerBase,
+                 chat_template: ChatTemplate,
                  attachment_token_idx: int,
                  modalities_num_embeddings: Dict[str, Optional[int]],
                  ignore_index: int = -100):
@@ -26,6 +28,7 @@ class PromptTokenizer(abc.ABC):
         
         self.modalities_num_embeddings = modalities_num_embeddings
         self.tokenizer = copy.deepcopy(tokenizer)
+        self.chat_template = chat_template
         self.ignore_index = ignore_index
         self.attachment_token_idx = attachment_token_idx
         self.pad_token_idx = self.convert_tokens_to_ids(self.tokenizer.pad_token)
@@ -124,6 +127,46 @@ class PromptTokenizer(abc.ABC):
 
         return res
 
+    def _tokenize_conversation(self, conversation: List[List[Dict[str, str]]],
+                           modalities: List[List[Dict[str, Any]]], 
+                           add_eos_token=True, 
+                           add_generation_prompt=False) -> List[Dict[str, Any]]:
+
+        # Expand the attachments
+        tokenized_results = []
+        for conv, mod in zip(conversation, modalities):
+            outputs = self.tokenizer.apply_chat_template(
+                    conv, add_eos_token=add_eos_token,
+                    return_dict=True, return_tensors="pt", 
+                    add_generation_prompt=add_generation_prompt,
+            )
+
+            input_ids, attention_mask = self.expand_attachment_input_tokens(
+                token_ids=outputs["input_ids"].flatten(),
+                attention_mask=outputs["attention_mask"].flatten(),
+                modalities_for_message=mod
+            )
+
+            # Don't want to predict pad tokens
+            labels = torch.where(attention_mask == 0, IGNORE_TOKEN_INDEX, input_ids)
+            
+            for roleStandard in self.chat_template.roles.keys():
+                if roleStandard != "assistant":
+                    left_tag = self.tokenizer.encode(
+                        self.chat_template.delimiters[roleStandard]["start"], 
+                        add_special_tokens=False)
+                    right_tag = self.tokenizer.encode(
+                        self.chat_template.delimiters[roleStandard]["end"], 
+                        add_special_tokens=False)
+                    labels = replace_between_tags_v2(labels, left_tag=left_tag, right_tag=right_tag)
+
+            tokenized_results.append({
+                "input_ids": input_ids,
+                "attention_mask": attention_mask,
+                "labels": labels
+            })
+
+        return tokenized_results
 
     def tokenize_conversation(self, prompt: List[Dict[str, str]], modalities: List[List[Dict[str, Any]]], 
                               add_eos_token=True, add_generation_prompt=False) -> List[Dict[str, Any]]:
