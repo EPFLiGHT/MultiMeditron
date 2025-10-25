@@ -34,14 +34,9 @@ class SamplePreprocessor:
             attachment_token_idx (int): The index of the attachment token used during tokenization.
         """
         self.modalities_num_embeddings = None
-        tokenizer_cls = lambda *args, **kwargs: PromptTokenizer(
-            *args,
-            **kwargs,
-            chat_template=ChatTemplate.from_name(tokenizer_type),
-        )
-
-        self.prompt_tokenizer = tokenizer_cls(
+        self.prompt_tokenizer = PromptTokenizer(
             tokenizer=tokenizer,
+            chat_template=ChatTemplate.from_name(tokenizer_type),
             modalities_num_embeddings=self.modalities_num_embeddings,
             attachment_token_idx=attachment_token_idx,
         )
