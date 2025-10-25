@@ -10,8 +10,9 @@ import pandas as pd
 import torch
 from torch.nn.utils.rnn import pad_sequence
 import os
+from multimeditron.model.model import ChatTemplate
 from src.model.model import MultimodalRawInput
-from src.model.prompt_tokenizers import Llama3PromptTokenizer
+from src.model.prompt_tokenizers import PromptTokenizer
 from src.dataset.preprocessor.modality_preprocessor import ModalityRetriever
 from src.dataset.registry.fs_registry import FileSystemImageRegistry
 from src.model.data_loader import DataCollatorForMultimodal
@@ -54,8 +55,9 @@ model.to("cuda")
 modalities_num_embeddings = {
     mod_name: processor.num_patches_per_entry for mod_name, processor in model.processors().items()}
 
-prompt_tokenizer = Llama3PromptTokenizer(
+prompt_tokenizer = PromptTokenizer(
 	tokenizer=tokenizer,
+    chat_template=ChatTemplate.from_name("llama"),
 	modalities_num_embeddings=modalities_num_embeddings,
 	attachment_token_idx=attachment_token_idx
 )

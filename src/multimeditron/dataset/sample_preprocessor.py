@@ -1,6 +1,7 @@
 from multimeditron.model.modalities import BaseModalityProcessor
 from multimeditron.model.constants import MODALITIES_KEY, MODALITY_TYPE_KEY
-from multimeditron.model.prompt_tokenizers import TOKENIZER_MAP
+from multimeditron.model.model import ChatTemplate
+from multimeditron.model.prompt_tokenizers import PromptTokenizer
 from typing import Dict, List, Any
 from transformers import PreTrainedTokenizerBase
 
@@ -33,7 +34,11 @@ class SamplePreprocessor:
             attachment_token_idx (int): The index of the attachment token used during tokenization.
         """
         self.modalities_num_embeddings = None
-        tokenizer_cls = TOKENIZER_MAP[tokenizer_type]
+        tokenizer_cls = lambda *args, **kwargs: PromptTokenizer(
+            *args,
+            **kwargs,
+            chat_template=ChatTemplate.from_name(tokenizer_type),
+        )
 
         self.prompt_tokenizer = tokenizer_cls(
             tokenizer=tokenizer,
