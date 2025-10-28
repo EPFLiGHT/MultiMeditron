@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -33,38 +35,12 @@ class ChatTemplate:
     # Explicit delimiters for each message type
     delimiters: Dict[str, Dict[str, str]] = field(default_factory=dict)
 
-    # Optional serialization override
-    serialize_fn: Optional[Callable[[List[Dict[str, str]]], str]] = None
-
-    # ================================================================
-
-    def format(self, messages: List[Dict[str, str]]) -> str:
-        """Serialize a list of messages into the model’s expected chat format."""
-        if self.serialize_fn:
-            return self.serialize_fn(messages)
-
-        # Default: apply delimiters per role
-        text = []
-        if self.bos_token:
-            text.append(self.bos_token)
-
-        for msg in messages:
-            role = msg.get("role", "user")
-            content = msg.get("content", "")
-            d = self.delimiters.get(role, {})
-            start, end = d.get("start", ""), d.get("end", "")
-            text.append(f"{start}{content}{end}")
-
-        if self.eos_token:
-            text.append(self.eos_token)
-        return "\n".join(text)
-
     # ================================================================
     # Built-in templates
     # ================================================================
 
     @staticmethod
-    def from_name(name: str) -> "ChatTemplate":
+    def from_name(name: str) -> ChatTemplate:
         templates = {
             "llama": ChatTemplate.llama,
             "apertus": ChatTemplate.apertus,
@@ -78,26 +54,12 @@ class ChatTemplate:
     # LLaMA / Mistral / Vicuna style
     # -------------------------------
     @staticmethod
-    def llama() -> "ChatTemplate":
+    def llama() -> ChatTemplate:
         delimiters = {
             "system": {"start": "<<SYS>>\n", "end": "\n<</SYS>>"},
             "user": {"start": "[INST] ", "end": " [/INST]"},
             "assistant": {"start": "", "end": ""},
         }
-
-        def serialize(messages: List[Dict[str, str]]) -> str:
-            system_msg = ""
-            user_chunks = []
-            for msg in messages:
-                role = msg["role"]
-                if role == "system":
-                    system_msg = msg["content"]
-                elif role == "user":
-                    user_chunks.append(f"[INST] {msg['content']} [/INST]")
-                elif role == "assistant":
-                    user_chunks[-1] += f" {msg['content']}"
-            sys_prefix = f"<<SYS>>\n{system_msg}\n<</SYS>>\n\n" if system_msg else ""
-            return f"<s>[INST] {sys_prefix}{' '.join(user_chunks)} [/INST]"
 
         return ChatTemplate(
             name="llama",
@@ -105,14 +67,13 @@ class ChatTemplate:
             eos_token="</s>",
             stop_tokens=["</s>"],
             delimiters=delimiters,
-            serialize_fn=serialize,
         )
 
     # -------------------------------
     # Apertus style
     # -------------------------------
     @staticmethod
-    def apertus() -> "ChatTemplate":
+    def apertus() -> ChatTemplate:
         delimiters = {
             "system": {"start": "<SPECIAL_61>", "end": "<SPECIAL_62>"},
             "developer": {"start": "<SPECIAL_63>", "end": "<SPECIAL_64>"},
@@ -120,45 +81,28 @@ class ChatTemplate:
             "assistant": {"start": "", "end": ""},
         }
 
-        def serialize(messages: List[Dict[str, str]]) -> str:
-            parts = []
-            for msg in messages:
-                role = msg["role"]
-                d = delimiters.get(role, {"start": "", "end": ""})
-                parts.append(f"{d['start']}{msg['content']}{d['end']}")
-            return "\n".join(parts)
-
         return ChatTemplate(
             name="apertus",
             eos_token="<eos>",
             stop_tokens=["<eos>"],
             delimiters=delimiters,
-            serialize_fn=serialize,
         )
 
     # -------------------------------
     # Qwen 3 / ChatML style
     # -------------------------------
     @staticmethod
-    def qwen3() -> "ChatTemplate":
+    def qwen3() -> ChatTemplate:
         delimiters = {
             "system": {"start": "<|im_start|>system\n", "end": "<|im_end|>"},
             "user": {"start": "<|im_start|>user\n", "end": "<|im_end|>"},
             "assistant": {"start": "<|im_start|>assistant\n", "end": "<|im_end|>"},
         }
 
-        def serialize(messages: List[Dict[str, str]]) -> str:
-            parts = []
-            for msg in messages:
-                d = delimiters.get(msg["role"], {"start": "", "end": ""})
-                parts.append(f"{d['start']}{msg['content']}{d['end']}")
-            return "\n".join(parts)
-
         return ChatTemplate(
             name="qwen3",
             stop_tokens=["<|im_end|>"],
             delimiters=delimiters,
-            serialize_fn=serialize,
         )
 
 

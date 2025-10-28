@@ -170,14 +170,14 @@ class PromptTokenizer:
             # Don't want to predict pad tokens
             labels = torch.where(attention_mask == 0, IGNORE_TOKEN_INDEX, input_ids)
 
-            for roleStandard in self.chat_template.roles.keys():
-                if roleStandard != "assistant":
+            for role_standard in self.chat_template.roles.keys():
+                if role_standard != "assistant":
                     left_tag = self.tokenizer.encode(
-                        self.chat_template.delimiters[roleStandard]["start"],
+                        self.chat_template.delimiters[role_standard]["start"],
                         add_special_tokens=False,
                     )
                     right_tag = self.tokenizer.encode(
-                        self.chat_template.delimiters[roleStandard]["end"],
+                        self.chat_template.delimiters[role_standard]["end"],
                         add_special_tokens=False,
                     )
                     labels = replace_between_tags_v2(
