@@ -157,8 +157,6 @@ class MOEImageModalityPEP(BaseModality):
     def forward(self, inputs) -> torch.Tensor:
         inputs = torch.stack(inputs, dim=0)  # (B, C, H, W)
 
-        # self.gating_network.eval()
-
         _logits, _topk_indices, weights = self.gating_network(inputs)  # weights: (B, E)
         
         if self.training:
