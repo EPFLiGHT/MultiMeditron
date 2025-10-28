@@ -1,8 +1,8 @@
-base_llm: meta-llama/Llama-3.1-8B-Instruct
+base_llm: Qwen/Qwen3-8B
 base_model: null
 attachment_token: <|reserved_special_token_0|>
-tokenizer_type: llama
-token_size: 4096
+tokenizer_type: qwen
+token_size: 32768
 
 loaders:
   - loader_type: raw-image
@@ -20,6 +20,7 @@ modalities:
       - ClosedMeditron/MedExpert-Xray
     gating_path: ClosedMeditron/MultiMeditron-Gating
     fusion_method: sequence_append
+    top_k_experts: 5
 
 training_mode: ALIGNMENT
 
@@ -29,19 +30,18 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_2
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/pixmo_anything
-  
 
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/moe_cat_shared/MultiMeditron-8B-moe-cat-shared-alignment
-  dataloader_num_workers: 16  # > 0 not supported for IterableDataset, cf. https://github.com/huggingface/datasets/issues/5984
+  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/cat_shared/MultiMeditron-8B-cat-shared-alignment
+  run_name: MultiMeditron-8B-cat-shared-alignment
+  dataloader_num_workers: 16
   dataloader_prefetch_factor: 4
   remove_unused_columns: false
-  ddp_find_unused_parameters: false # Test to reduce memory
-  learning_rate: 1.0e-4
+  ddp_find_unused_parameters: false
+  learning_rate: 1.0e-5
   bf16: true
-  per_device_train_batch_size: 8  # note that training_args.n_gpu and training_args.train_batch_size show faulty values
-                                  # with deepspeed -> use deepspeed_plugin instead (besides training_args.distributed_state.num_processes == WORLD_SIZE)
-  gradient_accumulation_steps: 16
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
   num_train_epochs: 1
   gradient_checkpointing: true
   gradient_checkpointing_kwargs:
@@ -49,13 +49,12 @@ training_args:
   save_strategy: steps
   save_steps: 0.25
   max_grad_norm: 1.0
-  run_name: MultiMeditron-8B-moe-cat-shared-alignment
   deepspeed: ./config/deepspeed.json
   accelerator_config:
     dispatch_batches: false
-  lr_scheduler_type: "cosine_with_min_lr"
+  lr_scheduler_type: cosine_with_min_lr
   lr_scheduler_kwargs:
-    min_lr: 3.0e-5
+    min_lr: 1.0e-6
   report_to: wandb
   logging_steps: 1
   weight_decay: 0.01
