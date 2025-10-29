@@ -36,7 +36,6 @@ def build_datasets(config):
     packed_datasets = []
     
     num_proc = multiprocessing.cpu_count()
-    logger.info(f"Detected {num_proc} CPU cores, using all for dataset processing.")
 
     for ds_config in tqdm(config["datasets"], desc="Concatenating datasets"):
         if is_dataset_folder(ds_config["packed_path"]):
