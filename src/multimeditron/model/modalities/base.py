@@ -116,7 +116,7 @@ class BaseModality(ABC, PreTrainedModel):
         return self.config
     
     @abstractmethod
-    def freeze_modality_only(self):
+    def freeze_modality_embedder(self):
         """
         Freeze the parameters of the modality, while keeping the projection layers trainable.
 
@@ -137,7 +137,7 @@ class BaseModality(ABC, PreTrainedModel):
         """
         Freeze all parameters in the model.
         """
-        self.freeze_modality_only()
+        self.freeze_modality_embedder()
         for params in self.parameters():
             params.requires_grad = False
 

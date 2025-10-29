@@ -124,7 +124,7 @@ class ImageModality(BaseModality):
     def from_dict(cls, config_args, **kwargs):
         return ImageConfig.from_dict(config_args, **kwargs)
 
-    def freeze_modality_only(self):
+    def freeze_modality_embedder(self):
         for parameters in self.feature_extractor.parameters():
             parameters.requires_grad = False
         for parameters in self.projector.parameters():

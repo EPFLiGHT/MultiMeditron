@@ -181,7 +181,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         # Add the language model to the transformer
         self.modalities_by_type = {}
         self.processors_by_type = {}
-        self.modalities = nn.ModuleList()
+        self.modalities_with_projection = nn.ModuleList()
 
         for modality_config in config.modalities:
             # Retrieve the modality and the number of patches per entry
@@ -196,7 +196,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
 
             self.modalities_by_type[modality_config.modality_type] = modality
             self.processors_by_type[modality_config.modality_type] = processor
-            self.modalities.append(modality)
+            self.modalities_with_projection.append(modality)
 
         # Post init
         self.post_init()
@@ -236,8 +236,8 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         This configuration is useful when aligning modality representations with
         the language model's embedding space while keeping the core LM frozen.
         """
-        for modality in self.modalities:
-            modality.freeze_experts_and_gating()
+        for modality_with_proj in self.modalities_with_projection:
+            modality_with_proj.freeze_modality_embedder()
         for params in self.model.parameters():
             params.requires_grad = False
 
@@ -253,8 +253,8 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         This configuration is useful when you want to fine-tune the language model
         on multimodal inputs while keeping the modality processors fixed.
         """
-        for modality in self.modalities:
-            modality.freeze_all()
+        for modality_with_proj in self.modalities_with_projection:
+            modality_with_proj.freeze_all()
         for params in self.model.parameters():
             params.requires_grad = True
 
@@ -270,28 +270,11 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         This configuration is useful for fine-tuning the language model and modality
         projections together, while keeping the core modality encoders fixed.
         """
-        for modality in self.modalities:
-            modality.freeze_experts_and_gating()
+        for modality_with_proj in self.modalities_with_projection:
+            modality_with_proj.freeze_modality_embedder()
         for params in self.model.parameters():
             params.requires_grad = True
     
-    def freeze_for_moe_alignment(self):
-        """
-        Freezes language model parameters for MoE alignment training.
-        This method prepares the model for MoE alignment training by:
-
-        1. Freezing only the language model parameters
-        2. Making all modality processors trainable
-        3. making the projection layers trainable
-
-        This configuration is useful when aligning modality representations with
-        the language model's embedding space while keeping the core LM frozen.
-        """
-        for modality in self.modalities:
-            modality.unfreeze_all()
-        for params in self.model.parameters():
-            params.requires_grad = False
-
     def unfreeze(self):
         """
         Unfreezes all model parameters for full training.
@@ -303,8 +286,8 @@ class MultiModalModelForCausalLM(PreTrainedModel):
 
         This configuration enables full end-to-end training of the entire model.
         """
-        for modality in self.modalities:
-            modality.unfreeze_all()
+        for modality_with_proj in self.modalities_with_projection:
+            modality_with_proj.unfreeze_all()
         for params in self.model.parameters():
             params.requires_grad = True
 

@@ -18,7 +18,6 @@ class TrainingMode(IntEnum):
     END2END = 1
     LM_ONLY = 2
     FULL = 3
-    MOE_ALIGNMENT = 4 # experts + projector (LM frozen)
 
 
 TRAINING_MAPPING = {i.name: i for i in TrainingMode}
@@ -141,8 +140,6 @@ class MultimodalTrainer(Trainer):
             self.model.freeze_for_end2end()
         elif self.training_mode == TrainingMode.FULL:
             self.model.unfreeze()
-        elif self.training_mode == TrainingMode.MOE_ALIGNMENT: 
-            self.model.freeze_for_moe_alignment()
         else:
             raise ValueError(f"Unknown training mode {self.training_mode}")
 
