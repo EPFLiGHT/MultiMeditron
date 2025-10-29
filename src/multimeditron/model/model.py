@@ -23,14 +23,7 @@ class ChatTemplate:
     for different LLM families (LLaMA, Qwen, Apertus, etc.).
     """
     name: str = "custom"
-    roles: Dict[str, str] = field(default_factory=lambda: {
-        "user": "user",
-        "assistant": "assistant",
-        "system": "system"
-    })
-    bos_token: Optional[str] = None
-    eos_token: Optional[str] = None
-    stop_tokens: List[str] = field(default_factory=list)
+
 
     # Explicit delimiters for each message type
     delimiters: Dict[str, Dict[str, str]] = field(default_factory=dict)
@@ -56,16 +49,13 @@ class ChatTemplate:
     @staticmethod
     def llama() -> ChatTemplate:
         delimiters = {
-            "system": {"start": "<<SYS>>\n", "end": "\n<</SYS>>"},
-            "user": {"start": "[INST] ", "end": " [/INST]"},
-            "assistant": {"start": "", "end": ""},
+            "system": {"start": "<|start_header_id|>system<|end_header_id|>", "end": "<|eot_id|>"},
+            "user": {"start": "<|start_header_id|>user<|end_header_id|>", "end": "<|eot_id|>"},
+            "assistant": {"start": "<|start_header_id|>assistant<|end_header_id|>", "end": "<|eot_id|>"},
         }
 
         return ChatTemplate(
             name="llama",
-            bos_token="<s>",
-            eos_token="</s>",
-            stop_tokens=["</s>"],
             delimiters=delimiters,
         )
 
@@ -75,16 +65,14 @@ class ChatTemplate:
     @staticmethod
     def apertus() -> ChatTemplate:
         delimiters = {
-            "system": {"start": "<SPECIAL_61>", "end": "<SPECIAL_62>"},
-            "developer": {"start": "<SPECIAL_63>", "end": "<SPECIAL_64>"},
-            "user": {"start": "<SPECIAL_65>", "end": "<SPECIAL_66>"},
-            "assistant": {"start": "", "end": ""},
+            "system": {"start": "<|system_start|>", "end": "<|system_end|>"},
+            "developer": {"start": "<|developer_start|>", "end": "<|developer_end|>"},
+            "user": {"start": "<|user_start|>", "end": "<|user_end|>"},
+            "assistant": {"start": "<|assistant_start|>", "end": "<|assistant_end|>"},
         }
 
         return ChatTemplate(
             name="apertus",
-            eos_token="<eos>",
-            stop_tokens=["<eos>"],
             delimiters=delimiters,
         )
 
@@ -94,16 +82,16 @@ class ChatTemplate:
     @staticmethod
     def qwen3() -> ChatTemplate:
         delimiters = {
-            "system": {"start": "<|im_start|>system\n", "end": "<|im_end|>"},
-            "user": {"start": "<|im_start|>user\n", "end": "<|im_end|>"},
-            "assistant": {"start": "<|im_start|>assistant\n", "end": "<|im_end|>"},
+            "system": {"start": "<|im_start|>system", "end": "<|im_end|>"},
+            "user": {"start": "<|im_start|>user", "end": "<|im_end|>"},
+            "assistant": {"start": "<|im_start|>assistant", "end": "<|im_end|>"},
         }
 
         return ChatTemplate(
             name="qwen3",
-            stop_tokens=["<|im_end|>"],
             delimiters=delimiters,
         )
+
 
 
 @dataclass

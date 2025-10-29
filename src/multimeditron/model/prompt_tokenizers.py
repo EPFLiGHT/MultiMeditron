@@ -159,8 +159,9 @@ class PromptTokenizer:
                 return_dict=True,
                 return_tensors="pt",
                 add_generation_prompt=add_generation_prompt,
+                enable_thinking=False,
             )
-
+        
             input_ids, attention_mask = self.expand_attachment_input_tokens(
                 token_ids=outputs["input_ids"].flatten(),
                 attention_mask=outputs["attention_mask"].flatten(),
@@ -170,7 +171,7 @@ class PromptTokenizer:
             # Don't want to predict pad tokens
             labels = torch.where(attention_mask == 0, IGNORE_TOKEN_INDEX, input_ids)
 
-            for role_standard in self.chat_template.roles.keys():
+            for role_standard in self.chat_template.delimiters.keys():
                 if role_standard != "assistant":
                     left_tag = self.tokenizer.encode(
                         self.chat_template.delimiters[role_standard]["start"],
