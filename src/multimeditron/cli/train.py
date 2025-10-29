@@ -49,7 +49,6 @@ def build_datasets(config):
     tqdm = (lambda *a, **k: _tqdm(*a, disable=(rank != 0), **k))
 
     for ds_config in tqdm(config["datasets"], desc="Concatenating datasets"):
-        print(ds_config["packed_path"])
         if is_dataset_folder(ds_config["packed_path"]):
             dataset = load_from_disk(ds_config['packed_path'])
         else:
