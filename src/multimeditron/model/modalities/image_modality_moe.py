@@ -130,6 +130,8 @@ class MOEImageModality(BaseModality):
         # register permutation as a non-persistent buffer 
         self.register_buffer("_gating_to_expert_perm", torch.tensor(perm_list, dtype=torch.long), persistent=False)
         self.projector = MLPProjector(self.embedding_size, config.hidden_size)
+        
+        self.modality_frozen = not self.training
 
     def forward(self, inputs) -> torch.Tensor:
         device = next(self.experts[0].parameters()).device
@@ -147,7 +149,6 @@ class MOEImageModality(BaseModality):
 
             # stacked_expert_outputs shape: (num_experts, batch_size, num_patches, embedding_size)
             stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
-            # topk_indices = perm[topk_indices]      
 
             if self.fusion_method == "sequence_append":
                 # as each expert has the same P (patch_size) -> if mix ViT experts with different P, need to handle differently
@@ -159,8 +160,6 @@ class MOEImageModality(BaseModality):
 
                 weights = weights.index_select(dim=-1, index=perm)  # -> (B, N_experts)
                 weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, num_experts, 1, 1)
-
-                weighted_output = (stacked_expert_outputs * weights).sum(dim=1)
                 fused = (stacked_expert_outputs * weights).sum(dim=1)
             else:
                 raise ValueError(f"Unsupported fusion_method: {self.fusion_method}")
@@ -172,6 +171,15 @@ class MOEImageModality(BaseModality):
             # Evaluation mode
             raise NotImplementedError("Evaluation mode not implemented yet.")
 
+   
+    def train(self, mode: bool = True):
+        super().train(mode)
+
+        if self.modality_frozen:
+            self.gating_network.eval()
+
+        return self
+
 
     def freeze_experts_and_gating(self):
         for params in self.gating_network.parameters():
@@ -181,9 +189,15 @@ class MOEImageModality(BaseModality):
             for params in expert.parameters():
                 params.requires_grad = False
 
-    def freeze_projection_only(self):
+        self.gating_network.train()
+        self.modality_frozen = True
+
+    def unfreeze_modality(self):
         for params in self.projector.parameters():
-            params.requires_grad = False
+            params.requires_grad = True
+
+        self.gating_network.train()
+        self.modality_frozen = False
 
 
 

@@ -1,0 +1,62 @@
+base_llm: Qwen/Qwen3-8B
+base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/cat_shared/MultiMeditron-8B-cat-shared-alignment
+attachment_token: <|reserved_special_token_0|>
+tokenizer_type: qwen3
+token_size: 32768
+
+loaders:
+  - loader_type: raw-image
+    modality_type: image
+
+modalities:
+  - model_type: moe_meditron_clip
+    image_processor: openai/clip-vit-base-patch32
+    hidden_size: 4096
+    expert_clip_names:
+      - ClosedMeditron/MedExpert-CT
+      - ClosedMeditron/clip-vit-base-patch32
+      - ClosedMeditron/MedExpert-MRI
+      - ClosedMeditron/MedExpert-Ultrasound
+      - ClosedMeditron/MedExpert-Xray
+    gating_path: ClosedMeditron/MultiMeditron-Gating
+    fusion_method: sequence_append
+    top_k_experts: 5
+
+training_mode: FULL
+
+datasets:
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/BUSI
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/COVID_US
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/ct2
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/DDTI
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/iu_xray
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/PMC_VQA
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_mammoth
+
+training_args:
+  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/unfreeze/cat_shared/MultiMeditron-8B-cat-shared-full
+  run_name: MultiMeditron-8B-cat-shared-full
+  dataloader_num_workers: 16
+  dataloader_prefetch_factor: 4
+  remove_unused_columns: false
+  ddp_find_unused_parameters: false
+  learning_rate: 1.0e-5
+  bf16: true
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  num_train_epochs: 1
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs:
+    use_reentrant: true
+  save_strategy: steps
+  save_steps: 0.25
+  max_grad_norm: 1.0
+  deepspeed: ./config/deepspeed.json
+  accelerator_config:
+    dispatch_batches: false
+  lr_scheduler_type: cosine_with_min_lr
+  lr_scheduler_kwargs:
+    min_lr: 1.0e-6
+  report_to: wandb
+  logging_steps: 1
+  weight_decay: 0.01

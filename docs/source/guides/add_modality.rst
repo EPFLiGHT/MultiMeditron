@@ -24,23 +24,6 @@ Structure of the repository:
 
 In order to add a new modality, we must first understand how the training pipeline process raw modalities:
 
-.. graphviz::
-
-   digraph G {
-       rankdir=LR;
-
-       A [label="Modality value in dataset"];
-       B [label="Raw modality"];
-       C [label="torch.Tensor"];
-       D [label="torch.Tensor"];
-        
-       A -> B [label="modality loading"];
-       B -> C [label="modality preprocessing"];
-       C -> D [label="modality embedding"];
-   }
-
-Raw modalities goes through 3 steps:
-
 1. **Modality loading**: This steps loads modality from the dataset and transforms it into a raw modality format (for instance image bytes).
 2. **Modality preprocessing**: This steps transforms raw modality into :code:`torch.Tensor`
 3. **Modality embedding**: This steps is the :code:`forward` step of your modality embedder. It forwards the :code:`torch.Tensor` object of the preprocessing step to create a :code:`torch.Tensor`: the modality embedding.
