@@ -116,16 +116,20 @@ class BaseModality(ABC, PreTrainedModel):
         return self.config
     
     @abstractmethod
-    def freeze_projection_only(self):
+    def freeze_modality_embedder(self):
         """
-        Freeze the parameters of the projection layers, while keeping the modality trainable.
+        Freeze the parameters of the modality, while keeping the projection layers trainable.
+
+        .. danger:: 
+
+            This function should an will keep the modality in "eval" mode even if you call :code:`torch.nn.Module.train()` on the model! To remove the eval mode on the modality you should call :py:meth:`multimeditron.model.modalities.base.BaseModality.unfreeze_modality`
         """
         ...
     
     @abstractmethod
-    def freeze_modality_only(self):
+    def unfreeze_modality(self):
         """
-        Freeze the parameters of the modality, while keeping the projection layers trainable.
+        Unfreeze the parameters of the modality.
         """
         ...
     
@@ -133,6 +137,7 @@ class BaseModality(ABC, PreTrainedModel):
         """
         Freeze all parameters in the model.
         """
+        self.freeze_modality_embedder()
         for params in self.parameters():
             params.requires_grad = False
 
@@ -140,6 +145,7 @@ class BaseModality(ABC, PreTrainedModel):
         """
         Unfreeze all parameters in the model.
         """
+        self.unfreeze_modality()
         for params in self.parameters():
             params.requires_grad = True
 

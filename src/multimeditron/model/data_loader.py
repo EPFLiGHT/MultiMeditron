@@ -7,7 +7,7 @@ from multimeditron.dataset.loader import BaseModalityLoader
 from multimeditron.model.modalities import BaseModalityProcessor
 from multimeditron.dataset.sample_preprocessor import SamplePreprocessor
 import torch
-from multimeditron.model.constants import MODALITIES_KEY, MODALITY_TYPE_KEY, MODALITY_VALUE_KEY, IGNORE_TOKEN_INDEX
+from multimeditron.model.constants import MODALITIES_KEY, MODALITY_TYPE_KEY, MODALITY_VALUE_KEY, IGNORE_TOKEN_INDEX, POSITION_IDS_KEY
 
 @dataclass
 class DataCollatorForMultimodal(DataCollatorMixin):
@@ -24,8 +24,10 @@ class DataCollatorForMultimodal(DataCollatorMixin):
     attachment_token_idx: int
     tokenizer_type: str
     add_generation_prompt: bool = False
+    use_2d_position_ids: bool = False
     return_tensors: str = "pt"
 
+    @torch.no_grad()
     def torch_call(self, raw_features: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Collate a batch of multimodal data.
@@ -152,6 +154,45 @@ class DataCollatorForMultimodal(DataCollatorMixin):
         attention_mask = batch["attention_mask"]
         position_ids = attention_mask.long().cumsum(-1) - 1
         position_ids = position_ids.masked_fill(attention_mask == 0, 0)
+
+        if self.use_2d_position_ids:
+            # Create 2D position ids (batch_size, seq_length, 2)
+            position_ids = position_ids.unsqueeze(-1).repeat(1, 1, 2)
+
+            # Iterate over each modality and optionally override position_ids if required.
+            for batch_idx, sample in enumerate(features):
+                for pm in sample[MODALITIES_KEY]:
+                    # If the POSITION_IDS_KEY is present, it indicates that the modality processor
+                    if POSITION_IDS_KEY in pm:
+                        token_range = pm['token_range']
+                        modality_position_ids = pm[POSITION_IDS_KEY]
+
+                        # Ensure the shape of modality_position_ids is correct
+                        # Expected shape: (token_range[1] - token_range[0], 2)
+                        if modality_position_ids.shape[0] != (token_range[1] - token_range[0]) or modality_position_ids.shape[1] != 2 or \
+                            len(modality_position_ids.shape) != 2:
+                            raise ValueError(
+                                f"Modality processor for {pm[MODALITY_TYPE_KEY]} returned position_ids with incorrect shape. "
+                                f"Expected ({token_range[1] - token_range[0]}, 2), got {modality_position_ids.shape}."
+                            )
+                        
+                        old_last_position_ids = position_ids[batch_idx, token_range[1] - 1, :].clone() if token_range[0] > 0 else torch.tensor([0, 0]).long()
+                        modality_position_ids += position_ids[batch_idx, token_range[0], :].unsqueeze(0) # [1, 2] because of broadcasting
+                        next_last_position_ids = modality_position_ids[-1, :].max().unsqueeze(0).expand(2) # [2]
+
+                        position_ids[batch_idx, token_range[0]:token_range[1], :] = modality_position_ids
+
+                        # Because images that are 2D embedded use fewer position ids than if they were 1D embedded, we need to shift the subsequent
+                        # position ids accordingly.
+                        position_ids[batch_idx, token_range[1]:, :] += (next_last_position_ids - old_last_position_ids).unsqueeze(0) # [1, 2] because of broadcasting
+        else:
+            if any(any(POSITION_IDS_KEY in pm for pm in sample[MODALITIES_KEY]) for sample in features):
+                print(
+                    "Warning: Some modality processors have specified a position_ids, currently unsupported by the collator."
+                    "Currently the collator only supports 2D (or 1D position_ids), if you want a different behavior please implement your own collator,"
+                    "or modify the model to accept custom position_ids per modality."
+                )
+
         batch["position_ids"] = position_ids
 
         return batch

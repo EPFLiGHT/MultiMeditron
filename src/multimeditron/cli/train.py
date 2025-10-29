@@ -7,13 +7,14 @@ from datasets import concatenate_datasets, load_dataset, load_from_disk
 from multimeditron.model.modalities import AutoModality
 from multimeditron.dataset.loader import AutoModalityLoader
 from multimeditron.model.model import MultiModalModelForCausalLM, MultimodalConfig
-from tqdm import tqdm
+from tqdm import tqdm as _tqdm
 import deepspeed
 import torch
 import os
 import yaml
 from PIL import PngImagePlugin
 from datasets import config as datasets_config
+
 import wandb
 import multiprocessing
 import click
@@ -34,21 +35,28 @@ def is_jsonl(path: str) -> bool:
 
 def build_datasets(config):
     packed_datasets = []
+
+    # use env vars set by torchrun
+    rank = int(os.environ.get("RANK", "0"))
+
+    # give each process fair slice of CPUs (per node)
+    # if SLURM_CPUS_PER_TASK is set, prefer it; else fallback to cpu_count
+    cpus_visible = int(os.environ.get("SLURM_CPUS_PER_TASK", multiprocessing.cpu_count()))
     
-    num_proc = multiprocessing.cpu_count()
+    gpus_per_node = int(os.environ.get("GPUS_PER_NODE", os.environ.get("NPROC_PER_NODE", "1")))
+    num_proc = max(1, cpus_visible // gpus_per_node)
+
+    tqdm = (lambda *a, **k: _tqdm(*a, disable=(rank != 0), **k))
 
     for ds_config in tqdm(config["datasets"], desc="Concatenating datasets"):
+        print(ds_config["packed_path"])
         if is_dataset_folder(ds_config["packed_path"]):
             dataset = load_from_disk(ds_config['packed_path'])
-        elif is_jsonl(ds_config["packed_path"]):
-            dataset = load_dataset("json", data_files=ds_config["packed_path"])["train"]
         else:
             dataset = load_dataset(ds_config["packed_path"], num_proc=num_proc)["train"]
-        
         packed_datasets.append(dataset)
 
-    ds = concatenate_datasets(packed_datasets).shuffle()
-
+    ds = concatenate_datasets(packed_datasets).shuffle(seed=config.get("seed", 0))
     return ds
 
 
@@ -85,27 +93,26 @@ def train(config: str,
     # Create a model
     torch.set_default_dtype(torch.bfloat16)
     
+
+    modalities_config = []
+    for modality in config_dict.get("modalities", []):
+        modalities_config.append(AutoModality.config_from_dict(modality))
+
     modalities_loader = dict()
+    for loader in config_dict["loaders"]:
+        loader_copy = loader.copy()
+        loader_type = loader_copy.pop("loader_type")
+        modality_type = loader_copy.pop("modality_type")
+        modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader_copy)
+
     with deepspeed.zero.Init(dtype=torch.bfloat16):
         if config_dict.get("base_model", None) is None:
-            # Get modalities from configuration
-            modalities_config = []
-            for modality in config_dict.get("modalities", []):
-                modalities_config.append(AutoModality.config_from_dict(modality))
-
-            for loader in config_dict["loaders"]:
-                loader_copy = loader.copy()
-                loader_type = loader_copy.pop("loader_type")
-                modality_type = loader_copy.pop("modality_type")
-                modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader_copy)
-
             model = bootstrap(config_dict, tokenizer, attachment_token_idx, modalities_config)
         else:
             model = MultiModalModelForCausalLM.from_pretrained(config_dict["base_model"], 
                                                                truncation=config_dict.get("truncation", False),
-                                                               max_sequence_length=config_dict.get("max_sequence_length", None)
-                                                               )
-    
+                                                               max_sequence_length=config_dict.get("max_sequence_length", None))
+
     model.train()
     
     processors = model.processors()
@@ -126,6 +133,7 @@ def train(config: str,
                 modality_loaders=modalities_loader,
                 tokenizer_type=config_dict["tokenizer_type"],
                 attachment_token_idx=attachment_token_idx,
+                use_2d_position_ids=config_dict.get("use_2d_position_ids", False),
             ),
             train_dataset=dataset,
             training_mode=TRAINING_MAPPING[config_dict["training_mode"]],
