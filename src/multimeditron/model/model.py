@@ -315,6 +315,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         the language model's embedding space while keeping the core LM frozen.
         """
         for modality_with_proj in self.modalities_with_projection:
+            modality_with_proj.unfreeze_projection()
             modality_with_proj.freeze_modality_embedder()
         for params in self.model.parameters():
             params.requires_grad = False
@@ -349,6 +350,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         projections together, while keeping the core modality encoders fixed.
         """
         for modality_with_proj in self.modalities_with_projection:
+            modality_with_proj.unfreeze_projection()
             modality_with_proj.freeze_modality_embedder()
         for params in self.model.parameters():
             params.requires_grad = True

@@ -180,7 +180,7 @@ class MOEImageModality(BaseModality):
         return self
 
 
-    def freeze_experts_and_gating(self):
+    def freeze_modality_embedder(self):
         for params in self.gating_network.parameters():
             params.requires_grad = False
         
@@ -188,16 +188,20 @@ class MOEImageModality(BaseModality):
             for params in expert.parameters():
                 params.requires_grad = False
 
-        self.gating_network.train()
+        self.gating_network.eval()
         self.modality_frozen = True
 
-    def unfreeze_modality(self):
-        for params in self.projector.parameters():
+    def unfreeze_modality_embedder(self):
+        for params in self.gating_network.parameters():
             params.requires_grad = True
+        
+        for expert in self.experts:
+            for params in expert.parameters():
+                params.requires_grad = True
 
         self.gating_network.train()
         self.modality_frozen = False
 
-
-
-
+    def unfreeze_projection(self):
+        for parameters in self.projector.parameters():
+            parameters.requires_grad = True

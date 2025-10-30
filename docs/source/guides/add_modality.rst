@@ -205,15 +205,13 @@ A modality class must inherit :class:`~multimeditron.model.modalities.base.BaseM
 
             return projected
 
-        def freeze_modality_only(self):
+        def freeze_modality_embedder(self):
             for parameters in self.feature_extractor.parameters():
                 parameters.requires_grad = False
             for parameters in self.projector.parameters():
                 parameters.requires_grad = True
 
-        def freeze_projection_only(self):
-            for parameters in self.projector.parameters():
-                parameters.requires_grad = False
+        def unfreeze_modality(self):
             for parameters in self.feature_extractor.parameters():
                 parameters.requires_grad = True
 

@@ -81,7 +81,7 @@ class BaseModality(ABC, PreTrainedModel):
     Abstract base class for modality models.
 
     This base class defines the common interface and attributes for all modality models.
-    Subclasses must implement the abstract methods `embedding_size`, `freeze_projection_only`, and `freeze_modality_only`.
+    Subclasses must implement the abstract methods `embedding_size`, `freeze_modality_embedder`, `unfreeze_modality_embedder` and `unfreeze_projection`
 
     Attributes:
         config (BaseModalityConfig): Configuration object for the modality.
@@ -118,18 +118,25 @@ class BaseModality(ABC, PreTrainedModel):
     @abstractmethod
     def freeze_modality_embedder(self):
         """
-        Freeze the parameters of the modality, while keeping the projection layers trainable.
+        Freeze the parameters of the modality
 
         .. danger:: 
 
-            This function should an will keep the modality in "eval" mode even if you call :code:`torch.nn.Module.train()` on the model! To remove the eval mode on the modality you should call :py:meth:`multimeditron.model.modalities.base.BaseModality.unfreeze_modality`
+            This function should an will keep the modality in "eval" mode even if you call :code:`torch.nn.Module.train()` on the model! To remove the eval mode on the modality you should call :py:meth:`multimeditron.model.modalities.base.BaseModality.unfreeze_modality_embedder`
         """
         ...
     
     @abstractmethod
-    def unfreeze_modality(self):
+    def unfreeze_modality_embedder(self):
         """
-        Unfreeze the parameters of the modality.
+        Unfreeze the parameters of the modality 
+        """
+        ...
+    
+    @abstractmethod
+    def unfreeze_projection(self):
+        """
+        Unfreeze the parameters of the projection
         """
         ...
     
@@ -145,7 +152,9 @@ class BaseModality(ABC, PreTrainedModel):
         """
         Unfreeze all parameters in the model.
         """
-        self.unfreeze_modality()
+        self.unfreeze_projection()
+        self.unfreeze_modality_embedder()
+
         for params in self.parameters():
             params.requires_grad = True
 
