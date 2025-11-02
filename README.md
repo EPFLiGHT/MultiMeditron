@@ -1,6 +1,6 @@
 <div align="center">
     <img alt="License" src="https://img.shields.io/badge/license-Apache 2.0-blue?style=for-the-badge">
-    <img alt="Documentation build" src="https://img.shields.io/github/actions/workflow/status/EPFLiGHT/MultiMeditron/docs.yml?style=for-the-badge&label=Documentation" href="https://img.shields.io/badge/license-Apache 2.0-blue?style=for-the-badge">
+    <img alt="Documentation build" src="https://img.shields.io/github/actions/workflow/status/EPFLiGHT/MultiMeditron/docs.yml?style=for-the-badge&label=Documentation" href="https://epflight.github.io/MultiMeditron/index.html">
     <img alt="Docker build" src="https://img.shields.io/github/actions/workflow/status/EPFLiGHT/MultiMeditron/docker.yml?style=for-the-badge&label=Docker">
 </div>
 
