@@ -1,6 +1,8 @@
 .. role:: python(code)
    :language: python
 
+.. _add-modality-label:
+
 Adding new modality
 ===================
 

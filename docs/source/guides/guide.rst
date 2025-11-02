@@ -11,5 +11,6 @@ This section contains user guides and tutorials for the MultiMeditron project.
    dataset_format
    training
    known_issues
+   configuration
    
 

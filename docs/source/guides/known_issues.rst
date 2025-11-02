@@ -9,8 +9,8 @@ This section describes the list of known issues and possible fix
 
 .. _docker-permission:
 
-Wrong permissions with Docker images when mounting volumes
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Wrong permissions with Docker images
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you are running the installation with Docker image on HPC. You will most likely mount volumes with specific permissions. When running with Docker image, you might see:
 
