@@ -1,15 +1,14 @@
-# MultiMeditron
-
 <div align="center">
     <img alt="License" src="https://img.shields.io/badge/license-Apache 2.0-blue?style=for-the-badge">
-    <img alt="Documentation build" src="https://img.shields.io/github/actions/workflow/status/EPFLiGHT/MultiMeditron/docs.yml?style=for-the-badge&label=Documentation&link=https%3A%2F%2Fepflight.github.io%2FMultiMeditron%2Findex.html">
+    <img alt="Documentation build" src="https://img.shields.io/github/actions/workflow/status/EPFLiGHT/MultiMeditron/docs.yml?style=for-the-badge&label=Documentation" href="https://img.shields.io/badge/license-Apache 2.0-blue?style=for-the-badge">
     <img alt="Docker build" src="https://img.shields.io/github/actions/workflow/status/EPFLiGHT/MultiMeditron/docker.yml?style=for-the-badge&label=Docker">
 </div>
+
+# MultiMeditron
 
 **MultiMeditron** is a **modular multimodal large language model (LLM)** built by students and researchers from [**LiGHT Lab**](https://www.light-laboratory.org/).
 It is designed to seamlessly integrate multiple modalities such as text, images, or other data types into a single unified model architecture.
 
----
 
 ## 🚀 Key Features
 
@@ -25,13 +24,11 @@ It is designed to seamlessly integrate multiple modalities such as text, images,
 * **🧠 Flexible Model Backbone:**
   Combine any modality embedder (like CLIP or SigLIP) with any LLM (like Llama, Qwen, or custom fine-tuned models).
 
----
 
 ## 🏗️ Model Architecture
 
 ![MultiMeditron architecture](./assets/architecture.png)
 
----
 
 ## ⚙️ Setup
 
@@ -75,8 +72,6 @@ Install dependencies:
 uv pip install -e ".[flash-attn]"
 ```
 
-
----
 
 ## 💬 Inference Example
 
@@ -131,20 +126,17 @@ with torch.no_grad():
 print(tokenizer.batch_decode(outputs, skip_special_tokens=True)[0])
 ```
 
----
 
 ## 🧩 Adding a New Modality
 
 MultiMeditron’s architecture is fully **extensible**.
 To add a new modality, see the [developer documentation](https://epflight.github.io/MultiMeditron/guides/add_modality.html) for a step-by-step guide.
 
----
 
 ## ⚖️ License
 
 This project is licensed under the Apache 2.0 License, see the [LICENSE 🎓](LICENSE) file for details.
 
----
 
 ## Cite us
 
