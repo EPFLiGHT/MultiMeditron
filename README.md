@@ -4,7 +4,7 @@ MultiMeditron is a multimodal LLM built by students and researchers from [LiGHT 
 
 **Model architecture:**
 
-![MultiMeditron architecture](./assets/architecture.svg)
+![MultiMeditron architecture](./assets/architecture.png)
 
 ## Setup
 
