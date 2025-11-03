@@ -76,41 +76,32 @@ def train(config: str,
         config_dict = yaml.safe_load(f)
     
     ATTACHMENT_TOKEN = config_dict["attachment_token"]
+
+    # load resume flag
+    resume_flag = bool(config_dict.get("resume_from_checkpoint", False))
     
-    # Determinism for reproducible resumes.
+    # determinism for reproducible resumes.
     torch.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     
     training_args = TrainingArguments(**config_dict["training_args"])
 
-    # ------------------------------------
-    #  Determine training stage semantics + resume rules
-    # ------------------------------------
-    training_mode_str = str(config_dict.get("training_mode", "ALIGNMENT")).upper()
-
-    second_stage_modes = {"END2END", "FULL"}
-    is_second_stage_mode = training_mode_str in second_stage_modes
-
     output_dir = training_args.output_dir
     output_dir_path = Path(output_dir) if output_dir else None
     if output_dir_path:
         output_dir_path.mkdir(parents=True, exist_ok=True)
 
-    # A small marker file we write on the FIRST Stage 2 run to indicate this output_dir has an ongoing Stage 2.
-    # Only when this marker exists do we allow resuming Stage 2 from output_dir checkpoints.
-    stage2_marker = output_dir_path / ".stage2_run_started.txt" if output_dir_path else None
-
-    # Probe for latest checkpoint under output_dir (this is only meaningful if the current stage previously ran here).
     last_ckpt = None
-    try:
-        if output_dir and os.path.isdir(output_dir):
-            last_ckpt = get_last_checkpoint(output_dir)
-            logger.info(f"Probed last checkpoint in output_dir: {last_ckpt}")
-    except Exception as e:
-        logger.warning(f"Failed to probe last checkpoint in output_dir: {e}")
+    if resume_flag:
+        try:
+            if output_dir and os.path.isdir(output_dir):
+                last_ckpt = get_last_checkpoint(output_dir)
+                if last_ckpt:
+                    logger.info(f"[resume=true] Found last checkpoint under output_dir: {last_ckpt}")
+        except Exception as e:
+            logger.warning(f"Failed to probe last checkpoint in output_dir: {e}")
 
-    # Base model path (often a Stage 1 checkpoint directory for Stage 2 training).
     base_model_path = config_dict.get("base_model", None)
     base_model_is_checkpoint = (
         isinstance(base_model_path, str)
@@ -118,49 +109,31 @@ def train(config: str,
         and os.path.basename(base_model_path).startswith("checkpoint-")
     )
 
-    # Decide resume checkpoint:
-    #  - Stage 2 (END2END/FULL):
-    #      * If stage2_marker exists and output_dir has a checkpoint -> RESUME from that (crash/timeout case).
-    #      * Else -> START FRESH from base_model (no Trainer resume), and create stage2_marker.
-    #  - Stage 1 (ALIGNMENT/LM_ONLY):
-    #      * If output_dir has a checkpoint -> RESUME from it.
-    #      * Else if base_model is a checkpoint -> RESUME from that.
-    #      * Else -> START FRESH from base_model (or bootstrap).
-    resume_ckpt = None
-
-    if is_second_stage_mode:
-        # Only honor output_dir checkpoints if we previously started Stage 2 here (marker exists).
-        if stage2_marker and stage2_marker.exists() and last_ckpt:
-            resume_ckpt = last_ckpt
-            logger.info(f"[{training_mode_str}] Resuming Stage 2 from its own output_dir checkpoint: {resume_ckpt}")
-        else:
-            resume_ckpt = None  # Fresh Stage 2 start
-            logger.info(f"[{training_mode_str}] Fresh Stage 2 start: load base_model weights; no resume_from_checkpoint.")
-    else:
-        # Stage 1 behavior
+    # Selection order when resume=true:
+    #   1) latest checkpoint in output_dir (resuming same run)
+    #   2) else base_model if it is a checkpoint-* path (e.g. second-stage starting point)
+    # When resume=false: don't resume from anything.
+    if resume_flag:
         if last_ckpt:
             resume_ckpt = last_ckpt
-            logger.info(f"[{training_mode_str}] Found checkpoint in output_dir -> resuming from: {resume_ckpt}")
         elif base_model_is_checkpoint:
             resume_ckpt = base_model_path
-            logger.info(f"[{training_mode_str}] Resuming Stage 1 from base_model checkpoint: {resume_ckpt}")
+            logger.info(f"[resume=true] Using base_model as resume checkpoint: {resume_ckpt}")
         else:
             resume_ckpt = None
-            logger.info(f"[{training_mode_str}] Fresh Stage 1 start: load base_model weights; no resume_from_checkpoint.")
+            logger.info("[resume=true] No checkpoint found; proceeding without resume_from_checkpoint.")
+    else:
+        resume_ckpt = None
+        logger.info("[resume=false] Fresh training (no resume_from_checkpoint).")
 
-    # ------------------------------------
-    # Tokenizer
-    # ------------------------------------
+    # === Tokenizer === 
     tokenizer = AutoTokenizer.from_pretrained(config_dict["base_llm"], padding_side='right', use_fast=True)
     tokenizer.pad_token = tokenizer.eos_token
     special_tokens = {'additional_special_tokens': [ATTACHMENT_TOKEN]}
     tokenizer.add_special_tokens(special_tokens)
     attachment_token_idx = tokenizer.convert_tokens_to_ids(ATTACHMENT_TOKEN)
-    
-    # ------------------------------------
-    #  Model (always load weights from base_model if provided
-    #  Trainer resume controls step/optimizer state)
-    # ------------------------------------
+
+    # === Model ===
     torch.set_default_dtype(torch.bfloat16)
     
     modalities_config = []
@@ -176,10 +149,10 @@ def train(config: str,
 
     with deepspeed.zero.Init(dtype=torch.bfloat16):
         if config_dict.get("base_model", None) is None:
-            # No base model, bootstrap brand-new model.
+            # no base model, bootstrap brand-new model.
             model = bootstrap(config_dict, tokenizer, attachment_token_idx, modalities_config)
         else:
-            # Load starting weights from base_model path (hub id or local checkpoint dir).
+            # load starting weights from base_model (can be a hub id or local checkpoint dir).
             model = MultiModalModelForCausalLM.from_pretrained(
                 config_dict["base_model"], 
                 truncation=config_dict.get("truncation", False),
@@ -188,10 +161,8 @@ def train(config: str,
 
     model.train()
     processors = model.processors()
-    
-    # ------------------------------------
-    #  Dataset
-    # ------------------------------------
+
+    # === Dataset ===
     dataset = build_datasets(config_dict)
     
     trainer_callbacks = []
@@ -215,16 +186,9 @@ def train(config: str,
             callbacks=trainer_callbacks,
     )
 
-    # ---------------------------------------
-    # Weights & Biases
-    # - Respect centralized WANDB_DIR for logs (exported in sbatch).
-    # - We RESUME the same W&B run only when resuming from a checkpoint.
-    # - Fresh runs create a new run id and we persist it so that future resumes continue the same run.
-    # - Run-id state file preference: $WANDB_DIR/state/<run_name>/wandb_run_id.txt, else <output_dir>/wandb_run_id.txt.
-    # ---------------------------------------
+    # === Weights & Biases ===
     wandb_run = None
 
-    # Build preferred state dir under WANDB_DIR, if provided.
     wandb_dir_env = os.environ.get("WANDB_DIR", "").strip()
     run_name = training_args.run_name or config_dict["training_args"]["run_name"]
 
@@ -238,7 +202,7 @@ def train(config: str,
             logger.warning(f"Could not create W&B state dir at {wandb_state_dir}: {e}")
             wandb_state_dir = None  # fall back below
 
-    # Fallback to output_dir if WANDB_DIR not set or not usable.
+    # fallback to output_dir if WANDB_DIR not set or not usable.
     if wandb_state_dir is None:
         if output_dir_path:
             wandb_state_dir = output_dir_path
@@ -250,7 +214,8 @@ def train(config: str,
     wandb_id_file = wandb_state_dir / "wandb_run_id.txt"
 
     if torch.distributed.get_rank() == 0:
-        reuse_existing_run = (resume_ckpt is not None)
+        # only attempt to append to the SAME run when resume_flag==true
+        reuse_existing_run = resume_flag
 
         existing_id = None
         if reuse_existing_run and wandb_id_file.exists():
@@ -269,27 +234,19 @@ def train(config: str,
 
         wandb_run = wandb.init(**wandb_kwargs)
 
-        # Persist id also for fresh runs so a later crash can resume/append the same run.
+        # always persist the current id so a later run with resume=true can append.
         try:
             wandb_id_file.write_text(wandb_run.id)
         except Exception as e:
             logger.warning(f"Could not write {wandb_id_file}: {e}")
 
-        # Write Stage 2 marker on FIRST Stage 2 fresh start (rank 0 only).
-        if is_second_stage_mode and resume_ckpt is None and stage2_marker:
-            try:
-                stage2_marker.write_text(f"mode={training_mode_str}\nrun_name={run_name}\n")
-            except Exception as e:
-                logger.warning(f"Could not write stage2 marker {stage2_marker}: {e}")
-
+        # attach deepspeed config
         import json
         with open(config_dict["training_args"]["deepspeed"], "r") as ds_file:
             deepspeed_config = json.load(ds_file)
         wandb_run.config.update({"deepspeed_config": deepspeed_config})
 
-    # ---------------------------------------
-    # Train (resume or fresh)
-    # ---------------------------------------
+    # === Train (resume or fresh) ===
     if resume_ckpt is not None:
         logger.info(f"Training: resuming from checkpoint: {resume_ckpt}")
         trainer.train(resume_from_checkpoint=resume_ckpt)
