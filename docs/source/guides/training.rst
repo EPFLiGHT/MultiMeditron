@@ -6,7 +6,7 @@ This tutorial provides a step-by-step guide on how to train a model using MultiM
 Configuration files
 -------------------
 
-Each training are configured through a YAML file. To get the full documentation of the different arguments supported by the configuration file, refer to :any:`the configuration reference <config-ref-label>`
+Each training is configured through a YAML file. To get the full documentation of the different arguments supported by the configuration file, refer to :any:`the configuration reference <config-ref-label>`
 
 .. code-block:: yaml
 
