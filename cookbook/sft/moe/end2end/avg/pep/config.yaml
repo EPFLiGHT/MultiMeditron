@@ -1,5 +1,5 @@
 base_llm: Qwen/Qwen3-8B
-base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/avg_pep/MultiMeditron-8B-avg-pep-alignment # add path to checkpoint
+base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/avg_pep/MultiMeditron-8B-avg-pep-alignment/checkpoint-1613 # add path to checkpoint
 resume_from_checkpoint: false
 wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
