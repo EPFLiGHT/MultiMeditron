@@ -6,7 +6,8 @@
     <img alt="Docker build" src="https://img.shields.io/github/actions/workflow/status/EPFLiGHT/MultiMeditron/docker.yml?style=for-the-badge&label=Docker">
 </div>
 
-# MultiMeditron
+
+![MultiMeditron](assets/multimeditron.png)
 
 **MultiMeditron** is a **modular multimodal large language model (LLM)** built by students and researchers from [**LiGHT Lab**](https://www.light-laboratory.org/).
 It is designed to seamlessly integrate multiple modalities such as text, images, or other data types into a single unified model architecture.
@@ -51,9 +52,7 @@ docker pull michelducartier24/multimeditron-git:latest-arm64
 
 ### Using uv
 
-**Prerequisite:**
-
-* `torch`: To install the right version of torch with your CUDA driver, please refer to [this documentation](https://pytorch.org/get-started/locally/)
+**Prerequisite:** To install the right version of torch with your CUDA driver, please refer to [this documentation](https://pytorch.org/get-started/locally/)
 
  Install [uv](https://docs.astral.sh/uv/):
 
@@ -140,6 +139,6 @@ To add a new modality, see the [developer documentation](https://epflight.github
 This project is licensed under the Apache 2.0 License, see the [LICENSE 🎓](LICENSE) file for details.
 
 
-## Cite us
+## 📖 Cite us
 
 TODO
