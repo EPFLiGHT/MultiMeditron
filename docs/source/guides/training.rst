@@ -3,8 +3,8 @@ Training a MultiMeditron model
 
 This tutorial provides a step-by-step guide on how to train a model using MultiMeditron. We will walk you through the process with clear examples.
 
-📃 Configuration files
-----------------------
+Configuration files
+-------------------
 
 Each training are configured through a YAML file. To get the full documentation of the different arguments supported by the configuration file, refer to :any:`the configuration reference <config-ref-label>`
 
@@ -106,8 +106,8 @@ Additionally, we are using Deepspeed for parallelism and we need to create a dee
 Store this file in :code:`deepspeed.json` file, make sure that the path to this file matches the :code:`training_args.deepspeed` argument from the YAML configuration.
 
 
-🏁 Launch the training
-----------------------
+Launch the training
+-------------------
 
 Once the training configuration are done, we are ready to launch a training. We support both single node and multi node training.
 
