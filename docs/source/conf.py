@@ -24,10 +24,6 @@ exclude_patterns = []
 
 html_theme = 'shibuya'
 html_static_path = ['_static']
-html_theme_options = {
-    "light_logo": "source/_static/multimeditron_light.png",
-    "dark_logo": "source/_static/multimeditron_dark.png",
-}
 
 
 import os

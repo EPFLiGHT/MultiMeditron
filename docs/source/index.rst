@@ -52,7 +52,8 @@ Features:
 
 .. toctree::
     :glob:
-    :maxdepth: 1
+    :maxdepth: 2
+    :includehidden:
 
     User Guide <guides/guide>
     Reference <ref/modules>
