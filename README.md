@@ -8,7 +8,7 @@
 
 
 <div align="center">
-    <img src="assets/multimeditron.png" alt="MultiMeditron">
+    <img src="assets/multimeditron_title.png" alt="MultiMeditron">
 </div>
 
 **MultiMeditron** is a **modular multimodal large language model (LLM)** built by students and researchers from [**LiGHT Lab**](https://www.light-laboratory.org/).
