@@ -5,18 +5,28 @@
 
 .. Placeholder for a cooler banner
 
-.. image:: _static/multimeditron.png
+.. image:: _static/multimeditron_dark.png
     :alt: MultiMeditron
     :align: center
     :width: 800px
+    :class: dark-only
+
+.. image:: _static/multimeditron_light.png
+    :alt: MultiMeditron
+    :align: center
+    :width: 800px
+    :class: light-only
 
 .. raw:: html
 
-   <div style="text-align: center;">
-   <p><b>A scalable, modular, multimodal training pipeline</b></p>
+   <div style="text-align: center; font-size: 25px">
+   <b>A scalable, modular, multimodal training pipeline</b>
    </div>
 
- 
+|
+|
+|
+
 🎉 Latest Updates
 =================
 
