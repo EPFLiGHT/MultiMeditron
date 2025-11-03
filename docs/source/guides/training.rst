@@ -57,7 +57,7 @@ Each training is configured through a YAML file. To get the full documentation o
  
 
 Make sure to replace :code:`/path/to/dataset` and :code:`/path/to/checkpoint` by your dataset and the actual output checkpoint path. 
-Store this file in YAML file. In our case, we store it in `config.yaml`.
+Store this file in a YAML file. In our case, we store it in :code:`config.yaml`.
 
 Additionally, we are using Deepspeed for parallelism and we need to create a deepspeed config. Here is our config used on a NVidia GH200 setup:
 
