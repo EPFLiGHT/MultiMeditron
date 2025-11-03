@@ -6,10 +6,7 @@
     <img alt="Docker build" src="https://img.shields.io/github/actions/workflow/status/EPFLiGHT/MultiMeditron/docker.yml?style=for-the-badge&label=Docker">
 </div>
 
-
-<div align="center">
-    <img src="assets/multimeditron_title.png" alt="MultiMeditron">
-</div>
+<img src="assets/multimeditron_title.png" alt="MultiMeditron">
 
 **MultiMeditron** is a **modular multimodal large language model (LLM)** built by students and researchers from [**LiGHT Lab**](https://www.light-laboratory.org/).
 It is designed to seamlessly integrate multiple modalities such as text, images, or other data types into a single unified model architecture.
