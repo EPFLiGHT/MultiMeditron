@@ -1,5 +1,6 @@
 base_llm: Qwen/Qwen3-8B
-base_model: null
+base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/avg_shared/MultiMeditron-8B-avg-shared-alignment/checkpoint-1291
+resume_from_checkpoint: true
 attachment_token: <|reserved_special_token_0|>
 tokenizer_type: qwen3
 token_size: 32768
@@ -47,7 +48,7 @@ training_args:
   gradient_checkpointing_kwargs: 
     use_reentrant: true
   save_strategy: steps
-  save_steps: 0.25
+  save_steps: 0.2
   max_grad_norm: 1.0
   deepspeed: ./config/deepspeed.json
   accelerator_config: 
