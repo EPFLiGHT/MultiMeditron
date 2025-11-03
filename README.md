@@ -7,7 +7,9 @@
 </div>
 
 
-![MultiMeditron](assets/multimeditron.png)
+<div align="center">
+    <img src="assets/multimeditron.png" alt="MultiMeditron">
+</div>
 
 **MultiMeditron** is a **modular multimodal large language model (LLM)** built by students and researchers from [**LiGHT Lab**](https://www.light-laboratory.org/).
 It is designed to seamlessly integrate multiple modalities such as text, images, or other data types into a single unified model architecture.
@@ -30,8 +32,9 @@ It is designed to seamlessly integrate multiple modalities such as text, images,
 
 ## 🏗️ Model Architecture
 
-![MultiMeditron architecture](./assets/architecture.png)
-
+<div align="center">
+    <img src="./assets/architecture.png" alt="MultiMeditron architecture">
+</div>
 
 ## ⚙️ Setup
 
