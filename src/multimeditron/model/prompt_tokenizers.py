@@ -84,6 +84,15 @@ class PromptTokenizer:
         tokenized = tokenized_conversations + tokenized_texts
 
         padded_tokenized = self.pad_tokenized(tokenized)
+
+        # labels_yes = torch.where(padded_tokenized["labels"] == -100, 151655, padded_tokenized["labels"])
+        # print("Attention mask", padded_tokenized["attention_mask"][0])
+        # print()
+        # print("Input IDs", self.tokenizer.batch_decode(padded_tokenized["input_ids"])[0])
+        # print()
+        # print("Labels", self.tokenizer.batch_decode(labels_yes)[0])
+        # print("====" * 30)
+
         return self.update_with_token_range(padded_tokenized, samples)
 
     def update_with_token_range(
@@ -159,7 +168,7 @@ class PromptTokenizer:
                 return_dict=True,
                 return_tensors="pt",
                 add_generation_prompt=add_generation_prompt,
-                enable_thinking=False,
+                enable_thinking=True,
             )
         
             input_ids, attention_mask = self.expand_attachment_input_tokens(
@@ -167,7 +176,7 @@ class PromptTokenizer:
                 attention_mask=outputs["attention_mask"].flatten(),
                 modalities_for_message=mod,
             )
-
+            
             # Don't want to predict pad tokens
             labels = torch.where(attention_mask == 0, IGNORE_TOKEN_INDEX, input_ids)
 
@@ -197,7 +206,7 @@ class PromptTokenizer:
 
     def tokenize_conversation(
         self,
-        prompt: List[Dict[str, str]],
+        prompt: List[List[Dict[str, str]]],
         modalities: List[List[Dict[str, Any]]],
         add_eos_token=True,
         add_generation_prompt=False,

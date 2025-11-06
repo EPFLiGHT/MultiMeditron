@@ -95,8 +95,6 @@ def train(config: str,
     
     training_args = TrainingArguments(**config_dict["training_args"])
 
-    # path to the output dir (not used for discovery—only for Trainer artifacts)
-
     # === Tokenizer === 
     tokenizer = AutoTokenizer.from_pretrained(config_dict["base_llm"], padding_side='right', use_fast=True)
     tokenizer.pad_token = tokenizer.eos_token
