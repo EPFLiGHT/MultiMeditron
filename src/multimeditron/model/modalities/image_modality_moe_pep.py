@@ -158,39 +158,34 @@ class MOEImageModalityPEP(BaseModality):
 
 
     def forward(self, inputs) -> torch.Tensor:
-        inputs = torch.stack(inputs, dim=0)  # (B, C, H, W)
+        inputs = torch.stack(inputs, dim=0).to(self.device)  # (B, C, H, W)
 
         _logits, _topk_indices, weights = self.gating_network(inputs)  # weights: (B, E)
         
-        if self.training:
-            # Use all experts: project per expert, then fuse
-            expert_outputs = []
-            for expert, projector in zip(self.experts, self.projectors):
-                # expert_out: (B, 1+P, D_native); drop CLS → (B, P, D_native)
-                expert_out = expert(inputs).last_hidden_state[:, 1:, :]
-                # project to hidden_size per expert: (B, P, H)
-                expert_outputs.append(projector(expert_out))
+        # Use all experts: project per expert, then fuse
+        expert_outputs = []
+        for expert, projector in zip(self.experts, self.projectors):
+            # expert_out: (B, 1+P, D_native); drop CLS → (B, P, D_native)
+            expert_out = expert(inputs).last_hidden_state[:, 1:, :]
+            # project to hidden_size per expert: (B, P, H)
+            expert_outputs.append(projector(expert_out))
 
-            # stacked_expert_outputs: (B, E, P, H)
-            stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
+        # stacked_expert_outputs: (B, E, P, H)
+        stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
 
-            if self.fusion_method == "sequence_append":
-                # concat along the sequence axis → (B, E*P, H)
-                concat = torch.flatten(stacked_expert_outputs, start_dim=1, end_dim=2)
-                return concat
+        if self.fusion_method == "sequence_append":
+            # concat along the sequence axis → (B, E*P, H)
+            concat = torch.flatten(stacked_expert_outputs, start_dim=1, end_dim=2)
+            return concat
 
-            elif self.fusion_method == "weighted_average":
-                # weights: (B, E) → (B, E, 1, 1)
-                weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, num_experts, 1, 1)
-                weighted_output = (stacked_expert_outputs * weights).sum(dim=1)  # (B, P, H)
-                return weighted_output
-
-            else:
-                raise ValueError(f"Unsupported fusion_method: {self.fusion_method}")
+        elif self.fusion_method == "weighted_average":
+            # weights: (B, E) → (B, E, 1, 1)
+            weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, num_experts, 1, 1)
+            weighted_output = (stacked_expert_outputs * weights).sum(dim=1)  # (B, P, H)
+            return weighted_output
 
         else:
-            # Evaluation mode
-            raise NotImplementedError("Evaluation mode not implemented yet.")
+            raise ValueError(f"Unsupported fusion_method: {self.fusion_method}")
 
     @property
     def embedding_size(self) -> int:

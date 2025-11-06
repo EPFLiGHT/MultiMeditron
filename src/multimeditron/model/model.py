@@ -430,7 +430,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         # Compute the projection and scatter into embedded token sequence
         for modality_name, processed_modality_stack in processed_multimodal_inputs['stacked'].items():
             modality = self._get_modality_by_name(modality_name)
-
+            
             embedded_modality_stack = modality(processed_modality_stack)
 
             embedded_tokens[processed_multimodal_inputs['batch_idx'][modality_name],
@@ -498,9 +498,8 @@ class MultiModalModelForCausalLM(PreTrainedModel):
 
         # Truncate if needed
         if self.config.truncation and self.config.max_sequence_length is not None:
-            logger.warning(f"Truncating input to {self.config.max_sequence_length} tokens.")
-        
             if inputs_embeds.shape[1] > self.config.max_sequence_length:
+                logger.warning(f"Truncating input to {self.config.max_sequence_length} tokens.")
                 inputs_embeds = inputs_embeds[:, :self.config.max_sequence_length, :]
                 if labels is not None:
                     labels = labels[:, :self.config.max_sequence_length]

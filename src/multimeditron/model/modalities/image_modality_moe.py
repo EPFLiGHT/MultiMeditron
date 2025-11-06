@@ -138,39 +138,33 @@ class MOEImageModality(BaseModality):
 
         _logits, _topk_indices, weights = self.gating_network(inputs)
 
+        # Use all experts
+        expert_outputs = []
+        for i, expert in enumerate(self.experts):
+            expert_out = expert(inputs).last_hidden_state[:, 1:, :]
+            expert_outputs.append(expert_out)
 
-        if self.training:
-            # Use all experts
-            expert_outputs = []
-            for i, expert in enumerate(self.experts):
-                expert_out = expert(inputs).last_hidden_state[:, 1:, :]
-                expert_outputs.append(expert_out)
+        # stacked_expert_outputs shape: (num_experts, batch_size, num_patches, embedding_size)
+        stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
 
-            # stacked_expert_outputs shape: (num_experts, batch_size, num_patches, embedding_size)
-            stacked_expert_outputs = torch.stack(expert_outputs, dim=1)
+        if self.fusion_method == "sequence_append":
+            # as each expert has the same P (patch_size) -> if mix ViT experts with different P, need to handle differently
+            # stacked_expert_outputs: (B, E, P, H)
+            fused = torch.flatten(stacked_expert_outputs, start_dim=1, end_dim=2)  # (B, E*P, H)
+        elif self.fusion_method == "weighted_average":
+            # apply permutation to weights to align with expert order
+            perm = self._gating_to_expert_perm  # shape (N,)
 
-            if self.fusion_method == "sequence_append":
-                # as each expert has the same P (patch_size) -> if mix ViT experts with different P, need to handle differently
-                # stacked_expert_outputs: (B, E, P, H)
-                fused = torch.flatten(stacked_expert_outputs, start_dim=1, end_dim=2)  # (B, E*P, H)
-            elif self.fusion_method == "weighted_average":
-                # apply permutation to weights to align with expert order
-                perm = self._gating_to_expert_perm  # shape (N,)
-
-                weights = weights.index_select(dim=-1, index=perm)  # -> (B, N_experts)
-                weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, num_experts, 1, 1)
-                fused = (stacked_expert_outputs * weights).sum(dim=1)
-            else:
-                raise ValueError(f"Unsupported fusion_method: {self.fusion_method}")
-
-            projected = self.projector(fused)
-            return projected
-
+            weights = weights.index_select(dim=-1, index=perm)  # -> (B, N_experts)
+            weights = weights.unsqueeze(-1).unsqueeze(-1)  # Shape: (batch_size, num_experts, 1, 1)
+            fused = (stacked_expert_outputs * weights).sum(dim=1)
         else:
-            # Evaluation mode
-            raise NotImplementedError("Evaluation mode not implemented yet.")
+            raise ValueError(f"Unsupported fusion_method: {self.fusion_method}")
 
-   
+        projected = self.projector(fused)
+        return projected
+
+
     def train(self, mode: bool = True):
         super().train(mode)
 

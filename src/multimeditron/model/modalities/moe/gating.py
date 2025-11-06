@@ -81,7 +81,7 @@ class GatingNetwork(PreTrainedModel):
             topk_indices (torch.Tensor): Indices of the top-k experts of shape (batch_size, top_k).
             weights (torch.Tensor): Softmax weights for each expert of shape (batch_size, num_classes).
         """
-
+        
         logits = self.resnet(pixel_values)
         topk_vals, topk_indices = torch.topk(logits, self.top_k, dim=-1)
         weights = torch.nn.functional.softmax(logits, dim=-1)
