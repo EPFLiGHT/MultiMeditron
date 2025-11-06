@@ -96,9 +96,6 @@ def train(config: str,
     training_args = TrainingArguments(**config_dict["training_args"])
 
     # path to the output dir (not used for discovery—only for Trainer artifacts)
-    output_dir = training_args.output_dir
-    if output_dir:
-        Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     # === Tokenizer === 
     tokenizer = AutoTokenizer.from_pretrained(config_dict["base_llm"], padding_side='right', use_fast=True)
