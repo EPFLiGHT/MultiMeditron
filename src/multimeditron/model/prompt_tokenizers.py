@@ -85,14 +85,6 @@ class PromptTokenizer:
 
         padded_tokenized = self.pad_tokenized(tokenized)
 
-        # labels_yes = torch.where(padded_tokenized["labels"] == -100, 151655, padded_tokenized["labels"])
-        # print("Attention mask", padded_tokenized["attention_mask"][0])
-        # print()
-        # print("Input IDs", self.tokenizer.batch_decode(padded_tokenized["input_ids"])[0])
-        # print()
-        # print("Labels", self.tokenizer.batch_decode(labels_yes)[0])
-        # print("====" * 30)
-
         return self.update_with_token_range(padded_tokenized, samples)
 
     def update_with_token_range(
@@ -168,7 +160,7 @@ class PromptTokenizer:
                 return_dict=True,
                 return_tensors="pt",
                 add_generation_prompt=add_generation_prompt,
-                enable_thinking=True,
+                enable_thinking=False,
             )
         
             input_ids, attention_mask = self.expand_attachment_input_tokens(
