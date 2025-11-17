@@ -83,7 +83,7 @@ import torch
 from transformers import AutoTokenizer
 import os
 from multimeditron.dataset.preprocessor import modality_preprocessor
-from multimeditron.dataset.registry.fs_registry import FileSystemImageRegistry
+from multimeditron.dataset.loader import FileSystemImageLoader
 from multimeditron.model.model import MultiModalModelForCausalLM
 from multimeditron.dataset.preprocessor.modality_preprocessor import ModalityRetriever, SamplePreprocessor
 from multimeditron.model.data_loader import DataCollatorForMultimodal
@@ -108,7 +108,7 @@ conversations = [{
 }]
 sample = {"conversations": conversations, "modalities": modalities}
 
-loader = FileSystemImageRegistry(base_path=os.getcwd())
+loader = FileSystemImageLoader(base_path=os.getcwd())
 
 collator = DataCollatorForMultimodal(
     tokenizer=tokenizer,
@@ -124,7 +124,7 @@ batch = collator([sample])
 with torch.no_grad():
     outputs = model.generate(batch=batch, temperature=0.1)
 
-print(tokenizer.batch_decode(outputs, skip_special_tokens=True)[0])
+print(tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True)[0])
 ```
 
 
