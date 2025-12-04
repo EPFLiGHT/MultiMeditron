@@ -85,7 +85,7 @@ def train(config: str,
 
     chat_template = ChatTemplate.from_name(config_dict["tokenizer_type"])
 
-    special_tokens_list = chat_template.special_tokens.values().copy()
+    special_tokens_list = list(chat_template.special_tokens.values())
 
     special_tokens_list.append(config_dict["attachment_token"])
 

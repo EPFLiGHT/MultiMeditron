@@ -22,9 +22,9 @@ class ChatTemplate:
     """
     name: str = "custom"
 
-
     # Explicit delimiters for each message type
     delimiters: Dict[str, Dict[str, str]] = field(default_factory=dict)
+    special_tokens: Dict[str, str] = field(default_factory=dict)
 
     # ================================================================
     # Built-in templates

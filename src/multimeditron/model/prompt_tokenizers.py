@@ -337,7 +337,7 @@ class PromptTokenizer:
 
         # Add the first modality
         num_embeddings = self.get_num_embeddings(modalities_for_message[0])
-        attachment_ids, attachment_attention = self._build_attachment_tokens(num_embeddings=num_embeddings)
+        attachment_ids, attachment_attention = self._build_attachment_tokens(num_embeddings=num_embeddings, modality=modalities_for_message[0])
         expanded_token_ids.append(attachment_ids)
         expanded_attention_mask.append(attachment_attention)
 
@@ -353,7 +353,7 @@ class PromptTokenizer:
             # Add the correct number of attachment tokens for the current modality
             num_embeddings = self.get_num_embeddings(mod)
 
-            attachment_ids, attachment_attention = self._build_attachment_tokens(num_embeddings=num_embeddings)
+            attachment_ids, attachment_attention = self._build_attachment_tokens(num_embeddings=num_embeddings, modality=mod)
             expanded_token_ids.append(attachment_ids)
             expanded_attention_mask.append(attachment_attention)
 
