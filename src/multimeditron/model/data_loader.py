@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from multimeditron.dataset.loader import BaseModalityLoader
 from multimeditron.model.modalities import BaseModalityProcessor
 from multimeditron.dataset.sample_preprocessor import SamplePreprocessor
+from multimeditron.model.model import ChatTemplate
 import torch
 from multimeditron.model.constants import MODALITIES_KEY, MODALITY_TYPE_KEY, MODALITY_VALUE_KEY, IGNORE_TOKEN_INDEX, POSITION_IDS_KEY
 
@@ -22,12 +23,10 @@ class DataCollatorForMultimodal(DataCollatorMixin):
     modality_processors: Dict[str, BaseModalityProcessor]
     modality_loaders: Dict[str, BaseModalityLoader]
     attachment_token: str
-    tokenizer_type: str
+    chat_template: ChatTemplate
     add_generation_prompt: bool = False
     use_2d_position_ids: bool = False
     return_tensors: str = "pt"
-    attachment_start: Optional[str] = None
-    attachment_end: Optional[str] = None
 
     @torch.no_grad()
     def torch_call(self, raw_features: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -100,11 +99,9 @@ class DataCollatorForMultimodal(DataCollatorMixin):
 
         modality_preprocessor = SamplePreprocessor(
             tokenizer=self.tokenizer,
-            tokenizer_type=self.tokenizer_type,
+            chat_template=self.chat_template,
             modality_processors=self.modality_processors,
             attachment_token=self.attachment_token,
-            attachment_start=self.attachment_start,
-            attachment_end=self.attachment_end
         )
 
         # Load modality values

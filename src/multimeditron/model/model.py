@@ -51,10 +51,12 @@ class ChatTemplate:
             "user": {"start": "<|start_header_id|>user<|end_header_id|>", "end": "<|eot_id|>"},
             "assistant": {"start": "<|start_header_id|>assistant<|end_header_id|>", "end": "<|eot_id|>"},
         }
+        special_tokens = {'image_start': '<|image_start|>', 'image_end': '<|image_end|>'}
 
         return ChatTemplate(
             name="llama",
             delimiters=delimiters,
+            special_tokens=special_tokens
         )
 
     # -------------------------------
@@ -68,10 +70,12 @@ class ChatTemplate:
             "user": {"start": "<|user_start|>", "end": "<|user_end|>"},
             "assistant": {"start": "<|assistant_start|>", "end": "<|assistant_end|>"},
         }
+        special_tokens = {'image_start': '<|image_start|>', 'image_end': '<|image_end|>'}
 
         return ChatTemplate(
             name="apertus",
             delimiters=delimiters,
+            special_tokens=special_tokens
         )
 
     # -------------------------------
@@ -84,10 +88,14 @@ class ChatTemplate:
             "user": {"start": "<|im_start|>user", "end": "<|im_end|>"},
             "assistant": {"start": "<|im_start|>assistant", "end": "<|im_end|>"},
         }
+        
+        special_tokens = {'image_start': '<|image_start|>', 'image_end': '<|image_end|>'}
+
 
         return ChatTemplate(
             name="qwen3",
             delimiters=delimiters,
+            special_tokens=special_tokens
         )
 
 

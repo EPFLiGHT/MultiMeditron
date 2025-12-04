@@ -19,12 +19,10 @@ class SamplePreprocessor:
     def __init__(
         self,
         tokenizer: PreTrainedTokenizerBase,
-        tokenizer_type: str,
+        chat_template: ChatTemplate,
         modality_processors: Dict[str, BaseModalityProcessor],
         # attachment_token_idx: int,
         attachment_token: str,
-        attachment_start: Optional[str] = None,
-        attachment_end: Optional[str] = None,
     ):
         """
         Initialize the SamplePreprocessor.
@@ -39,11 +37,9 @@ class SamplePreprocessor:
         self.modalities_num_embeddings = None
         self.prompt_tokenizer = PromptTokenizer(
             tokenizer=tokenizer,
-            chat_template=ChatTemplate.from_name(tokenizer_type),
+            chat_template=chat_template,
             modalities_num_embeddings=self.modalities_num_embeddings,
             attachment_token=attachment_token,
-            attachment_start=attachment_start,
-            attachment_end=attachment_end
         )
         self.modality_processors = modality_processors
 

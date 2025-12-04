@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, TrainingArguments
 from datasets import concatenate_datasets, load_dataset, load_from_disk
 from multimeditron.model.modalities import AutoModality
 from multimeditron.dataset.loader import AutoModalityLoader
-from multimeditron.model.model import MultiModalModelForCausalLM, MultimodalConfig
+from multimeditron.model.model import MultiModalModelForCausalLM, MultimodalConfig, ChatTemplate
 from tqdm import tqdm as _tqdm
 import deepspeed
 import torch
@@ -82,15 +82,12 @@ def train(config: str,
     # Create the base model
     tokenizer = AutoTokenizer.from_pretrained(config_dict["base_llm"], padding_side='right', use_fast=True)
     tokenizer.pad_token = tokenizer.eos_token
-    # special_tokens = {'additional_special_tokens': [ATTACHMENT_TOKEN]}
-    # tokenizer.add_special_tokens(special_tokens)
-    #
-    # attachment_token_idx = tokenizer.convert_tokens_to_ids(ATTACHMENT_TOKEN)
 
-    special_tokens_list = [config_dict["attachment_token"]]
+    chat_template = ChatTemplate.from_name(config_dict["tokenizer_type"])
 
-    if "attachment_start" in config_dict and "attachment_end" in config_dict:
-        special_tokens_list += [config_dict["attachment_start"], config_dict["attachment_end"]]
+    special_tokens_list = chat_template.special_tokens.values().copy()
+
+    special_tokens_list.append(config_dict["attachment_token"])
 
     special_tokens = {'additional_special_tokens': special_tokens_list}
     tokenizer.add_special_tokens(special_tokens)
@@ -128,6 +125,7 @@ def train(config: str,
     trainer_callbacks = []
     if os.environ.get('ENABLE_NSYS') == '1' and not os.environ.get('ENABLE_BENCHY') == '1':  # benchy already launches profiler
         trainer_callbacks.append(NvtxAnnotationCallback())
+
     
     trainer = MultimodalTrainer(
             model=model,
@@ -136,12 +134,9 @@ def train(config: str,
                 tokenizer=tokenizer, 
                 modality_processors=processors,
                 modality_loaders=modalities_loader,
-                tokenizer_type=config_dict["tokenizer_type"],
-                # attachment_token_idx=attachment_token_idx,
+                chat_template=chat_template,
                 attachment_token=config_dict["attachment_token"],
                 use_2d_position_ids=config_dict.get("use_2d_position_ids", False),
-                attachment_start=config_dict["attachment_start"],
-                attachment_end=config_dict["attachment_end"],
             ),
             train_dataset=dataset,
             training_mode=TRAINING_MAPPING[config_dict["training_mode"]],

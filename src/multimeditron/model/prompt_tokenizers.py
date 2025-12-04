@@ -20,8 +20,6 @@ class PromptTokenizer:
         chat_template: ChatTemplate,
         attachment_token: str,
         modalities_num_embeddings: Dict[str, Optional[int]],
-        attachment_start: Optional[str] = None,
-        attachment_end: Optional[str] = None,
         ignore_index: int = -100,
     ):
         """
@@ -35,15 +33,12 @@ class PromptTokenizer:
         self.modalities_num_embeddings = modalities_num_embeddings
         self.tokenizer = copy.deepcopy(tokenizer)
         self.chat_template = chat_template
+        self.attachment_start = chat_template.special_tokens.get("image_start", None)
+        self.attachment_end = chat_template.special_tokens.get("image_end", None)
         self.ignore_index = ignore_index
 
+        self.special_tokens = {k: self.tokenizer.convert_tokens_to_ids(v) for k, v in chat_template.special_tokens.items() if v is not None}
         self.attachment_token_idx = self.tokenizer.convert_tokens_to_ids(attachment_token)
-        
-        self.attachment_start_idx = None
-        self.attachment_end_idx = None
-        if attachment_start is not None and attachment_end is not None:
-            self.attachment_start_idx = self.tokenizer.convert_tokens_to_ids(attachment_start)
-            self.attachment_end_idx = self.tokenizer.convert_tokens_to_ids(attachment_end)
 
         self.pad_token_idx = self.convert_tokens_to_ids(self.tokenizer.pad_token)
 
@@ -287,12 +282,20 @@ class PromptTokenizer:
 
         return modalities_token_range
 
-    def _build_image_tokens(self, num_embeddings: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    def _build_attachment_tokens(self, num_embeddings: int, modality: Dict[str, Any]) -> Tuple[torch.Tensor, torch.Tensor]:
         token_ids = [self.attachment_token_idx] * num_embeddings
 
         attachment_template_size = 0
-        if self.attachment_start_idx is not None and self.attachment_end_idx is not None:
-            token_ids = [self.attachment_start_idx] + token_ids + [self.attachment_end_idx]
+
+        if modality.get("type", None) == "image":
+            attachment_start_idx = self.special_tokens.get("image_start", None)
+            attachment_end_idx = self.special_tokens.get("image_end", None)
+        else:
+            attachment_start_idx = None
+            attachment_end_idx = None
+            
+        if attachment_start_idx is not None and attachment_end_idx is not None:
+            token_ids = [attachment_start_idx] + token_ids + [attachment_end_idx]
             attachment_template_size = 2
         
         attention_mask = torch.tensor([True] * (num_embeddings + attachment_template_size))
@@ -334,7 +337,7 @@ class PromptTokenizer:
 
         # Add the first modality
         num_embeddings = self.get_num_embeddings(modalities_for_message[0])
-        attachment_ids, attachment_attention = self._build_image_tokens(num_embeddings=num_embeddings)
+        attachment_ids, attachment_attention = self._build_attachment_tokens(num_embeddings=num_embeddings)
         expanded_token_ids.append(attachment_ids)
         expanded_attention_mask.append(attachment_attention)
 
@@ -350,7 +353,7 @@ class PromptTokenizer:
             # Add the correct number of attachment tokens for the current modality
             num_embeddings = self.get_num_embeddings(mod)
 
-            attachment_ids, attachment_attention = self._build_image_tokens(num_embeddings=num_embeddings)
+            attachment_ids, attachment_attention = self._build_attachment_tokens(num_embeddings=num_embeddings)
             expanded_token_ids.append(attachment_ids)
             expanded_attention_mask.append(attachment_attention)
 
