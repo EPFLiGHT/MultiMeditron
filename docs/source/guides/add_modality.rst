@@ -1,6 +1,8 @@
 .. role:: python(code)
    :language: python
 
+.. _add-modality-label:
+
 Adding new modality
 ===================
 
@@ -24,9 +26,9 @@ Structure of the repository:
 
 In order to add a new modality, we must first understand how the training pipeline process raw modalities:
 
-1. **Modality loading**: This steps loads modality from the dataset and transforms it into a raw modality format (for instance image bytes).
-2. **Modality preprocessing**: This steps transforms raw modality into :code:`torch.Tensor`
-3. **Modality embedding**: This steps is the :code:`forward` step of your modality embedder. It forwards the :code:`torch.Tensor` object of the preprocessing step to create a :code:`torch.Tensor`: the modality embedding.
+1. **Modality loading**: This step loads modality from the dataset and transforms it into a raw modality format (for instance image bytes).
+2. **Modality preprocessing**: This step transforms raw modality into :code:`torch.Tensor`
+3. **Modality embedding**: This step is the :code:`forward` step of your modality embedder. It forwards the :code:`torch.Tensor` object of the preprocessing step to create a :code:`torch.Tensor`: the modality embedding.
 
 Note that:
 

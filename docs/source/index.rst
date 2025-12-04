@@ -4,13 +4,28 @@
    contain the root `toctree` directive.
 
 .. Placeholder for a cooler banner
-.. image:: _static/light_logo.png
-    :alt: LiGHT logo
-    :align: center
-    :width: 200px
 
-MultiMeditron documentation
-###########################
+.. image:: _static/multimeditron_dark.png
+    :alt: MultiMeditron
+    :align: center
+    :width: 800px
+    :class: dark-only
+
+.. image:: _static/multimeditron_light.png
+    :alt: MultiMeditron
+    :align: center
+    :width: 800px
+    :class: light-only
+
+.. raw:: html
+
+   <div style="text-align: center; font-size: 25px">
+   <b>A scalable, modular, multimodal training pipeline</b>
+   </div>
+
+|
+|
+|
 
 🎉 Latest Updates
 =================
@@ -37,7 +52,8 @@ Features:
 
 .. toctree::
     :glob:
-    :maxdepth: 1
+    :maxdepth: 2
+    :includehidden:
 
     User Guide <guides/guide>
     Reference <ref/modules>

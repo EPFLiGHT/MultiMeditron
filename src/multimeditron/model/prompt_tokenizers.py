@@ -18,23 +18,29 @@ class PromptTokenizer:
         self,
         tokenizer: PreTrainedTokenizerBase,
         chat_template: ChatTemplate,
-        attachment_token_idx: int,
+        attachment_token: str,
         modalities_num_embeddings: Dict[str, Optional[int]],
         ignore_index: int = -100,
     ):
         """
         Args:
             tokenizer (PreTrainedTokenizerBase): The tokenizer to use.
+            chat_template (ChatTemplate): The chat template to use.
+            attachment_token (str, optional): The token to use for attachment
             modalities_num_embeddings (Dict[str, int]): A dictionary mapping modality names to the number of embeddings they have.
-            ignore_index (int, optional): The index to ignore. Defaults to -100.
-            attachment_token (str, optional): The token to use for attachment. Defaults to "<|attachment|>".
+            ignore_index (int, optional): The index to ignore. Defaults to -100
         """
 
         self.modalities_num_embeddings = modalities_num_embeddings
         self.tokenizer = copy.deepcopy(tokenizer)
         self.chat_template = chat_template
+        self.attachment_start = chat_template.special_tokens.get("image_start", None)
+        self.attachment_end = chat_template.special_tokens.get("image_end", None)
         self.ignore_index = ignore_index
-        self.attachment_token_idx = attachment_token_idx
+
+        self.special_tokens = {k: self.tokenizer.convert_tokens_to_ids(v) for k, v in chat_template.special_tokens.items() if v is not None}
+        self.attachment_token_idx = self.tokenizer.convert_tokens_to_ids(attachment_token)
+
         self.pad_token_idx = self.convert_tokens_to_ids(self.tokenizer.pad_token)
 
     @property
@@ -209,6 +215,7 @@ class PromptTokenizer:
             add_eos_token=add_eos_token,
             add_generation_prompt=add_generation_prompt,
         )
+        
         self.validate_tokenized_results(res)
         return res
 
@@ -277,6 +284,27 @@ class PromptTokenizer:
 
         return modalities_token_range
 
+    def _build_attachment_tokens(self, num_embeddings: int, modality: Dict[str, Any]) -> Tuple[torch.Tensor, torch.Tensor]:
+        token_ids = [self.attachment_token_idx] * num_embeddings
+
+        attachment_template_size = 0
+
+        if modality.get("type", None) == "image":
+            attachment_start_idx = self.special_tokens.get("image_start", None)
+            attachment_end_idx = self.special_tokens.get("image_end", None)
+        else:
+            attachment_start_idx = None
+            attachment_end_idx = None
+            
+        if attachment_start_idx is not None and attachment_end_idx is not None:
+            token_ids = [attachment_start_idx] + token_ids + [attachment_end_idx]
+            attachment_template_size = 2
+        
+        attention_mask = torch.tensor([True] * (num_embeddings + attachment_template_size))
+
+        return torch.tensor(token_ids), attention_mask
+
+
     def expand_attachment_input_tokens(
         self,
         token_ids: torch.Tensor,
@@ -311,10 +339,9 @@ class PromptTokenizer:
 
         # Add the first modality
         num_embeddings = self.get_num_embeddings(modalities_for_message[0])
-        expanded_token_ids.append(
-            torch.tensor([self.attachment_token_idx] * num_embeddings)
-        )
-        expanded_attention_mask.append(torch.tensor([True] * num_embeddings))
+        attachment_ids, attachment_attention = self._build_attachment_tokens(num_embeddings=num_embeddings, modality=modalities_for_message[0])
+        expanded_token_ids.append(attachment_ids)
+        expanded_attention_mask.append(attachment_attention)
 
         for previous_mod_idx, current_mod_idx, mod in zip(
             modalities_indices, modalities_indices[1:], modalities_for_message[1:]
@@ -327,11 +354,11 @@ class PromptTokenizer:
 
             # Add the correct number of attachment tokens for the current modality
             num_embeddings = self.get_num_embeddings(mod)
-            expanded_token_ids.append(
-                torch.tensor([self.attachment_token_idx] * num_embeddings)
-            )
-            # Don't want to mask the attachment
-            expanded_attention_mask.append(torch.tensor([True] * num_embeddings))
+
+            attachment_ids, attachment_attention = self._build_attachment_tokens(num_embeddings=num_embeddings, modality=mod)
+            expanded_token_ids.append(attachment_ids)
+            expanded_attention_mask.append(attachment_attention)
+
 
         # Add final piece of text
         last_mod_idx = modalities_indices[-1]

@@ -7,7 +7,7 @@ from transformers import AutoTokenizer, TrainingArguments
 from datasets import concatenate_datasets, load_dataset, load_from_disk
 from multimeditron.model.modalities import AutoModality
 from multimeditron.dataset.loader import AutoModalityLoader
-from multimeditron.model.model import MultiModalModelForCausalLM, MultimodalConfig
+from multimeditron.model.model import MultiModalModelForCausalLM, MultimodalConfig, ChatTemplate
 from tqdm import tqdm as _tqdm
 from PIL import PngImagePlugin
 from datasets import config as datasets_config
@@ -82,9 +82,7 @@ def train(config: str,
     with open(config) as f:
         config_dict = yaml.safe_load(f)
     
-    ATTACHMENT_TOKEN = config_dict["attachment_token"]
-    
-    # determinism for reproducible resumes.
+    # Disable randomness
     torch.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
@@ -94,11 +92,17 @@ def train(config: str,
     # === Tokenizer === 
     tokenizer = AutoTokenizer.from_pretrained(config_dict["base_llm"], padding_side='right', use_fast=True)
     tokenizer.pad_token = tokenizer.eos_token
-    special_tokens = {'additional_special_tokens': [ATTACHMENT_TOKEN]}
-    tokenizer.add_special_tokens(special_tokens)
-    attachment_token_idx = tokenizer.convert_tokens_to_ids(ATTACHMENT_TOKEN)
 
-    # === Model ===
+    chat_template = ChatTemplate.from_name(config_dict["tokenizer_type"])
+
+    special_tokens_list = list(chat_template.special_tokens.values())
+
+    special_tokens_list.append(config_dict["attachment_token"])
+
+    special_tokens = {'additional_special_tokens': special_tokens_list}
+    tokenizer.add_special_tokens(special_tokens)
+    
+    # Create a model
     torch.set_default_dtype(torch.bfloat16)
     
     modalities_config = []
@@ -114,8 +118,7 @@ def train(config: str,
 
     with deepspeed.zero.Init(dtype=torch.bfloat16):
         if config_dict.get("base_model", None) is None:
-            # no base model, bootstrap brand-new model.
-            model = bootstrap(config_dict, tokenizer, attachment_token_idx, modalities_config)
+            model = bootstrap(config_dict, tokenizer, modalities_config)
         else:
             # load starting weights from base_model (hub id or local checkpoint dir).
             model = MultiModalModelForCausalLM.from_pretrained(
@@ -133,22 +136,23 @@ def train(config: str,
     trainer_callbacks = []
     if os.environ.get('ENABLE_NSYS') == '1' and not os.environ.get('ENABLE_BENCHY') == '1':
         trainer_callbacks.append(NvtxAnnotationCallback())
+
     
     trainer = MultimodalTrainer(
-        model=model,
-        args=training_args,
-        data_collator=DataCollatorForMultimodal(
-            tokenizer=tokenizer, 
-            modality_processors=processors,
-            modality_loaders=modalities_loader,
-            tokenizer_type=config_dict["tokenizer_type"],
-            attachment_token_idx=attachment_token_idx,
-            use_2d_position_ids=config_dict.get("use_2d_position_ids", False),
-        ),
-        train_dataset=dataset,
-        training_mode=TRAINING_MAPPING[config_dict["training_mode"]],
-        pytorch_profiler_config=config_dict.get("pytorch_profiler", None),
-        callbacks=trainer_callbacks,
+            model=model,
+            args=training_args,
+            data_collator=DataCollatorForMultimodal(
+                tokenizer=tokenizer, 
+                modality_processors=processors,
+                modality_loaders=modalities_loader,
+                chat_template=chat_template,
+                attachment_token=config_dict["attachment_token"],
+                use_2d_position_ids=config_dict.get("use_2d_position_ids", False),
+            ),
+            train_dataset=dataset,
+            training_mode=TRAINING_MAPPING[config_dict["training_mode"]],
+            pytorch_profiler_config=config_dict.get("pytorch_profiler", None),
+            callbacks=trainer_callbacks,
     )
 
     # === Weights & Biases ===
