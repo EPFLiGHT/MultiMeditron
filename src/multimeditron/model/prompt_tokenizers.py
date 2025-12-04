@@ -18,8 +18,10 @@ class PromptTokenizer:
         self,
         tokenizer: PreTrainedTokenizerBase,
         chat_template: ChatTemplate,
-        attachment_token_idx: int,
+        attachment_token: str,
         modalities_num_embeddings: Dict[str, Optional[int]],
+        attachment_start: Optional[str] = None,
+        attachment_end: Optional[str] = None,
         ignore_index: int = -100,
     ):
         """
@@ -34,7 +36,17 @@ class PromptTokenizer:
         self.tokenizer = copy.deepcopy(tokenizer)
         self.chat_template = chat_template
         self.ignore_index = ignore_index
-        self.attachment_token_idx = attachment_token_idx
+
+        self.attachment_token_idx = self.tokenizer.convert_tokens_to_ids(attachment_token)
+        
+        self.attachment_start_idx = None
+        self.attachment_end_idx = None
+        print(attachment_start)
+        print(attachment_end)
+        if attachment_start is not None and attachment_end is not None:
+            self.attachment_start_idx = self.tokenizer.convert_tokens_to_ids(attachment_start)
+            self.attachment_end_idx = self.tokenizer.convert_tokens_to_ids(attachment_end)
+
         self.pad_token_idx = self.convert_tokens_to_ids(self.tokenizer.pad_token)
 
     @property
@@ -197,7 +209,7 @@ class PromptTokenizer:
 
     def tokenize_conversation(
         self,
-        prompt: List[Dict[str, str]],
+        prompt: List[List[Dict[str, str]]],
         modalities: List[List[Dict[str, Any]]],
         add_eos_token=True,
         add_generation_prompt=False,
@@ -208,6 +220,8 @@ class PromptTokenizer:
             add_eos_token=add_eos_token,
             add_generation_prompt=add_generation_prompt,
         )
+        
+        print(self.tokenizer.decode(res[0]["input_ids"]))
         self.validate_tokenized_results(res)
         return res
 
@@ -276,6 +290,19 @@ class PromptTokenizer:
 
         return modalities_token_range
 
+    def _build_image_tokens(self, num_embeddings: int) -> Tuple[torch.Tensor, torch.Tensor]:
+        token_ids = [self.attachment_token_idx] * num_embeddings
+
+        attachment_template_size = 0
+        if self.attachment_start_idx is not None and self.attachment_end_idx is not None:
+            token_ids = [self.attachment_start_idx] + token_ids + [self.attachment_end_idx]
+            attachment_template_size = 2
+        
+        attention_mask = torch.tensor([True] * (num_embeddings + attachment_template_size))
+
+        return torch.tensor(token_ids), attention_mask
+
+
     def expand_attachment_input_tokens(
         self,
         token_ids: torch.Tensor,
@@ -310,10 +337,9 @@ class PromptTokenizer:
 
         # Add the first modality
         num_embeddings = self.get_num_embeddings(modalities_for_message[0])
-        expanded_token_ids.append(
-            torch.tensor([self.attachment_token_idx] * num_embeddings)
-        )
-        expanded_attention_mask.append(torch.tensor([True] * num_embeddings))
+        attachment_ids, attachment_attention = self._build_image_tokens(num_embeddings=num_embeddings)
+        expanded_token_ids.append(attachment_ids)
+        expanded_attention_mask.append(attachment_attention)
 
         for previous_mod_idx, current_mod_idx, mod in zip(
             modalities_indices, modalities_indices[1:], modalities_for_message[1:]
@@ -326,11 +352,11 @@ class PromptTokenizer:
 
             # Add the correct number of attachment tokens for the current modality
             num_embeddings = self.get_num_embeddings(mod)
-            expanded_token_ids.append(
-                torch.tensor([self.attachment_token_idx] * num_embeddings)
-            )
-            # Don't want to mask the attachment
-            expanded_attention_mask.append(torch.tensor([True] * num_embeddings))
+
+            attachment_ids, attachment_attention = self._build_image_tokens(num_embeddings=num_embeddings)
+            expanded_token_ids.append(attachment_ids)
+            expanded_attention_mask.append(attachment_attention)
+
 
         # Add final piece of text
         last_mod_idx = modalities_indices[-1]

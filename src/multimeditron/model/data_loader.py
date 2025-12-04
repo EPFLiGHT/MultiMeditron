@@ -21,11 +21,13 @@ class DataCollatorForMultimodal(DataCollatorMixin):
     tokenizer: PreTrainedTokenizerBase
     modality_processors: Dict[str, BaseModalityProcessor]
     modality_loaders: Dict[str, BaseModalityLoader]
-    attachment_token_idx: int
+    attachment_token: str
     tokenizer_type: str
     add_generation_prompt: bool = False
     use_2d_position_ids: bool = False
     return_tensors: str = "pt"
+    attachment_start: Optional[str] = None
+    attachment_end: Optional[str] = None
 
     @torch.no_grad()
     def torch_call(self, raw_features: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -100,7 +102,9 @@ class DataCollatorForMultimodal(DataCollatorMixin):
             tokenizer=self.tokenizer,
             tokenizer_type=self.tokenizer_type,
             modality_processors=self.modality_processors,
-            attachment_token_idx=self.attachment_token_idx,
+            attachment_token=self.attachment_token,
+            attachment_start=self.attachment_start,
+            attachment_end=self.attachment_end
         )
 
         # Load modality values

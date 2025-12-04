@@ -2,7 +2,7 @@ from multimeditron.model.modalities import BaseModalityProcessor
 from multimeditron.model.constants import MODALITIES_KEY, MODALITY_TYPE_KEY
 from multimeditron.model.model import ChatTemplate
 from multimeditron.model.prompt_tokenizers import PromptTokenizer
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from transformers import PreTrainedTokenizerBase
 
 
@@ -21,7 +21,10 @@ class SamplePreprocessor:
         tokenizer: PreTrainedTokenizerBase,
         tokenizer_type: str,
         modality_processors: Dict[str, BaseModalityProcessor],
-        attachment_token_idx: int,
+        # attachment_token_idx: int,
+        attachment_token: str,
+        attachment_start: Optional[str] = None,
+        attachment_end: Optional[str] = None,
     ):
         """
         Initialize the SamplePreprocessor.
@@ -38,7 +41,9 @@ class SamplePreprocessor:
             tokenizer=tokenizer,
             chat_template=ChatTemplate.from_name(tokenizer_type),
             modalities_num_embeddings=self.modalities_num_embeddings,
-            attachment_token_idx=attachment_token_idx,
+            attachment_token=attachment_token,
+            attachment_start=attachment_start,
+            attachment_end=attachment_end
         )
         self.modality_processors = modality_processors
 

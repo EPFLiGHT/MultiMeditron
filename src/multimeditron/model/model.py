@@ -103,7 +103,7 @@ class MultimodalConfig(PretrainedConfig):
         self,
         vocab_size: Optional[int] = None,
         modalities: List[BaseModalityConfig] = [],
-        attachment_token_idx: int = 1,
+        # attachment_token_idx: int = 1,
         pad_token_idx: int = 0,
         eos_token_idx: int = 0,
         padding_side: str = "left",
@@ -120,7 +120,6 @@ class MultimodalConfig(PretrainedConfig):
         Args:
             vocab_size (int, optional): Vocabulary size for the language model. Defaults to None.
             modalities (List[ModalityConfig]): List of modality configurations. Defaults to an empty list.
-            attachment_token_idx (int): Index of the attachment token in the vocabulary. Defaults to 1.
             pad_token_idx (int): Index of the padding token in the vocabulary. Defaults to 0.
             eos_token_idx (int): Index of the end-of-sequence token in the vocabulary. Defaults to 0.
             padding_side (str): Side for padding sequences ("left" or "right"). Defaults to "left". Choose left for inference, right for training.
@@ -134,7 +133,7 @@ class MultimodalConfig(PretrainedConfig):
         super().__init__(**kwargs)
         self.vocab_size = vocab_size
         self.modalities = modalities
-        self.attachment_token_idx = attachment_token_idx
+        # self.attachment_token_idx = attachment_token_idx
         self.pad_token_idx = pad_token_idx
         self.eos_token_idx = eos_token_idx
         self.padding_side = padding_side
@@ -635,7 +634,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         return torch.cat(generated_tokens).transpose(1, 0)
 
 
-def bootstrap(config, tokenizer, attachment_token_idx, modalities_config):
+def bootstrap(config, tokenizer, modalities_config):
     """
     Bootstrap the model and initialize the model as follows:
         - LLM is initialized with the pretrained weights
@@ -646,7 +645,6 @@ def bootstrap(config, tokenizer, attachment_token_idx, modalities_config):
     multimodal_config = MultimodalConfig(
         hidden_size=config["token_size"],
         vocab_size=len(tokenizer),
-        attachment_token_idx=attachment_token_idx,
         eos_token_idx=tokenizer.convert_tokens_to_ids(tokenizer.eos_token),
         modalities=modalities_config,
         llm_path=config["base_llm"],

@@ -72,8 +72,6 @@ def train(config: str,
     with open(config) as f:
         config_dict = yaml.safe_load(f)
     
-    ATTACHMENT_TOKEN = config_dict["attachment_token"]
-    
     # Disable randomness
     torch.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
@@ -84,10 +82,18 @@ def train(config: str,
     # Create the base model
     tokenizer = AutoTokenizer.from_pretrained(config_dict["base_llm"], padding_side='right', use_fast=True)
     tokenizer.pad_token = tokenizer.eos_token
-    special_tokens = {'additional_special_tokens': [ATTACHMENT_TOKEN]}
+    # special_tokens = {'additional_special_tokens': [ATTACHMENT_TOKEN]}
+    # tokenizer.add_special_tokens(special_tokens)
+    #
+    # attachment_token_idx = tokenizer.convert_tokens_to_ids(ATTACHMENT_TOKEN)
+
+    special_tokens_list = [config_dict["attachment_token"]]
+
+    if "image_start" in config_dict and "image_end" in config_dict:
+        special_tokens_list += [config_dict["image_start"], config_dict["image_end"]]
+
+    special_tokens = {'additional_special_tokens': special_tokens_list}
     tokenizer.add_special_tokens(special_tokens)
-    
-    attachment_token_idx = tokenizer.convert_tokens_to_ids(ATTACHMENT_TOKEN)
     
     # Create a model
     torch.set_default_dtype(torch.bfloat16)
@@ -106,7 +112,7 @@ def train(config: str,
 
     with deepspeed.zero.Init(dtype=torch.bfloat16):
         if config_dict.get("base_model", None) is None:
-            model = bootstrap(config_dict, tokenizer, attachment_token_idx, modalities_config)
+            model = bootstrap(config_dict, tokenizer, modalities_config)
         else:
             model = MultiModalModelForCausalLM.from_pretrained(config_dict["base_model"], 
                                                                truncation=config_dict.get("truncation", False),
@@ -131,8 +137,11 @@ def train(config: str,
                 modality_processors=processors,
                 modality_loaders=modalities_loader,
                 tokenizer_type=config_dict["tokenizer_type"],
-                attachment_token_idx=attachment_token_idx,
+                # attachment_token_idx=attachment_token_idx,
+                attachment_token=config_dict["attachment_token"],
                 use_2d_position_ids=config_dict.get("use_2d_position_ids", False),
+                attachment_start=config_dict["attachment_start"],
+                attachment_end=config_dict["attachment_end"],
             ),
             train_dataset=dataset,
             training_mode=TRAINING_MAPPING[config_dict["training_mode"]],
