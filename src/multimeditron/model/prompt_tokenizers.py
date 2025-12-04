@@ -25,9 +25,10 @@ class PromptTokenizer:
         """
         Args:
             tokenizer (PreTrainedTokenizerBase): The tokenizer to use.
+            chat_template (ChatTemplate): The chat template to use.
+            attachment_token (str, optional): The token to use for attachment
             modalities_num_embeddings (Dict[str, int]): A dictionary mapping modality names to the number of embeddings they have.
             ignore_index (int, optional): The index to ignore. Defaults to -100
-            attachment_token (str, optional): The token to use for attachment
         """
 
         self.modalities_num_embeddings = modalities_num_embeddings

@@ -21,7 +21,6 @@ class SamplePreprocessor:
         tokenizer: PreTrainedTokenizerBase,
         chat_template: ChatTemplate,
         modality_processors: Dict[str, BaseModalityProcessor],
-        # attachment_token_idx: int,
         attachment_token: str,
     ):
         """
@@ -29,10 +28,10 @@ class SamplePreprocessor:
 
         Args:
             tokenizer (PreTrainedTokenizerBase): The tokenizer instance to use for tokenization.
-            tokenizer_type (str): The type of tokenizer, used to look up the appropriate tokenizer class.
+            chat_template (ChatTemplate): The chat template defining the structure of conversations.
             modality_processors (Dict[str, BaseModalityProcessor]): A dictionary mapping modality types
                 (e.g., 'image', 'audio', ...) to their respective processing classes.
-            attachment_token_idx (int): The index of the attachment token used during tokenization.
+            attachment_token (int): The attachment token used during tokenization.
         """
         self.modalities_num_embeddings = None
         self.prompt_tokenizer = PromptTokenizer(

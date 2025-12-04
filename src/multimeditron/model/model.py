@@ -111,7 +111,6 @@ class MultimodalConfig(PretrainedConfig):
         self,
         vocab_size: Optional[int] = None,
         modalities: List[BaseModalityConfig] = [],
-        # attachment_token_idx: int = 1,
         pad_token_idx: int = 0,
         eos_token_idx: int = 0,
         padding_side: str = "left",
@@ -648,6 +647,14 @@ def bootstrap(config, tokenizer, modalities_config):
         - LLM is initialized with the pretrained weights
         - The modalities embedders are initialized with pretrained weights
         - The modalities projector are initialized randomly
+
+    Args:
+        config (dict): The configuration dictionary for the multimodal model.
+        tokenizer (PreTrainedTokenizerBase): The tokenizer instance to use for tokenization.
+        modalities_config (List[BaseModalityConfig]): List of modality configurations.
+
+    Returns:
+        MultiModalModelForCausalLM: The initialized multimodal model.
     """
 
     multimodal_config = MultimodalConfig(
