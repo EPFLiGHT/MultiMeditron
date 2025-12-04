@@ -140,7 +140,6 @@ class MultimodalConfig(PretrainedConfig):
         super().__init__(**kwargs)
         self.vocab_size = vocab_size
         self.modalities = modalities
-        # self.attachment_token_idx = attachment_token_idx
         self.pad_token_idx = pad_token_idx
         self.eos_token_idx = eos_token_idx
         self.padding_side = padding_side
