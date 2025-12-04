@@ -89,8 +89,8 @@ def train(config: str,
 
     special_tokens_list = [config_dict["attachment_token"]]
 
-    if "image_start" in config_dict and "image_end" in config_dict:
-        special_tokens_list += [config_dict["image_start"], config_dict["image_end"]]
+    if "attachment_start" in config_dict and "attachment_end" in config_dict:
+        special_tokens_list += [config_dict["attachment_start"], config_dict["attachment_end"]]
 
     special_tokens = {'additional_special_tokens': special_tokens_list}
     tokenizer.add_special_tokens(special_tokens)

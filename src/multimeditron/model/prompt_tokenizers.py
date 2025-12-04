@@ -28,8 +28,8 @@ class PromptTokenizer:
         Args:
             tokenizer (PreTrainedTokenizerBase): The tokenizer to use.
             modalities_num_embeddings (Dict[str, int]): A dictionary mapping modality names to the number of embeddings they have.
-            ignore_index (int, optional): The index to ignore. Defaults to -100.
-            attachment_token (str, optional): The token to use for attachment. Defaults to "<|attachment|>".
+            ignore_index (int, optional): The index to ignore. Defaults to -100
+            attachment_token (str, optional): The token to use for attachment
         """
 
         self.modalities_num_embeddings = modalities_num_embeddings
@@ -41,8 +41,6 @@ class PromptTokenizer:
         
         self.attachment_start_idx = None
         self.attachment_end_idx = None
-        print(attachment_start)
-        print(attachment_end)
         if attachment_start is not None and attachment_end is not None:
             self.attachment_start_idx = self.tokenizer.convert_tokens_to_ids(attachment_start)
             self.attachment_end_idx = self.tokenizer.convert_tokens_to_ids(attachment_end)
@@ -221,7 +219,6 @@ class PromptTokenizer:
             add_generation_prompt=add_generation_prompt,
         )
         
-        print(self.tokenizer.decode(res[0]["input_ids"]))
         self.validate_tokenized_results(res)
         return res
 
