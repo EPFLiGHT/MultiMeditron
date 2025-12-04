@@ -83,10 +83,6 @@ def train(config: str,
         config_dict = yaml.safe_load(f)
     
     ATTACHMENT_TOKEN = config_dict["attachment_token"]
-
-    # get resume flag and wandb run id from config
-    resume_flag = bool(config_dict.get("resume_from_checkpoint", False))
-    wandb_run_id = config_dict.get("wandb_run_id", None)  # string or None
     
     # determinism for reproducible resumes.
     torch.manual_seed(seed)
@@ -158,6 +154,10 @@ def train(config: str,
     # === Weights & Biases ===
     wandb_run = None
     run_name = training_args.run_name or config_dict["training_args"]["run_name"]
+    
+    # get resume flag and wandb run id from config
+    wandb_run_id = config_dict.get("wandb_run_id", None)  # string or None
+    resume_flag = bool(config_dict.get("resume_from_checkpoint", False))
 
     if is_main_process():
         wandb_kwargs = dict(
@@ -165,7 +165,7 @@ def train(config: str,
             config=config_dict,
             name=run_name,
         )
-     
+        
         if wandb_run_id and resume_flag:
             wandb_kwargs.update(id=str(wandb_run_id), resume="allow")
         elif wandb_run_id:
