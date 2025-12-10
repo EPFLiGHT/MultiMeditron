@@ -43,6 +43,8 @@ docs = [
     "sphinx",
     "sphinx-tabs",
     "shibuya",
+    "torch",
+    "torchvision",
 ]
 
 [project.scripts]
