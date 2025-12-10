@@ -241,15 +241,9 @@ class MOEImageModalityPEP(BaseModality):
                 wj = w_spec[:, j].view(B, 1, 1)               # [B, 1, 1]
                 ctx = ctx * wj
                 experts_ctx.append(ctx)
-
-            # debug prints
-            print("Expert contexts:", [e.shape for e in experts_ctx])
-            print("Query shape:", q.shape)
                
             # cross-attend: generalist queries over specialists
             fused = self.cross_attn(q, experts_ctx)           # [B, P, C]
-
-            print("Cross-attn fused:", fused.shape)
             return fused
 
         else:
