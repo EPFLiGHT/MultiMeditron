@@ -18,6 +18,7 @@ class MOEImageConfig(BaseModalityConfig):
         gating_path: str = "",
         top_k_experts: int = 1,
         projection_type: str = "mlp",
+        generalist_idx: int = -1,
         fusion_method: str = "weighted_average",
         cross_attn_heads: int = 8, 
         **kwargs,
@@ -46,6 +47,7 @@ class MOEImageConfig(BaseModalityConfig):
         self.gating_path = gating_path
         self.projection_type = projection_type
         self.image_processor = image_processor
+        self.generalist_idx = generalist_idx
         self.fusion_method = fusion_method
         self.cross_attn_heads = cross_attn_heads
 
@@ -116,7 +118,7 @@ class MOEImageModality(BaseModality):
             self.experts.append(expert_model.vision_model)
 
         self._num_patches_per_entry = (self.experts[0].config.image_size // self.experts[0].config.patch_size) ** 2
-
+        self.generalist_idx = config.generalist_idx
         self.fusion_method = config.fusion_method
         self.gating_network = GatingNetwork.from_pretrained(config.gating_path)
 
@@ -176,13 +178,11 @@ class MOEImageModality(BaseModality):
         elif self.fusion_method == "cross_attn":
             # query=generalist → cross-attn over specialists
             B, E, P, C = stacked_expert_outputs.shape
-            g_idx = -1  # last expert is generalist
-
             # generalist tokens as queries: [B, P, C]
-            q = stacked_expert_outputs[:, g_idx, :, :]
+            q = stacked_expert_outputs[:, self.generalist_idx, :, :]
 
             # specialist indices (all except generalist)
-            specialist_indices = [i for i in range(E) if i != g_idx] # just in case order changes
+            specialist_indices = [i for i in range(E) if i != self.generalist_idx] # just in case order changes
 
             # align gating weights to expert order
             perm = self._gating_to_expert_perm
