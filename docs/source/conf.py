@@ -25,6 +25,11 @@ exclude_patterns = []
 html_theme = 'shibuya'
 html_static_path = ['_static']
 
+autodoc_mock_imports = [
+    "torch",
+    "torchvision",
+    "verl",
+]
 
 import os
 import sys
