@@ -31,8 +31,8 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted_alignment
 
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/cat_pep/MultiMeditron-8B-cat-pep-alignment
-  run_name:   MultiMeditron-8B-cat-pep-alignment
+  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/attn_pep/MultiMeditron-8B-attn-pep-alignment
+  run_name:   MultiMeditron-8B-attn-pep-alignment
   dataloader_num_workers: 16
   dataloader_prefetch_factor: 4
   remove_unused_columns: false
