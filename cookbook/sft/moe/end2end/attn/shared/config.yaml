@@ -1,6 +1,6 @@
 base_llm: meta-llama/Llama-3.1-8B-Instruct
 base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/attn_shared/MultiMeditron-8B-attn-shared-alignment/checkpoint- # add path to checkpoint
-resume_from_checkpoint: false
+resume_from_checkpoint: true
 wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
 tokenizer_type: llama
