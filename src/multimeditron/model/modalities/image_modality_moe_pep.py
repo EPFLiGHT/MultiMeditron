@@ -48,7 +48,7 @@ class MOEImageConfigPEP(BaseModalityConfig):
         self.gating_path = gating_path
         self.projection_type = projection_type
         self.image_processor = image_processor
-        self.genralist_idx = generalist_idx
+        self.generalist_idx = generalist_idx
         self.fusion_method = fusion_method
         self.cross_attn_heads = cross_attn_heads
 
