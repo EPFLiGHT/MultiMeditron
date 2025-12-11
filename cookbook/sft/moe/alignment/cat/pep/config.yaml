@@ -1,5 +1,7 @@
 base_llm: Qwen/Qwen3-8B
-base_model: null
+base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/cat_pep/MultiMeditron-8B-cat-pep-alignment/checkpoint-1613
+resume_from_checkpoint: true
+wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
 tokenizer_type: qwen3
 token_size: 32768
@@ -40,14 +42,14 @@ training_args:
   ddp_find_unused_parameters: false
   learning_rate: 1.0e-5
   bf16: true
-  per_device_train_batch_size: 2
-  gradient_accumulation_steps: 8
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 4
   num_train_epochs: 1
   gradient_checkpointing: true
   gradient_checkpointing_kwargs: 
     use_reentrant: true
   save_strategy: steps
-  save_steps: 0.25
+  save_steps: 0.2
   max_grad_norm: 1.0
   deepspeed: ./config/deepspeed.json
   accelerator_config: 

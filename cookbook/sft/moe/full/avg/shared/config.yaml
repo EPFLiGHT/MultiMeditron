@@ -1,8 +1,12 @@
 base_llm: Qwen/Qwen3-8B
-base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/avg_shared/MultiMeditron-8B-avg-shared-alignment
+base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/avg_shared/MultiMeditron-8B-avg-shared-alignment/checkpoint-1613
+resume_from_checkpoint: false
+wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
 tokenizer_type: qwen3
 token_size: 32768
+truncation: true
+max_sequence_length: 4096
 
 loaders:
   - loader_type: raw-image

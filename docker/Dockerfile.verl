@@ -130,7 +130,7 @@ RUN pip3 install --upgrade pip && pip3 install -U \
       sentencepiece compressed_tensors msgspec     \
       nest_asyncio torchao xgrammar                \
       uvicorn python-multipart torch_memory_saver  \
-      "debugpy>=1.8.0"
+      "debugpy>=1.8.0" "ray[serve]"
 
 # This variable has been found through trial and errors, increase at you
 # own risk. In case of an emergency exists are located at the front and back of

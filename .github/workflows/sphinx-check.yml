@@ -1,0 +1,27 @@
+name: Check Sphinx docs build
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          sudo apt update -y 
+          sudo apt install -y graphviz 
+          pip install ".[docs]"
+
+      - name: Build docs (fail on warnings)
+        run: sphinx-build -b html docs/source docs/_build/html -W --keep-going
+

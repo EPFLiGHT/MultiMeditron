@@ -1,6 +1,8 @@
 .. role:: python(code)
    :language: python
 
+.. _add-modality-label:
+
 Adding new modality
 ===================
 
@@ -24,9 +26,9 @@ Structure of the repository:
 
 In order to add a new modality, we must first understand how the training pipeline process raw modalities:
 
-1. **Modality loading**: This steps loads modality from the dataset and transforms it into a raw modality format (for instance image bytes).
-2. **Modality preprocessing**: This steps transforms raw modality into :code:`torch.Tensor`
-3. **Modality embedding**: This steps is the :code:`forward` step of your modality embedder. It forwards the :code:`torch.Tensor` object of the preprocessing step to create a :code:`torch.Tensor`: the modality embedding.
+1. **Modality loading**: This step loads modality from the dataset and transforms it into a raw modality format (for instance image bytes).
+2. **Modality preprocessing**: This step transforms raw modality into :code:`torch.Tensor`
+3. **Modality embedding**: This step is the :code:`forward` step of your modality embedder. It forwards the :code:`torch.Tensor` object of the preprocessing step to create a :code:`torch.Tensor`: the modality embedding.
 
 Note that:
 
@@ -205,24 +207,25 @@ A modality class must inherit :class:`~multimeditron.model.modalities.base.BaseM
 
             return projected
 
-        def freeze_modality_only(self):
+        def freeze_modality_embedder(self):
+        for parameters in self.feature_extractor.parameters():
+            parameters.requires_grad = False
+
+        def unfreeze_modality_embedder(self):
             for parameters in self.feature_extractor.parameters():
-                parameters.requires_grad = False
-            for parameters in self.projector.parameters():
                 parameters.requires_grad = True
 
-        def freeze_projection_only(self):
+        def unfreeze_projection(self):
             for parameters in self.projector.parameters():
-                parameters.requires_grad = False
-            for parameters in self.feature_extractor.parameters():
                 parameters.requires_grad = True
 
 
 A modality class must implement 3 functions:
 
 - :meth:`~multimeditron.model.modalities.base.BaseModality.forward`: this is the definition of the forward pass (which include the forward of both the modality embedder and the projection module)
-- :meth:`~multimeditron.model.modalities.base.BaseModality.freeze_modality_only`: this function freezes the parameters of the modality embedder only
-- :meth:`~multimeditron.model.modalities.base.BaseModality.freeze_projection_only`: this function freezes the parameters of the projection module only
+- :meth:`~multimeditron.model.modalities.base.BaseModality.freeze_modality_embedder`: this function freezes the parameters of the modality embedder only
+- :meth:`~multimeditron.model.modalities.base.BaseModality.unfreeze_modality_embedder`: this function unfreezes the parameters of the modality embedder
+- :meth:`~multimeditron.model.modalities.base.BaseModality.unfreeze_projection`: this function unfreezes the parameters of the projection module 
 
 Those "freezing" functions are used to train different part of the whole MultiMeditron architecture to ensure training stability.
 

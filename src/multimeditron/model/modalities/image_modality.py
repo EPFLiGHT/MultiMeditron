@@ -1,4 +1,4 @@
-from multimeditron.model.constants import NUM_EMBEDDINGS_KEY, MODALITY_VALUE_KEY
+from multimeditron.model.constants import NUM_EMBEDDINGS_KEY, MODALITY_VALUE_KEY, POSITION_IDS_KEY
 from multimeditron.model.modalities.base import BaseModality, BaseModalityConfig, AutoModality, BaseModalityProcessor
 from multimeditron.model.projectors.mlp import MLPProjector
 import torch
@@ -15,6 +15,7 @@ class ImageConfig(BaseModalityConfig):
         hidden_size (int): Dimension of the hidden layer for the projection network.
         clip_name (str): Name of the CLIP model to use as the feature extractor.
         projection_type (str): Type of projection network (e.g., "mlp").
+        use_2d_position_ids (bool): Whether to use the 2D positional embeddings adaptation for 1D llm without retraining.
 
     Example:
         >>> config = ImageConfig(hidden_size=512, clip_name="openai/clip-vit-base-patch32")
@@ -27,6 +28,7 @@ class ImageConfig(BaseModalityConfig):
         hidden_size: int = 4096,
         clip_name: str = "openai/clip-vit-large-patch14",
         projection_type: str = "mlp",
+        use_2d_position_ids: bool = False,
         **kwargs
     ):
         """
@@ -36,6 +38,7 @@ class ImageConfig(BaseModalityConfig):
             hidden_size (int): Dimension of the hidden layer for the projection network.
             clip_name (str): Name of the CLIP model to use as the feature extractor.
             projection_type (str): Type of projection network (e.g., "mlp").
+            use_2d_position_ids (bool): Whether to use the 2D positional embeddings adaptation for 1D llm without retraining.
             **kwargs: Additional keyword arguments.
         """
         super().__init__(
@@ -46,6 +49,7 @@ class ImageConfig(BaseModalityConfig):
 
         self.clip_name = clip_name
         self.projection_type = projection_type
+        self.use_2d_position_ids = use_2d_position_ids
 
 
 class ImageProcessor(BaseModalityProcessor):
@@ -73,7 +77,8 @@ class ImageProcessor(BaseModalityProcessor):
         self.image_processor = AutoImageProcessor.from_pretrained(config.clip_name)
 
         feature_extractor_config = AutoConfig.from_pretrained(config.clip_name, trust_remote_code=True)
-        self._num_patches_per_entry = (feature_extractor_config.vision_config.image_size // feature_extractor_config.vision_config.patch_size) ** 2
+        self._image_size = (feature_extractor_config.vision_config.image_size // feature_extractor_config.vision_config.patch_size)
+        self._num_patches_per_entry = self._image_size ** 2
 
     def process(self, modality: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -90,6 +95,17 @@ class ImageProcessor(BaseModalityProcessor):
 
         processed_modality[MODALITY_VALUE_KEY] = self.image_processor(images=image, return_tensors="pt")["pixel_values"][0]
         processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry
+
+        if self.config.use_2d_position_ids:
+            # Create a position ids tensor for 2D adaptation starting at 0 to image_size - 1 on both axis
+            processed_modality[POSITION_IDS_KEY] = torch.stack(
+                torch.meshgrid(
+                    torch.arange(self._image_size, dtype=torch.long),
+                    torch.arange(self._image_size, dtype=torch.long),
+                    indexing="ij"
+                ),
+                dim=-1
+            ).reshape(self._num_patches_per_entry, 2)  # (num_patches, 2)
 
         return processed_modality
 
@@ -124,13 +140,16 @@ class ImageModality(BaseModality):
     def from_dict(cls, config_args, **kwargs):
         return ImageConfig.from_dict(config_args, **kwargs)
 
-    def freeze_modality_only(self):
+    def freeze_modality_embedder(self):
         for parameters in self.feature_extractor.parameters():
             parameters.requires_grad = False
+
+    def unfreeze_modality_embedder(self):
+        for parameters in self.feature_extractor.parameters():
+            parameters.requires_grad = True
+
+    def unfreeze_projection(self):
         for parameters in self.projector.parameters():
             parameters.requires_grad = True
 
-    def unfreeze_modality(self):
-        for parameters in self.feature_extractor.parameters():
-            parameters.requires_grad = True
 

@@ -1,0 +1,51 @@
+datamixes:
+  combined_dataset_MRI:
+    dataset_configs:
+      - combined_dataset_MRI:
+          dataset_path: "/mloscratch/users/nemo/datasets/XR_data/XR-glob/XR-glob-train.jsonl"
+          image_column: "modalities"
+          caption_column: "text"
+          weight: 1
+
+base_configs:
+  initial:
+    learning_rate: 5.0e-4
+    warmup_steps: 2000
+    lr_scheduler_type: "cosine"
+    adam_beta1: 0.9
+    adam_beta2: 0.98
+    adam_epsilon: 1.0e-6
+    weight_decay: 0.2
+    num_train_epochs: 32
+  fine_tuning:
+    learning_rate: 1.0e-4
+    warmup_steps: 1000
+    lr_scheduler_type: "linear"
+    adam_beta1: 0.9
+    adam_beta2: 0.98
+    weight_decay: 0.1
+    num_train_epochs: 20
+  aggressive_training:
+    learning_rate: 1.0e-3
+    warmup_steps: 500
+    lr_scheduler_type: "cosine"
+    adam_beta1: 0.85
+    adam_beta2: 0.95
+    weight_decay: 0.3
+    num_train_epochs: 40
+  regularization_focused:
+    learning_rate: 2.5e-4
+    warmup_steps: 2000
+    lr_scheduler_type: "cosine"
+    adam_beta1: 0.95
+    adam_beta2: 0.999
+    weight_decay: 0.4
+    num_train_epochs: 32
+
+param_ranges:
+  learning_rate:
+    - 1.0e-4
+    - 5.0e-4
+    - 1.0e-3
+  num_train_epochs:
+    - 40

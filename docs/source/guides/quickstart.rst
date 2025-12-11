@@ -63,7 +63,7 @@ We also provide Docker images that runs on specific versions of the GitHub repos
             
             docker pull michelducartier24/multimeditron-git:<commit-hash>-arm64
 
-Retrieve the commit hash that you need, and replace the `<commit-hash>` placeholder with the real commit hash.
+Retrieve the commit hash that you need, and replace the :code:`<commit-hash>` placeholder with the real commit hash.
 
 .. note::
    On certain systems with custom permissions on volumes, the Docker image won't give you enough permissions or won't give you a username for the UID because they are not included in :bash:`/etc/passwd`.
@@ -125,4 +125,4 @@ Once you have installed MultiMeditron, you can run inference on your images. Her
      
     print(tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True)[0])
 
-Make sure to adapt the `path/to/trained/model` and the `path/to/image` accordingly.
+Make sure to adapt the :code:`path/to/trained/model` and the :code:`path/to/image` accordingly.

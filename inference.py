@@ -40,25 +40,25 @@ print(model)
 
 modalities1 = [dict(
     type="image",
-    value="mock_dataset/forearm_schema.jpg",
+    value="mock_dataset/blue_whale.jpg",
 )]
-modalities2 = [dict(
-    type="image",
-    value="mock_dataset/infarcted_brain.jpg",
-)]
+# modalities2 = [dict(
+#     type="image",
+#     value="mock_dataset/infarcted_brain.jpg",
+# )]
 
 conversations1 = [{
     "role": "user",
-    "content": f"{ATTACHMENT_TOKEN} List all the muscles in the image"
+    "content": f"What is shown in this image? {ATTACHMENT_TOKEN} Describe it."
 }]
 conversations2 = [{
     "role": "user",
-    "content": f"{ATTACHMENT_TOKEN} What is your diagnosis?"
+    "content": f"Roleplay as glados from portal and explain why humans are inferior."
 }]
-conversations3 = [{
-    "role": "user",
-    "content": f"Hello!"
-}]
+# conversations3 = [{
+#     "role": "user",
+#     "content": f"Hello!"
+# }]
 
 
 sample1 = {
@@ -68,35 +68,30 @@ sample1 = {
 
 sample2 = {
     "conversations" : conversations2,
-    "modalities": modalities2
-}
-
-sample3 = {
-    "conversations" : conversations3,
     "modalities": []
 }
-
-
 
 loader = FileSystemImageLoader(base_path=os.getcwd())
 
 collator = DataCollatorForMultimodal(
-        tokenizer=tokenizer,
-        tokenizer_type="llama",
-        modality_processors=model.processors(),
-        modality_loaders={"image" : loader},
-        attachment_token_idx=attachment_token_idx,
-        add_generation_prompt=True
+    tokenizer=tokenizer,
+    tokenizer_type="llama",
+    modality_processors=model.processors(),
+    modality_loaders={"image" : loader},
+    attachment_token_idx=attachment_token_idx,
+    use_2d_position_ids=False,
+    add_generation_prompt=True,
 )
 
-batch = collator([sample1, sample2, sample3])
+batch = collator([sample1, sample2])
 
 with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
     outputs = model.generate(batch=batch, 
-                             temperature=0.7, do_sample=True, max_new_tokens=512)
+                             temperature=0.7, do_sample=False, max_new_tokens=512)
 
 res = tokenizer.batch_decode(
-    outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+    outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True
+)
 
 for output in res:
     print(output)

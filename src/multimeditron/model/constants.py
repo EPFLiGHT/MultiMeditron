@@ -4,6 +4,7 @@ Constants used throughout the multimeditron model.
 
 # Keys used in model data structures
 NUM_EMBEDDINGS_KEY = "num_embeddings"
+POSITION_IDS_KEY = "position_ids"
 CONVERSATIONS_KEY = "conversations"
 TEXT_KEY = "text"
 MODALITIES_KEY = "modalities"

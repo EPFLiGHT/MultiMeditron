@@ -1,18 +1,104 @@
+from __future__ import annotations
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Optional, List, Union, Tuple, Any, Dict
+from typing import Optional, List, Union, Tuple, Any, Dict, Callable
 from transformers import PreTrainedModel, PretrainedConfig, AutoModel, AutoConfig, AutoProcessor, AutoModelForCausalLM
 from transformers.modeling_outputs import CausalLMOutputWithPast
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from multimeditron.model.modalities import BaseModalityProcessor, AutoModality, BaseModalityConfig, BaseModality
 from multimeditron.utils import get_torch_dtype
 import logging
-import json
-import tempfile
 
 logger = logging.getLogger(__name__)
+
+@dataclass
+class ChatTemplate:
+    """
+    A generic chat template class to serialize conversation messages
+    for different LLM families (LLaMA, Qwen, Apertus, etc.).
+    """
+    name: str = "custom"
+
+    # Explicit delimiters for each message type
+    delimiters: Dict[str, Dict[str, str]] = field(default_factory=dict)
+    special_tokens: Dict[str, str] = field(default_factory=dict)
+
+    # ================================================================
+    # Built-in templates
+    # ================================================================
+
+    @staticmethod
+    def from_name(name: str) -> ChatTemplate:
+        templates = {
+            "llama": ChatTemplate.llama,
+            "apertus": ChatTemplate.apertus,
+            "qwen3": ChatTemplate.qwen3,
+        }
+        if name not in templates:
+            raise ValueError(f"Unknown chat template name: {name}")
+        return templates[name]()
+
+    # -------------------------------
+    # LLaMA / Mistral / Vicuna style
+    # -------------------------------
+    @staticmethod
+    def llama() -> ChatTemplate:
+        delimiters = {
+            "system": {"start": "<|start_header_id|>system<|end_header_id|>", "end": "<|eot_id|>"},
+            "user": {"start": "<|start_header_id|>user<|end_header_id|>", "end": "<|eot_id|>"},
+            "assistant": {"start": "<|start_header_id|>assistant<|end_header_id|>", "end": "<|eot_id|>"},
+        }
+        special_tokens = {'image_start': '<|image_start|>', 'image_end': '<|image_end|>'}
+
+        return ChatTemplate(
+            name="llama",
+            delimiters=delimiters,
+            special_tokens=special_tokens
+        )
+
+    # -------------------------------
+    # Apertus style
+    # -------------------------------
+    @staticmethod
+    def apertus() -> ChatTemplate:
+        delimiters = {
+            "system": {"start": "<|system_start|>", "end": "<|system_end|>"},
+            "developer": {"start": "<|developer_start|>", "end": "<|developer_end|>"},
+            "user": {"start": "<|user_start|>", "end": "<|user_end|>"},
+            "assistant": {"start": "<|assistant_start|>", "end": "<|assistant_end|>"},
+        }
+        special_tokens = {'image_start': '<|image_start|>', 'image_end': '<|image_end|>'}
+
+        return ChatTemplate(
+            name="apertus",
+            delimiters=delimiters,
+            special_tokens=special_tokens
+        )
+
+    # -------------------------------
+    # Qwen 3 / ChatML style
+    # -------------------------------
+    @staticmethod
+    def qwen3() -> ChatTemplate:
+        delimiters = {
+            "system": {"start": "<|im_start|>system", "end": "<|im_end|>"},
+            "user": {"start": "<|im_start|>user", "end": "<|im_end|>"},
+            "assistant": {"start": "<|im_start|>assistant", "end": "<|im_end|>"},
+        }
+        
+        special_tokens = {'image_start': '<|image_start|>', 'image_end': '<|image_end|>'}
+
+
+        return ChatTemplate(
+            name="qwen3",
+            delimiters=delimiters,
+            special_tokens=special_tokens
+        )
+
+
 
 @dataclass
 class MultimodalConfig(PretrainedConfig):
@@ -25,7 +111,6 @@ class MultimodalConfig(PretrainedConfig):
         self,
         vocab_size: Optional[int] = None,
         modalities: List[BaseModalityConfig] = [],
-        attachment_token_idx: int = 1,
         pad_token_idx: int = 0,
         eos_token_idx: int = 0,
         padding_side: str = "left",
@@ -42,7 +127,6 @@ class MultimodalConfig(PretrainedConfig):
         Args:
             vocab_size (int, optional): Vocabulary size for the language model. Defaults to None.
             modalities (List[ModalityConfig]): List of modality configurations. Defaults to an empty list.
-            attachment_token_idx (int): Index of the attachment token in the vocabulary. Defaults to 1.
             pad_token_idx (int): Index of the padding token in the vocabulary. Defaults to 0.
             eos_token_idx (int): Index of the end-of-sequence token in the vocabulary. Defaults to 0.
             padding_side (str): Side for padding sequences ("left" or "right"). Defaults to "left". Choose left for inference, right for training.
@@ -56,7 +140,6 @@ class MultimodalConfig(PretrainedConfig):
         super().__init__(**kwargs)
         self.vocab_size = vocab_size
         self.modalities = modalities
-        self.attachment_token_idx = attachment_token_idx
         self.pad_token_idx = pad_token_idx
         self.eos_token_idx = eos_token_idx
         self.padding_side = padding_side
@@ -181,7 +264,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         # Add the language model to the transformer
         self.modalities_by_type = {}
         self.processors_by_type = {}
-        self.modalities = nn.ModuleList()
+        self.modalities_with_projection = nn.ModuleList()
 
         for modality_config in config.modalities:
             # Retrieve the modality and the number of patches per entry
@@ -196,7 +279,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
 
             self.modalities_by_type[modality_config.modality_type] = modality
             self.processors_by_type[modality_config.modality_type] = processor
-            self.modalities.append(modality)
+            self.modalities_with_projection.append(modality)
 
         # Post init
         self.post_init()
@@ -236,8 +319,9 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         This configuration is useful when aligning modality representations with
         the language model's embedding space while keeping the core LM frozen.
         """
-        for modality in self.modalities:
-            modality.freeze_modality_only()
+        for modality_with_proj in self.modalities_with_projection:
+            modality_with_proj.unfreeze_projection()
+            modality_with_proj.freeze_modality_embedder()
         for params in self.model.parameters():
             params.requires_grad = False
 
@@ -253,8 +337,8 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         This configuration is useful when you want to fine-tune the language model
         on multimodal inputs while keeping the modality processors fixed.
         """
-        for modality in self.modalities:
-            modality.freeze_all()
+        for modality_with_proj in self.modalities_with_projection:
+            modality_with_proj.freeze_all()
         for params in self.model.parameters():
             params.requires_grad = True
 
@@ -270,11 +354,12 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         This configuration is useful for fine-tuning the language model and modality
         projections together, while keeping the core modality encoders fixed.
         """
-        for modality in self.modalities:
-            modality.freeze_modality_only()
+        for modality_with_proj in self.modalities_with_projection:
+            modality_with_proj.unfreeze_projection()
+            modality_with_proj.freeze_modality_embedder()
         for params in self.model.parameters():
             params.requires_grad = True
-
+    
     def unfreeze(self):
         """
         Unfreezes all model parameters for full training.
@@ -286,8 +371,8 @@ class MultiModalModelForCausalLM(PreTrainedModel):
 
         This configuration enables full end-to-end training of the entire model.
         """
-        for modality in self.modalities:
-            modality.unfreeze_all()
+        for modality_with_proj in self.modalities_with_projection:
+            modality_with_proj.unfreeze_all()
         for params in self.model.parameters():
             params.requires_grad = True
 
@@ -350,7 +435,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         # Compute the projection and scatter into embedded token sequence
         for modality_name, processed_modality_stack in processed_multimodal_inputs['stacked'].items():
             modality = self._get_modality_by_name(modality_name)
-
+            
             embedded_modality_stack = modality(processed_modality_stack)
 
             embedded_tokens[processed_multimodal_inputs['batch_idx'][modality_name],
@@ -418,9 +503,8 @@ class MultiModalModelForCausalLM(PreTrainedModel):
 
         # Truncate if needed
         if self.config.truncation and self.config.max_sequence_length is not None:
-            logger.warning(f"Truncating input to {self.config.max_sequence_length} tokens.")
-        
             if inputs_embeds.shape[1] > self.config.max_sequence_length:
+                logger.warning(f"Truncating input to {self.config.max_sequence_length} tokens.")
                 inputs_embeds = inputs_embeds[:, :self.config.max_sequence_length, :]
                 if labels is not None:
                     labels = labels[:, :self.config.max_sequence_length]
@@ -556,18 +640,25 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         return torch.cat(generated_tokens).transpose(1, 0)
 
 
-def bootstrap(config, tokenizer, attachment_token_idx, modalities_config):
+def bootstrap(config, tokenizer, modalities_config):
     """
     Bootstrap the model and initialize the model as follows:
         - LLM is initialized with the pretrained weights
         - The modalities embedders are initialized with pretrained weights
         - The modalities projector are initialized randomly
+
+    Args:
+        config (dict): The configuration dictionary for the multimodal model.
+        tokenizer (PreTrainedTokenizerBase): The tokenizer instance to use for tokenization.
+        modalities_config (List[BaseModalityConfig]): List of modality configurations.
+
+    Returns:
+        MultiModalModelForCausalLM: The initialized multimodal model.
     """
 
     multimodal_config = MultimodalConfig(
         hidden_size=config["token_size"],
         vocab_size=len(tokenizer),
-        attachment_token_idx=attachment_token_idx,
         eos_token_idx=tokenizer.convert_tokens_to_ids(tokenizer.eos_token),
         modalities=modalities_config,
         llm_path=config["base_llm"],
