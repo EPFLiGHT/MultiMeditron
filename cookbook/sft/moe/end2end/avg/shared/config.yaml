@@ -1,10 +1,10 @@
-base_llm: Qwen/Qwen3-8B
-base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/avg_shared/MultiMeditron-8B-avg-shared-alignment/checkpoint-1613
+base_llm: meta-llama/Llama-3.1-8B-Instruct
+base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/avg_shared/MultiMeditron-8B-avg-shared-alignment/checkpoint- # add path to checkpoint
 resume_from_checkpoint: false
 wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
-tokenizer_type: qwen3
-token_size: 32768
+tokenizer_type: llama
+token_size: 4096
 truncation: true
 max_sequence_length: 4096
 
@@ -18,10 +18,11 @@ modalities:
     hidden_size: 4096
     expert_clip_names:
       - ClosedMeditron/MedExpert-CT
-      - ClosedMeditron/clip-vit-base-patch32
       - ClosedMeditron/MedExpert-MRI
       - ClosedMeditron/MedExpert-Ultrasound
       - ClosedMeditron/MedExpert-Xray
+      - ClosedMeditron/clip-vit-base-patch32
+    generalist_idx : -1
     gating_path: ClosedMeditron/MultiMeditron-Gating
     fusion_method: weighted_average
     top_k_experts: 5

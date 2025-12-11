@@ -1,5 +1,5 @@
 base_llm: meta-llama/Llama-3.1-8B-Instruct
-base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/avg_pep/MultiMeditron-8B-avg-pep-alignment/checkpoint- # add path to checkpoint
+base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/attn_pep/MultiMeditron-8B-attn-pep-alignment/checkpoint- # add path to checkpoint
 resume_from_checkpoint: false
 wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
@@ -24,10 +24,10 @@ modalities:
       - ClosedMeditron/clip-vit-base-patch32
     generalist_idx : -1
     gating_path: ClosedMeditron/MultiMeditron-Gating
-    fusion_method: weighted_average
+    fusion_method: cross_attn
     top_k_experts: 5
 
-training_mode: END2END
+training_mode: FULL
 
 datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/BUSI
@@ -41,8 +41,8 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_mammoth
 
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/unfreeze/avg_pep/MultiMeditron-8B-avg-pep-end2end
-  run_name: MultiMeditron-8B-avg-pep-end2end
+  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/unfreeze/attn_pep/MultiMeditron-8B-attn-pep-full
+  run_name: MultiMeditron-8B-attn-pep-full
   dataloader_num_workers: 16
   dataloader_prefetch_factor: 4
   remove_unused_columns: false
