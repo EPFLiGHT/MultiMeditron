@@ -1,7 +1,10 @@
-base_llm: Qwen/Qwen3-8B
+base_llm: meta-llama/Llama-3.1-8B-Instruct
 base_model: null
+resume_from_checkpoint: false
+wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
-tokenizer_type: qwen3
+tokenizer_type: llama
+token_size: 4096
 
 loaders:
   - loader_type: raw-image
