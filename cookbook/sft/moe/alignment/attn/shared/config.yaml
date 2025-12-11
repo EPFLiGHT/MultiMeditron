@@ -22,7 +22,7 @@ modalities:
       - ClosedMeditron/clip-vit-base-patch32
     generalist_idx : -1
     gating_path: ClosedMeditron/MultiMeditron-Gating
-    fusion_method: sequence_append
+    fusion_method: cross_attn
     top_k_experts: 5
 
 training_mode: ALIGNMENT
