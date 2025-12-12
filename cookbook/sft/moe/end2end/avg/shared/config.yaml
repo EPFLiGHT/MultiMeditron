@@ -1,5 +1,5 @@
 base_llm: meta-llama/Llama-3.1-8B-Instruct
-base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/avg_shared/MultiMeditron-8B-avg-shared-alignment/checkpoint- # add path to checkpoint
+base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/avg_shared/MultiMeditron-8B-avg-shared-alignment/checkpoint-666 # add path to checkpoint
 resume_from_checkpoint: true
 wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
@@ -35,7 +35,9 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/ct2
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/DDTI
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/iu_xray
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/PMC_VQA
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/PMC_VQA_FULL
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_2_formatted
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_mammoth
 
 training_args:
