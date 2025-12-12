@@ -13,7 +13,7 @@ loaders:
     modality_type: image
 
 modalities:
-  - model_type: moe_meditron_clip_shared
+  - model_type: moe_meditron_clip
     image_processor: openai/clip-vit-base-patch32
     hidden_size: 4096
     expert_clip_names:
