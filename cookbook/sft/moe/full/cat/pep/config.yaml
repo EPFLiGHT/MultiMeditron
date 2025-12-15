@@ -32,7 +32,6 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/BUSI
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/COVID_US
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/ct2
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/DDTI
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/iu_xray
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/PMC_VQA
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_mammoth
