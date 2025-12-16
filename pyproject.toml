@@ -41,7 +41,7 @@ flash-attn = [
 ]
 docs = [
     "shibuya",
-    "sphinx",
+    "sphinx<9",
     "sphinx-tabs",
     "sphinx-click",
     "torch",
