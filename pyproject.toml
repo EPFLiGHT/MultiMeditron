@@ -40,9 +40,10 @@ flash-attn = [
     "flash-attn",
 ]
 docs = [
+    "shibuya",
     "sphinx",
     "sphinx-tabs",
-    "shibuya",
+    "sphinx-click",
     "torch",
     "torchvision",
 ]
