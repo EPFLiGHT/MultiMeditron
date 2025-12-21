@@ -40,6 +40,9 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/PMC_VQA_FULL
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_2_formatted
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/PMC_VQA_FULL
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_2_formatted
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_mammoth
 
 training_args:
