@@ -1,0 +1,55 @@
+base_llm: Qwen/Qwen3-4B-Instruct-2507
+base_model: null
+attachment_token: <|reserved_special_token_0|>
+tokenizer_type: qwen3
+token_size: 2560
+
+loaders:
+  - loader_type: raw-image
+    modality_type: image
+
+modalities:
+  - model_type: meditron_biomedclip
+    clip_name: michel-ducartier/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+    hidden_size: 2560
+    trust_remote_code: true
+
+training_mode: ALIGNMENT
+
+datasets:
+  # Non formatted dataset
+  # ---------------------
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_pretrain_cleaned
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/pixmo_anything
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/pixmo_cap
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted_alignment/
+
+training_args:
+  output_dir: /capstor/store/cscs/swissai/a127/meditron/models/multimeditron/single_clip/two_phase/MultiMeditron-Qwen-4B-Alignment-Generalist-Delimiter
+  dataloader_num_workers: 16  # > 0 not supported for IterableDataset, cf. https://github.com/huggingface/datasets/issues/5984
+  dataloader_prefetch_factor: 4
+  remove_unused_columns: false
+  ddp_find_unused_parameters: false # Test to reduce memory
+  learning_rate: 1.0e-4
+  bf16: true
+  per_device_train_batch_size: 4  # note that training_args.n_gpu and training_args.train_batch_size show faulty values
+                                  # with deepspeed -> use deepspeed_plugin instead (besides training_args.distributed_state.num_processes == WORLD_SIZE)
+  gradient_accumulation_steps: 8
+  num_train_epochs: 1
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs:
+    use_reentrant: true
+  save_strategy: epoch
+  # save_steps: 0.25
+  max_grad_norm: 1.0
+  run_name: MultiMeditron-Qwen-4B-Alignment-Generalist-Delimiter     # Set the name for the run
+  deepspeed: ./config/deepspeed.json
+  accelerator_config:
+    dispatch_batches: false
+  lr_scheduler_type: "cosine_with_min_lr"
+  lr_scheduler_kwargs:
+    min_lr: 3.0e-5
+  report_to: wandb
+  logging_steps: 1
+  weight_decay: 0.01
+
