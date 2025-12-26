@@ -89,6 +89,7 @@ class PromptTokenizer:
 
         tokenized = tokenized_conversations + tokenized_texts
 
+        processed_labels = torch.where(tokenized[0]["labels"] == IGNORE_TOKEN_INDEX, 0, tokenized[0]["labels"])
         padded_tokenized = self.pad_tokenized(tokenized)
 
         return self.update_with_token_range(padded_tokenized, samples)
@@ -168,7 +169,7 @@ class PromptTokenizer:
                 add_generation_prompt=add_generation_prompt,
                 enable_thinking=False,
             )
-        
+            
             input_ids, attention_mask = self.expand_attachment_input_tokens(
                 token_ids=outputs["input_ids"].flatten(),
                 attention_mask=outputs["attention_mask"].flatten(),
@@ -334,8 +335,8 @@ class PromptTokenizer:
         assert len(attention_mask) == len(token_ids)
 
         # First, take all the text until the first modality (excluded)
-        expanded_token_ids = [token_ids[: modalities_indices[0] - 1]]
-        expanded_attention_mask = [attention_mask[: modalities_indices[0] - 1]]
+        expanded_token_ids = [token_ids[: modalities_indices[0]]]
+        expanded_attention_mask = [attention_mask[: modalities_indices[0]]]
 
         # Add the first modality
         num_embeddings = self.get_num_embeddings(modalities_for_message[0])

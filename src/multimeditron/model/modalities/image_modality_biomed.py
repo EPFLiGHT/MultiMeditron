@@ -1,11 +1,9 @@
-import open_clip
 from transformers import AutoConfig, AutoImageProcessor, AutoModel
 from multimeditron.model.modalities.base import BaseModalityConfig
 
 import torch
 from typing import Dict, Any
 from PIL import Image
-from open_clip import create_model_from_pretrained, create_model
 
 from multimeditron.model.constants import (
     NUM_EMBEDDINGS_KEY,
