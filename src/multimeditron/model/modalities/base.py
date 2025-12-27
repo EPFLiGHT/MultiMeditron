@@ -5,6 +5,8 @@ from abc import ABC, abstractmethod
 import torch
 from transformers import AutoModel, AutoConfig, AutoProcessor, PretrainedConfig, PreTrainedModel
 
+__all__ = []
+
 class BaseModalityConfig(PretrainedConfig):
     """
     Configuration class for defining modality parameters.

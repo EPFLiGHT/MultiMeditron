@@ -27,12 +27,8 @@ html_static_path = ['_static']
 
 autodoc_mock_imports = [
     "verl",
+    "deepspeed"
 ]
-
-autodoc_default_options = {
-    "exclude-members": "__all__",
-}
-
 
 import os
 import sys

@@ -1,5 +1,5 @@
 from multimeditron.model.constants import NUM_EMBEDDINGS_KEY, MODALITY_VALUE_KEY, POSITION_IDS_KEY
-from multimeditron.model.modalities.base import BaseModality, BaseModalityConfig, AutoModality, BaseModalityProcessor
+from multimeditron.model.modalities import BaseModality, BaseModalityConfig, AutoModality, BaseModalityProcessor
 from multimeditron.model.projectors.mlp import MLPProjector
 import torch
 from transformers import AutoImageProcessor, AutoModel, AutoConfig
