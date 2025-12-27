@@ -1,5 +1,5 @@
 base_llm: meta-llama/Llama-3.1-8B-Instruct
-base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/cat_shared/MultiMeditron-8B-cat-shared-alignment/checkpoint-1613
+base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/attn_shared/MultiMeditron-8B-attn-shared-alignment/checkpoint-666 # add path to checkpoint
 resume_from_checkpoint: false
 wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
@@ -18,30 +18,31 @@ modalities:
     hidden_size: 4096
     expert_clip_names:
       - ClosedMeditron/MedExpert-CT
-      - ClosedMeditron/clip-vit-base-patch32
       - ClosedMeditron/MedExpert-MRI
       - ClosedMeditron/MedExpert-Ultrasound
       - ClosedMeditron/MedExpert-Xray
+      - ClosedMeditron/clip-vit-base-patch32
+    generalist_idx : -1
     gating_path: ClosedMeditron/MultiMeditron-Gating
-    fusion_method: sequence_append
+    fusion_method: cross_attn
     top_k_experts: 5
 
-training_mode: FULL
+training_mode: END2END
 
 datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/BUSI
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/COVID_US
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/ct2
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/iu_xray
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_instruct
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/PMC_VQA_FULL
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_instruct
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_2_formatted
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_mammoth
 
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/unfreeze/cat_shared/MultiMeditron-8B-cat-shared-full
-  run_name: MultiMeditron-8B-cat-shared-full
+  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/unfreeze/attn_shared/MultiMeditron-8B-attn-shared-end2end
+  run_name: MultiMeditron-8B-attn-shared-end2end
   dataloader_num_workers: 16
   dataloader_prefetch_factor: 4
   remove_unused_columns: false

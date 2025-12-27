@@ -1,10 +1,10 @@
-base_llm: Qwen/Qwen3-8B
-base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/cat_pep/MultiMeditron-8B-cat-pep-alignment/checkpoint-1613
-resume_from_checkpoint: true
+base_llm: meta-llama/Llama-3.1-8B-Instruct
+base_model: null
+resume_from_checkpoint: false
 wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
-tokenizer_type: qwen3
-token_size: 32768
+tokenizer_type: llama
+token_size: 4096
 
 loaders:
   - loader_type: raw-image
@@ -16,10 +16,11 @@ modalities:
     hidden_size: 4096
     expert_clip_names:
       - ClosedMeditron/MedExpert-CT
-      - ClosedMeditron/clip-vit-base-patch32
       - ClosedMeditron/MedExpert-MRI
       - ClosedMeditron/MedExpert-Ultrasound
       - ClosedMeditron/MedExpert-Xray
+      - ClosedMeditron/clip-vit-base-patch32
+    generalist_idx : -1
     gating_path: ClosedMeditron/MultiMeditron-Gating
     fusion_method: sequence_append
     top_k_experts: 5
@@ -27,11 +28,10 @@ modalities:
 training_mode: ALIGNMENT
 
 datasets:
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_instruct
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_pretrain_cleaned
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_2
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/pixmo_anything
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/pixmo_cap
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted_alignment
 
 training_args:
   output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/cat_pep/MultiMeditron-8B-cat-pep-alignment

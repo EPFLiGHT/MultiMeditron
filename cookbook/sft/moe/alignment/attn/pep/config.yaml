@@ -11,7 +11,7 @@ loaders:
     modality_type: image
 
 modalities:
-  - model_type: moe_meditron_clip
+  - model_type: moe_meditron_clip_pep
     image_processor: openai/clip-vit-base-patch32
     hidden_size: 4096
     expert_clip_names:
@@ -19,10 +19,10 @@ modalities:
       - ClosedMeditron/MedExpert-MRI
       - ClosedMeditron/MedExpert-Ultrasound
       - ClosedMeditron/MedExpert-Xray
-      - ClosedMeditron/clip-vit-base-patch32
+      - ClosedMeditron/clip-vit-base-patch32 
     generalist_idx : -1
     gating_path: ClosedMeditron/MultiMeditron-Gating
-    fusion_method: sequence_append
+    fusion_method: cross_attn
     top_k_experts: 5
 
 training_mode: ALIGNMENT
@@ -34,28 +34,28 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted_alignment
 
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/cat_shared/MultiMeditron-8B-cat-shared-alignment
-  run_name: MultiMeditron-8B-cat-shared-alignment
+  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/attn_pep/MultiMeditron-8B-attn-pep-alignment
+  run_name:   MultiMeditron-8B-attn-pep-alignment
   dataloader_num_workers: 16
   dataloader_prefetch_factor: 4
   remove_unused_columns: false
   ddp_find_unused_parameters: false
   learning_rate: 1.0e-5
   bf16: true
-  per_device_train_batch_size: 4
-  gradient_accumulation_steps: 4
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
   num_train_epochs: 1
   gradient_checkpointing: true
-  gradient_checkpointing_kwargs:
+  gradient_checkpointing_kwargs: 
     use_reentrant: true
   save_strategy: steps
-  save_steps: 0.2
+  save_steps: 0.25
   max_grad_norm: 1.0
   deepspeed: ./config/deepspeed.json
-  accelerator_config:
+  accelerator_config: 
     dispatch_batches: false
   lr_scheduler_type: cosine_with_min_lr
-  lr_scheduler_kwargs:
+  lr_scheduler_kwargs: 
     min_lr: 1.0e-6
   report_to: wandb
   logging_steps: 1

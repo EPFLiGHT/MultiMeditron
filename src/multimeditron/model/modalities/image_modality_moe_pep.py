@@ -34,12 +34,12 @@ class MOEImageConfigPEP(BaseModalityConfig):
             top_k_experts (int): Number of top experts to select during inference.
             projection_type (str): Type of projection layer to use ("mlp" supported).
             **kwargs: Additional keyword arguments.
-        """
+        """        
         super().__init__(
             use_bias_proj=use_bias_proj,
             modality_type="image",
             hidden_size=hidden_size,
-            **kwargs,
+            kwargs=kwargs,
         )
 
         self.expert_clip_names = expert_clip_names
@@ -47,7 +47,7 @@ class MOEImageConfigPEP(BaseModalityConfig):
         self.gating_path = gating_path
         self.projection_type = projection_type
         self.image_processor = image_processor
-        self.genralist_idx = generalist_idx
+        self.generalist_idx = generalist_idx
         self.fusion_method = fusion_method
         self.cross_attn_heads = cross_attn_heads
 

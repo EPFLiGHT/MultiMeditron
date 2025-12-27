@@ -22,7 +22,7 @@ modalities:
       - ClosedMeditron/clip-vit-base-patch32
     generalist_idx : -1
     gating_path: ClosedMeditron/MultiMeditron-Gating
-    fusion_method: sequence_append
+    fusion_method: cross_attn
     top_k_experts: 5
 
 training_mode: ALIGNMENT
@@ -34,22 +34,22 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted_alignment
 
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/cat_shared/MultiMeditron-8B-cat-shared-alignment
-  run_name: MultiMeditron-8B-cat-shared-alignment
+  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/attn_shared/MultiMeditron-8B-attn-shared-alignment
+  run_name: MultiMeditron-8B-attn-shared-alignment
   dataloader_num_workers: 16
   dataloader_prefetch_factor: 4
   remove_unused_columns: false
   ddp_find_unused_parameters: false
   learning_rate: 1.0e-5
   bf16: true
-  per_device_train_batch_size: 4
-  gradient_accumulation_steps: 4
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
   num_train_epochs: 1
   gradient_checkpointing: true
   gradient_checkpointing_kwargs:
     use_reentrant: true
   save_strategy: steps
-  save_steps: 0.2
+  save_steps: 0.25
   max_grad_norm: 1.0
   deepspeed: ./config/deepspeed.json
   accelerator_config:

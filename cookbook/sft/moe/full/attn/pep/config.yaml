@@ -1,5 +1,5 @@
 base_llm: meta-llama/Llama-3.1-8B-Instruct
-base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/cat_shared/MultiMeditron-8B-cat-shared-alignment/checkpoint-1613
+base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/attn_pep/MultiMeditron-8B-attn-pep-alignment/checkpoint- # add path to checkpoint
 resume_from_checkpoint: false
 wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
@@ -13,17 +13,18 @@ loaders:
     modality_type: image
 
 modalities:
-  - model_type: moe_meditron_clip
+  - model_type: moe_meditron_clip_pep
     image_processor: openai/clip-vit-base-patch32
     hidden_size: 4096
     expert_clip_names:
       - ClosedMeditron/MedExpert-CT
-      - ClosedMeditron/clip-vit-base-patch32
       - ClosedMeditron/MedExpert-MRI
       - ClosedMeditron/MedExpert-Ultrasound
       - ClosedMeditron/MedExpert-Xray
+      - ClosedMeditron/clip-vit-base-patch32
+    generalist_idx : -1
     gating_path: ClosedMeditron/MultiMeditron-Gating
-    fusion_method: sequence_append
+    fusion_method: cross_attn
     top_k_experts: 5
 
 training_mode: FULL
@@ -40,8 +41,8 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_mammoth
 
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/unfreeze/cat_shared/MultiMeditron-8B-cat-shared-full
-  run_name: MultiMeditron-8B-cat-shared-full
+  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/unfreeze/attn_pep/MultiMeditron-8B-attn-pep-full
+  run_name: MultiMeditron-8B-attn-pep-full
   dataloader_num_workers: 16
   dataloader_prefetch_factor: 4
   remove_unused_columns: false

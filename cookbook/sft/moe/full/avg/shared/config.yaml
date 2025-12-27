@@ -1,10 +1,10 @@
-base_llm: Qwen/Qwen3-8B
+base_llm: meta-llama/Llama-3.1-8B-Instruct
 base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/avg_shared/MultiMeditron-8B-avg-shared-alignment/checkpoint-1613
 resume_from_checkpoint: false
 wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
-tokenizer_type: qwen3
-token_size: 32768
+tokenizer_type: llama
+token_size: 4096
 truncation: true
 max_sequence_length: 4096
 
@@ -32,9 +32,11 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/BUSI
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/COVID_US
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/ct2
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/DDTI
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/iu_xray
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/PMC_VQA
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_instruct
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/PMC_VQA_FULL
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_2_formatted
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_mammoth
 
 training_args:
