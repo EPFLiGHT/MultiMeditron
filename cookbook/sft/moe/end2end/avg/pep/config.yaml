@@ -36,9 +36,7 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/COVID_US
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/ct2
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/iu_xray
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/PMC_VQA_FULL
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_2_formatted
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_instruct
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/PMC_VQA_FULL
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_2_formatted
