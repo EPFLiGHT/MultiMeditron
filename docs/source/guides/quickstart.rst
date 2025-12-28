@@ -88,11 +88,7 @@ Once you have installed MultiMeditron, you can run inference on your images. Her
     ATTACHMENT_TOKEN = "<|reserved_special_token_0|>"
 
     # Load tokenizer
-    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3.1-8B-Instruct", dtype=torch.bfloat16)
-    tokenizer.pad_token = tokenizer.eos_token
-    special_tokens = {'additional_special_tokens': [ATTACHMENT_TOKEN]}
-    tokenizer.add_special_tokens(special_tokens)
-    attachment_token_idx = tokenizer.convert_tokens_to_ids(ATTACHMENT_TOKEN)
+    tokenizer = AutoTokenizer.from_pretrained("/path/to/trained/model", dtype=torch.bfloat16)
 
     model = MultiModalModelForCausalLM.from_pretrained("path/to/trained/model", device_map="auto")
     model.eval()
@@ -108,14 +104,13 @@ Once you have installed MultiMeditron, you can run inference on your images. Her
     }
 
     loader = FileSystemImageLoader(base_path=os.getcwd())
-
     collator = DataCollatorForMultimodal(
-            tokenizer=tokenizer,
-            tokenizer_type="llama",
-            modality_processors=model.processors(), 
-            modality_loaders={"image" : loader},
-            attachment_token_idx=attachment_token_idx,
-            add_generation_prompt=True
+        tokenizer=tokenizer,
+        attachment_token=ATTACHMENT_TOKEN,
+        chat_template=ChatTemplate.from_name("llama"),
+        modality_processors=model.processors(),
+        modality_loaders={"image" : loader},
+        add_generation_prompt=True,
     )
 
     batch = collator([sample])

@@ -1,5 +1,16 @@
+.. _dataset-format-label:
+
 Dataset format
 ==============
+
+.. _dataset-format-modalities:
+.. toctree::
+   :maxdepth: 2
+   :caption: Supported modalities
+   :includehidden:
+
+   modalities/image
+ 
 
 This section describes the dataset format supported by the MultiMeditron pipeline. The dataset format varies from one modality to another and you can add your own modality by following :any:`this tutorial <add-modality-label>`.
 
@@ -7,6 +18,10 @@ Our training pipeline supports two types of dataset: pretraining and instruction
 
 1. Arrow/Parquet format (recommended): where the modalities are directly stored in the dataset
 2. JSONL format (not recommended): where the images and modalities are stored on the file system. Those dataset must be processed with :code:`merge_inputs.py`
+
+We support the following modalities, for a detailed format description please refer to the :any:`corresponding documentation<dataset-format-modalities>`.
+
+  
 
 Arrow format (recommended) 
 --------------------------
@@ -20,13 +35,13 @@ Each dataset must contain a column :code:`text` and a column :code:`modalities`.
 
     "Let's compare the first image: <|reserved_special_token_0|>, and the second 3D image: <|reserved_special_token_0|>"
 
-And the code:`modalities` column must be of the following form:
+And the :code:`modalities` column must be of the following form:
 
 .. code-block:: python
 
     [{"type": "modality_type", "value" : some_modality}]
 
-For instance, for image type, :code:`some_modality` must contains the bytes of the image
+For instance, for image type, :code:`some_modality` must contains the bytes of the image.
 
 Note that we use a special placeholder :code:`<|reserved_special_token_0|>` to indicate the position of the tokens from the modality
 
@@ -45,8 +60,8 @@ It's the same as the pretraining dataset but instead of the :code:`text` column,
         {"role" : "assistant", "content" : "Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor."}
     ]
 
-JSONL format
-------------
+JSONL format (deprecated)
+-------------------------
 
 We also support :code:`.jsonl` files where each line corresponds to a sample. We describe how each sample must be formatted:
 

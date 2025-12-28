@@ -1,5 +1,8 @@
+.. _training-label:
+
 Training a MultiMeditron model 
 ==============================
+
 
 This tutorial provides a step-by-step guide on how to train a model using MultiMeditron. We will walk you through the process with clear examples.
 
@@ -146,11 +149,9 @@ To launch a training on a SLURM cluster, we can use the following :code:`sbatch`
     #SBATCH --gres gpu:4        # Number of GPUs
     #SBATCH --cpus-per-task 288     # number of CPUs per task.
     #SBATCH --time 11:59:59       # maximum execution time (DD-HH:MM:SS)
-    #SBATCH --environment ~/.edf/multimodal.toml
     #SBATCH --export=ALL,SCRATCH=/iopsstor/scratch/cscs/$USER
     #SBATCH -A a127
 
-    export CUDA_LAUNCH_BLOCKING=1
     echo "START TIME: $(date)"
     # auto-fail on any errors in this script
     set -eo pipefail
@@ -194,6 +195,7 @@ To launch a training on a SLURM cluster, we can use the following :code:`sbatch`
       --wait 60 \
       -A a06 \
       --reservation=sai-a127
+      --environment ~/.edf/multimodal.toml
       "
 
     # bash -c is needed for the delayed interpolation of env vars to work

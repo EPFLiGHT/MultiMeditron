@@ -77,7 +77,7 @@ A modality loader should always inherit from :class:`~multimeditron.dataset.load
 
 The :code:`load` function has the following signature:
 
-- Input: A dictionary that contains a key :code:`"value"`, i.e. :code:`{"value" : <something>}`. This is the case for every modality. The actual format of the value field depends on the dataset format. See `TODO`
+- Input: A dictionary that contains a key :code:`"value"`, i.e. :code:`{"value" : <something>}`. This is the case for every modality. The actual format of the value field depends on the dataset format. See :ref:`dataset-format-label`
 - Output returns the raw modality (here a :class:`PIL.Image.Image`).
 
 
@@ -98,7 +98,6 @@ The configuration file configures both the processor and the modality:
         def __init__(
             self,
             hidden_size: int = 4096,
-            max_batch_size: int = 32,
             clip_name: str = "openai/clip-vit-large-patch14",
             projection_type: str = "mlp",
             **kwargs
@@ -116,8 +115,7 @@ The configuration file configures both the processor and the modality:
 
 Every configuration needs to inherit :class:`~multimeditron.model.modalities.base.BaseModalityConfig` and call the :code:`__init__` function from :code:`BaseModalityConfig` wth the arguments:
 
-- :code:`max_batch_size`: the maximum amount of modalities that can be processed in a single batch by the `forward` function of the modality embedder
-- :code:`modality_type`: which modality type does this processor/modality pair handle. This field should match the :code:`"type"` field in the dataset. See `TODO`
+- :code:`modality_type`: which modality type does this processor/modality pair handle. This field should match the :code:`"type"` field in the dataset. See :ref:`dataset-format-label`
 - :code:`hidden_size`: the projected shape of the modality embedder (i.e. the size of a LLM token embedding)
 
 This configuration can be arbitrarily expanded with any JSON-serializable attributes. See `Huggingface custom model`_
@@ -229,4 +227,8 @@ A modality class must implement 3 functions:
 
 Those "freezing" functions are used to train different part of the whole MultiMeditron architecture to ensure training stability.
 
-TODO: Redirect to creating dataset + launching training
+Further reading:
+
+- :any:`Creating a dataset with the right format <dataset-format-label>`
+- :any:`Launching a training <training-label>`
+
