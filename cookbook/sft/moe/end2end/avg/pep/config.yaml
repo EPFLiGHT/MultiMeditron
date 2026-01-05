@@ -23,8 +23,6 @@ modalities:
       - ClosedMeditron/MedExpert-Xray
       - ClosedMeditron/clip-vit-base-patch32
     generalist_idx : -1
-      - ClosedMeditron/clip-vit-base-patch32
-    generalist_idx : -1
     gating_path: ClosedMeditron/MultiMeditron-Gating
     fusion_method: weighted_average
     top_k_experts: 5
