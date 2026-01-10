@@ -1,6 +1,5 @@
-import uuid
 from multimeditron.model.constants import NUM_EMBEDDINGS_KEY, MODALITY_VALUE_KEY
-from multimeditron.model.modalities.base import AutoModality, BaseModality, BaseModalityConfig, BaseModalityProcessor
+from multimeditron.model.modalities import AutoModality, BaseModality, BaseModalityConfig, BaseModalityProcessor
 from multimeditron.model.modalities.moe.gating import GatingNetwork
 from multimeditron.model.projectors.mlp import MLPProjector
 from multimeditron.model.attention import CrossAttention

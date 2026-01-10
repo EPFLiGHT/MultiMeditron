@@ -40,9 +40,12 @@ flash-attn = [
     "flash-attn",
 ]
 docs = [
-    "sphinx",
-    "sphinx-tabs",
     "shibuya",
+    "sphinx<9",
+    "sphinx-tabs",
+    "sphinx-click",
+    "torch",
+    "torchvision",
 ]
 
 [project.scripts]

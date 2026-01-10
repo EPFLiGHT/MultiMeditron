@@ -14,7 +14,7 @@ release = '1.0.0'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon", "sphinx_tabs.tabs"]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon", "sphinx_tabs.tabs", "sphinx_click"]
 
 templates_path = ['_templates']
 exclude_patterns = []
@@ -25,6 +25,10 @@ exclude_patterns = []
 html_theme = 'shibuya'
 html_static_path = ['_static']
 
+autodoc_mock_imports = [
+    "verl",
+    "deepspeed"
+]
 
 import os
 import sys

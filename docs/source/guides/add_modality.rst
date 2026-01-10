@@ -170,7 +170,7 @@ Lastly, we implement the modality model. This is the model that performs the for
 A modality class must inherit :class:`~multimeditron.model.modalities.base.BaseModality` is typically created with 2 main modules:
 
 1. A pretrained modality embedder (like a CLIP model): This module produces meaningful embeddings for given modalities
-2. A tunable projection module (usually a simple MLP or a linear layer): This module map embeddings from the modality embedder to the LLM embedding space. The dimension of this embedding space is given by the `hidden_size` attribute of :func:`~multimeditron.model.modalities.base.BaseModalityConfig`
+2. A tunable projection module (usually a simple MLP or a linear layer): This module map embeddings from the modality embedder to the LLM embedding space. The dimension of this embedding space is given by the `hidden_size` attribute of :class:`~multimeditron.model.modalities.base.BaseModalityConfig`
 
 .. code-block:: python
 
