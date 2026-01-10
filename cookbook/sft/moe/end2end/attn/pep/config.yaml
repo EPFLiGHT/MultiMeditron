@@ -1,5 +1,5 @@
 base_llm: meta-llama/Llama-3.1-8B-Instruct
-base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/attn_pep/MultiMeditron-8B-attn-pep-alignment/checkpoint-666 # add path to checkpoint
+base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/attn_pep/MultiMeditron-8B-attn-pep-alignment/checkpoint-666 # path to the alignment checkpoint
 resume_from_checkpoint: false
 wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
