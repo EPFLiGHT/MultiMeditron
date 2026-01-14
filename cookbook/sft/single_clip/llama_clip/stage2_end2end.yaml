@@ -1,5 +1,5 @@
 base_llm: meta-llama/Llama-3.1-8B-Instruct
-base_model: null
+base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/single_clip/MultiMeditron-Llama-8B-Alignment-CLIP/checkpoint-309
 attachment_token: <|reserved_special_token_0|>
 tokenizer_type: llama
 token_size: 4096
@@ -31,7 +31,7 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_mammoth
 
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/unfreeze/single_clip/MultiMeditron-Llama-8B-End2End-CLIP
+  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/unfreeze/single_clip/MultiMeditron-Llama-8B-End2End-CLIP/
   run_name: MultiMeditron-Llama-CLIP-8B-End2End     # Set the name for the run
 
   dataloader_num_workers: 16
