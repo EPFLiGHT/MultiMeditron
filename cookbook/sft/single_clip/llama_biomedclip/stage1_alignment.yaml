@@ -1,7 +1,5 @@
 base_llm: meta-llama/Llama-3.1-8B-Instruct
 base_model: null
-resume_from_checkpoint: false
-wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
 tokenizer_type: llama
 token_size: 4096
@@ -11,23 +9,24 @@ loaders:
     modality_type: image
 
 modalities:
-  - model_type: meditron_clip
-    clip_name: openai/clip-vit-large-patch14
+  - model_type: meditron_biomedclip
+    clip_name: michel-ducartier/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
     hidden_size: 4096
+    trust_remote_code: true
 
 training_mode: ALIGNMENT
 
 datasets:
   # Non formatted dataset
   # ---------------------
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_instruct
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_pretrain_cleaned
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_2
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/pixmo_anything
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/pixmo_cap
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted_alignment/
 
+  
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/meditron/models/multimeditron/single_clip/MultiMeditron-Llama-8B-Alignment
+  output_dir: /capstor/store/cscs/swissai/a127/meditron/models/multimeditron/single_clip/two_phase/MultiMeditron-Llama-8B-Alignment-BiomedCLIP
   dataloader_num_workers: 16  # > 0 not supported for IterableDataset, cf. https://github.com/huggingface/datasets/issues/5984
   dataloader_prefetch_factor: 4
   remove_unused_columns: false
@@ -41,10 +40,10 @@ training_args:
   gradient_checkpointing: true
   gradient_checkpointing_kwargs:
     use_reentrant: true
-  save_strategy: steps
-  save_steps: 0.25
+  save_strategy: epoch
+  # save_steps: 0.25
   max_grad_norm: 1.0
-  run_name: MultiMeditron-Llama-8B-Alignment     # Set the name for the run
+  run_name: MultiMeditron-Llama-8B-BiomedCLIP-Alignment     # Set the name for the run
   deepspeed: ./config/deepspeed.json
   accelerator_config:
     dispatch_batches: false
