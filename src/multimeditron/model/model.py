@@ -655,6 +655,7 @@ def bootstrap(config, tokenizer, modalities_config):
     Returns:
         MultiModalModelForCausalLM: The initialized multimodal model.
     """
+    
 
     multimodal_config = MultimodalConfig(
         hidden_size=config["token_size"],

@@ -7,7 +7,7 @@ Read :ref:`dataset-format-label` for more details about the general dataset form
 
 This section describes how to format image modalities in the dataset.
 
-PIL/Bytes format
+PIL Image format
 ----------------
 
 Huggingface datasets automatically converts PIL images into bytes when saving to Arrow format. Therefore, you can directly use PIL images when creating your dataset. We provide an example below:

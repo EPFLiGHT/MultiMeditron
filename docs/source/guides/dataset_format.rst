@@ -41,7 +41,7 @@ And the :code:`modalities` column must be of the following form:
 
     [{"type": "modality_type", "value" : some_modality}]
 
-For instance, for image type, :code:`some_modality` must contains the bytes of the image.
+For instance, for image type, :code:`some_modality` must contain a PIL Image object.
 
 Note that we use a special placeholder :code:`<|reserved_special_token_0|>` to indicate the position of the tokens from the modality
 
