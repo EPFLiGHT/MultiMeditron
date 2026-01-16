@@ -28,13 +28,13 @@ modalities:
 training_mode: ALIGNMENT
 
 datasets:
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_pretrain_cleaned
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/pixmo_anything
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/pixmo_cap
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted_alignment
+  - packed_path: $STORAGE_ROOT/llava_pretrain_cleaned
+  - packed_path: $STORAGE_ROOT/pixmo_anything
+  - packed_path: $STORAGE_ROOT/pixmo_cap
+  - packed_path: $STORAGE_ROOT/medtrinity_conversations_1_formatted_alignment
 
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/avg_shared/MultiMeditron-8B-avg-shared-alignment
+  output_dir: $MODEL_ROOT/freeze/avg_shared/MultiMeditron-8B-avg-shared-alignment
   run_name:   MultiMeditron-8B-avg-shared-alignment
   dataloader_num_workers: 16
   dataloader_prefetch_factor: 4

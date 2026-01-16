@@ -20,14 +20,14 @@ training_mode: ALIGNMENT
 datasets:
   # Non formatted dataset
   # ---------------------
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_instruct
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_pretrain_cleaned
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_2
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/pixmo_anything
+  - packed_path: $STORAGE_ROOT/llava_instruct
+  - packed_path: $STORAGE_ROOT/llava_pretrain_cleaned
+  - packed_path: $STORAGE_ROOT/medtrinity_conversations_1
+  - packed_path: $STORAGE_ROOT/medtrinity_conversations_2
+  - packed_path: $STORAGE_ROOT/pixmo_anything
 
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/single_clip/MultiMeditron-Llama-8B-Alignment-CLIP/
+  output_dir: $MODEL_ROOT/freeze/single_clip/MultiMeditron-Llama-8B-Alignment-CLIP/
   dataloader_num_workers: 16  # > 0 not supported for IterableDataset, cf. https://github.com/huggingface/datasets/issues/5984
   dataloader_prefetch_factor: 4
   remove_unused_columns: false

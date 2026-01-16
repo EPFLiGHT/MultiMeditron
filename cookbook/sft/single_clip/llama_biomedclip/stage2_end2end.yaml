@@ -1,5 +1,5 @@
 base_llm: meta-llama/Llama-3.1-8B-Instruct
-base_model: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/freeze/single_clip/MultiMeditron-Llama-8B-Alignment-BiomedCLIP/checkpoint-333/
+base_model: $MODEL_ROOT/freeze/single_clip/MultiMeditron-Llama-8B-Alignment-BiomedCLIP/checkpoint-333/
 attachment_token: <|reserved_special_token_0|>
 tokenizer_type: llama
 token_size: 4096
@@ -19,19 +19,19 @@ modalities:
 training_mode: END2END
 
 datasets:
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/BUSI
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/COVID_US
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/ct2
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/iu_xray
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/PMC_VQA_FULL
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_2_formatted
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_mammoth
-  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_instruct
+  - packed_path: $STORAGE_ROOT/BUSI
+  - packed_path: $STORAGE_ROOT/COVID_US
+  - packed_path: $STORAGE_ROOT/ct2
+  - packed_path: $STORAGE_ROOT/iu_xray
+  - packed_path: $STORAGE_ROOT/PMC_VQA_FULL
+  - packed_path: $STORAGE_ROOT/medtrinity_conversations_1_formatted
+  - packed_path: $STORAGE_ROOT/medtrinity_conversations_2_formatted
+  - packed_path: $STORAGE_ROOT/image_mammoth
+  - packed_path: $STORAGE_ROOT/llava_instruct
 
   
 training_args:
-  output_dir: /capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/unfreeze/single_clip/MultiMeditron-Llama-8B-End2End-BiomedCLIP/
+  output_dir: $MODEL_ROOT/unfreeze/single_clip/MultiMeditron-Llama-8B-End2End-BiomedCLIP/
   dataloader_num_workers: 16  # > 0 not supported for IterableDataset, cf. https://github.com/huggingface/datasets/issues/5984
   dataloader_prefetch_factor: 4
   remove_unused_columns: false

@@ -68,19 +68,153 @@ Each MoE configuration contains both alignment and end-to-end training stages.
 
 ## 🚀 Usage
 
+### Prerequisites {.tabset} 
+
+#### On the CSCS cluster
+
+1. Connect to the CSCS
+
+```bash
+ssh clariden
+```
+
+2. Download the EDF file in your `$HOME`:
+```bash
+curl https://raw.githubusercontent.com/EPFLiGHT/MultiMeditron/refs/heads/master/cookbook/assets/edf.toml -o ~/.edf/multimeditron.toml
+```
+
+3. Claim a job using srun. Make sure to replace the `<ACCOUNT>` by your actual CSCS account (Hint: your account should have the form `axxx` where `xxx` is some number)
+
+```
+srun --time=1:29:59 --partition debug -A <ACCOUNT> --environment=~/.edf/multimeditron.toml --pty bash
+```
+
+
+#### Other clusters
+
+To run a training you need access to NVIDIA GPUs. If needed, make sure to claim a job to get access to GPUs and run the next steps inside the following Docker images for the dependencies:
+
+```bash
+michelducartier24/multimeditron-git:latest-amd64 # For AMD64 architecture
+michelducartier24/multimeditron-git:latest-arm64 # For ARM64 architecture
+```
+
+Alternatively, you can also install multimeditron directly with pip:
+```bash
+git clone https://github.com/EPFLiGHT/MultiMeditron.git
+cd MultiMeditron
+pip install -e ".[flash-attn]"
+```
+
+
+### Setup environment
+
+Create a `.env` file. We provide an example below for researchers working on the CSCS cluster:
+
+```sh
+export WORKING_ROOT=$SCRATCH/multimeditron
+
+# Path to store the datasets
+export STORAGE_ROOT=$STORE/meditron/multimediset/arrow
+
+# Path to store the models
+export MODEL_ROOT=$WORKING_ROOT/checkpoints
+
+# Huggingface 
+export HF_TOKEN="<hf_token>"
+export HF_HOME=$SCRATCH/hf
+
+# Number of dataset processes for the huggingface library
+export NUM_PROC=64
+
+# WandB
+export WANDB_API_KEY="<wandb_token>" # Optional if you don't want to log to WandB
+export WANDB_MODE="online" # Set to "offline" if you don't want to log to the remote WandB server
+export WANDB_DIR=$WORKING_ROOT/wandb
+
+# Multi node training configuration
+export NNODES=4
+```
+
+Make sure to replace the `$HF_TOKEN` and `$WANDB_API_KEY` by your actual tokens.
+
+In your terminal, run:
+
+```bash
+source .env
+```
+
+### Download data
+
+The data is available on huggingface at [OpenMeditron/MultiMediset](https://huggingface.co/datasets/OpenMeditron/MultiMediset). You can download the data by running:
+
+```py
+from datasets import load_dataset
+import os
+
+STORAGE_ROOT = os.environ["STORAGE_ROOT"]
+NUM_PROC = os.environ["NUM_PROC"]
+
+dataset_name = "OpenMeditron/MultiMediset"
+
+ds_dict = load_dataset(dataset_name, num_proc=NUM_PROC)
+
+for split_name, split_dataset in ds_dict.items():
+    split_dir = os.path.join(STORAGE_ROOT, split_name)
+    split_dataset.save_to_disk(split_dir)
+```
+
+Your data is stored in `$STORAGE_ROOT`
+
+### Launching a training
+
+Here is an example to reproduce MultiMeditron Qwen3-4B BiomedCLIP:
+
+```bash
+envsubst < cookbook/sft/single_clip/qwen_biomedclip/stage1_alignment.yaml > config/config_alignment.yaml
+envsubst < cookbook/sft/single_clip/qwen_biomedclip/stage2_end2end.yaml > config/config_end2end.yaml
+```
+
 Each configuration file can be used to train the corresponding model. The training process consists of two stages:
 
 1. **Stage 1 - Alignment**: Aligns the vision encoder with the language model
 2. **Stage 2 - End-to-End**: Fine-tunes the entire multimodal model
 
+#### Single node training
+
 Example usage (single node):
 ```bash
 # Train single CLIP model
-torchrun --nproc-per-node $GPUS_PER_NODE -m multimeditron train --config sft/single_clip/qwen_biomedclip/stage1_alignment.yaml
-torchrun --nproc-per-node $GPUS_PER_NODE -m multimeditron train --config sft/single_clip/qwen_biomedclip/stage2_end2end.yaml
+torchrun --nproc-per-node $GPUS_PER_NODE -m multimeditron train --config config/config_alignment.yaml
+torchrun --nproc-per-node $GPUS_PER_NODE -m multimeditron train --config config/config_end2end.yaml
 ```
 
-For a multi-node setup, please refer to 
+#### Multi-node training (CSCS)
 
+1. Connect to the login node
 
+```bash
+ssh clariden
+```
+
+2. Download the sbatch script
+```
+curl https://raw.githubusercontent.com/EPFLiGHT/MultiMeditron/refs/heads/master/cookbook/training_template.sh -o training_template.sh
+```
+
+3. Substitute the environment variable. Make sure that you have created the environment as described [here](#setup_environment)
+
+```bash
+envsubst < training_template.sh > training.sh
+```
+
+4. Run the script
+
+```bash
+# For alignment
+sbatch training.sh config/config_alignment.yaml
+
+# For end2end
+sbatch training.sh config/config_end2end.yaml
+```
 
