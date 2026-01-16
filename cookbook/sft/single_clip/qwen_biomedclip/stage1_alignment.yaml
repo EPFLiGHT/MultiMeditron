@@ -42,7 +42,7 @@ training_args:
   save_strategy: epoch
   max_grad_norm: 1.0
   run_name: MultiMeditron-Qwen-4B-Alignment-Generalist-Delimiter     # Set the name for the run
-  deepspeed: ./config/deepspeed.json
+  deepspeed: $WORKING_DIR/config/deepspeed.json
   accelerator_config:
     dispatch_batches: false
   lr_scheduler_type: "cosine_with_min_lr"

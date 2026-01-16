@@ -106,14 +106,14 @@ pip install -e ".[flash-attn]"
 
 Create a `.env` file. We provide an example below for researchers working on the CSCS cluster:
 
-```sh
-export WORKING_ROOT=$SCRATCH/multimeditron
+```bash
+export WORKING_DIR=$(pwd)
 
 # Path to store the datasets
 export STORAGE_ROOT=$STORE/meditron/multimediset/arrow
 
 # Path to store the models
-export MODEL_ROOT=$WORKING_ROOT/checkpoints
+export MODEL_ROOT=$SCRATCH/multimeditron/checkpoints
 
 # Huggingface 
 export HF_TOKEN="<hf_token>"
@@ -125,10 +125,11 @@ export NUM_PROC=64
 # WandB
 export WANDB_API_KEY="<wandb_token>" # Optional if you don't want to log to WandB
 export WANDB_MODE="online" # Set to "offline" if you don't want to log to the remote WandB server
-export WANDB_DIR=$WORKING_ROOT/wandb
+export WANDB_DIR=$SCRATCH/multimeditron/wandb
 
 # Multi node training configuration
 export NNODES=4
+export NUM_PROC=4 # 4 GPUs per node (adapt if needed accordingly)
 ```
 
 Make sure to replace the `$HF_TOKEN` and `$WANDB_API_KEY` by your actual tokens.
@@ -163,12 +164,15 @@ Your data is stored in `$STORAGE_ROOT`
 
 ### Launching a training
 
-Here is an example to reproduce MultiMeditron Qwen3-4B BiomedCLIP:
+We provide an example to reproduce MultiMeditron Qwen3-4B BiomedCLIP.
+
+Download the configurations:
 
 ```bash
 mkdir config
-envsubst < cookbook/sft/single_clip/qwen_biomedclip/stage1_alignment.yaml > config/config_alignment.yaml
-envsubst < cookbook/sft/single_clip/qwen_biomedclip/stage2_end2end.yaml > config/config_end2end.yaml
+curl https://raw.githubusercontent.com/EPFLiGHT/MultiMeditron/refs/heads/master/cookbook/deepspeed.json -o config/deepspeed.json
+envsubst <<< "$(curl https://raw.githubusercontent.com/EPFLiGHT/MultiMeditron/refs/heads/master/cookbook/sft/single_clip/qwen_biomedclip/stage1_alignment.yaml)" > config/config_alignment.yaml
+envsubst <<< "$(curl https://raw.githubusercontent.com/EPFLiGHT/MultiMeditron/refs/heads/master/cookbook/sft/single_clip/qwen_biomedclip/stage2_end2end.yaml)" > config/config_end2end.yaml
 ```
 
 Each configuration file can be used to train the corresponding model. The training process consists of two stages:
@@ -179,6 +183,7 @@ Each configuration file can be used to train the corresponding model. The traini
 #### Single node training
 
 Example usage (single node):
+
 ```bash
 # Train single CLIP model
 torchrun --nproc-per-node $GPUS_PER_NODE -m multimeditron train --config config/config_alignment.yaml
@@ -194,7 +199,8 @@ ssh clariden
 ```
 
 2. Download the sbatch script
-```
+
+```bash
 curl https://raw.githubusercontent.com/EPFLiGHT/MultiMeditron/refs/heads/master/cookbook/training_template.sh -o training_template.sh
 ```
 

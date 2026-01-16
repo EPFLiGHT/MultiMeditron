@@ -51,7 +51,7 @@ training_args:
   save_strategy: steps
   save_steps: 0.25
   max_grad_norm: 1.0
-  deepspeed: ./config/deepspeed.json
+  deepspeed: $WORKING_DIR/config/deepspeed.json
   accelerator_config:
     dispatch_batches: false
   lr_scheduler_type: cosine_with_min_lr
