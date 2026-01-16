@@ -14,4 +14,4 @@ RUN apt-get update && \
 COPY . /workspace/MultiMeditron
 WORKDIR /workspace/MultiMeditron
 RUN pip install -e ".[flash-attn]"
-
+RUN pip install git+https://github.com/EPFLiGHT/lmms-eval.git
