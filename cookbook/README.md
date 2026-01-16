@@ -214,3 +214,46 @@ sbatch training.sh config/config_alignment.yaml
 sbatch training.sh config/config_end2end.yaml
 ```
 
+### Evaluation
+
+TODO: Integrate it in the Docker image
+
+To evaluate MultiMeditron
+
+```bash
+git clone https://github.com/EPFLiGHT/lmms-eval.git
+cd lmms-eval
+pip install -e .
+```
+
+To evaluate a trained model, run:
+
+```bash
+python3 -m accelerate.commands.launch \
+    --num_processes $NUM_PROC \
+    -m lmms_eval \
+    --model multimeditron \
+    --model_args pretrained="$CHECKPOINT",tokenizer_type="$TOKENIZER_TYPE",device_map="auto" \
+    --tasks gmai,slake,path_vqa \
+    --batch_size 1 \
+```
+
+Replace the `$NUM_PROC` by the the number of GPUs on your node, the `$CHECKPOINT` variable by your model checkpoint path, and the `$TOKENIZER_TYPE` by the tokenizer you used for training the multimodal model.
+
+You can get the `$TOKENIZER_TYPE` by looking at the configuration file:
+
+```bash
+cat config/config_alignment.yaml
+```
+
+And check the line
+
+```
+tokenizer_type: $TOKENIZER_TYPE
+```
+
+The available tokenizer types are:
+
+- `qwen3`
+- `apertus`
+- `llama`
