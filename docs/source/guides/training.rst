@@ -134,7 +134,7 @@ We provide scripts to launch MultiMeditron training on multi node cluster. We pr
 * TODO: Provide script for Run:ai cluster
 
 SLURM cluster
-""""""""""""""
+"""""""""""""
 
 To launch a training on a SLURM cluster, we can use the following :code:`sbatch` script:
 
@@ -193,7 +193,7 @@ To launch a training on a SLURM cluster, we can use the following :code:`sbatch`
       --cpus-per-task $SLURM_CPUS_PER_TASK \
       --jobid $SLURM_JOB_ID \
       --wait 60 \
-      -A a06 \
+      -A a127 \
       --reservation=sai-a127
       --environment ~/.edf/multimodal.toml
       "
