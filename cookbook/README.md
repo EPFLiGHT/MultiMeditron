@@ -80,7 +80,7 @@ curl https://raw.githubusercontent.com/EPFLiGHT/MultiMeditron/refs/heads/master/
 
 3. Claim a job using srun. Make sure to replace the `<ACCOUNT>` by your actual CSCS account (Hint: your account should have the form `axxx` where `xxx` is some number)
 
-```
+```bash
 srun --time=1:29:59 --partition debug -A <ACCOUNT> --environment=~/.edf/multimeditron.toml --pty bash
 ```
 
@@ -222,7 +222,9 @@ sbatch training.sh config/config_end2end.yaml
 
 ### Evaluation
 
-To evaluate MultiMeditron
+To evaluate MultiMeditron, we use the [EPFLiGHT/lmms-eval](https://github.com/EPFLiGHT/lmms-eval) pipeline.
+
+If you don't use the MultiMeditron Docker image, you need to install the `lmms-eval` pipeline using the following command. If you use, the MultiMeditron Docker image, you can skip this step
 
 ```bash
 git clone https://github.com/EPFLiGHT/lmms-eval.git
