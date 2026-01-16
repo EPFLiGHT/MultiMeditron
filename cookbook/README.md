@@ -216,8 +216,6 @@ sbatch training.sh config/config_end2end.yaml
 
 ### Evaluation
 
-TODO: Integrate it in the Docker image
-
 To evaluate MultiMeditron
 
 ```bash
@@ -249,7 +247,7 @@ cat config/config_alignment.yaml
 And check the line
 
 ```
-tokenizer_type: $TOKENIZER_TYPE
+tokenizer_type: qwen3  # (or apertus, llama depending on your setup)
 ```
 
 The available tokenizer types are:
