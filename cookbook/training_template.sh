@@ -18,16 +18,15 @@ export HF_HOME=$HF_HOME
 export CONFIG=$1
 
 echo "START TIME: $(date)"
-# auto-fail on any errors in this script
 set -eo pipefail
-# logging script's variables/commands for future debug needs
 set -x
+
 ######################
-### Set enviroment ###
+### Set environment ###
 ######################
+
 GPUS_PER_NODE=4
 echo "NODES: $SLURM_NNODES"
-######## Args ########
 
 ######################
 #### Set network #####
