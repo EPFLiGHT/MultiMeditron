@@ -5,20 +5,20 @@ import logging
 import torch
 import gradio as gr
 
-from typing import List, Union
+from typing import AsyncGenerator, Generator, List, Union
 from transformers import AutoTokenizer
 from multimeditron.dataset.loader import FileSystemImageLoader
-from multimeditron.model.model import MultiModalModelForCausalLM
+from multimeditron.model.model import ChatTemplate, MultiModalModelForCausalLM
 from multimeditron.model.data_loader import DataCollatorForMultimodal
 
 
 # ==========================
 # Args
 # ==========================
-default_model = "/capstor/store/cscs/swissai/a127/homes/theoschiff/models/MultiMeditron-8B-Clip/checkpoint-813"
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--model_checkpoint", required=False, default=default_model)
+parser.add_argument("--model_checkpoint", required=True)
+parser.add_argument("--tokenizer_type", required=False, default="apertus")
 parser.add_argument("--base_path", required=False, default=os.getcwd(),
                     help="Base path for FileSystemImageRegistry; where your data/images live on the cluster")
 parser.add_argument("--share", action="store_true", help="Gradio share link (use cautiously on cluster)")
@@ -60,7 +60,6 @@ except Exception as e:
 tokenizer.pad_token = tokenizer.eos_token
 special_tokens = {"additional_special_tokens": [ATTACHMENT_TOKEN]}
 tokenizer.add_special_tokens(special_tokens)
-attachment_token_idx = tokenizer.convert_tokens_to_ids(ATTACHMENT_TOKEN)
 
 try:
     model = MultiModalModelForCausalLM.from_pretrained(
@@ -83,9 +82,9 @@ model.eval()
 loader = FileSystemImageLoader(base_path=os.getcwd())
 collator = DataCollatorForMultimodal(
     tokenizer=tokenizer,
-    tokenizer_type="llama",
+    chat_template=ChatTemplate.from_name(args.tokenizer_type),
     modality_processors=model.processors(),
-    attachment_token_idx=attachment_token_idx,
+    attachment_token=ATTACHMENT_TOKEN,
     add_generation_prompt=True,
     modality_loaders={"image": loader},
 )
@@ -123,8 +122,10 @@ def generate_reply(conversations, modalities, temperature=0.7, max_new_tokens=51
     device = next(model.parameters()).device
     batch = _move_to_device(batch, device)
 
+    current_tokens = []
+
     with torch.autocast("cuda", dtype=torch.bfloat16):
-        outputs = model.generate(
+        generator = model.inference_generator(
             batch=batch,
             temperature=float(temperature),
             top_p=float(top_p),
@@ -135,11 +136,10 @@ def generate_reply(conversations, modalities, temperature=0.7, max_new_tokens=51
             use_cache=True,
         )
 
-    # robust decode for bs=1
-    if isinstance(outputs, torch.Tensor):
-        return tokenizer.decode(outputs[0], skip_special_tokens=True, clean_up_tokenization_spaces=True)
-    texts = tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True)
-    return texts[0] if texts else ""
+        for current_token_id in generator:
+            current_tokens.append(current_token_id[0].item())
+            texts = tokenizer.decode(current_tokens, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+            yield texts
 
 
 # ==========================
@@ -151,7 +151,7 @@ def chat_fn(
     temperature: float,
     top_p: float,
     max_new_tokens: int,
-) -> str:
+) -> Generator[str, None, None] | str:
     """
     message (dict when multimodal): {"text": str, "files": [paths]}
     history: list[{"role": "user"|"assistant", "content": str}]
@@ -180,7 +180,7 @@ def chat_fn(
 
     # generate
     try:
-        reply = generate_reply(
+        yield from generate_reply(
             conversations=convs_for_model,
             modalities=modalities,
             temperature=temperature,
@@ -189,8 +189,7 @@ def chat_fn(
         )
     except Exception as e:
         reply = f"[Generation error] {e}"
-
-    return reply
+        return reply
 
 
 # ==========================
@@ -204,7 +203,7 @@ with gr.Blocks(css=CUSTOM_CSS, title="Multimeditron Base Chat 🩺") as demo:
         # left sidebar
         with gr.Column(elem_id="sidebar", scale=1, min_width=200):
             logo = gr.Image(value=LOGO_PATH, show_label=False, interactive=False, elem_id="sidebar-logo",
-                            container=False, show_download_button=False, show_fullscreen_button=False)
+                            container=False)
             new_chat_btn = gr.Button("New Chat", variant="secondary", elem_id="sidebar-newchat")
 
         # main chat
@@ -217,12 +216,9 @@ with gr.Blocks(css=CUSTOM_CSS, title="Multimeditron Base Chat 🩺") as demo:
             with gr.Group(elem_id="chat-wrap"):
                 ci = gr.ChatInterface(
                     fn=chat_fn,
-                    type="messages",
                     chatbot=gr.Chatbot(
-                        type="messages",
                         height=660,
                         render_markdown=True,
-                        show_copy_button=True,
                     ),
                     textbox=gr.MultimodalTextbox(
                         file_types=[".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff", ".gif"],

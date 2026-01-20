@@ -3,7 +3,7 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Optional, List, Union, Tuple, Any, Dict, Callable
+from typing import Generator, Optional, List, Union, Tuple, Any, Dict, Callable
 from transformers import PreTrainedModel, PretrainedConfig, AutoModel, AutoConfig, AutoProcessor, AutoModelForCausalLM
 from transformers.modeling_outputs import CausalLMOutputWithPast
 from dataclasses import dataclass, field
@@ -525,38 +525,14 @@ class MultiModalModelForCausalLM(PreTrainedModel):
             **kwargs
         )
 
-    def generate(
+    def inference_generator(
         self,
         batch: Dict[str, Any],
         max_new_tokens=512,
         temperature=0.1,
         do_sample=True,
         **kwargs
-    ) -> Union[torch.Tensor, CausalLMOutputWithPast]:
-        """
-        Generates text from multimodal inputs using the model.
-
-        This method implements custom token generation logic for multimodal inputs.
-        It processes a batch containing text token IDs and multimodal inputs, then
-        performs autoregressive generation of new tokens until either the maximum
-        token count is reached or all sequences have generated an end-of-sequence token.
-
-        Args:
-            batch (Dict[str, Any]): Dictionary containing the following keys:
-                - input_ids: Text token IDs (torch.Tensor)
-                - processed_multimodal_inputs: Processed multimodal inputs
-                - attention_mask: Attention mask for the input sequence
-                - position_ids: Position IDs for the input sequence
-            max_new_tokens (int): Maximum number of tokens to generate. Defaults to 512.
-            temperature (float): Sampling temperature for controlling randomness in generation.
-                Lower values make generation more deterministic. Defaults to 0.1.
-            do_sample (bool): Whether to use sampling for generation instead of greedy decoding.
-                Defaults to True.
-            **kwargs: Additional keyword arguments passed to the underlying generation process.
-
-        Returns:
-            torch.Tensor: Generated token IDs, shape [batch_size, sequence_length]
-        """
+    ) -> Generator[torch.Tensor, None, None]:
         input_ids = batch["input_ids"]
         processed_multimodal_inputs = batch["processed_multimodal_inputs"]
 
@@ -619,6 +595,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
                 else:
                     next_token_id = torch.argmax(
                         softmax, dim=-1).unsqueeze(0).cpu()
+                yield next_token_id
 
                 for i in range(next_token_id.shape[1]):
                     if finished_mask[i]:
@@ -637,8 +614,54 @@ class MultiModalModelForCausalLM(PreTrainedModel):
                 next_token_embedding = self.model.get_input_embeddings()(
                     next_token_id.to(input_ids.device)).transpose(1, 0)
 
+
+    def generate(
+        self,
+        batch: Dict[str, Any],
+        max_new_tokens=512,
+        temperature=0.1,
+        do_sample=True,
+        **kwargs
+    ) -> Union[torch.Tensor, CausalLMOutputWithPast]:
+        """
+        Generates text from multimodal inputs using the model.
+
+        This method implements custom token generation logic for multimodal inputs.
+        It processes a batch containing text token IDs and multimodal inputs, then
+        performs autoregressive generation of new tokens until either the maximum
+        token count is reached or all sequences have generated an end-of-sequence token.
+
+        Args:
+            batch (Dict[str, Any]): Dictionary containing the following keys:
+                - input_ids: Text token IDs (torch.Tensor)
+                - processed_multimodal_inputs: Processed multimodal inputs
+                - attention_mask: Attention mask for the input sequence
+                - position_ids: Position IDs for the input sequence
+            max_new_tokens (int): Maximum number of tokens to generate. Defaults to 512.
+            temperature (float): Sampling temperature for controlling randomness in generation.
+                Lower values make generation more deterministic. Defaults to 0.1.
+            do_sample (bool): Whether to use sampling for generation instead of greedy decoding.
+                Defaults to True.
+            **kwargs: Additional keyword arguments passed to the underlying generation process.
+
+        Returns:
+            torch.Tensor: Generated token IDs, shape [batch_size, sequence_length]
+        """
+        generated_tokens = []
+        generator = self.inference_generator(
+                batch, 
+                max_new_tokens=max_new_tokens, 
+                temperature=temperature,
+                do_sample=do_sample, 
+                **kwargs
+        )
+
+        for next_token_id in generator:
+            generated_tokens.append(next_token_id)
+
         return torch.cat(generated_tokens).transpose(1, 0)
 
+        
 
 def bootstrap(config, tokenizer, modalities_config):
     """
