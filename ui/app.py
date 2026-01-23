@@ -5,7 +5,7 @@ import logging
 import torch
 import gradio as gr
 
-from typing import AsyncGenerator, Generator, List, Union
+from typing import Any, AsyncGenerator, Dict, Generator, List, Union
 from transformers import AutoTokenizer
 from multimeditron.dataset.loader import FileSystemImageLoader
 from multimeditron.model.model import ChatTemplate, MultiModalModelForCausalLM
@@ -113,7 +113,7 @@ def _move_to_device(batch, device):
     return batch
 
 @torch.inference_mode()
-def generate_reply(conversations, modalities, temperature=0.7, max_new_tokens=512, top_p=0.95):
+def generate_reply(conversations, modalities, temperature=0.0, max_new_tokens=512, top_p=0.95):
     # single-sample path
     sample = {"conversations": conversations, "modalities": modalities}
     batch = collator([sample])
@@ -141,6 +141,35 @@ def generate_reply(conversations, modalities, temperature=0.7, max_new_tokens=51
             texts = tokenizer.decode(current_tokens, skip_special_tokens=True, clean_up_tokenization_spaces=True)
             yield texts
 
+
+def map_messages_to_multimeditron_format(messages: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
+    mapped_messages = []
+    modalities = []
+    for message in messages:
+        mapped_text = ""
+        for content_part in message["content"]:
+            match content_part["type"]:
+                case "text":
+                    mapped_text += content_part["text"]
+                case "file":
+                    mapped_text += ATTACHMENT_TOKEN
+                    modalities.append({
+                        "type" : "image",
+                        "value" : content_part["file"]["path"]
+                    })
+                case _:
+                    logging.warning(f"Skipping unknown content type {content_part['type']}")
+
+        mapped_messages.append({
+            "role" : message["role"],
+            "content" : mapped_text
+        })
+
+    
+    return {
+        "conversations": mapped_messages,
+        "modalities": modalities
+    }
 
 # ==========================
 # ChatInterface handler func 
@@ -173,16 +202,17 @@ def chat_fn(
     user_for_model = f"{prefix}{user_text}" if file_paths else user_text
 
     # conversations: history + last user turn (attachments handled via modalities)
-    convs_for_model = list(history) + [{"role": "user", "content": user_for_model}]
+    converted_history = map_messages_to_multimeditron_format(history)
+    converted_history["conversations"] +=  [{"role": "user", "content": user_for_model}]
 
     # modalities per this turn (per-message attachments)
-    modalities = build_modalities(file_paths)
+    converted_history["modalities"] += build_modalities(file_paths)
 
     # generate
     try:
         yield from generate_reply(
-            conversations=convs_for_model,
-            modalities=modalities,
+            conversations=converted_history["conversations"],
+            modalities=converted_history["modalities"],
             temperature=temperature,
             max_new_tokens=max_new_tokens,
             top_p=top_p,
@@ -209,7 +239,7 @@ with gr.Blocks(css=CUSTOM_CSS, title="Multimeditron Base Chat 🩺") as demo:
         # main chat
         with gr.Column(elem_id="main", scale=4, min_width=700):
             with gr.Accordion("Generation Settings ⚙️", open=False, elem_id="gen-settings"):
-                temperature = gr.Slider(0.0, 1.5, value=0.7, step=0.05, label="Temperature")
+                temperature = gr.Slider(0.0, 1.5, value=0.0, step=0.05, label="Temperature")
                 top_p = gr.Slider(0.1, 1.0, value=0.95, step=0.05, label="Top-p")
                 max_new_tokens = gr.Slider(16, 2048, value=512, step=16, label="Max New Tokens")
 
@@ -242,8 +272,6 @@ with gr.Blocks(css=CUSTOM_CSS, title="Multimeditron Base Chat 🩺") as demo:
         _clear_chat,
         outputs=[ci.chatbot, ci.chatbot_state, ci.textbox],
     )
-
-
 
 
 # entry
