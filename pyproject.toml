@@ -32,7 +32,8 @@ dependencies = [
     "wandb",
     "deprecated",
     "benchy @ git+https://github.com/lukasgd/benchy.git@slurm",
-    "datasets @ git+https://github.com/Androz2091/simon-huggingface-datasets.git"
+    "datasets @ git+https://github.com/Androz2091/simon-huggingface-datasets.git",
+    "gradio"
 ]
 
 [project.optional-dependencies]
