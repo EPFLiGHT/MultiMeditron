@@ -533,6 +533,28 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         do_sample=True,
         **kwargs
     ) -> Generator[torch.Tensor, None, None]:
+        """
+        Generates text based on the provided batch of inputs. 
+        This function returns a generator that yields the generated text one token at a time.
+        
+        The batch dictionary should contain:
+            - 'processed_multimodal_inputs': Processed multimodal inputs.
+            - 'input_ids': Input token IDs.
+            - 'labels': Optional token IDs for labels.
+            - 'attention_mask': Attention mask for the input tokens.
+            - 'position_ids': Position IDs for the input tokens.
+        
+        This function is particularly useful for inference streaming
+
+        Args:
+            batch: A dictionary containing input data, including processed multimodal inputs,
+                input ids, and optional labels.
+            max_new_tokens: Maximum number of new tokens to generate.
+            temperature: Temperature value for sampling.
+            do_sample: Whether to perform sampling during generation.
+            kwargs: Additional keyword arguments for the model's inference method.
+        """
+
         input_ids = batch["input_ids"]
         processed_multimodal_inputs = batch["processed_multimodal_inputs"]
 
