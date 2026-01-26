@@ -9,7 +9,6 @@ This section contains user guides and tutorials for the MultiMeditron project.
    :caption: User Guides
 
    quickstart
-   end_to_end_training
    add_modality
    dataset_format
    training
