@@ -20,14 +20,6 @@ jobs:
             path: docker/Dockerfile
             tag_base: arm64
             name: multimeditron-git
-          - platform: ubuntu-latest
-            path: docker/Dockerfile.verl
-            tag_base: amd64
-            name: verl-multimeditron-git
-          # - platform: ubuntu-24.04-arm
-          #   path: docker/Dockerfile.verl
-          #   tag_base: arm64
-          #   name: verl-multimeditron-git
 
     runs-on: ${{ matrix.platform }}
     environment: docker
