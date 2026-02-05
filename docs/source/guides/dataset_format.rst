@@ -22,6 +22,25 @@ Our training pipeline supports two types of dataset: pretraining and instruction
 We support the following modalities, for a detailed format description please refer to the :any:`corresponding documentation<dataset-format-modalities>`.
 
   
+Dataset validation
+------------------
+
+Use the CLI checker to validate that a dataset follows the expected schema before training. This tool reads
+Arrow/Parquet datasets saved with :code:`save_to_disk` as well as JSONL files, and reports the first formatting
+issues it finds.
+
+.. code-block:: bash
+
+   python -m multimeditron check-dataset /path/to/dataset -m image
+
+You can also control parallelism with :code:`--num-proc` to speed up checks on large datasets:
+
+.. code-block:: bash
+
+   python -m multimeditron check-dataset /path/to/dataset -m image --num-proc 8
+
+If the dataset is invalid, the command prints a list of errors describing which samples failed and why.
+
 
 Arrow format (recommended) 
 --------------------------
@@ -95,4 +114,3 @@ Instruction-tuning format
       ],
       "modalities": [{"type" : "image_3d", "value" : "path/to/npy"}, {"type" : "image", "value" : "path/to/png"}, {"type" : "signal", "value" : "path/to/npy"}]
     }
-

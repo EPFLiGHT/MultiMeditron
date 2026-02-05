@@ -7,6 +7,22 @@ Read :ref:`dataset-format-label` for more details about the general dataset form
 
 This section describes how to format image modalities in the dataset.
 
+Validation
+----------
+
+After creating an image dataset, validate it with the CLI checker:
+
+.. code-block:: bash
+
+    python -m multimeditron check-dataset /path/to/dataset -m image
+
+For large datasets, increase parallelism:
+
+.. code-block:: bash
+
+    python -m multimeditron check-dataset /path/to/dataset -m image --num-proc 8
+
+
 PIL Image format
 ----------------
 
