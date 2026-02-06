@@ -6,7 +6,8 @@ from tqdm import tqdm
 from typing import Optional
 from utils import load_data
 import config
-import Literal
+from typing import Literal
+
 SKIN_PROMPT = """You are a multimodal language model tasked with generating structured clinical interpretations of dermatologic images for training datasets. Use the following concise guidelines to ensure clarity, accuracy, and informativeness:
 
 1. Case context and body site:
@@ -138,9 +139,7 @@ def build_request(
     request_id: int,
     task: TaskType,
 ) -> dict:
-    """
-    Build a single OpenAI Batch API request object.
-    """
+    """Build a single OpenAI Batch API request object."""
     if task == "skin":
         system_content = SKIN_CONTENT
         prompt = SKIN_PROMPT
@@ -148,6 +147,7 @@ def build_request(
         system_content = OPH_CONTENT
         prompt = OPH_PROMPT
     else:
+        # Should be unreachable due to typing + _get_env_task validation.
         raise ValueError(f"Unknown task type: {task}")
 
     return {
@@ -163,14 +163,11 @@ def build_request(
                     "content": [
                         {
                             "type": "text",
-                            "text": prompt
-                            + f"INITIAL DESCRIPTION: {text}\n-----\nGPT:\n",
+                            "text": prompt + f"INITIAL DESCRIPTION: {text}\n-----\nGPT:\n",
                         },
                         {
                             "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_b64}"
-                            },
+                            "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"},
                         },
                     ],
                 },
@@ -179,9 +176,11 @@ def build_request(
         },
     }
 
+
 # ---------------------------------------------------------------------
 # Batch construction
 # ---------------------------------------------------------------------
+
 
 def process_dataset(
     *,
@@ -191,21 +190,26 @@ def process_dataset(
 ) -> None:
     """
     Build batch JSONL files for OpenAI Batch API.
+
+    Writes one or more files: part_1.jsonl, part_2.jsonl, ...
+    Splits by MAX_PART_SIZE_BYTES.
     """
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
     examples, _ = load_data(nb_samples=nb_samples)
-
     if not examples:
         raise RuntimeError("No examples loaded; aborting batch creation.")
 
+    mode = "ALL" if nb_samples is None else f"{nb_samples}"
+    print(f"[INFO] TASK_TYPE={task} | NB_SAMPLES={mode} | Output={output_path}")
     print(f"[INFO] Building batches for {len(examples)} samples")
 
     part_idx = 1
     bytes_in_part = 0
 
-    part_file = (output_path / f"part_{part_idx}.jsonl").open("w", encoding="utf-8")
+    part_path = output_path / f"part_{part_idx}.jsonl"
+    part_file = part_path.open("w", encoding="utf-8")
 
     for i, (text, encoded_images) in tqdm(
         enumerate(examples, start=1),
@@ -215,7 +219,7 @@ def process_dataset(
         if not encoded_images:
             continue
 
-        # Explicitly enforce one image per request
+        # Enforce one image per request
         image_b64 = encoded_images[0]
 
         req = build_request(
@@ -232,26 +236,32 @@ def process_dataset(
             part_file.close()
             part_idx += 1
             bytes_in_part = 0
-            part_file = (output_path / f"part_{part_idx}.jsonl").open(
-                "w", encoding="utf-8"
-            )
+            part_path = output_path / f"part_{part_idx}.jsonl"
+            part_file = part_path.open("w", encoding="utf-8")
 
         part_file.write(line)
         bytes_in_part += size
 
     part_file.close()
+    print(f"[DONE] Created {part_idx} batch file(s) in {output_path}")
 
-    print(
-        f"[DONE] Created {part_idx} batch file(s) in {output_path}"
-    )
 
 # ---------------------------------------------------------------------
 # Entrypoint
 # ---------------------------------------------------------------------
 
-if __name__ == "__main__":
+
+def main() -> None:
+    task = _get_env_task()
+    nb_samples = _get_env_nb_samples()
+    batches_dir = _get_env_batches_dir()
+
     process_dataset(
-        output_dir=config.BATCHES_DIR,
-        task=os.getenv("TASK_TYPE", "skin"),
-        nb_samples=None,
+        output_dir=batches_dir,
+        task=task,
+        nb_samples=nb_samples,
     )
+
+
+if __name__ == "__main__":
+    main()

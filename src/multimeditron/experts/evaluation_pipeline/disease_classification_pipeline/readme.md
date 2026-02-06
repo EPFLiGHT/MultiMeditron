@@ -1,4 +1,5 @@
 # Skin Disease Classification Benchmark for CLIP Models
+# Author: Nazlican Turan
 
 Evaluation framework for CLIP models on skin disease classification using frozen embeddings and Optuna hyperparameter optimization.
 
@@ -17,8 +18,9 @@ This project evaluates CLIP representations by extracting frozen image embedding
 
 ## Installation
 
+From the repository root:
 ```bash
-pip install -r requirements_experts.txt
+pip install -e ".[experts]"
 ```
 
 

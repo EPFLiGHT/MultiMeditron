@@ -10,7 +10,7 @@ src/multimeditron/experts/dataset_processing
 │   ├── process_skin10.py
 │   ├── process_dermnet.py
 │   ├── process_fitzpatrick.py
-│   └── process_isic4.py
+│   └── process_isic.py
 ├── ophthalmology/
 │   ├── process_rfmid2.py
 │   ├── process_messidor2.py
@@ -29,7 +29,7 @@ The skin expert processes dermatological image datasets for various skin conditi
 - **`process_skin10.py`**: Processes the Skin-10 dataset
 - **`process_dermnet.py`**: Processes the DermNet dataset
 - **`process_fitzpatrick.py`**: Processes the Fitzpatrick17k dataset
-- **`process_isic4.py`**: Processes the ISIC-4 skin disease image dataset (4 classes)
+- **`process_isic.py`**: Processes the ISIC-4 skin disease image dataset (4 classes)
 
 ### Ophthalmology Expert Datasets
 
@@ -42,12 +42,12 @@ The ophthalmology expert processes retinal and eye-related medical imaging datas
 
 ## Common Processing Scripts
 
-### `split_jsonl_train_val.py`
+### `train_val_split.py`
 Splits JSONL manifest files into training and validation sets.
 
 **Usage:**
 ```bash
-python split_jsonl_train_val.py \
+python train_val_split.py.py \
   --input manifest.jsonl \
   --output_train train.jsonl \
   --output_val val.jsonl \
@@ -81,14 +81,18 @@ python paraphrase_jsonl.py \
 4. **Optional Paraphrasing**: Text descriptions can be paraphrased for diversity
 5. **Train/Val Split**: The manifest is split into training and validation sets
 
-### Example: Processing ISIC-4 Dataset
+### Example: Processing ISIC Dataset
 
 ```bash
-python process_isic4.py \
+python skin/process_isic.py \
   --output_images_root data/isic4/images \
-  --output_jsonl data/isic4/manifest.jsonl \
-  --paraphrase \
+  --output_jsonl data/isic/manifest.jsonl
+
+python paraphrase_jsonl.py \
+  --in_jsonl data/isic4/manifest.jsonl \
+  --out_jsonl data/isic/manifest_paraphrased.jsonl \
   --seed 42
+
 ```
 
 **Arguments:**

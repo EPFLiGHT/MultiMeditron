@@ -1,4 +1,5 @@
 # CLIP Model Evaluation Pipeline
+# Author: Nazlican Turan
 
 Toolkit for evaluating CLIP-style vision-language models on medical imaging tasks using multiple evaluation protocols: basic image-text alignment, hard negative retrieval, skin tone stratified analysis and qualitative visualization.
 
@@ -16,17 +17,17 @@ This pipeline provides several evaluation methods:
 - `base_clip_evaluation.py` - Basic 4-way retrieval with random negatives
 - `base_sim_benchmark.py` - Image-text alignment evaluation with tower diagnostics
 - `hard_negatives_evaluation.py` - Hard negative retrieval protocol
-- `hard_benchmark_scin_tone_stratified.py` - Skin tone fairness evaluation
+- `hard_benchmark_skin_tone_stratified.py` - Skin tone fairness evaluation
 - `display_most_sim.py` - Qualitative nearest neighbor visualization
 - `check_negative_overlap.py` - Lexical overlap analysis of negatives
 - `load_from_clip.py` - Model loading utilities (supports vanilla CLIP, BiomedCLIP, custom models)
 
 ## Installation
 
+From the repository root:
 ```bash
-pip install -r requirements_experts.txt
+pip install -e ".[experts]"
 ```
-Requires Python 3.8+
 
 ## Data Format
 
@@ -65,8 +66,8 @@ Output: `skin_clip_hard_benchmark.txt` with Recall@1 scores
 ### Skin Tone Stratified Evaluation
 
 ```python
-# Edit CLIP_CONFIGS in hard_benchmark_scin_tone_stratified.py
-python hard_benchmark_scin_tone_stratified.py
+# Edit CLIP_CONFIGS in hard_benchmark_skin_tone_stratified.py
+python hard_benchmark_skin_tone_stratified.py
 ```
 
 Output: Recall@1 broken down by Fitzpatrick skin type groups (light/medium/dark)
@@ -121,7 +122,7 @@ TIE_POLICY = "count_incorrect"  # How to handle ties
 
 ### 3. Skin Tone Stratified
 
-**Script:** `hard_benchmark_scin_tone_stratified.py`
+**Script:** `hard_benchmark_skin_tone_stratified.py`
 
 Same as hard negative protocol, but:
 - Extracts Fitzpatrick skin type from captions or manifest
@@ -244,25 +245,6 @@ EVAL_DATASETS = [
     "/path/to/dataset1.jsonl",
     "/path/to/dataset2.jsonl",
 ]
-```
-
-All datasets are combined before evaluation.
-
-### Save Protocol for Reproducibility
-
-```python
-# In hard_negatives_evaluation.py, triples are automatically saved:
-protocol_path = RESULTS_TXT.replace(".txt", "_protocol.json")
-# Contains [(query_idx, neg1_idx, neg2_idx, neg3_idx), ...]
-```
-
-### Load Saved Protocol
-
-```python
-import json
-with open("protocol.json", "r") as f:
-    triples = json.load(f)
-# Use triples directly in evaluate_model()
 ```
 
 

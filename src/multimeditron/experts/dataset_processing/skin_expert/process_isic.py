@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import os
 import sys
 import json
@@ -31,14 +30,6 @@ class ISIC4PrepArguments:
     kaggle_dataset: str = field(
         default="abhii1929/isic-skin-disease-image-dataset-4-classes",
         metadata={"help": "Kaggle dataset slug"},
-    )
-    paraphrase: bool = field(
-        default=False,
-        metadata={"help": "Whether to paraphrase diagnosis text"},
-    )
-    seed: int = field(
-        default=42,
-        metadata={"help": "Random seed (only used if paraphrase=True)"},
     )
 
 
@@ -89,16 +80,6 @@ def main():
     parser = HfArgumentParser(ISIC4PrepArguments)
     args = parser.parse_args_into_dataclasses()[0]
 
-    if args.paraphrase:
-        import random
-        random.seed(args.seed)
-        TEMPLATES = [
-            "The diagnosis for this skin lesion is {v}.",
-            "This dermoscopic image shows {v}.",
-            "Clinical assessment suggests {v}.",
-            "This image corresponds to {v}.",
-        ]
-
     # 1. Download dataset
     cache_root = load_kaggle_dataset(args.kaggle_dataset)
 
@@ -133,8 +114,6 @@ def main():
                 shutil.copy2(img, dst)
 
             text = label
-            if args.paraphrase:
-                text = random.choice(TEMPLATES).format(v=label)
 
             rel_path = os.path.relpath(dst, start=args.output_jsonl.parent)
             records.append(
