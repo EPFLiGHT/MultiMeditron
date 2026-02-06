@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 submit_batches.py
 

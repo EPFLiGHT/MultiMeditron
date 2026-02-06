@@ -1,4 +1,5 @@
 # Dataset Augmentation with OpenAI Batch API
+# Author: Nazlican Turan
 
 This directory contains a **reproducible, batch-based pipeline** for augmenting multimodal expert datasets (e.g. dermatology, ophthalmology) using the OpenAI Chat Completions API.
 
@@ -32,6 +33,9 @@ All steps are CLI-driven and configurable via environment variables.
 ├── submit_batches.py      # Submit batch request files to OpenAI
 ├── collect_all.py         # Retrieve batch outputs, merge results, compute actual cost
 ├── estimate_price.py      # Cost projection from a small sample
+├── scripts/
+│   ├── run_all.sh        # Full dataset pipeline
+│   └── run_estimate.sh    # Cost estimation pipeline
 └── README.md
 ```
 
@@ -52,11 +56,12 @@ Raw datasets are first converted into a **standard multimediset format**:
 }
 ```
 
-This preprocessing step is dataset-specific and not included in this pipeline. The pipeline assumes the datasets already exists.
+This preprocessing step is dataset-specific and not included in this pipeline. The pipeline assumes the datasets already exist.
 
 ### 2. Build Batch Requests
 
 ```bash
+# Defaults: TASK_TYPE=skin, NB_SAMPLES unset (all samples), BATCHES_DIR from config.py
 python make_batches.py
 ```
 
@@ -68,42 +73,64 @@ python make_batches.py
 
 ### 3. (Optional) Estimate Cost
 
+Use the estimation script to run a small sample and project total costs:
 ```bash
-python submit_batches.py --estimate
-python collect_all.py
-python estimate_price.py
+# Default runs 500 samples on skin task
+./scripts/run_estimate.sh
+
+# Customize task type and sample size
+TASK_TYPE=ophthalmology NB_SAMPLES=1000 ./scripts/run_estimate.sh
 ```
 
-* Runs a small number of samples
-* Estimates cost per example
-* Projects total cost for the full dataset
+This pipeline:
+1. Builds batches for a small sample (`NB_SAMPLES`, default 500)
+2. Submits only the first batch part (`ESTIMATE_ONLY=true`)
+3. Collects outputs and computes estimate via `estimate_price.py`
 
 No assumptions are made about token counts.
 
 ### 4. Submit Full Batches
 
+Use the full pipeline script to process the entire dataset:
 ```bash
-python submit_batches.py
+# Default runs full skin dataset
+./scripts/run_full.sh
+
+# Customize task type
+TASK_TYPE=ophthalmology ./scripts/run_full.sh
 ```
 
-* Uploads each batch file to OpenAI
-* Submits Batch API jobs
-* Saves returned batch IDs for later retrieval
+This pipeline:
+1. Builds batches for the full dataset (no `NB_SAMPLES` limit)
+2. Submits all batch parts to OpenAI
+3. Collects all outputs and computes actual cost
 
-### 5. Collect Outputs and Compute Actual Cost
-
+Alternatively, run steps manually:
 ```bash
+# Set task type (default: skin)
+export TASK_TYPE=skin
+
+# 1) Build full batches
+python make_batches.py
+
+# 2) Submit all parts
+python submit_batches.py
+
+# 3) Collect everything (polls until ready)
 python collect_all.py
 ```
 
-* Polls batch jobs until completion
-* Downloads raw API responses
-* Merges all parts into a single JSONL
-* Extracts generated texts
-* Computes actual prompt and completion token usage
-* Reports exact monetary cost based on configured pricing
-
 ---
+
+## Environment Variables
+
+* `TASK_TYPE` - Task type: `skin` or `ophthalmology` (default: `skin`)
+* `NB_SAMPLES` - Number of samples to process (unset = all samples)
+* `ESTIMATE_ONLY` - Submit only first batch part when `true` (default: `false`)
+* `OPENAI_API_KEY` - Your OpenAI API key (required)
+* `OPENAI_MODEL` - Model to use (set in `config.py`)
+* `BATCHES_DIR` - Directory for batch files (set in `config.py`)
+* `OUTPUT_DIR` - Directory for outputs (set in `config.py`)
 
 ## Configuration
 
@@ -122,7 +149,7 @@ All configuration is centralized in `config.py` and controlled via environment v
 * The pipeline currently uses the Chat Completions API via the Batch endpoint.
 * Prompts are intentionally verbose and domain-specific to maximize annotation quality.
 * Generated outputs are intended for dataset curation and annotation, not clinical use.
-
+* `submit_batches.py` is safe to re-run and will not re-submit already completed batches.
 ---
 
 ## Disclaimer
