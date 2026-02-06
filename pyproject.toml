@@ -33,7 +33,8 @@ dependencies = [
     "deprecated",
     "benchy @ git+https://github.com/lukasgd/benchy.git@slurm",
     "datasets @ git+https://github.com/Androz2091/simon-huggingface-datasets.git",
-    "gradio"
+    "gradio",
+    "open_clip_torch"
 ]
 
 [project.optional-dependencies]
