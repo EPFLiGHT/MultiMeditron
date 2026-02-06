@@ -1,0 +1,48 @@
+# ============================
+# ModelArguments
+# ============================
+text_model_name: bert-base-uncased
+model_name_or_path: GoodBaiBai88/M3D-CLIP
+image_processor_name: null
+cache_dir: /mloscratch/users/achahed/cache
+trust_remote_code: true
+token: # add hf token
+
+# ============================
+# DataTrainingArguments
+# ============================
+dataset_configs:
+  - dataset_name: /mloscratch/users/nemo/datasets/CT_data/CT3D/CT3D-train.jsonl
+    image_column: modalities
+    caption_column: text
+    weight: 1.0
+
+max_seq_length: 128
+preprocessing_num_workers: 4
+overwrite_cache: false
+
+# ============================
+# TrainingArguments
+# ============================
+output_dir: /mloscratch/users/achahed/Meditron-3D/outputs/arms_test
+overwrite_output_dir: true
+
+do_train: true
+do_eval: true
+
+eval_strategy: epoch
+save_strategy: epoch
+
+num_train_epochs: 15
+
+per_device_train_batch_size: 2
+per_device_eval_batch_size: 2
+gradient_accumulation_steps: 2
+
+learning_rate: 0.00005
+
+fp16: true
+report_to: none
+
+logging_steps: 10
+dataloader_num_workers: 4
