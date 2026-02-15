@@ -1,6 +1,6 @@
 # CLIP Model Evaluation Pipeline
 
-Toolkit for evaluating CLIP-style vision-language models on medical imaging tasks using multiple evaluation protocols: basic image-text alignment, hard negative retrieval, skin tone stratified analysis and qualitative visualization.
+Toolkit for evaluating CLIP-style vision-language models on medical imaging tasks using multiple evaluation protocols: basic image-text alignment, hard negative retrieval, skin tone stratified analysis, qualitative visualization and classification evaluation.
 
 ## Overview
 
@@ -20,6 +20,10 @@ This pipeline provides several evaluation methods:
 - `display_most_sim.py` - Qualitative nearest neighbor visualization
 - `check_negative_overlap.py` - Lexical overlap analysis of negatives
 - `load_from_clip.py` - Model loading utilities (supports vanilla CLIP, BiomedCLIP, custom models)
+- `Benchmark.py` - Basic abstract class for CLIP model evaluation benchmark
+- `mlp_eval.py` - Classification evaluation with a multi layer perceptron
+- `ultrasound_new_benchmark.py` Benchmark assessing anatomical region classification in ultrasound imaging
+- `xray_eval.py' Benchmark assessing diseases classification in X-ray imaging
 
 ## Installation
 
@@ -84,6 +88,17 @@ visualize_retrieval(
     out_path="retrieval_viz.png"
 )
 ```
+### Anatomical benchmark
+
+``` 
+python ultrasound_new_benchmark.py <<Path_of_evaluated_model.py>>
+```
+
+### X-ray benchmark
+
+``` 
+python xray_eval.py <<Path_of_evaluated_model.py>>
+```
 
 ## Evaluation Protocols
 
@@ -131,6 +146,23 @@ Same as hard negative protocol, but:
 **Metadata extraction:**
 - FST from text: "Fitzpatrick skin type: FST4"
 - Disease proxy: "Dermatologist differential (weighted): acne (0.85)"
+
+### 4. Anatomical benchmark
+
+**Script:** `ultrasound_new_benchmark.py`
+
+This script implements an anatomical classification benchmark for ultrasound images using embeddings from a CLIP vision–text encoder. 
+- It aggregates multiple public ultrasound datasets into a unified 4-class problem (breast, abdomen, thyroid, other)
+- encodes all images into fixed embeddings, and stores them for reuse. 
+- An MLP classifier is then trained on these embeddings to evaluate how well the encoder separates different anatomical regions.
+
+### 5. X-ray benchmark
+
+**Script:** `mlp_eval.py`
+
+This script defines a chest X-ray benchmark to evaluate a CLIP vision–text encoder using multi-label disease classification. 
+- It encodes X-ray images into embeddings, builds multi-hot labels for 15 radiological findings from a CSV file, and splits the data into train/test sets. 
+- An MLP is then trained on these embeddings to measure how well the encoder captures radiological findings.
 
 ## Model Loading
 
@@ -198,6 +230,16 @@ skin_clip_v1    0.8234  0.7891  0.7123  0.6543
 ### Qualitative Visualization
 PNG file showing query image + top-K nearest neighbors with similarity scores
 
+### Anatomical benchmark
+```
+best results with lr: <<learning rate which gave the best results during cross validation in the training of the classifier>> and wd: <<weight decay which gave the best results during cross validation in the training of the classifier>>
+test accuracy : <<result of the evaluation>>
+```
+### X-ray benchmark
+```
+best results with lr: <<learning rate which gave the best results during cross validation in the training of the classifier>> and wd: <<weight decay which gave the best results during cross validation in the training of the classifier>>
+test accuracy : <<result of the evaluation>>
+```
 ## Diagnostic Tools
 
 ### Text Tower Probe
