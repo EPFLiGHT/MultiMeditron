@@ -1,144 +1,96 @@
-<div align="center">
-    <img alt="License" src="https://img.shields.io/badge/license-Apache 2.0-blue?style=for-the-badge">
-    <a href="https://epflight.github.io/MultiMeditron/index.html">
-        <img alt="Documentation build" src="https://img.shields.io/github/actions/workflow/status/EPFLiGHT/MultiMeditron/docs.yml?style=for-the-badge&label=Documentation">
-    </a>
-    <img alt="Docker build" src="https://img.shields.io/github/actions/workflow/status/EPFLiGHT/MultiMeditron/docker.yml?style=for-the-badge&label=Docker">
-</div>
+# MultiMeditron
 
-<img src="assets/multimeditron.png" alt="MultiMeditron">
+MultiMeditron pitch, link to paper on arxiv, etc
 
-**MultiMeditron** is a **modular multimodal large language model (LLM)** built by students and researchers from [**LiGHT Lab**](https://www.light-laboratory.org/).
-It is designed to seamlessly integrate multiple modalities such as text, images, or other data types into a single unified model architecture.
+## Install Dependencies
 
+Build and run our Docker image.
+All scripts assume execution from the repository root inside the container.
 
-## 🚀 Key Features
+```
+docker build -t project-name -f docker/Dockerfile .
+docker run --gpus all -it \
+  -v $(pwd):/workspace \
+  project-name
+```
 
-* **🔗 Modular Design:**
-  Easily plug in new modalities by following our well-documented interface. Each modality embedder (e.g., CLIP, Whisper, etc.) can be independently developed and added to the model.
+If Docker is not used, install dependencies manually:
+```
+pip install -r requirements.txt
+```
 
-* **🧩 Modality Interleaving:**
-  Supports interleaved multimodal inputs (e.g., text-image-text sequences), enabling complex reasoning across different data types.
+Note: Maybe it would be nice to offer this as a python package?
+Do we already have `pyproject.toml`? Then the instructions here could be `pip install -e .`
 
-* **⚡ Scalable Architecture:**
-  Designed for distributed and multi-node environments — ideal for large-scale training or inference.
+## Running our Code
 
-* **🧠 Flexible Model Backbone:**
-  Combine any modality embedder (like CLIP or SigLIP) with any LLM (like Llama, Qwen, or custom fine-tuned models).
+Model checkpoints are published on huggingface. To run download a checkpoint and run generate a reply, use this `generate` helper script. 
+```
+generate.sh examples/sample_input.?
+```
 
+## Reproduce the Paper
 
-## 🏗️ Model Architecture
+All experiments are configured using Hydra. Configuration files are stored in the `cookbooks/` directory.
 
-<div align="center">
-    <img src="./assets/architecture.png" alt="MultiMeditron architecture">
-</div>
+- The **main recipe**, `cookbooks/main.yaml` represents the final model configuration reported in the paper.
+- **Ablation recipes** live in `cookbooks/ablations/`.
+- Evaluation-specific settings live under `cookbooks/eval/`.
 
-## ⚙️ Setup
+Before you can run through the training, you need to download our dataset via
+```
+download.sh
+```
 
-
-### Using Docker (recommended)
-
-On AMD64 architecture:
-
+This main training writes checkpoints to `checkpoints/main/`. You can use our `main.yaml` configuration to reproduce the training run of the MultiMeditron paper, or provide your own configuration.
 ```bash
-docker pull michelducartier24/multimeditron-git:latest-amd64
+bash scripts/train.sh cookbooks/main.yaml
 ```
 
-On ARM64 architecture:
-
+Ablations are designed to execute a well defined set of ablations and write write checkpoints to a separate subdirectory `checkpoints/ablations/<ablation_name>/`
 ```bash
-docker pull michelducartier24/multimeditron-git:latest-arm64
+bash scripts/ablate.sh
 ```
 
-### Using uv
-
-**Prerequisite:** To install the right version of torch with your CUDA driver, please refer to [this documentation](https://pytorch.org/get-started/locally/)
-
- Install [uv](https://docs.astral.sh/uv/):
-
+Evaluation is handled by a single entry point:
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
+bash scripts/eval.sh
 ```
 
-Clone the repository: 
+By default, this script:
+ - Finds the latest checkpoint for the main model and all ablations
+ - Runs all available benchmarks
+ - Saves raw evaluation outputs to `data/eval/`
 
+Evaluation does not produce plots or tables directly. It only generates structured data.
+Analysis and visualization are intentionally separated from evaluation.
+
+Aggregate and post-process results:
 ```bash
-git clone https://github.com/EPFLiGHT/MultiMeditron.git
-cd MultiMeditron
+python scripts/analyze.py
 ```
 
-Install dependencies:
-
+Generate plots and figures:
 ```bash
-uv pip install -e ".[flash-attn]"
+python scripts/plot.py
 ```
 
+All plots should be generated solely from files in `data/eval`, ensuring full reproducibility.
 
-## 💬 Inference Example
+## The Data Pipeline
 
-Here’s an example showing how to use **MultiMeditron** with **Llama 3.1 (8B)** and a single image input.
+You can download preprocessed data via `download.sh`. This will generate ready-to-use data formatted to be compatible with our training code.
 
-```python
-import torch
-from transformers import AutoTokenizer
-import os
-from multimeditron.dataset.preprocessor import modality_preprocessor
-from multimeditron.dataset.loader import FileSystemImageLoader
-from multimeditron.model.model import MultiModalModelForCausalLM
-from multimeditron.dataset.preprocessor.modality_preprocessor import ModalityRetriever, SamplePreprocessor
-from multimeditron.model.data_loader import DataCollatorForMultimodal
+Alternatively you can run `download_raw.sh` and `python preprocess.py` to download and preprocess the data yourself. 
+The preprocessing uses thirdparty LLM tools:
+ - it requires an OpenAI API key in an env variable
+ - it is not fully deterministic. The data produced by `download.sh` and `download_raw.sh && python preprocess.py` may differ significantly due to changes in thirdparty APIs.
 
-ATTACHMENT_TOKEN = "<|reserved_special_token_0|>"
+## Extend the Paper
 
-# Load tokenizer
-tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3.1-8B-Instruct", dtype=torch.bfloat16)
-tokenizer.pad_token = tokenizer.eos_token
-tokenizer.add_special_tokens({'additional_special_tokens': [ATTACHMENT_TOKEN]})
-attachment_token_idx = tokenizer.convert_tokens_to_ids(ATTACHMENT_TOKEN)
+MultiMeditron mini pitch v2. It's designed to be reproducible, extensible, modular.
+You can for example write your own modality projectors.
+Point to interesting code files.
+Point to API docs.
 
-# Load model
-model = MultiModalModelForCausalLM.from_pretrained("path/to/trained/model")
-model.to("cuda")
-
-# Define input
-modalities = [{"type": "image", "value": "path/to/image"}]
-conversations = [{
-    "role": "user",
-    "content": f"{ATTACHMENT_TOKEN} Describe the image."
-}]
-sample = {"conversations": conversations, "modalities": modalities}
-
-loader = FileSystemImageLoader(base_path=os.getcwd())
-
-collator = DataCollatorForMultimodal(
-    tokenizer=tokenizer,
-    tokenizer_type="llama",
-    modality_processors=model.processors(),
-    modality_loaders={"image": loader},
-    attachment_token_idx=attachment_token_idx,
-    add_generation_prompt=True,
-)
-
-batch = collator([sample])
-
-with torch.no_grad():
-    outputs = model.generate(batch=batch, temperature=0.1)
-
-print(tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=True)[0])
-```
-
-
-## 🧩 Adding a New Modality
-
-MultiMeditron’s architecture is fully **extensible**.
-To add a new modality, see the [developer documentation](https://epflight.github.io/MultiMeditron/guides/add_modality.html) for a step-by-step guide.
-
-
-## ⚖️ License
-
-This project is licensed under the Apache 2.0 License, see the [LICENSE 🎓](LICENSE) file for details.
-
-
-## 📖 Cite us
-
-TODO
+etc.
