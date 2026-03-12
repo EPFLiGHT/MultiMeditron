@@ -4,7 +4,7 @@ Translate MediBench to African Languages
 Translates MediBench medical Q&A from source languages to African languages
 using NLLB-200 3.3B. Outputs JSON with questions, options, and answers.
 
-Default: 500 samples × 5 languages into 5 langauges = 12500 translations
+Default: 500 samples × 5 languages into 5 languages = 12500 translations
 
 Output: src/multimeditron/translation/experiments/results/base_nllb/mediBench_translation/african_translations.json
 """

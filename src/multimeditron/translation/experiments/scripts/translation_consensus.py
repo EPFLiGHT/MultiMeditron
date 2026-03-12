@@ -11,12 +11,11 @@ v4: Added checkpointing to resume after pod restarts
 """
 
 import json
-import os
 import gc
 import re
 import sys
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple
 import numpy as np
 from tqdm import tqdm
 import argparse
@@ -806,7 +805,8 @@ def compute_consensus_with_fallback(all_translations: Dict[str, List[str]],
                     b = bleu.sentence_score(candidate, refs).score
                     c = chrf.sentence_score(candidate, refs).score
                     scores[model] = 0.5 * b + 0.5 * c
-                except:
+                except Exception as score_err:
+                    log(f"⚠️  Consensus scoring failed for entry {i}, model {model}: {score_err}")
                     scores[model] = 0.0
             
             best_model = max(scores, key=scores.get)

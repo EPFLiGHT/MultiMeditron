@@ -17,6 +17,7 @@ import torch
 import numpy as np
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
 from datasets import Dataset, load_from_disk
 from transformers import (
     AutoModelForSeq2SeqLM,
@@ -74,7 +75,16 @@ WARMUP_RATIO = 0.1
 WEIGHT_DECAY = 0.01
 MAX_LENGTH = 256
 
-SAMPLES_PER_LANGUAGE = None  # Use all data
+SAMPLES_PER_LANGUAGE_ENV = os.environ.get("SAMPLES_PER_LANGUAGE")
+if SAMPLES_PER_LANGUAGE_ENV:
+    try:
+        SAMPLES_PER_LANGUAGE = int(SAMPLES_PER_LANGUAGE_ENV)
+    except ValueError as err:
+        raise ValueError(
+            f"Invalid SAMPLES_PER_LANGUAGE='{SAMPLES_PER_LANGUAGE_ENV}'. Expected integer."
+        ) from err
+else:
+    SAMPLES_PER_LANGUAGE = None  # Use all data
 
 # CHECKPOINTING - More frequent for preemption resilience
 SAVE_EVERY = 100  # Save every 100 steps (must divide EVAL_STEPS evenly)
@@ -100,7 +110,7 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 # CHECKPOINT DETECTION
 # =============================================================================
 
-def find_latest_checkpoint(output_dir: str) -> str:
+def find_latest_checkpoint(output_dir: str) -> Optional[str]:
     """Find the latest checkpoint in output directory."""
     output_path = Path(output_dir)
     checkpoints = list(output_path.glob("checkpoint-*"))
@@ -220,7 +230,8 @@ if os.path.exists(tokenized_train_path) and os.path.exists(tokenized_eval_path):
             saved_config = json.load(f)
             language_counts = saved_config.get('language_counts', {})
             skipped_counts = saved_config.get('skipped_counts', {})
-    except:
+    except Exception as config_err:
+        log(f"⚠️  Failed loading cached language counts: {config_err}")
         language_counts = {}
         skipped_counts = {}
 else:
@@ -248,7 +259,7 @@ else:
         log(f"  Loading {lang_code}...")
         lang_data = load_jsonl(filepath)
         
-        if SAMPLES_PER_LANGUAGE:
+        if SAMPLES_PER_LANGUAGE is not None:
             lang_data = lang_data[:SAMPLES_PER_LANGUAGE]
             log(f"    Sampled {len(lang_data)} entries")
         
@@ -651,8 +662,8 @@ except Exception as e:
         log("💾 Attempting to save checkpoint on error...")
         trainer.save_model(os.path.join(OUTPUT_DIR, "checkpoint-error"))
         log("✓ Emergency checkpoint saved")
-    except:
-        pass
+    except Exception as save_err:
+        log(f"⚠️  Failed to save emergency checkpoint: {save_err}")
     
     raise
 

@@ -18,7 +18,6 @@ import sys
 import re
 import json
 import argparse
-import gc
 from pathlib import Path
 from typing import List, Dict, Optional
 from collections import Counter

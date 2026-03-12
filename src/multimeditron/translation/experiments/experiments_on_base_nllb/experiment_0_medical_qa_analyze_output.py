@@ -17,7 +17,6 @@ import re
 import argparse
 from pathlib import Path
 from collections import Counter, defaultdict
-from typing import List, Dict, Optional
 
 import torch
 from tqdm import tqdm

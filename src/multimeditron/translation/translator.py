@@ -13,48 +13,74 @@ while enabling accurate translation of clearly detected languages.
 
 Usage:
     translator = NLLBTranslator()
-    english_text = translator.translate_to_english(user_question)
-    response_in_user_lang = translator.translate_from_english(english_response)
+    english_text, user_lang = translator.translate_to_english(
+        user_question, return_detected_lang=True
+    )
+    response_in_user_lang = translator.translate_from_english(
+        english_response, tgt_lang=user_lang
+    )
 """
+
+import logging
+from pathlib import Path
+from typing import Optional, Tuple, Union
 
 import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from huggingface_hub import hf_hub_download
 
+LOGGER = logging.getLogger(__name__)
+DEFAULT_BASE_MODEL = "facebook/nllb-200-3.3B"
+DEFAULT_LOCAL_MODEL = (
+    Path(__file__).resolve().parent / "models" / "nllb-consensus-finetuned-1epoch"
+)
+
 
 class NLLBTranslator:
     """NLLB-200 translator with fastText language detection."""
-    
-    def __init__(self, 
-                model_name="src/multimeditron/translation/models/nllb-consensus-finetuned-1epoch",  #Fine tuned model - to use the base NLLB-200 3.3B model, add HF path here (nllb-200-3.3B)
-                lang_detect_model="facebook/fasttext-language-identification"):
+
+    def __init__(
+        self,
+        model_name: Optional[str] = None,
+        lang_detect_model: str = "facebook/fasttext-language-identification",
+    ):
         """Initialize NLLB translator with fastText language detection."""
-        print(f"[INFO] Loading NLLB model: {model_name}")
+        if model_name is None:
+            if DEFAULT_LOCAL_MODEL.exists():
+                model_name = str(DEFAULT_LOCAL_MODEL)
+                LOGGER.info("Using local fine-tuned NLLB model at %s", model_name)
+            else:
+                model_name = DEFAULT_BASE_MODEL
+                LOGGER.info(
+                    "Local fine-tuned model not found. Falling back to %s",
+                    DEFAULT_BASE_MODEL,
+                )
+
+        LOGGER.info("Loading NLLB model: %s", model_name)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
-        
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model.to(self.device)
 
-        print(f"[INFO] Loading fastText language detection model")
+        LOGGER.info("Loading fastText language detection model from %s", lang_detect_model)
         try:
             import fasttext
+
             model_path = hf_hub_download(
-                repo_id="facebook/fasttext-language-identification",
+                repo_id=lang_detect_model,
                 filename="model.bin"
             )
             fasttext.FastText.eprint = lambda x: None
             self.lang_detector = fasttext.load_model(model_path)
-            print(f"[INFO] fastText model loaded successfully")
+            LOGGER.info("fastText model loaded successfully")
         except Exception as e:
-            print(f"[ERROR] Failed to load fastText: {e}")
-            print("[INFO] Ensure: pip install 'numpy<2.0' fasttext")
+            LOGGER.exception("Failed to load fastText language detector: %s", e)
+            LOGGER.info("Ensure dependencies are installed: `pip install \"numpy<2.0\" fasttext`")
             raise
-        
-        self.detected_user_lang = None
-        print(f"[INFO] NLLB translator ready on {self.device}")
-    
+
+        LOGGER.info("NLLB translator ready on %s", self.device)
+
     def detect_language(self, text: str, confidence_threshold=0.80) -> str:
         """
         Detect language using fastText. Returns 'eng_Latn' if confidence < threshold
@@ -63,47 +89,55 @@ class NLLBTranslator:
         try:
             clean_text = text.replace('\n', ' ').strip()
             predictions = self.lang_detector.predict(clean_text, k=3)
-            
+
             detected_code = predictions[0][0].replace('__label__', '')
             confidence = float(predictions[1][0])
-            
-            print(f"[DEBUG] Detected: {detected_code} (confidence: {confidence:.3f})")
-            
+
+            LOGGER.debug("Detected language %s (confidence %.3f)", detected_code, confidence)
+
             if confidence < confidence_threshold:
-                print(f"[WARNING] Low confidence ({confidence:.3f} < {confidence_threshold}).")
-                print(f"[INFO] Defaulting to eng_Latn - text will pass through as-is.")
-                print(f"  Top predictions:")
+                LOGGER.warning(
+                    "Low confidence language detection (%.3f < %.3f). Falling back to eng_Latn.",
+                    confidence,
+                    confidence_threshold,
+                )
                 for i in range(min(3, len(predictions[0]))):
                     alt_code = predictions[0][i].replace('__label__', '')
                     alt_conf = float(predictions[1][i])
-                    print(f"    {i+1}. {alt_code}: {alt_conf:.3f}")
+                    LOGGER.warning("Alternative prediction %d: %s (%.3f)", i + 1, alt_code, alt_conf)
                 return 'eng_Latn'
-            
+
             try:
                 token_id = self.tokenizer.convert_tokens_to_ids(detected_code)
                 if token_id == self.tokenizer.unk_token_id:
-                    print(f"[WARNING] '{detected_code}' not supported. Defaulting to eng_Latn.")
+                    LOGGER.warning(
+                        "Detected language code '%s' is not supported by tokenizer. Falling back to eng_Latn.",
+                        detected_code,
+                    )
                     return 'eng_Latn'
-            except Exception as e:
-                print(f"[WARNING] Validation failed for '{detected_code}'. Defaulting to eng_Latn.")
+            except Exception:
+                LOGGER.warning(
+                    "Tokenizer validation failed for detected language code '%s'. Falling back to eng_Latn.",
+                    detected_code,
+                )
                 return 'eng_Latn'
-            
+
             return detected_code
-            
+
         except Exception as e:
-            print(f"[ERROR] Detection failed: {e}. Defaulting to eng_Latn.")
+            LOGGER.exception("Language detection failed (%s). Falling back to eng_Latn.", e)
             return 'eng_Latn'
-    
+
     def translate(self, text: str, src_lang: str, tgt_lang: str) -> str:
         """Translate text from src_lang to tgt_lang using NLLB."""
         if not text or not text.strip():
             return text
-        
+
         if src_lang == tgt_lang:
             return text
-        
+
         self.tokenizer.src_lang = src_lang
-        
+
         inputs = self.tokenizer(
             text,
             return_tensors="pt",
@@ -111,13 +145,13 @@ class NLLBTranslator:
             truncation=True,
             max_length=512
         ).to(self.device)
-        
+
         try:
             forced_bos_token_id = self.tokenizer.convert_tokens_to_ids(tgt_lang)
         except Exception as e:
-            print(f"[ERROR] Failed to get token ID for {tgt_lang}: {e}")
+            LOGGER.error("Failed to get token ID for %s: %s", tgt_lang, e)
             return text
-        
+
         with torch.no_grad():
             translated_tokens = self.model.generate(
                 **inputs,
@@ -129,41 +163,50 @@ class NLLBTranslator:
         
         decoded = self.tokenizer.batch_decode(translated_tokens, skip_special_tokens=True)
         result = decoded[0]
-        
+
         text_preview = text[:80] + '...' if len(text) > 80 else text
         result_preview = result[:80] + '...' if len(result) > 80 else result
-        print(f"  Input:  {text_preview}")
-        print(f"  Output: {result_preview}")
-        
+        LOGGER.debug("Translation input preview: %s", text_preview)
+        LOGGER.debug("Translation output preview: %s", result_preview)
+
         return result
-    
-    def translate_to_english(self, text: str, src_lang: str = None) -> str:
+
+    def translate_to_english(
+        self,
+        text: str,
+        src_lang: Optional[str] = None,
+        return_detected_lang: bool = False,
+    ) -> Union[str, Tuple[str, str]]:
         """
         Translate to English if high confidence detection, otherwise pass through.
-        Stores detected language for translate_from_english().
+
+        Stateless usage:
+            translated, detected_lang = translate_to_english(text, return_detected_lang=True)
         """
         if src_lang is None:
             src_lang = self.detect_language(text)
-        
-        self.detected_user_lang = src_lang
-        
+
         if src_lang == 'eng_Latn':
-            return text
-        
-        return self.translate(text, src_lang, 'eng_Latn')
-    
-    def translate_from_english(self, text: str, tgt_lang: str = None) -> str:
+            translated = text
+        else:
+            translated = self.translate(text, src_lang, 'eng_Latn')
+
+        if return_detected_lang:
+            return translated, src_lang
+        return translated
+
+    def translate_from_english(self, text: str, tgt_lang: Optional[str] = None) -> str:
         """
-        Translate from English back to original language.
-        If original was low confidence (eng_Latn), passes through unchanged.
+        Translate from English to a caller-provided target language.
         """
         if tgt_lang is None:
-            if self.detected_user_lang is None:
-                print("[WARNING] No detected language stored. Returning as-is.")
-                return text
-            tgt_lang = self.detected_user_lang
-        
+            raise ValueError(
+                "tgt_lang is required for stateless translation. "
+                "Use `translate_to_english(..., return_detected_lang=True)` and pass "
+                "the detected language into `translate_from_english`."
+            )
+
         if tgt_lang == 'eng_Latn':
             return text
-        
+
         return self.translate(text, 'eng_Latn', tgt_lang)

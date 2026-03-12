@@ -10,7 +10,6 @@ import torch
 import numpy as np
 from datetime import datetime
 from datasets import load_from_disk
-from collections import Counter
 from transformers import (
     AutoModelForSeq2SeqLM,
     NllbTokenizer,
@@ -108,7 +107,6 @@ def preprocess_function(examples):
     """Creates BOTH EN→X and X→EN examples."""
     sources = []
     targets = []
-    src_langs = []
     tgt_langs = []
     
     for translation in examples['translation']:
@@ -131,12 +129,10 @@ def preprocess_function(examples):
         # BOTH directions
         sources.append(eng_text)
         targets.append(target_text)
-        src_langs.append('eng_Latn')
         tgt_langs.append(target_lang)
         
         sources.append(target_text)
         targets.append(eng_text)
-        src_langs.append(target_lang)
         tgt_langs.append('eng_Latn')
     
     model_inputs = tokenizer(
@@ -205,22 +201,42 @@ chrf_metric = evaluate.load("chrf")
 def compute_metrics(eval_preds):
     """
     Compute BLEU and chrF scores.
-    FIXED: Proper handling of token IDs to avoid out-of-range errors.
+    Handles logits/token IDs safely and skips invalid rows instead of clipping.
     """
     preds, labels = eval_preds
     
     if isinstance(preds, tuple):
         preds = preds[0]
+
+    # Some trainer configurations can pass logits; convert those to token IDs.
+    if isinstance(preds, np.ndarray) and preds.ndim == 3:
+        preds = np.argmax(preds, axis=-1)
+    preds = np.asarray(preds, dtype=np.int64)
     
     # Replace -100 in labels (padding)
-    labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
-    
-    # CRITICAL FIX: Clip predictions to valid token ID range
+    labels = np.where(labels != -100, labels, tokenizer.pad_token_id).astype(np.int64)
+
+    if preds.ndim == 1:
+        preds = np.expand_dims(preds, axis=0)
+    if labels.ndim == 1:
+        labels = np.expand_dims(labels, axis=0)
+
     vocab_size = len(tokenizer)
-    preds = np.clip(preds, 0, vocab_size - 1)
-    
-    # Also ensure labels are within range (should already be, but safety first)
-    labels = np.clip(labels, 0, vocab_size - 1)
+    valid_pred_rows = ((preds >= 0) & (preds < vocab_size)).all(axis=1)
+    valid_label_rows = ((labels >= 0) & (labels < vocab_size)).all(axis=1)
+    valid_rows = valid_pred_rows & valid_label_rows
+
+    dropped_rows = int((~valid_rows).sum())
+    if dropped_rows:
+        print(
+            f"\n⚠️  Dropping {dropped_rows}/{len(valid_rows)} rows with out-of-range token IDs "
+            "during evaluation. Check generation/tokenization configuration."
+        )
+
+    preds = preds[valid_rows]
+    labels = labels[valid_rows]
+    if len(preds) == 0:
+        return {"bleu": 0.0, "chrf": 0.0}
     
     # Decode with error handling
     try:

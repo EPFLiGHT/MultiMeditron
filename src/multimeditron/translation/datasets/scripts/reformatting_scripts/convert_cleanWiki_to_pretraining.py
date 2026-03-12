@@ -16,6 +16,7 @@ Usage:
 """
 
 import json
+from contextlib import ExitStack
 from pathlib import Path
 
 
@@ -34,7 +35,7 @@ def split_by_language(in_path: Path, out_dir: Path):
     total_in, total_out = 0, 0
     writers = {}
 
-    try:
+    with ExitStack() as stack:
         with open(in_path, "r", encoding=ENCODING, errors="ignore") as fin:
             for line in fin:
                 total_in += 1
@@ -52,7 +53,7 @@ def split_by_language(in_path: Path, out_dir: Path):
 
                 if lang not in writers:
                     out_path = out_dir / f"wikipedia_{lang}_pretraining.jsonl"
-                    writers[lang] = open(out_path, "w", encoding=ENCODING)
+                    writers[lang] = stack.enter_context(open(out_path, "w", encoding=ENCODING))
                     print(f"🆕 Created {out_path}")
 
                 json.dump({"text": text, "modalities": []},
@@ -62,10 +63,6 @@ def split_by_language(in_path: Path, out_dir: Path):
 
                 if total_in % 100000 == 0:
                     print(f"📊 Processed {total_in:,} lines... ({len(writers)} langs active)")
-
-    finally:
-        for w in writers.values():
-            w.close()
 
     print("=" * 80)
     print(f"✅ Completed: {total_out:,}/{total_in:,} valid samples")

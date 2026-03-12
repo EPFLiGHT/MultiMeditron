@@ -97,7 +97,8 @@ class MediBenchTranslator:
             return text
         try:
             return self.translator.translate(text, src_lang=src_lang, tgt_lang=tgt_lang)
-        except Exception:
+        except Exception as exc:
+            print(f"  [WARNING] Translation failed for {src_lang}->{tgt_lang}: {exc}")
             self.stats['failed'] += 1
             return text
     
@@ -213,7 +214,7 @@ def load_medibench(split: str = "train", token: str = None) -> Dataset:
                 
                 samples.append(sample)
                 
-            except (json.JSONDecodeError, Exception):
+            except Exception:
                 skipped += 1
                 continue
     
@@ -248,6 +249,13 @@ def main():
     )
     
     args = parser.parse_args()
+
+    hf_lab_token = os.getenv("HF_LAB_TOKEN")
+    if not hf_lab_token:
+        raise EnvironmentError(
+            "HF_LAB_TOKEN is required to download MediBench. "
+            "Set it in the environment before running this script."
+        )
     
     print("=" * 70)
     print("MEDIBENCH → AFRICAN LANGUAGES (FINE-TUNED NLLB)")
@@ -262,7 +270,7 @@ def main():
     print(f"Total translations: {total_translations}")
     
     print("\n[0/2] Loading MediBench dataset...")
-    dataset = load_medibench(split="train", token=os.getenv("HF_LAB_TOKEN"))
+    dataset = load_medibench(split="train", token=hf_lab_token)
     
     samples_by_lang = {}
     for sample in dataset:

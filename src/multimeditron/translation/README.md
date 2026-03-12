@@ -24,7 +24,7 @@ This repository contains the complete pipeline for:
   - Low confidence (<80%) → Pass through as-is (prevents mistranslation of ambiguous text)
 - **Bidirectional Translation Pipeline**:
   - `translate_to_english()`: Detects language and translates to English
-  - `translate_from_english()`: Translates back to detected user language
+  - `translate_from_english()`: Translates back with explicit target language
 - **Flexible Usage**: Direct translation with `translate(text, src_lang, tgt_lang)`
 - **Model Agnostic**: Works with both base NLLB-200-3.3B and fine-tuned models
 
@@ -37,15 +37,18 @@ from multimeditron.translation.translator import NLLBTranslator
 translator = NLLBTranslator(model_name="facebook/nllb-200-3.3B")
 
 # Option 1: Automatic detection + bidirectional translation
-english_query = translator.translate_to_english("Dalili za malaria ni zipi?")
+english_query, user_lang = translator.translate_to_english(
+    "Dalili za malaria ni zipi?",
+    return_detected_lang=True,
+)
 # → Automatically detects Swahili, translates to English
 
 # Process with medical LLM...
 english_response = "Common symptoms include fever, chills, and headache."
 
 # Translate response back to user's language
-user_response = translator.translate_from_english(english_response)
-# → Translates back to Swahili automatically
+user_response = translator.translate_from_english(english_response, tgt_lang=user_lang)
+# → Translates back to detected Swahili
 
 # Option 2: Direct translation with explicit language codes
 translation = translator.translate(
@@ -174,14 +177,17 @@ translator = NLLBTranslator(
 
 # Translate user query to English
 user_query = "Ni vipi naweza kuzuia malaria?"
-english_query = translator.translate_to_english(user_query)
+english_query, user_lang = translator.translate_to_english(
+    user_query,
+    return_detected_lang=True,
+)
 
 # Get medical LLM response (in English)
 # ... your medical LLM processing here ...
 
 # Translate response back to user's language
 english_response = "You can prevent malaria by using mosquito nets and taking antimalarial medication."
-user_response = translator.translate_from_english(english_response)
+user_response = translator.translate_from_english(english_response, tgt_lang=user_lang)
 ```
 
 ## 📊 Key Findings

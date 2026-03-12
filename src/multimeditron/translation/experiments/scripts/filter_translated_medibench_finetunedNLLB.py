@@ -13,10 +13,9 @@ Usage:
 
 import json
 import argparse
-import re
 from collections import Counter
 from tqdm import tqdm
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 
 # African language NLLB codes
