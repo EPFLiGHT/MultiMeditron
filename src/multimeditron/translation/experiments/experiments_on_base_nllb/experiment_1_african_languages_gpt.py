@@ -33,9 +33,7 @@ from openai import OpenAI
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from multimeditron.model.model import MultiModalModelForCausalLM
-from multimeditron.dataset.preprocessor.modality_preprocessor import ModalityRetriever
-from multimeditron.dataset.registry.fs_registry import FileSystemImageRegistry
+from multimeditron.model.model import MultiModalModelForCausalLM, ChatTemplate
 from multimeditron.model.data_loader import DataCollatorForMultimodal
 
 
@@ -405,8 +403,7 @@ def extract_translation(response: str, original_text: str) -> str:
     return response.strip()
 
 
-def translate_with_meditron(model, tokenizer, collator, modality_retriever, 
-                           text: str) -> str:
+def translate_with_meditron(model, tokenizer, collator, text: str) -> str:
     """Use Meditron to translate text to English."""
     if len(text) > 400:
         text = text[:400]
@@ -417,7 +414,6 @@ def translate_with_meditron(model, tokenizer, collator, modality_retriever,
     
     conversations = [{"role": "user", "content": prompt}]
     sample = {"conversations": conversations, "modalities": []}
-    sample = modality_retriever.merge_modality_with_sample(sample)
     batch = collator([sample])
     
     torch.cuda.empty_cache()
@@ -503,7 +499,6 @@ def run_experiment(args):
     tokenizer.pad_token = tokenizer.eos_token
     ATTACHMENT_TOKEN = "<|reserved_special_token_0|>"
     tokenizer.add_special_tokens({'additional_special_tokens': [ATTACHMENT_TOKEN]})
-    attachment_token_idx = tokenizer.convert_tokens_to_ids(ATTACHMENT_TOKEN)
     
     model = MultiModalModelForCausalLM.from_pretrained(
         "ClosedMeditron/Mulimeditron-Proj-CLIP-generalist",
@@ -520,17 +515,15 @@ def run_experiment(args):
         try:
             model.gradient_checkpointing_enable()
             print("   ✅ Gradient checkpointing enabled")
-        except:
-            pass
+        except Exception as exc:
+            print(f"   ⚠️ Could not enable gradient checkpointing: {exc}")
     
-    modality_retriever = ModalityRetriever(
-        registry=FileSystemImageRegistry(base_path=os.getcwd())
-    )
     collator = DataCollatorForMultimodal(
         tokenizer=tokenizer,
-        tokenizer_type="llama",
         modality_processors=model.processors(),
-        attachment_token_idx=attachment_token_idx,
+        modality_loaders={},
+        attachment_token=ATTACHMENT_TOKEN,
+        chat_template=ChatTemplate.from_name("llama"),
         add_generation_prompt=True
     )
     
@@ -575,8 +568,7 @@ def run_experiment(args):
                 evaluator.track_detection(true_nllb_code, detected_lang)
                 
                 meditron_translation = translate_with_meditron(
-                    model, tokenizer, collator, modality_retriever,
-                    source_text
+                    model, tokenizer, collator, source_text
                 )
                 
                 meditron_results.append({
@@ -620,7 +612,6 @@ def run_experiment(args):
     del model
     del tokenizer
     del collator
-    del modality_retriever
     torch.cuda.empty_cache()
     torch.cuda.synchronize()
     gc.collect()
