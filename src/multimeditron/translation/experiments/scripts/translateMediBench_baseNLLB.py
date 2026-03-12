@@ -70,6 +70,7 @@ class MediBenchTranslator:
             return self.translator.translate(text, src_lang=src_lang, tgt_lang=tgt_lang)
         except Exception as e:
             print(f"\n   [WARNING] Translation failed: {str(e)[:100]}")
+            self.stats['failed'] += 1
             return text
     
     def translate_sample(self, sample: dict) -> list:

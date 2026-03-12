@@ -8,7 +8,7 @@ Detects and removes:
 4. Empty fields
 
 Usage:
-    python filter_large_dataset.py --input large_dataset.json --output clean_dataset.json
+    python filter_translated_medibench_baseNLLB.py --input large_dataset.json --output clean_dataset.json
 """
 
 import json
@@ -61,7 +61,7 @@ def detect_translation_issues(text: str, min_length: int = 5) -> Tuple[bool, str
         if count / len(words) > 0.3:
             return False, f"word_{most_common_word}_repeated_{count}x_total"
     
-    # Check 4: Repeated phrases
+    # Check 3: Repeated phrases
     if len(text) > 50:
         for phrase_len in range(10, min(30, len(text) // 3)):
             phrase = text[:phrase_len]
@@ -71,12 +71,12 @@ def detect_translation_issues(text: str, min_length: int = 5) -> Tuple[bool, str
                 if repetition_ratio > 0.3:
                     return False, f"phrase_repeated_{count}x"
     
-    # Check 5: Abnormally long words (concatenation errors)
+    # Check 4: Abnormally long words (concatenation errors)
     max_word_len = max(len(w) for w in words) if words else 0
     if max_word_len > 60:
         return False, f"long_word_{max_word_len}chars"
     
-    # Check 6: Too much English (untranslated)
+    # Check 5: Too much English (untranslated)
     # Common English words that shouldn't appear in African languages
     english_indicators = [
         'the', 'and', 'is', 'are', 'of', 'to', 'in', 'for', 'a', 'with',
@@ -92,7 +92,7 @@ def detect_translation_issues(text: str, min_length: int = 5) -> Tuple[bool, str
         if english_ratio > 0.25:
             return False, f"untranslated_english_{english_ratio:.1%}"
     
-    # Check 7: Detect full English sentences (stronger check)
+    # Check 6: Detect full English sentences (stronger check)
     # Pattern: starts with capital letter and has many English words
     if text[0].isupper() and len(words) > 5:
         # Check if first 5 words are all English-like

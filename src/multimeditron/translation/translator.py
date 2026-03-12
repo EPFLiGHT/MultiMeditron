@@ -58,10 +58,11 @@ class NLLBTranslator:
 
         LOGGER.info("Loading NLLB model: %s", model_name)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name, torch_dtype=torch.float16, low_cpu_mem_usage=True)
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model.to(self.device)
+        self.model.eval()
 
         LOGGER.info("Loading fastText language detection model from %s", lang_detect_model)
         try:
@@ -148,6 +149,12 @@ class NLLBTranslator:
 
         try:
             forced_bos_token_id = self.tokenizer.convert_tokens_to_ids(tgt_lang)
+            if forced_bos_token_id == self.tokenizer.unk_token_id:
+                LOGGER.error(
+                    "Target language code '%s' is not supported by tokenizer. Returning original text.",
+                    tgt_lang,
+                )
+                return text
         except Exception as e:
             LOGGER.error("Failed to get token ID for %s: %s", tgt_lang, e)
             return text
