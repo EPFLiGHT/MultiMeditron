@@ -24,20 +24,24 @@ import logging
 import os
 import numpy as np
 import sys
+import pyarrow as pa
+from io import BytesIO
+
+# Add evaluation_pipeline to Python path so modules can import each other
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'evaluation_pipeline'))
+
 from dataclasses import dataclass, field
 from typing import List, Optional
 from plotly.io import show
-from Benchmark import Benchmark
+from evaluation_pipeline.Benchmark import Benchmark
 import optuna
 import torch
-from datasets import load_dataset, interleave_datasets
+from datasets import load_dataset, interleave_datasets, load_from_disk, Value
 from PIL import Image
 from torchvision.io import ImageReadMode, read_image
 from torchvision.transforms import CenterCrop, ConvertImageDtype, Normalize, Resize
 from torchvision.transforms.functional import InterpolationMode
 from multiprocessing import Pool
-from optuna.storages import JournalStorage
-from optuna.storages.journal import JournalFileBackend
 import os
 
 import transformers
@@ -231,7 +235,13 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
             config = config[list(config.keys())[0]]
         config = DatasetConfig(**config)
 
-        if config.dataset_name.endswith(".jsonl"): #path to a jsonl
+        if config.data_dir and (
+            os.path.exists(os.path.join(config.data_dir, "state.json")) or
+            os.path.exists(os.path.join(config.data_dir, "dataset_dict.json")) or
+            os.path.exists(os.path.join(config.data_dir, "train", "state.json"))
+        ):
+            dataset = load_from_disk(config.data_dir)
+        elif config.dataset_name.endswith(".jsonl"):  # path to a jsonl
             dataset = load_dataset(
                 "json",
                 config.dataset_config_name,
@@ -241,7 +251,7 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
                 token=model_args.token,
                 trust_remote_code=model_args.trust_remote_code,
                 data_files=config.dataset_name,
-                )
+            )
         else:
             dataset = load_dataset(
                 config.dataset_name,
@@ -254,19 +264,55 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
             )
         
         # For each dataset, assign the image column and caption column to standard names
-        if "train" in dataset:
+        train_split = dataset["train"] if "train" in dataset else dataset
+
+        if config.dataset_name.endswith(".jsonl"):
             def find_img_path(row):
-                return {config.caption_column: row[config.caption_column], config.image_column: os.path.join(os.path.dirname(config.dataset_name), row[config.image_column][0]["value"])}
+                return {
+                    config.caption_column: row[config.caption_column],
+                    config.image_column: os.path.join(
+                        os.path.dirname(config.dataset_name), row[config.image_column][0]["value"]
+                    ),
+                }
+            train_split = train_split.map(
+                find_img_path,
+                keep_in_memory=False,
+                load_from_cache_file=False,
+                cache_file_name=os.path.join(model_args.cache_dir, f"find_img_path_{config.data_dir.replace('/', '_')}.arrow") if model_args.cache_dir else None,
+            )
 
-            if config.dataset_name.endswith(".jsonl"):
-                dataset["train"] = dataset["train"].map(find_img_path)
+        def standardize_sample(row):
+            image_value = row[config.image_column]
 
-            dataset["train"] = dataset["train"].rename_column(config.image_column, "image_path").rename_column(config.caption_column, "caption")
-            dataset["train"] = dataset["train"].map(lambda x: {"caption": x["caption"].replace("<attachment>","")})
-        
+            # Some datasets store one image in a list (e.g. List(Image)); keep one image per row.
+            if isinstance(image_value, list):
+                image_value = image_value[0] if len(image_value) > 0 else None
+
+            # Some datasets store modality metadata as {type, value}; use the underlying path value.
+            if (
+                isinstance(image_value, dict)
+                and "type" in image_value
+                and "value" in image_value
+                and set(image_value.keys()) == {"type", "value"}
+            ):
+                image_value = image_value["value"]
+
+            return {
+                "image_path": image_value,
+                "caption": str(row[config.caption_column]).replace("<attachment>", ""),
+            }
+
+        train_split = train_split.map(
+            standardize_sample,
+            keep_in_memory=False,
+            load_from_cache_file=False,
+            cache_file_name=os.path.join(model_args.cache_dir, f"standardize_{config.data_dir.replace('/', '_')}.arrow") if model_args.cache_dir else None,
+        )
+        train_split = train_split.select_columns(["image_path", "caption"])
+
         # Repeat dataset according to epochs weight
         probabilities.append(config.weight)
-        datasets.append(dataset["train"])
+        datasets.append(train_split)
     
     # Normalize weights
     probabilities = np.array(probabilities)
@@ -315,6 +361,7 @@ def data_processing(config_path):
     training_args.dataloader_num_workers = 4
     training_args.logging_steps = 50
     training_args.fp16 = True
+    training_args.bf16 = False
     training_args.gradient_accumulation_steps = 2
     
     # 3. Detecting last checkpoint and eventually continue from last checkpoint
@@ -361,12 +408,13 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
             logger.info(f"Loading dual encoder with vision model {model_args.vision_model_name} "
                     f"and text model {model_args.text_model_name}")
 
+            # Force use_safetensors to avoid PyTorch security issue (CVE-2025-32434)
             model = VisionTextDualEncoderModel.from_vision_text_pretrained(
                 model_args.vision_model_name,
                 model_args.text_model_name,
                 cache_dir=model_args.cache_dir,
                 token=model_args.token,
-            ).to(dtype=torch.bfloat16)
+            )
                     
             tokenizer = AutoTokenizer.from_pretrained(
                 model_args.text_model_name,
@@ -429,15 +477,34 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
         examples["attention_mask"] = text_inputs.attention_mask
         return examples
 
+    def load_image_any(image_obj):
+        """Load an image from a file path, bytes payload, or in-memory image object."""
+        if image_obj is None:
+            raise ValueError("image is None")
+
+        if isinstance(image_obj, str):
+            with Image.open(image_obj) as img:
+                return img.convert("RGB")
+
+        if isinstance(image_obj, dict):
+            if image_obj.get("bytes") is not None:
+                with Image.open(BytesIO(image_obj["bytes"])) as img:
+                    return img.convert("RGB")
+            if image_obj.get("path"):
+                with Image.open(image_obj["path"]) as img:
+                    return img.convert("RGB")
+            raise ValueError("dict image payload has neither bytes nor path")
+
+        if isinstance(image_obj, Image.Image):
+            return image_obj.convert("RGB")
+
+        raise TypeError(f"Unsupported image type: {type(image_obj)}")
+
     def transform_images(examples):
         images = []
-        for image_file in examples[image_column]:
-            if isinstance(image_file, str):
-                # If it's a file path
-                image = read_image(image_file, mode=ImageReadMode.RGB)
-            else:
-                # If it's already a PIL Image
-                image = torch.from_numpy(np.array(image_file)).permute(2, 0, 1)
+        for image_obj in examples[image_column]:
+            pil_image = load_image_any(image_obj)
+            image = torch.from_numpy(np.array(pil_image)).permute(2, 0, 1)
         
             images.append(image)
         
@@ -447,16 +514,13 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
     def filter_corrupt_images(examples):
         """remove problematic images"""
         valid_images = []
-        for image_file in examples[image_column]:
-            if isinstance(image_file, str):
-                try:
-                    Image.open(image_file)
-                    valid_images.append(True)
-                except Exception as e:
-                    logger.warning(f"Corrupt image found: {image_file}, Error: {str(e)}")
-                    valid_images.append(False)
-            else: # already loaded image
+        for image_obj in examples[image_column]:
+            try:
+                load_image_any(image_obj)
                 valid_images.append(True)
+            except Exception as e:
+                logger.warning(f"Corrupt image found: {str(image_obj)[:300]}, Error: {str(e)}")
+                valid_images.append(False)
         return valid_images
 
     if training_args.do_train:
@@ -472,6 +536,11 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
             filter_corrupt_images, batched=True, num_proc=data_args.preprocessing_num_workers
         )
         logger.info(f"Dataset length without corrupt images: {len(train_dataset)}")
+        if len(train_dataset) == 0:
+            raise ValueError(
+                "All training samples were filtered out as invalid images. "
+                "Check image mounts/paths and dict bytes/path payload handling."
+            )
 
         train_dataset = train_dataset.map(
             function=tokenize_captions,
@@ -507,8 +576,6 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
         eval_dataset=test_dataset if training_args.do_eval else None,
         data_collator=collate_fn,
     )
-    training_args.fp16 = False
-    training_args.bf16 = False
 
     # 9. Training
     if training_args.do_train:
@@ -521,8 +588,8 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
         try:
             train_result = trainer.train(resume_from_checkpoint=checkpoint)
         except RuntimeError as e:
-            print("error", e)
-            train_result = None
+            logger.exception("Training failed")
+            raise
         
         trainer.save_model()
         tokenizer.save_pretrained(training_args.output_dir)
@@ -563,6 +630,8 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
 
     trainer.create_model_card(**kwargs)
     #returns the training value
+    if train_result is None:
+        raise RuntimeError("Training failed before producing metrics")
     return train_result.metrics["train_loss"], model
 
 def objective(trial, bench_list, config_path):
@@ -602,7 +671,6 @@ def objective(trial, bench_list, config_path):
     wandb.finish()
     return res
 
-
 def merge_studies(study_list):
     merged_study = []
 
@@ -634,3 +702,20 @@ def plot_study(study):
     fig = optuna.visualization.plot_param_importances(study)
     fig.write_html("plot_param_importance.html")
     print("studes ploted")
+
+if __name__ == "__main__":
+    import argparse
+    from evaluation_pipeline.ultrasound_new_benchmark import Anatomical_benchmark
+    from evaluation_pipeline.xray_eval import XRay_benchmark
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config_file", type=str, required=True)
+    args = parser.parse_args()
+    
+    bench_list = [
+    Anatomical_benchmark(),
+    XRay_benchmark(is_lion_model=False),
+    ]
+    
+    study = train(bench_list, args.config_file)
+    plot_study(study)

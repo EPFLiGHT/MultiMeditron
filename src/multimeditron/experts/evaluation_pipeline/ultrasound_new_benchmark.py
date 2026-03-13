@@ -34,7 +34,10 @@ def load_dataset(path : str, label: int, image_path: str, model):
             Y_train.append(label)
 
             correct_line = json.loads(f) 
-            new_path = image_path + correct_line["modalities"][0]['value']
+            image_value = correct_line["modalities"][0]["value"]
+            if isinstance(image_value, str) and image_value.startswith("/mloscratch/"):
+                image_value = image_value.replace("/mloscratch/", "/lightscratch/", 1)
+            new_path = image_path + image_value
 
             X_train.append(encode_img(model, new_path))
     return (torch.stack(X_train), torch.tensor(Y_train))
@@ -44,7 +47,7 @@ def load_dataset(path : str, label: int, image_path: str, model):
 class BodyPartsDataset(Dataset):
     
     def __init__(self, model, model_name, load, path):
-        path = "/mloscratch/users/deschryv/clipFineTune/ultrasound_evaluation/"
+        path = "/lightscratch/users/deschryv/clipFineTune/ultrasound_evaluation/"
         if not load:
             BUSI = (load_dataset(path+"classifier-breast-radiopedia-final_train.jsonl", BREAST, "", model))
             CAMUS = (load_dataset(path+"classifier-heart-radiopedia-final_train.jsonl", OTHER, "", model))
@@ -59,7 +62,7 @@ class BodyPartsDataset(Dataset):
             torch.save(self.labels, "data_lab_" + model_name + ".pt")
         else:
             self.data = torch.load(path + "/data_embl_"+ model_name +".pt")
-            self.labels = torch.load(path + "/data_embl_"+ model_name + ".pt")
+            self.labels = torch.load(path + "/data_lab_"+ model_name + ".pt")
     
     def __len__(self):
         return len(self.data)
@@ -72,7 +75,7 @@ class BodyPartsDataset(Dataset):
 class BodyPartsDatasetTEST(Dataset):
     
     def __init__(self, model, model_name, load, save_path):
-        path = "/mloscratch/users/deschryv/clipFineTune/ultrasound_evaluation/"
+        path = "/lightscratch/users/deschryv/clipFineTune/ultrasound_evaluation/"
         if not load:
             BUSI = (load_dataset(path+"classifier-breast-radiopedia-final_test.jsonl", BREAST, "", model))
             CAMUS = (load_dataset(path+"classifier-heart-radiopedia-final_test.jsonl", OTHER, "", model))
@@ -104,10 +107,10 @@ def evaluate_pipeline(model, model_name):
     device = "cuda"
     model = model.to(device)
     print("beginnig of the evaluation")
-    train_dataset = BodyPartsDataset(model, model_name, False, "/mloscratch/users/deschryv/clipFineTune/embeddings")
+    train_dataset = BodyPartsDataset(model, model_name, False, "/lightscratch/users/cljordan/multimeditron/src/multimeditron/experts/embeddings")
     print("traning dataset loaded")
     data_loader = DataLoader(dataset=train_dataset, batch_size=512)
-    test_dataset = BodyPartsDatasetTEST(model, model_name, False, "/mloscratch/users/deschryv/clipFineTune/embeddings")
+    test_dataset = BodyPartsDatasetTEST(model, model_name, False, "/lightscratch/users/cljordan/multimeditron/src/multimeditron/experts/embeddings")
     print("test dataset loaded")
     print("start of the mlp evaluation")
     labelsWEIGHT = np.array(train_dataset.labels)

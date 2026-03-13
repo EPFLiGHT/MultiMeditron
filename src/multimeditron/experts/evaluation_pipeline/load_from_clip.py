@@ -85,22 +85,26 @@ def encode_img(model: VisionTextDualEncoderModel, img_path: str) -> torch.Tensor
     Returns the tensor of the embedding of the image.
     """
     
-    if not isinstance(model, CustomTextCLIP):
-        pixel_values = torch.stack([img_transform(img_path)])
+    device = next(model.parameters()).device
 
-        with torch.no_grad():
-            image_embed = model.get_image_features(pixel_values)
-    else:
-        preprocess = biomed_processor[0]
-        if preprocess is None:
-            raise RuntimeError("Did not load the preprocessor of biomedclip. Please run first `load_model('biomedclip')`")
+    with torch.no_grad():
+        if isinstance(model, CustomTextCLIP):
+            preprocess = biomed_processor[0]
+            if preprocess is None:
+                raise RuntimeError("Did not load the preprocessor of biomedclip. Please run first `load_model('biomedclip')`")
+            images = torch.stack([preprocess(Image.open(img_path))]).to(device)
+            image_embed = model.encode_image(images)
+        elif isinstance(model, VisionTextDualEncoderModel):
+            pixel_values = torch.stack([img_transform(img_path)]).to(device)
+            vision_outputs = model.vision_model(pixel_values=pixel_values, return_dict=True)
+            pooled = vision_outputs.pooler_output
+            if pooled is None:
+                raise RuntimeError("vision_model returned no pooler_output")
+            image_embed = model.visual_projection(pooled)
         else:
-            images = torch.stack([preprocess(Image.open(img_path))])
+            raise TypeError(f"Unsupported model type for encode_img: {type(model)}")
 
-            with torch.no_grad():
-                image_embed = model.encode_image(images)
-
-    image_embed /= image_embed.norm(dim=-1, keepdim=True)
+    image_embed = image_embed / image_embed.norm(dim=-1, keepdim=True).clamp_min(1e-12)
     return image_embed[0]
 
 def preprocess_dataset(data_lines: List[Dict], dataset_path: str) -> List[torch.Tensor]:
