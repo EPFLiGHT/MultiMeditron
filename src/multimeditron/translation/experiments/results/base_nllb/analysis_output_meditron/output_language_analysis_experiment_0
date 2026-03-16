@@ -1,0 +1,5523 @@
+{
+  "experiment": "Meditron Output Language Analysis - High Resource Languages (v2)",
+  "description": "Native Meditron evaluation with IMPROVED language detection (min 10 chars)",
+  "model": "ClosedMeditron/Mulimeditron-Proj-CLIP-generalist",
+  "min_chars_for_detection": 10,
+  "languages": [
+    "ru",
+    "zh",
+    "fr",
+    "es",
+    "ja"
+  ],
+  "statistics": {
+    "accuracy": {
+      "overall_accuracy": 59.0,
+      "total": 200,
+      "correct": 118,
+      "by_input_language": {
+        "ru": {
+          "accuracy": 52.5,
+          "language_name": "Russian",
+          "total": 40,
+          "correct": 21
+        },
+        "zh": {
+          "accuracy": 87.5,
+          "language_name": "Chinese",
+          "total": 40,
+          "correct": 35
+        },
+        "fr": {
+          "accuracy": 37.5,
+          "language_name": "French",
+          "total": 40,
+          "correct": 15
+        },
+        "es": {
+          "accuracy": 67.5,
+          "language_name": "Spanish",
+          "total": 40,
+          "correct": 27
+        },
+        "ja": {
+          "accuracy": 50.0,
+          "language_name": "Japanese",
+          "total": 40,
+          "correct": 20
+        }
+      }
+    },
+    "response_length_summary": {
+      "short_responses": 134,
+      "long_responses": 66,
+      "short_pct": 67.0,
+      "long_pct": 33.0
+    },
+    "output_language_analysis": {
+      "note": "Language detection only performed on responses >= 10 characters",
+      "overall_output_language_distribution": {
+        "rus_Cyrl": 1,
+        "fra_Latn": 30,
+        "spa_Latn": 21,
+        "ast_Latn": 1,
+        "jpn_Jpan": 9,
+        "bod_Tibt": 1,
+        "vie_Latn": 1,
+        "eng_Latn": 1,
+        "deu_Latn": 1
+      },
+      "overall_output_language_pct": {
+        "rus_Cyrl": 1.5,
+        "fra_Latn": 45.5,
+        "spa_Latn": 31.8,
+        "ast_Latn": 1.5,
+        "jpn_Jpan": 13.6,
+        "bod_Tibt": 1.5,
+        "vie_Latn": 1.5,
+        "eng_Latn": 1.5,
+        "deu_Latn": 1.5
+      },
+      "by_input_language": {
+        "ru": {
+          "language_name": "Russian",
+          "total_samples": 40,
+          "long_responses": 1,
+          "short_responses": 39,
+          "output_language_distribution": {
+            "rus_Cyrl": 1
+          },
+          "matches_input_lang_pct": 100.0,
+          "responds_in_english_pct": 0.0,
+          "examples": [
+            {
+              "question_preview": "В клиническом исследовании барицитиниба и неживых вакцин участвовали пациенты с пневмококковым бронх...",
+              "raw_output": "Я не могу найти информации о клиническом исследовании барицитиниба и неживых вакцин, в котором участвовали пациенты с пневмококковым бронхитом.",
+              "output_length": 143,
+              "detected_output_lang": "rus_Cyrl",
+              "confidence": 0.9936734437942505
+            }
+          ]
+        },
+        "zh": {
+          "language_name": "Chinese",
+          "total_samples": 40,
+          "long_responses": 0,
+          "short_responses": 40,
+          "output_language_distribution": {},
+          "matches_input_lang_pct": 0,
+          "responds_in_english_pct": 0,
+          "examples": []
+        },
+        "fr": {
+          "language_name": "French",
+          "total_samples": 40,
+          "long_responses": 30,
+          "short_responses": 10,
+          "output_language_distribution": {
+            "fra_Latn": 30
+          },
+          "matches_input_lang_pct": 100.0,
+          "responds_in_english_pct": 0.0,
+          "examples": [
+            {
+              "question_preview": "Concernant les différents types d’anticorps monoclonaux, lequel (lesquels) de ces suffixes n’est (n...",
+              "raw_output": "La bonne réponse est : D. Momab",
+              "output_length": 31,
+              "detected_output_lang": "fra_Latn",
+              "confidence": 0.9838208556175232
+            },
+            {
+              "question_preview": "Parmi les protéines suivantes, laquelle est la plus spécifique de la réaction inflammatoire ?...",
+              "raw_output": "La bonne réponse est D. La protéine C réactive (CRP).\n\nLa protéine C réactive (CRP) est une protéine d'origine hépatique qui est sécrétée en réponse à l'inflammation. Elle est considérée comme l'une des prot",
+              "output_length": 207,
+              "detected_output_lang": "fra_Latn",
+              "confidence": 0.9997566342353821
+            },
+            {
+              "question_preview": "Cocher la (les) proposition(s) exacte(s) concernant l'osmolarité et l'osmolalité ?...",
+              "raw_output": "La bonne réponse est : A.\n\nL'osmolarité est bien le nombre d'osmoles par litre de solution.",
+              "output_length": 91,
+              "detected_output_lang": "fra_Latn",
+              "confidence": 0.9990214109420776
+            }
+          ]
+        },
+        "es": {
+          "language_name": "Spanish",
+          "total_samples": 40,
+          "long_responses": 22,
+          "short_responses": 18,
+          "output_language_distribution": {
+            "spa_Latn": 21,
+            "ast_Latn": 1
+          },
+          "matches_input_lang_pct": 95.5,
+          "responds_in_english_pct": 0.0,
+          "examples": [
+            {
+              "question_preview": "Qué enunciado referente al tratamiento sustitutivo con L-tiroxina en un paciente con hipotiroidismo ...",
+              "raw_output": "La respuesta correcta es D.",
+              "output_length": 27,
+              "detected_output_lang": "spa_Latn",
+              "confidence": 0.9728121161460876
+            },
+            {
+              "question_preview": "¿Con qué ámbito está relacionada la Teoría de la Puerta de Melzack y Wall?:...",
+              "raw_output": "La respuesta correcta es: D. Dolor.",
+              "output_length": 35,
+              "detected_output_lang": "spa_Latn",
+              "confidence": 0.7185354828834534
+            },
+            {
+              "question_preview": "En relación a la toxoplasmosis y el embarazo, indique cuál de las siguientes opciones es cierta:...",
+              "raw_output": "La respuesta correcta es A.",
+              "output_length": 27,
+              "detected_output_lang": "spa_Latn",
+              "confidence": 0.983170211315155
+            }
+          ]
+        },
+        "ja": {
+          "language_name": "Japanese",
+          "total_samples": 40,
+          "long_responses": 13,
+          "short_responses": 27,
+          "output_language_distribution": {
+            "jpn_Jpan": 9,
+            "bod_Tibt": 1,
+            "vie_Latn": 1,
+            "eng_Latn": 1,
+            "deu_Latn": 1
+          },
+          "matches_input_lang_pct": 69.2,
+          "responds_in_english_pct": 7.7,
+          "examples": [
+            {
+              "question_preview": "82歳の女性。肺炎球菌性髄膜炎のため入院中である。意識障害が遷延しているため、経鼻胃管による経管栄養を開始することになった。意識レベルはJCS I-3からII-10で経過している。体温36.8℃。脈拍...",
+              "raw_output": "A. \n\n経鼻胃管の挿入は、患者を左側臥位にする必要があるため、誤りです。左側臥位にすることで、胃内容物が胃に戻るのを助け、気管と食道の間の気泡を",
+              "output_length": 73,
+              "detected_output_lang": "jpn_Jpan",
+              "confidence": 0.9205224514007568
+            },
+            {
+              "question_preview": "66歳の女性。労作時の前胸部不快感を主訴に来院した。10年前から高血圧症、糖尿病で定期的に通院加療を受けている。2か月前から、朝6時ごろのゴミ出しの時に胸部不快感を自覚することが数回あったため来院した...",
+              "raw_output": "E. 運動負荷タリウム心筋シンチグラフィ\n\nこの検査は、運動負荷下における心筋の血流を評価することができるため、心筋虚血の有無を評価するのに適している。",
+              "output_length": 76,
+              "detected_output_lang": "jpn_Jpan",
+              "confidence": 0.9993701577186584
+            },
+            {
+              "question_preview": "安静による改善が乏しい背部痛をきたすのはどれか。2つ選べ。...",
+              "raw_output": "E. 腰椎椎間板ヘルニア",
+              "output_length": 12,
+              "detected_output_lang": "bod_Tibt",
+              "confidence": 0.23977379500865936
+            }
+          ]
+        }
+      }
+    },
+    "skipped": {}
+  },
+  "detailed_results": [
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Бисопролол, являясь бета-адреноблокатором, снижает активность ренина в плазме крови?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "UNKNOWN",
+      "is_correct": false,
+      "raw_output": "А. да",
+      "output_length": 5,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 5
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "При полном гидролизе пуриновых оснований образуются нуклеиновые кислоты?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "В анатомии выделяют две группы тканей?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Месалазин можно использовать для профилактики рецидива воспалительных заболеваний кишечника?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Кверцетин-глюкуронид и изокверцетин увеличивают проницаемость сосудов?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Возможно ли заболеть ящуром съев правильно обработанное мясо здоровго животного?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Распространненость сыпного тифа в странах связана с их развитостью?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Клетки мозгового вещества надпочечников вырабатывают адреналин и норадреналин?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Лекарство вызывает сокращение матки?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Потуги легко управляемы?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Фиброзный слой состоит из коллагеновых пучков?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Билобил интенс 120 способствует утилизации глюкозы?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Лерканидипин кратковременно расслабляет гладкие мышцы сосудов, тем самым на время снижая общее переферическое сосудистое сопротивление?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Гимекромон обладает желчегонными свойствами?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Тизанидин обладает сильно выраженным обезболивающим эффектом?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Диагностирован язык с отпечатками зубов?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Маннитол вызывает перемещение жидкости из сосудистого русла в ткани организма?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Болезнь Вильсона Коновалова связана с враженной гиперпродукцией церуллоплазмина?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Могут ли клетки, сохранившие жизнеспособность, играть значимую роль в патологических процессах при лучевом поражении организма?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Гликозилирование белка происходит в комплексе Гольджи?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "При данном заболевании обязательно полностью отказаться от любых молочных продуктов?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Заболевание связано с затруднённым прохождением крови между малым и большим кругами кровообращения?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Антибиотики могут быть причиной развития дисбактериоза?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Объектом исследования явилась изотопическая оссификация легких?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Монтелукаст выпускается в лекарственных формах для перорального приема и для ингаляций?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "В таком обществе считается, что люди в возрасте 65 лет и старше считаются пожилыми?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Ушная раковина служит для очистки поступающего воздуха от частичек пыли?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Сахарный и несахарный диабет это одно и то же?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Дуоденит это только хроническое заболевание?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Октреотид уменьшает выделение гормона роста?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Дроспиренон это препарат с андрогенной активностью?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Диферелин при длительном приеме повышает концентрацию ЛГ и ФСГ в крови, и соответственно тестостерона и эстрадиола?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Болезнь протекает в лёгкой форме?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "В седалищной кости можно выделить 2 ветви?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Заболевание может быть только врождённым?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "В клиническом исследовании барицитиниба и неживых вакцин участвовали пациенты с пневмококковым бронхитом?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "UNKNOWN",
+      "is_correct": false,
+      "raw_output": "Я не могу найти информации о клиническом исследовании барицитиниба и неживых вакцин, в котором участвовали пациенты с пневмококковым бронхитом.",
+      "output_length": 143,
+      "output_language": {
+        "detected_lang": "rus_Cyrl",
+        "confidence": 0.9936734437942505,
+        "top_3": [
+          {
+            "lang": "rus_Cyrl",
+            "confidence": 0.9936734437942505
+          },
+          {
+            "lang": "ukr_Cyrl",
+            "confidence": 0.002791798673570156
+          },
+          {
+            "lang": "bak_Cyrl",
+            "confidence": 0.0011103366268798709
+          }
+        ],
+        "text_length": 143
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Меркаптопурин обладает цитостатическим действием?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Сила тяги мышцы зависит от количества мышечных волокон?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Пубертатный период проходит у всех людей?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ru",
+      "input_lang_name": "Russian",
+      "question": "Расположение костей в скелете подчиняется универсальным правилам?",
+      "options": [
+        "да",
+        "нет"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "男，6岁，身高85cm，智能落后，只能数1～10。体检：皮肤粗糙，眼睑水肿，眼距宽，鼻梁扁平，牙列不齐，常舌伸口外，流涎，毛发黄，发际低，骨龄摄片示腕部骨化中心4个。1．为确诊，应选择下列哪项检查？（　　）",
+      "options": [
+        "尿三氯化铁试验",
+        "T3、T4、TSH测定",
+        "尿黏多糖分析",
+        "血生长激素测定"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "在真核生物中，经RNA聚合酶Ⅱ催化产生的转录产物为（　　）。",
+      "options": [
+        "mRNA",
+        "tRNA",
+        "28SrRNA",
+        "18SrRNA"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "12岁患儿，因高度浮肿，大量蛋白尿，于外院诊断为原发性肾病综合征，经用泼尼松60mg/d，治疗8周，现尿蛋白（+++～++++），尿红细胞50个/HP，血清补体C3正常，肾功能正常。1．可能的诊断是（　　）。",
+      "options": [
+        "先天性肾病综合征",
+        "单纯型肾病综合征",
+        "肾炎型肾病综合征",
+        "IgA肾病"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "2．经抢救意识逐渐恢复，此时的医患关系模式属于（　　）。",
+      "options": [
+        "主动被动型",
+        "指导合作型",
+        "患者至上型",
+        "互惠型"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "男性，40岁，因发热，便秘，食欲不振12天入院，查体：肝大，肋下1cm，软，脾肋下及边，血常规WBC 2.7×109/L，中性粒细胞52%，淋巴细胞44%，血清ALT 120U/L，肥达反应：“O”1:160，“H”1:160。1．该患者最可能的诊断是（　　）。",
+      "options": [
+        "伤寒",
+        "急性白血病",
+        "败血症",
+        "恶性组织细胞病"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "5个月小儿，发热2天，体温38.2℃，口周发绀，咳嗽，喘憋，前囟平软，心率128次/分，满肺喘鸣音，背部有固定的湿啰音；胸部X线呈现小片阴影及肺气肿改变。3．不正确的治疗是（　　）。",
+      "options": [
+        "应用肾上腺糖皮质激素",
+        "抗病毒治疗",
+        "抗生素的应用",
+        "支气管解痉剂"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "3．抗病毒感染（　　）。",
+      "options": [
+        "Ab阻断、中和作用",
+        "调理作用",
+        "ADCC",
+        "引起变态反应"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "关于用力呼吸的描述，不正确的是（　　）。",
+      "options": [
+        "呼气时腹壁肌收缩",
+        "吸气时膈肌收缩",
+        "呼气时肋间内肌收缩",
+        "呼气时肋间外肌收缩"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "男，61岁。间断上腹疼痛3年，疼痛发作与情绪、饮食有关。查体：上腹部轻压痛。胃镜：胃窦皱襞平坦，黏膜粗糙无光泽，黏膜下血管透见。此病例考虑诊断为（　　）。",
+      "options": [
+        "急性胃炎",
+        "慢性浅表性胃炎",
+        "胃癌",
+        "慢性萎缩性胃炎"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "内脏疾病常引起体表某部位发生疼痛或痛觉过敏，称牵涉痛。其机制是因为患病内脏与发生牵涉痛的皮肤部位（　　）。",
+      "options": [
+        "位于躯体的同一纵切面上",
+        "位于躯体的同一冠状切面上",
+        "受同一脊髓节段的后根传入神经支配",
+        "受同一脊髓节段的前根神经支配"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "4．能引起霍乱样腹泻且不耐热的致病物质是（　　）。",
+      "options": [
+        "LT(不耐热肠毒素)",
+        "ST(耐热肠毒素)",
+        "SLT(志贺样毒素)",
+        "CFA(定居因子)"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "抗风湿治疗，选用肾上腺皮质激素的指征是（　　）。",
+      "options": [
+        "心脏炎",
+        "多发性关节炎",
+        "舞蹈病",
+        "环形红斑"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "1．病人对医务人员出现攻击性行为属于（　　）。",
+      "options": [
+        "病人角色强化",
+        "病人角色异常",
+        "病人角色冲突",
+        "病人角色缺如"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "下列哪项是激活的Tc使靶细胞裂解的主要因素?（　　）",
+      "options": [
+        "颗粒酶",
+        "穿孔蛋白",
+        "γ-IFN",
+        "Fas配体"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "男性，35岁，发热伴皮肤出血2周。查体：贫血貌，肝脾均为肋下1～2cm，胸骨压痛，血红蛋白70g/L，白细胞14×109/L，血小板12×109/L，不需做的检查是（　　）。",
+      "options": [
+        "骨髓穿刺",
+        "组化染色",
+        "免疫分型",
+        "血小板抗体"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "大叶性肺炎属于以下哪一种炎症？（　　）",
+      "options": [
+        "浆液性炎",
+        "纤维素性炎",
+        "出血性炎",
+        "化脓性炎"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "初产妇，26岁。宫口开全1小时40分，先露＋1，枕右后位，宫缩由强转弱50分钟，宫缩间隔由2分钟延长为6～8分钟。本例最可能的原因是（　　）。",
+      "options": [
+        "骨盆入口狭窄",
+        "产妇乏力、肠胀气",
+        "原发性子宫收缩乏力",
+        "中骨盆狭窄"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "C.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "2．搏出量占心室舒张末期容积的百分比称为（　　）。",
+      "options": [
+        "搏出量",
+        "搏功",
+        "射血分数",
+        "心输出量"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "3．既阻断α1又阻断α2受体的为（　　）。",
+      "options": [
+        "普萘洛尔",
+        "阿托品",
+        "酚妥拉明",
+        "美托洛尔"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "女，33岁。右下腹痛、便秘1年。X线钡剂灌肠检查发现回肠末端及升结肠起始部纵行溃疡及鹅卵石征，病变呈节段性，PPD试验阴性。最可能的诊断是（　　）。",
+      "options": [
+        "肠结核",
+        "阿米巴病",
+        "溃疡性结肠炎",
+        "克罗恩病"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "女，48岁。接触性出血3个月。妇科检查：宫颈呈糜烂状，宫体大小正常，活动好，双侧附件区无异常，三合诊（－）。阴道镜下活检病理示鳞状细胞癌，间质浸润深度6mm。1．该患者的临床分期应是（　　）。",
+      "options": [
+        "ⅠB1期",
+        "ⅠA2期",
+        "ⅠB2期",
+        "ⅠA1期"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "几乎所有SLE病人免疫病理检查均可出现病变的脏器是（　　）。",
+      "options": [
+        "肾",
+        "心脏",
+        "肝",
+        "胰腺"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "下列关于精神疾病诊断标准的描述，不正确的是（　　）。",
+      "options": [
+        "内涵标准包括症状学指标、病情严重程度指标、功能损害指标、病期指标、特定亚型指征、病因学指标等",
+        "内涵标准中以病因学指标为最基本",
+        "是将不同疾病的症状表现按照不同的组合形式，以条理化形式列出的一种标准化的条目",
+        "诊断标准的制定是精神医学的一个重大进展"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "某青年，股骨下端肿瘤，切面灰白色，鱼肉状，镜下见多边形肉瘤细胞，异型性明显，见肿瘤性骨组织，X线检查有日光放射状阴影，可诊为（　　）。",
+      "options": [
+        "骨瘤",
+        "骨肉瘤",
+        "软骨肉瘤",
+        "尤文氏瘤"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "女性，30岁，在家属陪同下首次来门诊看病，精神检查发现有妄想症状。3．如果诊断是精神分裂症，除去妄想以外，还可能伴随的其他症状有（　　）。",
+      "options": [
+        "意识障碍",
+        "智能障碍",
+        "情感脆弱",
+        "感知觉障碍"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "动物实验显示，口服葡萄糖比静脉注射相同剂量葡萄糖引起的胰岛素分泌更多，这是因为口服可引起下列哪种具有很强的刺激胰岛素分泌的胃肠激素释放（　　）。",
+      "options": [
+        "胆囊收缩素",
+        "抑胃肽",
+        "促胃液素",
+        "胰高血糖素"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "男，42岁。间断水肿2年，乏力2个月。查体：BP 155／100mmHg，心肺腹未见异常，下肢凹陷性水肿，实验室检查：尿RBC 20～25/HP，为异形红细胞，尿蛋白定量1.9g/d，血Hb 98g/L，Scr 202μmol／L，B超示双肾稍萎缩。最可能的诊断是（　　）。",
+      "options": [
+        "肾病综合症",
+        "IgA肾病",
+        "慢性间质性肾炎",
+        "慢性肾小球肾炎"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "下列关于上皮肿瘤的描述哪项错误？（　　）",
+      "options": [
+        "外耳、阴茎处乳头状瘤不易发生恶变",
+        "乳腺腺上皮增生，形成纤维腺瘤，是良性肿瘤",
+        "结肠多发性腺瘤，表面呈乳头状、绒毛状者恶变率高",
+        "乳头状瘤，表面呈外生性生长，形成乳头状、菜花状"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "2．急性蜂窝组织炎的主要致病菌是（　　）。",
+      "options": [
+        "金黄色葡萄球菌",
+        "溶血性链球菌",
+        "铜绿假单胞菌",
+        "破伤风杆菌"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "关于股骨颈骨折Garden分型错误的是（　　）。",
+      "options": [
+        "Ⅰ型，不完全骨折",
+        "Ⅱ型，完全骨折无移位",
+        "Ⅳ型，完全骨折完全移位",
+        "Ⅴ型，骨折脱位"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "2．鉴别l型或2型糖尿病最常用的指标是（　　）。",
+      "options": [
+        "尿糖",
+        "胰岛素释放试验",
+        "葡萄糖耐量试验",
+        "糖化血红蛋白"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "随月经周期疼痛的乳腺肿块最可能是（　　）。",
+      "options": [
+        "乳腺癌",
+        "乳房囊性增生病",
+        "乳腺纤维腺瘤",
+        "乳房脂肪坏死"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "男，37岁。右下胸部撞伤6小时，伤后感上腹部疼痛，头晕，查体：血压90/70mmHg，心率110次/分，面色苍白，右腹部压痛、反跳痛、肌紧张较明显。X线透视示肝阴影扩大、右膈抬高。首先应考虑的诊断是（　　）。",
+      "options": [
+        "外伤性血气胸",
+        "肝破裂",
+        "右肾破裂",
+        "结肠肝曲破裂"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "脊髓灰质炎病毒的致病特点不包括（　　）。",
+      "options": [
+        "粪-口途径传播",
+        "5岁以下幼儿易感",
+        "易侵入中枢神经系统引起肢体痉挛性瘫痪",
+        "多为隐性感染"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "男性，16岁，发热、贫血、出血，肝、脾肿大，全血细胞减少，骨髓原始细胞占90%，POX（－），非特异性酯酶（－），应诊断为（　　）。",
+      "options": [
+        "急性淋巴细胞白血病",
+        "急性粒细胞白血病M3型",
+        "慢性粒细胞白血病",
+        "淋巴瘤"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "男，25岁，背部刀伤，伤口流血2h，体查：神志尚清楚，诉口渴，皮肤苍白，稍冷，脉搏110/min，血压12/9.33kPA（90/70mmHg），脉压小，表浅静脉塌陷，尿少。2．估计此病人失血量约占全身血容量的多少？（　　）",
+      "options": [
+        "＜20%",
+        "20%～40%",
+        "40%左右",
+        "50%左右"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "痛风症是因为血中某种物质在关节、软组织处沉积，其成分为？（　　）",
+      "options": [
+        "尿酸",
+        "黄嘌呤",
+        "尿素",
+        "次黄嘌呤"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "个体在试图逃避某种威胁情境时，或在明确预知某种危险即将发生而又无法应对时，会产生的基本情绪是（　　）。",
+      "options": [
+        "悲哀",
+        "恐惧",
+        "焦虑",
+        "愤怒"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B. 恐惧",
+      "output_length": 5,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 5
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "男性，60岁，突然视物双影，口角歪斜，右侧肢体活动不灵1周来诊。查体：左眼内斜视，左眼闭合不全，口角右偏，伸舌右偏，右侧肢体肌力2级，右Babinski征（+）。诊断最可能是（　　）。",
+      "options": [
+        "Jackson综合征",
+        "Weber综合征",
+        "Foville综合征",
+        "Millard-Gubler综合征"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zh",
+      "input_lang_name": "Chinese",
+      "question": "我国西南某城市数年前发生一次天然气井喷事故，事故导致周围居民死伤数十人，并严重影响周围居民居住，不少居民搬迁。该事件属于（　　）。",
+      "options": [
+        "突然发生并严重损害公众健康",
+        "属于可控事件",
+        "属于人为事故",
+        "属于不可预料事故"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Concernant les différents types d’anticorps monoclonaux, lequel (lesquels) de ces suffixes n’est (ne sont) pas utilisé(s) ?",
+      "options": [
+        "Ximab",
+        "Zumab",
+        "Mumab",
+        "Momab",
+        "Damab"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est : D. Momab",
+      "output_length": 31,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9838208556175232,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9838208556175232
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 0.009722581133246422
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.002390890382230282
+          }
+        ],
+        "text_length": 31
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les protéines suivantes, laquelle est la plus spécifique de la réaction inflammatoire ?",
+      "options": [
+        "L'orosomucoïde",
+        "La transcortine",
+        "La transferrine",
+        "La protéine C réactive (CRP)",
+        "L'alpha2 macroglobuline"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "La bonne réponse est D. La protéine C réactive (CRP).\n\nLa protéine C réactive (CRP) est une protéine d'origine hépatique qui est sécrétée en réponse à l'inflammation. Elle est considérée comme l'une des prot",
+      "output_length": 207,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9997566342353821,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9997566342353821
+          },
+          {
+            "lang": "ltz_Latn",
+            "confidence": 5.568003689404577e-05
+          },
+          {
+            "lang": "oci_Latn",
+            "confidence": 5.081012568552978e-05
+          }
+        ],
+        "text_length": 207
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Cocher la (les) proposition(s) exacte(s) concernant l'osmolarité et l'osmolalité ?",
+      "options": [
+        "L'osmolarité est le nombre d'osmoles par litre de solution",
+        "L'osmolalité est le nombre d'osmoles par kilogramme de solvant",
+        "Dans le plasma, les protéines représentant environ 7% du volume total, l'osmolalité est égale à l'osmolarité divisé par 0.93",
+        "Osmolarité et osmolalité peuvent être confondues pour une solution aqueuse dilué",
+        "L'osmolarité plasmatique est mesurée par cryoscopie"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "La bonne réponse est : A.\n\nL'osmolarité est bien le nombre d'osmoles par litre de solution.",
+      "output_length": 91,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9990214109420776,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9990214109420776
+          },
+          {
+            "lang": "oci_Latn",
+            "confidence": 0.0005803061067126691
+          },
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.00015569946845062077
+          }
+        ],
+        "text_length": 91
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les propositions suivantes concernant l'électrophorèse, quelle(s) est(sont) celle(s) qui sont exactes ?",
+      "options": [
+        "Le spectrophotomètre d'absorption UV-Visible peut être utilisé comme détecteur en électrophorèse capillaire",
+        "La séparation sur gel d'acétate de cellulose est influencée par la température",
+        "En électrophorèse sur gel, le résultat de la séparation est indépendant de la viscosité",
+        "Le catharomètre peut être utilisé comme détecteur en électrophorèse capillaire",
+        "L'injection de l'échantillon se fait par l'intermédiaire d'une boucle d'échantillonnage de 20 microlitres"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "La bonne réponse est A.",
+      "output_length": 23,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9992582201957703,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9992582201957703
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.0005586867919191718
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 9.325069549959153e-05
+          }
+        ],
+        "text_length": 23
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Concernant la structure des immunoglobulines, quelle(s) est (sont) la (les) proposition(s) vraie(s) ?",
+      "options": [
+        "La chaîne lourde contient au moins quatre domaines, quel que soit son type",
+        "Toutes les immunoglobulines possèdent une région charnière",
+        "Les IgA et IgM polymérisées sont liées à une pièce sécrétoire",
+        "Le site de reconnaissance de l’antigène est uniquement composé des régions aminoterminales des chaînes légères",
+        "Ce sont des glycoprotéines"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est : E.",
+      "output_length": 25,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9986178278923035,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9986178278923035
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.0006627717521041632
+          },
+          {
+            "lang": "lin_Latn",
+            "confidence": 0.0004018340550828725
+          }
+        ],
+        "text_length": 25
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "La vaccination contre la rubéole est recommandée:",
+      "options": [
+        "A la naissance chez les filles",
+        "A l'âge de 12 mois chez les filles et les garçons",
+        "Chez les filles de 11 à 12 ans",
+        "Chez les filles après la puberté",
+        "Chez les femmes enceintes"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Quelle pathologie est causée par un déficit en acétylcholine ?",
+      "options": [
+        "Maladie d’Alzeihmer",
+        "Maladie de Parkinson",
+        "Schizophrénie",
+        "Maladie de Wilson",
+        "Maladie de Creutzfeld – Jacob"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A. Maladie d'Alzeihmer\n\nLa maladie d'Alzheimer est une maladie neurodégénérative qui affecte la mémoire et les capacités cognitives. Elle est souvent associée à un déficit en acétylcholine, une substance chim",
+      "output_length": 208,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9990988969802856,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9990988969802856
+          },
+          {
+            "lang": "oci_Latn",
+            "confidence": 0.0005161149892956018
+          },
+          {
+            "lang": "kor_Hang",
+            "confidence": 0.0001758485595928505
+          }
+        ],
+        "text_length": 208
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Quelles sont les propositions fausses à propos des immunosuppresseurs ?",
+      "options": [
+        "La ciclosporine a un effet protecteur au niveau du rein",
+        "La mycophénolate mofétil inhibe la synthèse d’ADN",
+        "Le léflunomide inhibe la synthèse des pyrimidines",
+        "Le tacrolimus est métabolisé par le rein",
+        "Le sirolimus est une molécule lipophile"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est : D.\n\nLe tacrolimus est en effet métabolisé principalement par le foie, et non par le rein.",
+      "output_length": 112,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9998399019241333,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9998399019241333
+          },
+          {
+            "lang": "oci_Latn",
+            "confidence": 0.00011223374895052984
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 3.403496521059424e-05
+          }
+        ],
+        "text_length": 112
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Laquelle(lesquelles) de ces affirmations est(sont) juste(s) ? Le staphylocoque doré…",
+      "options": [
+        "Il est responsable du syndrome de Ritter",
+        "C’est une bactérie Gram positive",
+        "C’est une bactérie oxydase positive",
+        "Il est souvent responsable d’infections nosocomiales",
+        "C’est une bactérie que l’on rencontre fréquemment dans l’environnement"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est : D.",
+      "output_length": 25,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.999624490737915,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.999624490737915
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.0002495108637958765
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 6.07142283115536e-05
+          }
+        ],
+        "text_length": 25
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Concernant la méthémoglobine, indiquer la (les) proposition(s) correcte(s):",
+      "options": [
+        "C'est un pigment conférant au sang une couleur rose",
+        "Elle peut être oxydée par une enzyme dont le cofacteur est le NAD",
+        "Elle est normalement présente dans l'organisme à un taux de 1 gramme pour 100 ml de sang",
+        "Elle entraîne à forte concentration une cyanose",
+        "Elle se forme chez l'homme lors d'une intoxication aiguë par l'aniline"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "La bonne réponse est : D.",
+      "output_length": 25,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.999624490737915,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.999624490737915
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.0002495108637958765
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 6.07142283115536e-05
+          }
+        ],
+        "text_length": 25
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Concernant le métabolisme de l'acide urique, quelle(s) est (sont) la (les) proposition(s) exacte(s) :",
+      "options": [
+        "L'élimination digestive de l'acide urique se fait par uricolyse en allantoïne par la flore bactérienne",
+        "L'acide urique est issu des bases pyrimidiques Adénine et Guanine",
+        "L'Adénine et la Guanine sont dégradées en acide inosinique puis en hypoxanthine etxanthine avant de donner de l'acide urique",
+        "L'Adénine peut directement donné de la xanthine par l'intermédiaire d'une guanase",
+        "L'acide urique subit principalement une élimination urinaire"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est : D.",
+      "output_length": 25,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.999624490737915,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.999624490737915
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.0002495108637958765
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 6.07142283115536e-05
+          }
+        ],
+        "text_length": 25
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Quelle est (sont) la (les) proposition(s) exactes? Pour avoir la meilleure biodisponibilité d'un principe très lipophile (à coefficient de partage élevé), il est conseillé:",
+      "options": [
+        "De faire avaler sans eau",
+        "De le présenter sous forme micronisée",
+        "De le présenter en comprimé gastro-résistant",
+        "De le faire avaler au cours d'un repas riche en lipides",
+        "De le faire avaler le soir au coucher"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est D. De le faire avaler au cours d'un repas riche en lipides.\n\nEn effet, la biodisponibilité d'un principe très lipophile peut être améliorée en le faisant avaler avec des lipides, car cela permet une meilleure solubil",
+      "output_length": 237,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9935638904571533,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9935638904571533
+          },
+          {
+            "lang": "oci_Latn",
+            "confidence": 0.005883657373487949
+          },
+          {
+            "lang": "ltz_Latn",
+            "confidence": 0.0002579418651293963
+          }
+        ],
+        "text_length": 237
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les propositions suivantes concernant les groupes sanguins, laquelle (lesquelles) est (sont) exacte(s) :",
+      "options": [
+        "Les anticorps du système ABO sont des IgM",
+        "Les anticorps anti-A et anti-B sont naturels et irréguliers",
+        "Une personne rhésus négatif possède naturellement l'Ac anti-Rh correspondant",
+        "Pour rechercher les antigènes à la surface des globules rouges, on utilise la méthode de Beth- Vincent",
+        "Pour établir une carte de groupe sanguin, une seule détermination suffit"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est : B.",
+      "output_length": 25,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.999252200126648,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.999252200126648
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.00043367440230213106
+          },
+          {
+            "lang": "lin_Latn",
+            "confidence": 0.00017257517902180552
+          }
+        ],
+        "text_length": 25
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les propositions suivantes concernant les méthodes chromatographiques, laquelle est exacte ? :",
+      "options": [
+        "La chromatographie en phase gazeuse de type Gaz/Solide est une chromatographie d'adsorption",
+        "La chromatographie de partage en phase normale permet de séparer les solutés très polaires",
+        "La dérivatisation s'applique aux molécules fortement polaires ou thermostables",
+        "La chromatographie par filtration sur gel utilise une phase mobile organique",
+        "La chromatographie de partage s'applique aux molécules de haut poids moléculaire (>10 000 Da)"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est : C.\n\nLa dérivatisation est une technique qui consiste à modifier chimiquement les molécules à analyser pour améliorer leur séparabilité. Elle s'applique généralement aux molécules fortement polaires ou thermostables, qui peuvent être difficiles à",
+      "output_length": 268,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9998486042022705,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9998486042022705
+          },
+          {
+            "lang": "oci_Latn",
+            "confidence": 8.135192183544859e-05
+          },
+          {
+            "lang": "ltz_Latn",
+            "confidence": 6.975028372835368e-05
+          }
+        ],
+        "text_length": 268
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Sélectionner les affirmations exactes parmi les propositions suivantes :",
+      "options": [
+        "En France, la politique vaccinale est sous la responsabilité de l'Etat",
+        "En France, la politique vaccinale respecte le Programme Elargi de Vaccination défini par l'OMS",
+        "En France, la vaccination BCG est obligatoire pour tous les enfants",
+        "Le calendrier vaccinal est établi en tenant compte des données épidémiologiques des maladies infectieuses, d'études bénéfices risques et d'études coût efficacité",
+        "Toute vaccination est interdite chez la femme enceinte"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est : D.",
+      "output_length": 25,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.999624490737915,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.999624490737915
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.0002495108637958765
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 6.07142283115536e-05
+          }
+        ],
+        "text_length": 25
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les propositions suivantes concernant les hépatites virales chroniques, laquelle(lesquelles) est(sont) exacte(s) ?",
+      "options": [
+        "Elles peuvent être dues au virus de l'hépatite B",
+        "Elles peuvent être dues au virus de l'hépatite C",
+        "Elles peuvent être dues au virus de l'hépatite A",
+        "Elles peuvent évoluer vers une cirrhose",
+        "Elles sont plus fréquentes que les hépatites fulminantes"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "UNKNOWN",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est : ABCD.",
+      "output_length": 28,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9979574084281921,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9979574084281921
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.0009257090860046446
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 0.00037622361560352147
+          }
+        ],
+        "text_length": 28
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les tests biologiques suivants, un seul permet d’explorer une réaction inflammatoire hépatique. Lequel ?",
+      "options": [
+        "Alanine Aminotransférase",
+        "Phosphatases alcalines",
+        "Gammaglobulines",
+        "Bilirubine totale",
+        "Gamma Glutamyltransférase"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les propositions suivantes concernant le système ABO, laquelle (lesquelles) est (sont) fausse(s)?",
+      "options": [
+        "Les gènes qui gouvernent le système ABO codent pour la séquence en acides aminés des antigènes A et B.",
+        "Le groupe AB est défini par l'absence d'anticorps naturels réguliers anti-A et anti-B.",
+        "L'antigène de groupe A est présent dans les sécrétions de certains individus mais pas l'antigène du groupe B.",
+        "Les anticorps irréguliers du système ABO apparaissent après des transfusions incompatibles.",
+        "Les anticorps irréguliers du système ABO apparaissent chez les femmes après des grossesses avec un foetus incompatible"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est C.",
+      "output_length": 23,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9997991919517517,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9997991919517517
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.00014675136480946094
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 3.949458186980337e-05
+          }
+        ],
+        "text_length": 23
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les propositions suivantes, quelle est celle qui s'applique à Mycobacterium tuberculosis ?",
+      "options": [
+        "On peut l'isoler sur gélose enrichie au sang de cheval",
+        "Il se développe en 72 heures sur milieu gélosé adapté",
+        "Il n'est pas responsable de méningites",
+        "Il peut être responsable d'infections urinaires",
+        "II n'est jamais sensible aux aminosides"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est A. \n\nMycobacterium tuberculosis est un bacille qui peut être isolé sur des milieux gélosés enrichis, tels que la gélose de Löwenstein-Jensen, qui contient du sang de cheval.",
+      "output_length": 194,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9955934882164001,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9955934882164001
+          },
+          {
+            "lang": "oci_Latn",
+            "confidence": 0.002492185914888978
+          },
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.000449369108537212
+          }
+        ],
+        "text_length": 194
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les situations pathologiques citées, indiquer celle(s) qui peut(peuvent) être associée(s) à une hypercalcémie ?",
+      "options": [
+        "Métastases osseuses",
+        "Hyperparathyroïdie primitive",
+        "Insuffisance rénale chronique",
+        "Surdosage en vitamine D",
+        "Cytolyse hépatique"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Un déficit isolé en IgA est un déficit immunitaire qui a pour caractéristiques:",
+      "options": [
+        "C'est le plus fréquent des déficits de l'immunité humorale",
+        "Il est de découverte fortuite, en général",
+        "Il est lié à un défaut d'expression du ligand de la molécule CD4O (CD4OL/CD154)",
+        "Il prédispose aux infections respiratoires",
+        "Il est traité par les gammaglobulines injectables"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Lors du traitement d'une tuberculose, pour lequel de ces antibiotiques, sera-t-il nécessaire de vérifier la fonction oculaire ?",
+      "options": [
+        "Ethambutol",
+        "Isoniazide",
+        "Pyrazinamide",
+        "Rifampicine",
+        "Streptomycine"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Un allongement du TCA, sans allongement du temps de Quick, peut être lié à :",
+      "options": [
+        "Une hémophilie B.",
+        "Un traitement par HBPM à dose préventive",
+        "Un traitement aux anti-vitamines K.",
+        "La présence d'un anticoagulant circulant.",
+        "Un déficit en facteur XII."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi ces β-bloquants, le ou le(s)quel(s) n'est (ne sont) pas cardiosélectifs ?",
+      "options": [
+        "Atenolol",
+        "Nebivolol",
+        "Carvelidol",
+        "Metoprolol",
+        "Propranolol"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est : E.\n\nLe Propranolol est un β-bloquant non sélectif, ce qui signifie qu'il bloque les récepteurs β1 et β2 de manière non sélective. Il n'est donc pas cardiosélectif comme les autres options qui sont des β",
+      "output_length": 225,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9994719624519348,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9994719624519348
+          },
+          {
+            "lang": "oci_Latn",
+            "confidence": 0.00041957071516662836
+          },
+          {
+            "lang": "bam_Latn",
+            "confidence": 8.637547580292448e-05
+          }
+        ],
+        "text_length": 225
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les propositions suivantes, indiquer celle(s) qui est (sont) correcte(s). Le soluté de DAKIN :",
+      "options": [
+        "A un titre exprimé en grammes de chlore actif par litre",
+        "A un pH légèrement acide pour assurer sa conservation",
+        "Est actif par le permanganate de potassium qu'il contient",
+        "Est instable à la lumière",
+        "Est instable à la chaleur quand il n'est pas stabilisé"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "La bonne réponse est : A.",
+      "output_length": 25,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.998963475227356,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.998963475227356
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.0007390242535620928
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 0.00012871516810264438
+          }
+        ],
+        "text_length": 25
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les infections suivantes, quelles sont celles qui s'accompagnent habituellement d'une angine ?",
+      "options": [
+        "Scarlatine",
+        "Syphilis",
+        "Mononucléose infectieuse",
+        "Tuberculose",
+        "Typhoïde"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les propositions suivants, laquelle est inexacte concernant l'infection à Toxoplasma gondii ?",
+      "options": [
+        "La transmission materno-foetale est plus fréquente, mais moins grave, au cours de 3ème trimestre de la grossesse.",
+        "La transmission peut se faire au cours de transplantations d'organes",
+        "Le chat est l'hôte intermédiaire",
+        "Le développement du parasite est exclusivement intracellulaire",
+        "La présence d'une toxoplasmose cérébrale chez un sujet VIH positif classe ce patient en stade SIDA"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est A.\n\nLa transmission materno-foetale est en réalité plus grave au cours du 3ème trimestre de la grossesse, car le foetus est plus vulnérable à l'infection à ce stade.",
+      "output_length": 186,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9988075494766235,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9988075494766235
+          },
+          {
+            "lang": "oci_Latn",
+            "confidence": 0.0008608510834164917
+          },
+          {
+            "lang": "epo_Latn",
+            "confidence": 0.00011670040112221614
+          }
+        ],
+        "text_length": 186
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les antalgiques suivants, lesquels appartiennent au palier II ?",
+      "options": [
+        "La noramidopyrine",
+        "La pethidine",
+        "Le tramadol",
+        "Le kétoprofène",
+        "L’association dextropropoxyfène – paracétamol"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "La réponse est E.",
+      "output_length": 17,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9999979734420776,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9999979734420776
+          },
+          {
+            "lang": "epo_Latn",
+            "confidence": 1.3803992260363884e-05
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 1.2123626220272854e-05
+          }
+        ],
+        "text_length": 17
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les propositions suivantes, donner la (ou les) réponse(s) exacte(s). Le syndrome de cytolyse hépatique est caractérisé par :",
+      "options": [
+        "Une diminution de l'albuminémie",
+        "Une élévation de l'activité sérique de l'alanine aminotransférase",
+        "Une élévation du fer sérique",
+        "Une élévation de l'activité des phosphatases alcalines",
+        "Une élévation de l'activité de la 5' nucléotidase"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "La bonne réponse est : B. \n\nLe syndrome de cytolyse hépatique est caractérisé par une élévation de l'activité sérique de certaines enzymes hépatiques, notamment l'alanine aminotransférase (ALT).",
+      "output_length": 194,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9997087717056274,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9997087717056274
+          },
+          {
+            "lang": "hun_Latn",
+            "confidence": 7.693611405557021e-05
+          },
+          {
+            "lang": "oci_Latn",
+            "confidence": 7.485147216357291e-05
+          }
+        ],
+        "text_length": 194
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les affirmations suivantes concernant le syndrome hémorragique dans l’hémophilie, quelles sont celles qui sont exactes ? :",
+      "options": [
+        "Il est spontané",
+        "On note la présence d’hémarthroses",
+        "On note la présence d’hématomes",
+        "On note la présence de gingivorragies",
+        "Aucune de ces réponses n'est exacte"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Quelle surveillance est obligatoire lors d'un traitement par Clozapine?",
+      "options": [
+        "Fonction hépatique",
+        "Fonction rénale",
+        "Absence de grossesse chez la femme",
+        "Glycémie",
+        "NFS"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "E",
+      "is_correct": true,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Après absorption de lumière, une molécule est dans un état instable, il s'en suit une restitution de l'énergie acquise. Quelle(s) est(sont) la(les) proposition(s) exacte(s) concernant ce phénomène?",
+      "options": [
+        "Une partie de l'énergie est dissipée par collisions avec les molécules de solvant",
+        "La longueur d'onde de la lumière émise par fluorescence est inférieure à celle de la lumière absorbée",
+        "La désactivation par fluorescence se fait en un temps voisin de 10-8s",
+        "Dans le cas de la phosphorescence le retour au niveau fondamental se fait à partir d'un état singulet",
+        "La désactivation par fluorescence se fait à partir du premier niveau électronique excité"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est : B.",
+      "output_length": 25,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.999252200126648,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.999252200126648
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.00043367440230213106
+          },
+          {
+            "lang": "lin_Latn",
+            "confidence": 0.00017257517902180552
+          }
+        ],
+        "text_length": 25
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les propositions suivantes sur les glycopeptides, quelle(s) est (sont) la (les) réponse(s) exacte(s) ?",
+      "options": [
+        "Sont actifs sur les bactéries à Gram-",
+        "Inhibent la synthèse de la paroi bactérienne",
+        "Diffusent bien dans le LCR",
+        "Sont généralement administrés par voie IV",
+        "Sont le traitement de référence du SARM"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "La réponse exacte est B.",
+      "output_length": 24,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9998360276222229,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9998360276222229
+          },
+          {
+            "lang": "ron_Latn",
+            "confidence": 0.0001512828894192353
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 2.6651317966752686e-05
+          }
+        ],
+        "text_length": 24
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Laquelle (lesquelles) des propositions ci-dessous peut (peuvent) être associée(s) à l'amibiase infestation ? L'hôte :",
+      "options": [
+        "Héberge des formes végétatives d'Entamoeba histolytica histolytica",
+        "Héberge des formes végétatives d'Entamoeba histolytica minuta",
+        "Elimine des kystes d'Entamoeba histolytica",
+        "N'est pas contagieux",
+        "Ne présente pas de symptômes"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est A.",
+      "output_length": 23,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9992582201957703,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9992582201957703
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.0005586867919191718
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 9.325069549959153e-05
+          }
+        ],
+        "text_length": 23
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les propositions suivantes concernant la rifampicine indiquer celles qui sont exactes :",
+      "options": [
+        "Est un inducteur enzymatique",
+        "Peut présenter une ototoxicité",
+        "Agit au niveau de la paroi bactérienne",
+        "Est déconseillée en association avec les contraceptifs oraux estroprogestatifs",
+        "Son hépatoxicité est augmentée lors de son association avec l'isoniazide"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "La bonne réponse est : A.",
+      "output_length": 25,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.998963475227356,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.998963475227356
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.0007390242535620928
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 0.00012871516810264438
+          }
+        ],
+        "text_length": 25
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "On souhaite déterminer la quantité de protéine P présente dans un extrait. On ajoute à cet extrait 7 mg de protéine P marquée à la 35S-Met dont l'activité est de 70 Ci.mg-1. Après chromatographie, 4 mg de P sont extraits, leur activité est de 28 Ci. Quelle est la quantité de P présente dans cet extrait ?",
+      "options": [
+        "10mg",
+        "3mg",
+        "63mg",
+        "112 mg",
+        "42mg"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "UNKNOWN",
+      "is_correct": false,
+      "raw_output": "Pour déterminer la quantité de P présente dans l'extrait, on peut utiliser la formule :\n\nActivité totale = Activité spécifique x Quantité de protéine ajoutée\n\nActivité totale = 70 Ci/mg x 7 mg = 490 Ci\n\nOn sait",
+      "output_length": 210,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9981522560119629,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9981522560119629
+          },
+          {
+            "lang": "oci_Latn",
+            "confidence": 0.001025462755933404
+          },
+          {
+            "lang": "ltz_Latn",
+            "confidence": 0.0001997324579861015
+          }
+        ],
+        "text_length": 210
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "La présence de carboxyhémoglobine dans le sang peut résulter de l'origine (ou des origines) suivante(s) :",
+      "options": [
+        "L'inhalation de fumée de cigarette",
+        "L'inhalation de vapeurs de benzène",
+        "L'inhalation de gaz d'échappement de véhicules automobiles",
+        "L'inhalation de gaz lors d'un incendie",
+        "L'inhalation de dichlorométhane"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "La bonne réponse est : A.",
+      "output_length": 25,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.998963475227356,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.998963475227356
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.0007390242535620928
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 0.00012871516810264438
+          }
+        ],
+        "text_length": 25
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Laquelle(lesquelles) de ces affirmations est(sont) juste(s) ? Lors de l’infarctus du myocarde,",
+      "options": [
+        "l’ECG est réalisé en première intention",
+        "la LDH est le premier marqueur biochimique mis en évidence",
+        "la CK-MB est le marqueur le plus spécifique",
+        "la douleur irradie dans les membres supérieurs",
+        "l’augmentation de l’ASAT est tardive"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "La bonne réponse est : C.",
+      "output_length": 25,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9996978044509888,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9996978044509888
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.00020226422930136323
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 5.3875355661148205e-05
+          }
+        ],
+        "text_length": 25
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Parmi les propositions suivantes concernant les marqueurs cardiaques quelle(s) est (sont) la (les) réponse(s) fausse(s) ?",
+      "options": [
+        "La myoglobine est un marqueur plus précoce que les troponines.",
+        "La myoglobine est un marqueur non spécifique de l'infarctus du myocarde (IDM).",
+        "Une élévation de la troponine est un diagnostic de certitude de l'IDM.",
+        "Le dosage de la troponine est réalisé par une technique immuno-enzymatique.",
+        "Les troponines apparaissent 8 heures après un IDM."
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "E",
+      "is_correct": true,
+      "raw_output": "La réponse est : E.",
+      "output_length": 19,
+      "output_language": {
+        "detected_lang": "fra_Latn",
+        "confidence": 0.9999860525131226,
+        "top_3": [
+          {
+            "lang": "fra_Latn",
+            "confidence": 0.9999860525131226
+          },
+          {
+            "lang": "epo_Latn",
+            "confidence": 1.6515150491613895e-05
+          },
+          {
+            "lang": "hat_Latn",
+            "confidence": 1.4183338862494566e-05
+          }
+        ],
+        "text_length": 19
+      }
+    },
+    {
+      "input_lang": "fr",
+      "input_lang_name": "French",
+      "question": "Aspergillus fumigatus",
+      "options": [
+        "Possède au niveau de la tête aspergillaire, une rangée de métules, une rangée de phialides puis des conidies",
+        "Pousse en 48 à 72h",
+        "Est un champignon ubiquitaire",
+        "Est systématiquement pathogène",
+        "Donne, sur un milieu de Sabouraud, des colonies vertes et poudreuses"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Qué enunciado referente al tratamiento sustitutivo con L-tiroxina en un paciente con hipotiroidismo es correcto?",
+      "options": [
+        "Se determinará la función tiroidea a las 48 horas de su inicio para valorar la eficacia.",
+        "En los pacientes ancianos y con el fin de mejorar la sintomatología de manera rápida, se inicia tratamiento con L-T4 a una dosis de 150-200 microgramos al día.",
+        "En el embarazo los requerimientos            de hormona tiroidea suelen aumentar en unos 50 microgramos al día, sobre la dosis previa.",
+        "Debe tomarse la medicación en medio de las comidas.",
+        "Conviene administrar un protector gástrico simultaneamente para evitar una gastritis."
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "La respuesta correcta es D.",
+      "output_length": 27,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.9728121161460876,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.9728121161460876
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.025957252830266953
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.001230787136591971
+          }
+        ],
+        "text_length": 27
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "¿Con qué ámbito está relacionada la Teoría de la Puerta de Melzack y Wall?:",
+      "options": [
+        "Cáncer.",
+        "Infección por VIH.",
+        "Problemas renales.",
+        "Dolor.",
+        "Trastornos cardiovasculares."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "La respuesta correcta es: D. Dolor.",
+      "output_length": 35,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.7185354828834534,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.7185354828834534
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.2539415657520294
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.025612708181142807
+          }
+        ],
+        "text_length": 35
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Controla el paso de sustancias al sistema nervioso central:",
+      "options": [
+        "Meninges.",
+        "Plexo coroideos.",
+        "Barrera hemato-encefálica.",
+        "Sustancia blanca.",
+        "Células de Schwann y oligodendrocitos."
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "C.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "En relación a la toxoplasmosis y el embarazo, indique cuál de las siguientes opciones es cierta:",
+      "options": [
+        "Se puede producir transmisión placentaria al feto.",
+        "Debe detectarse la tasa de anticuerpos al inicio de la gestación y, en su ausencia, efectuar vacunación con vacuna de virus muertos.",
+        "La infección es menos grave pero más frecuente cuanto más joven es la gestante.",
+        "En nuestro medio, la principal causa de contagio es la convivencia y el manejo de aves domésticas.",
+        "El contagio ocurre intraparto, favorecido por la rotura de la bolsa amniótica."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "La respuesta correcta es A.",
+      "output_length": 27,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.983170211315155,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.983170211315155
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.016155341640114784
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.0006825897144153714
+          }
+        ],
+        "text_length": 27
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "En la entrevista a un paciente durante la etapa de valoración, las preguntas abiertas presentan una desventaja porque:",
+      "options": [
+        "Pueden revelar la afectividad del entrevistado respecto a un aspecto.",
+        "Las respuestas son difíciles de registrar y hacerlo exige habilidad.",
+        "Dejan hablar al entrevistado.",
+        "Se concede demasiada importancia a las opiniones del entrevistado.",
+        "Pueden atraer el interés y la confianza por la libertad que proporcionan."
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "¿Qué coenzima interviene en la síntesis de Óxido Nítrico (NO)?",
+      "options": [
+        "NADH.",
+        "NADPH.",
+        "FAD.",
+        "CoA.",
+        "Tiamina."
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "La respuesta correcta es B. NADPH.",
+      "output_length": 34,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.9308052659034729,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.9308052659034729
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.06228642910718918
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.006502341013401747
+          }
+        ],
+        "text_length": 34
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "El cuadrado de coeficiente de correlación de Pearson es:",
+      "options": [
+        "El coeficiente de variación.",
+        "El coeficiente de determinación.",
+        "La pendiente de la recta de regresión.",
+        "El coeficiente de regresión.",
+        "La covarianza."
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "El paciente puede retirar libremente su consentimiento:",
+      "options": [
+        "En cualquier momento.",
+        "Sólo antes de haberlo firmado.",
+        "Sólo a través de terceras personas si lo ha firmado previamente.",
+        "Sólo cuando lo haya otorgado verbalmente pero no si lo ha hecho por escrito.",
+        "Si tiene firmadas las “voluntades anticipadas”."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Cuando una persona habla mucho de manera espontánea, de forma rápida, es difícil interrumpirle y no acaba sus frases por una especie de necesidad imperiosa de comunicar algo, es probable que presente el trastorno del pensamiento denominado:",
+      "options": [
+        "Esquizoafasia.",
+        "Presión del habla.",
+        "Perseveración.",
+        "Tangecialidad.",
+        "Circunstancialidad."
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "El indicador negro de eriocromo T (N.E.T.) presenta los siguientes colores en función del pH:",
+      "options": [
+        "H2In¯rojo, HIn2- azul, In3- naranja y cuando forma complejo con metal es rojo.",
+        "H2In¯azul, HIn2- rojo, In3- naranja y cuando forma complejo con metal es rojo.",
+        "H2In¯rojo, HIn2- azul, In3- rojo vino y cuando forma complejo con metal es naranja.",
+        "H2In¯rojo, HIn2- naranja, In3- azul y cuando forma complejo con metal es naranja.",
+        "H2In¯azul, HIn2- naranja, In3- rojo y cuando forma complejo con metal es naranja."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "La respuesta correcta es C.",
+      "output_length": 27,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.9768354892730713,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.9768354892730713
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.021813560277223587
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.0013452620478346944
+          }
+        ],
+        "text_length": 27
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "¿Con cuál de los siguientes trastornos presenta una mayor comorbilidad la enuresis nocturna?:",
+      "options": [
+        "Pesadillas.",
+        "Trastorno por déficit de atención con hiperactividad.",
+        "Insomnio.",
+        "Bruxismo nocturno.",
+        "Terrores nocturnos."
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "La respuesta correcta es B.",
+      "output_length": 27,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.968382716178894,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.968382716178894
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.029905498027801514
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.001708264579065144
+          }
+        ],
+        "text_length": 27
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "¿Cuál de los siguientes pasos no forma parte de la gluconeogénesis?",
+      "options": [
+        "Oxalacetato a piruvato.",
+        "Piruvato a oxalacetato.",
+        "Glucosa-6-P a glucosa.",
+        "Fructosa-1, 6-bisP a fructosa-6-P.",
+        "Oxalacetato a fosfoenolpiruvato."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "La respuesta es A.",
+      "output_length": 18,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.9990338087081909,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.9990338087081909
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.0009543444612063468
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 3.4522607165854424e-05
+          }
+        ],
+        "text_length": 18
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "La adenohipófisis:",
+      "options": [
+        "Es parte del hipotálamo.",
+        "Está regulada hormonalmente.",
+        "Se comunica con la neurohipófisis.",
+        "Libera ADH y oxitocina.",
+        "Está formada por neuronas."
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Es agente etiológico de la miasis cutánea:",
+      "options": [
+        "Glossina palpalis.",
+        "Dermatobia hominis.",
+        "Simulimum damnosum.",
+        "Pulex irritans.",
+        "Tunga penetrans."
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Liberan noradrenalina las:",
+      "options": [
+        "Fibras preganglionares simpáticas.",
+        "Fibras postganglionares simpáticas",
+        "Fibras preganglionares parasimpáticas",
+        "Fibras postganglionares parasimpáticas",
+        "Únicamente las células cromafines."
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "La respuesta correcta es: E",
+      "output_length": 27,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.592645525932312,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.592645525932312
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.3990525007247925
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.007965585216879845
+          }
+        ],
+        "text_length": 27
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Un recién nacido prematuro presenta a los 2 días de vida un cuadro de mal estado general, petequias y equimosis subcutáneas y sangrado persistente por las zonas de punción. La radiografía de tórax es compatible con una hemorragia pulmonar. En el estudio de coagulación los tiempos de protrombina y parcial de tromboplastina están alargados. El recuento de plaquetas es de 105.000/uL. ¿Cuál es el diagnóstico más probable?",
+      "options": [
+        "Coagulación       intravascular   diseminada secundaria a una sepsis neonatal.",
+        "Trombocitopenia neonatal autoinmunitaria.",
+        "Trombocitopenia neonatal aloinmunitaria.",
+        "Enfermedad hemorrágica del recién nacido por déficit de vitamina K.",
+        "Hemorragia       neonatal    por   disfunción plaquetaria."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Pregunta vinculada a la imagen nº14 Un hombre de 68 años consulta por una pérdida del estado general en forma de astenia y anorexia y pérdida de 12 Kg en los últimos tres meses.    La exploración física únicamente muestra un paciente delgado y la lesión en la planta de los pies que puede observarse en la figura. ¿Cuál le parece el diagnóstico más probable y/o actitud más adecuada?",
+      "options": [
+        "Buscaría factores de inmunodepresión, pues la lesión parece corresponder a una sarna noruega.",
+        "La lesión cutánea parece una callosidad en una zona de apoyo fisiológico, por lo que, de momento, no la consideraría relacionada con la pérdida del estado general.",
+        "La lesión sugiere una forma palmo-plantar de psoriasis.",
+        "Parece una forma de queratosis seborreica difusa asociada a la edad.",
+        "Sugiere     una      queratodermia    plantar paraneoplásica."
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "E",
+      "is_correct": true,
+      "raw_output": "E. Sugiere     una      queratodermia    plantar paraneoplásica.",
+      "output_length": 64,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.8910820484161377,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.8910820484161377
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.038916248828172684
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.014060347341001034
+          }
+        ],
+        "text_length": 64
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Las bases nitrogenadas alteradas o minoritarias:",
+      "options": [
+        "No se detectan en el ADN.",
+        "No se detectan en el ARN.",
+        "Protegen la información genética.",
+        "No se detectan en el tARN.",
+        "No son capaces de aparearse."
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "El mecanismo más frecuente que induce la activación del protooncogen ABL en la leucemia mieloide crónica es la:",
+      "options": [
+        "Mutación puntual.",
+        "Ampliación génica.",
+        "Metilación del promotor.",
+        "Deleción.",
+        "Translocación."
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "E",
+      "is_correct": true,
+      "raw_output": "La respuesta correcta es: E. Translocación.\n\nLa translocación t(9;22), conocida como la translocación Filadelfia, es la alteración genética más común que induce la activación del protooncogen ABL en la leucemia mieloide cr",
+      "output_length": 222,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.9514967799186707,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.9514967799186707
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.04806692153215408
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.00018922357412520796
+          }
+        ],
+        "text_length": 222
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Pregunta vinculada a la imagen nº3 En relación con el diagnóstico de sospecha que ha establecido, ¿cuál sería la prueba de confirmación más indicada?",
+      "options": [
+        "Determinación de presión capilar pulmonar, mediante catéter de Swan-Ganz.",
+        "Lavado broncoalveolar.",
+        "Tomografía computarizada torácica (arterias pulmonares).",
+        "Determinación de eosinófilos en sangre periférica.",
+        "Determinación de anticuerpos anti VIH."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "No tengo acceso a la imagen nº3 que mencionas. Sin embargo, puedo proporcionarte una respuesta general basada en la información que se puede inferir de las opciones dadas.\n\nSi la sospecha es una infección pulmonar, la prueba de confirmación más indicada sería el",
+      "output_length": 262,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.9982509613037109,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.9982509613037109
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.001620956463739276
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 8.713266288395971e-05
+          }
+        ],
+        "text_length": 262
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "En un estudio clínico para evaluar la eficacia de un nuevo medicamento en el tratamiento de la crisis de migraña (señale la CORRECTA):",
+      "options": [
+        "Unos criterios de inclusión estrictos aumentan la validez externa del estudio.",
+        "Unos criterios de exclusión estrictos reducen la validez interna del estudio.",
+        "El control con un brazo placebo aumenta la validez externa del estudio.",
+        "El enmascaramiento reduce la validez interna del estudio.",
+        "La asignación aleatoria aumenta la validez interna del estudio."
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "E",
+      "is_correct": true,
+      "raw_output": "La respuesta correcta es: E.",
+      "output_length": 28,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.6648266911506653,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.6648266911506653
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.32993078231811523
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.005060405004769564
+          }
+        ],
+        "text_length": 28
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Atendiendo a la finalidad de la entrevista ¿cuál sería la respuesta CORRECTA?",
+      "options": [
+        "La entrevista diagnóstica tiene como objetivo prioritario orientar.",
+        "La entrevista de investigación tiene como objetivo prioritario operar un cambio.",
+        "La entrevista terapéutica tiene como objetivo prioritario establecer un diagnostico.",
+        "La entrevista de orientación vocacional tiene como objetivo prioritario asesorar sobre estudios o profesiones futuras.",
+        "La entrevista consultiva tiene como objetivo prioritario investigar sobre la propia técnica de evaluación."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "La respuesta correcta es D.",
+      "output_length": 27,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.9728121161460876,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.9728121161460876
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.025957252830266953
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.001230787136591971
+          }
+        ],
+        "text_length": 27
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Dadas tres moléculas de DNA de la misma longitud (A, B y C) y en el mismo solvente, pero con riqueza diferente en cuanto a contenido en G + C (A: 50%; B: 60%; y C: 75%), ¿cómo serían sus temperaturas de fusión (Tm)?:",
+      "options": [
+        "A > B > C.",
+        "Al estar en el mismo solvente, serían iguales en los tres casos.",
+        "La molécula C de DNA no pertenecería a una bacteria termófila, dada su menor Tm.",
+        "C > B > A.",
+        "No se puede saber con los datos del enunciado."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "La respuesta correcta es D. \n\nLa temperatura de fusión (Tm) del DNA está influenciada por la riqueza en G + C, ya que las bases guanina (G) y citosina (C) forman pares de base más estables que las bases adenina",
+      "output_length": 210,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.98219233751297,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.98219233751297
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.011232268065214157
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.0032878038473427296
+          }
+        ],
+        "text_length": 210
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Entre las actividades de la enfermera para un paciente con deterioro cognitivo secundario a Accidente Vascular Cerebral, NO es correcto:",
+      "options": [
+        "Reorientar al paciente en cuanto a tiempo, lugar y situación con frecuencia.",
+        "Utilizar claves verbales y auditivas para orientar al paciente.",
+        "Repetir y reforzar las instrucciones con frecuencia.",
+        "Evitar mostrarle objetos familiares para no contribuir a su frustración.",
+        "Utilizar un lenguaje simple."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Se está diseñando un comprimido con cubierta pelicular gastrosoluble. ¿Cuál de los siguientes excipientes ejerce la función de plastificante en dicha cubierta?:",
+      "options": [
+        "Hidroxipropilmetilcelulosa.",
+        "Metilcelulosa.",
+        "Copolímero del ácido metacrílico (Eudragit® E30D (A))",
+        "Polietilenglicol.",
+        "Óxido de titanio."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "La respuesta correcta es B.",
+      "output_length": 27,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.968382716178894,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.968382716178894
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.029905498027801514
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.001708264579065144
+          }
+        ],
+        "text_length": 27
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Placa motora es la unión entre la neurona motora y el:",
+      "options": [
+        "Músculo liso.",
+        "Músculo esquelético.",
+        "Músculo cardiaco.",
+        "Huso muscular.",
+        "Tendón."
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Son fragmentos del citoplasma de una célula precursora:",
+      "options": [
+        "Linfocitos.",
+        "Megacariocitos.",
+        "Monocitos.",
+        "Plaquetas.",
+        "Eritrocitos."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "El virus del resfriado común tiene un genoma:",
+      "options": [
+        "DNA de cadena sencilla.",
+        "DNA de doble cadena.",
+        "Fragmentado.",
+        "RNA de cadena sencilla.",
+        "RNA de doble cadena."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Los diseños de cuadrado latino son un tipo de:",
+      "options": [
+        "Diseños aleatorios.",
+        "Diseños de bloques.",
+        "Diseños intra-sujetos.",
+        "Diseños mixtos.",
+        "Diseños unifactoriales."
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "La condensación aldólica da origen a:",
+      "options": [
+        "Amidas α,β-insaturadas.",
+        "Amidas saturadas.",
+        "Compuestos carbonílicos α,β-insaturados.",
+        "Compuestos quirales.",
+        "Compuestos carbonílicos β,γ-insaturados."
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "La respuesta correcta es: C. Compuestos carbonílicos α,β-insaturados.",
+      "output_length": 69,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.7768828868865967,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.7768828868865967
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.211097851395607
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.010206260718405247
+          }
+        ],
+        "text_length": 69
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Neisseria meningitidis es:",
+      "options": [
+        "Un bacilo gram-negativo.",
+        "Normalmente resistente a los antibióticos beta-lactámicos.",
+        "Un coco anaerobio.",
+        "Un diplococo capsulado.",
+        "Móvil por flagelación peritrica."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "En la biosíntesis de proteínas, durante el proceso de traducción tiene lugar el apareamiento de bases entre:",
+      "options": [
+        "El RNA y el DNA.",
+        "El DNA y el RNA ribosómico.",
+        "El RNA de transferencia y el RNA ribosómico.",
+        "El RNA mensajero y el RNA de transferencia.",
+        "El RNA ribosómico 18S y el RNA ribosómico 5S."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "La respuesta correcta es B. El DNA y el RNA ribosómico.\n\nDurante el proceso de traducción, el ARN mensajero (ARNm) es traducido en el ribosoma, donde se forma un complejo con el ARN ribosómico (ARNr). El",
+      "output_length": 203,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.9996935129165649,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.9996935129165649
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.00013536683400161564
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.00010894014121731743
+          }
+        ],
+        "text_length": 203
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "𝐸𝑎 Según la ecuación de Arrhenius, k =𝐴𝑒     𝑅𝑇",
+      "options": [
+        "La constante cinética (k) disminuye al aumentar la temperatura.",
+        "El factor preexponencial (A) es adimensional.",
+        "En reacciones con elevada Energía de activación (Ea), la constante cinética (k) depende enormemente de la temperatura.",
+        "El factor preexponencial (A) y la constante cinética (k) son inversamente proporcionales.",
+        "Los parámetros de Arrhenius son la constante cinética (k) y el factor preexponencial (A)."
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "Con respecto a los puntos de control de la expresión de los genes eucariotas, indique cuál de las siguientes afirmaciones es falsa:",
+      "options": [
+        "Modificación de la estructura del gen.",
+        "Regulación de la transcripción.",
+        "Maduración del RNA.",
+        "Maduración del DNA.",
+        "Estabilidad de los RNA."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "La respuesta es D.",
+      "output_length": 18,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.9979490637779236,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.9979490637779236
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.0019967304542660713
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 7.219205872388557e-05
+          }
+        ],
+        "text_length": 18
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "¿Con qué teoría explicativa de las fobias infantiles se relaciona más estrechamente el efecto Napalkov?",
+      "options": [
+        "La teoría de los dos factores de Mowrer.",
+        "La teoría de la incubación de Eysenck.",
+        "La teoría del aprendizaje social de Bandura.",
+        "La teoría bioinformacional de la emoción de Lang.",
+        "La teoría de la sensibilidad a la ansiedad de Reiss."
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "La respuesta correcta es A. La teoría de los dos factores de Mowrer.\n\nEl efecto Napalkov se refiere a la capacidad de los niños para aprender a temer ciertos estímulos o situaciones debido a la asociación con un estímulo aversivo, como",
+      "output_length": 235,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.9965574145317078,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.9965574145317078
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.0030709714628756046
+          },
+          {
+            "lang": "glg_Latn",
+            "confidence": 0.0003290451131761074
+          }
+        ],
+        "text_length": 235
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "¿Mediante qué norma jurídica se regularon por primera vez las especialidades para los/as Diplomados/as en Enfermería y la obtención del título de Enfermero/a Especialista?",
+      "options": [
+        "Orden 1 de junio de 1992 (BOE 2 de junio).",
+        "Real Decreto 450/2005, de 22 de abril (BOE 6 de mayo).",
+        "Real Decreto 992/1987, de 3 de julio (BOE 1 de agosto).",
+        "Real Decreto 943/1986 (BOE 14 de mayo).",
+        "Orden de 15 de julio de 1980 (BOE de 23 de julio)."
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "La respuesta correcta es: D. Real Decreto 943/1986 (BOE 14 de mayo).",
+      "output_length": 68,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.8711627125740051,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.8711627125740051
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.1041875034570694
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.007249998860061169
+          }
+        ],
+        "text_length": 68
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "El primosoma:",
+      "options": [
+        "También se denomina primasa o proteína Dna G.",
+        "Es el complejo responsable de la síntesis de los fragmentos de Okazaki.",
+        "Es una ADN ligasa bacteriana.",
+        "Se localiza en la mitocondria.",
+        "Es una unidad funcional del complejo de replicación bacteriano."
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "E",
+      "is_correct": true,
+      "raw_output": "La respuesta correcta es: E",
+      "output_length": 27,
+      "output_language": {
+        "detected_lang": "spa_Latn",
+        "confidence": 0.592645525932312,
+        "top_3": [
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.592645525932312
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.3990525007247925
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.007965585216879845
+          }
+        ],
+        "text_length": 27
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "¿Cuál de las siguientes manifestaciones es una urgencia para la mujer gestante?:",
+      "options": [
+        "Aparición de varices.",
+        "Leucorrea.",
+        "Polaquiuria.",
+        "Cefalea intensa.",
+        "Náuseas."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D. Cefalea intensa.",
+      "output_length": 19,
+      "output_language": {
+        "detected_lang": "ast_Latn",
+        "confidence": 0.2561109662055969,
+        "top_3": [
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.2561109662055969
+          },
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.19198033213615417
+          },
+          {
+            "lang": "cat_Latn",
+            "confidence": 0.11264173686504364
+          }
+        ],
+        "text_length": 19
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "En la secreción biliar hay:",
+      "options": [
+        "Carboxipeptidasa.",
+        "Tripsina.",
+        "Quimotripsina.",
+        "Lecitina.",
+        "Elatasa."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "es",
+      "input_lang_name": "Spanish",
+      "question": "El surfactante pulmonar:",
+      "options": [
+        "Lo secretan los neumocitos tipo I.",
+        "Estabiliza los alveolos.",
+        "Su principal componente es la albúmina.",
+        "Aumenta la tensión superficial del alveolo.",
+        "Sólo está en los alveolos pequeños."
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "82歳の女性。肺炎球菌性髄膜炎のため入院中である。意識障害が遷延しているため、経鼻胃管による経管栄養を開始することになった。意識レベルはJCS I-3からII-10で経過している。体温36.8℃。脈拍76/分。血圧120/80mmHg。呼吸数12/分。SpO2 98％（room air）。日中はベッド上で、半座位で過ごしている。経管栄養のための経鼻胃管について誤っているのはどれか。",
+      "options": [
+        "患者を左側臥位として挿入する。",
+        "胃内容物を吸引しpHを確認する。",
+        "初回の栄養投与は日中に実施する。",
+        "栄養投与前に聴診器で気泡音を確認する。",
+        "留置後にエックス線撮影で位置を確認する。"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A. \n\n経鼻胃管の挿入は、患者を左側臥位にする必要があるため、誤りです。左側臥位にすることで、胃内容物が胃に戻るのを助け、気管と食道の間の気泡を",
+      "output_length": 73,
+      "output_language": {
+        "detected_lang": "jpn_Jpan",
+        "confidence": 0.9205224514007568,
+        "top_3": [
+          {
+            "lang": "jpn_Jpan",
+            "confidence": 0.9205224514007568
+          },
+          {
+            "lang": "zho_Hant",
+            "confidence": 0.004912066739052534
+          },
+          {
+            "lang": "khm_Khmr",
+            "confidence": 0.003438806626945734
+          }
+        ],
+        "text_length": 73
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "73歳の女性。口腔粘膜疹と皮疹を主訴に来院した。2か月前から口腔粘膜にびらんを生じ、摂食時に疼痛を伴うようになった。自宅近くの診療所でうがい薬を処方されたがびらんが拡大し、2週前から皮膚にも水疱とびらんが出現したため受診した。受診時、歯肉と口蓋部に発赤を伴うびらんを多数認める。体幹と四肢には径15mmまでの紅斑、水疱、びらん及び痂皮を認める。皮膚生検で表皮基底層直上に裂隙を認め、棘融解像を伴う。蛍光抗体直接法では表皮下層を中心に表皮細胞間にIgG、C3の沈着を認める。口腔粘膜（A）と上肢（B）の写真及び生検組織のH-E染色標本（C）を別に示す。最も考えられるのはどれか。",
+      "options": [
+        "後天性表皮水疱症",
+        "尋常性天疱瘡",
+        "水疱性類天疱瘡",
+        "疱疹状皮膚炎",
+        "落葉状天疱瘡"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "4歳の男児。繰り返す嘔吐を心配した母親に連れられて来院した。1か月前から時々起床後に突然の嘔吐がみられていた。1週間前から毎日起床後に嘔吐がみられるようになり、今朝から呼びかけに対する反応がやや鈍くなったため受診した。下痢や体重の減少は認めない。嘔吐の回数が増えるにつれ、転びやすくなったとのことである。意識レベルはJCS I-1。体温36.7℃。心拍数100/分、整。血圧80/50mmHg。呼吸数36/分。SpO2 98％（room air）。毛細血管再充満時間2秒未満。心音と呼吸音とに異常を認めない。腹部は平坦、軟で、肝・脾を触知しない。腸雑音に異常を認めない。腱反射に異常を認めない。坐位で体幹動揺を認める。指鼻試験は拙劣で、眼振と変換運動障害を認める。眼底鏡による観察で両側うっ血乳頭を認める。次に行う検査として適切なのはどれか。",
+      "options": [
+        "脳波",
+        "腰椎穿刺",
+        "血液培養",
+        "頭部単純CT",
+        "腹部単純エックス線"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D. 頭部単純CT",
+      "output_length": 9,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 9
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "1歳6か月の男児。健康診査のため母親に連れられて来院した。上手に歩くことができるが、①スキップはできない。なぐり書きはできるが、②まねをして○を描くことができない。単語を話すが、③2語文はなく、④自分の名前は言えない。お気に入りの絵本をめくるが、⑤興味あるものの指さしはない。下線部のうち発達の異常が疑われるのはどれか。",
+      "options": [
+        "①",
+        "②",
+        "③",
+        "④",
+        "⑤"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "妊娠による母体の生理的変化について正しいのはどれか。",
+      "options": [
+        "血圧は上昇する。",
+        "循環血液量は減少する。",
+        "機能的残気量は減少する。",
+        "末梢血の白血球数は減少する。",
+        "インスリン感受性は亢進する。"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "検査の準備中、突然息苦しさが悪化し、その後意識レベルはJCS II-10まで低下した。心拍数128/分、整。血圧70/40mmHg。SpO2は測定不能。頸静脈の怒張を認める。考えられる病態はどれか。",
+      "options": [
+        "出血性ショック",
+        "心原性ショック",
+        "閉塞性ショック",
+        "敗血症性ショック",
+        "アナフイラキシーショック"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "66歳の女性。労作時の前胸部不快感を主訴に来院した。10年前から高血圧症、糖尿病で定期的に通院加療を受けている。2か月前から、朝6時ごろのゴミ出しの時に胸部不快感を自覚することが数回あったため来院した。来院時の心電図は完全右脚ブロックで以前と変化はなかった。トレッドミル負荷心電図検査では目標心拍数に達したが、十分な判定ができる所見は得られなかった。冠動脈造影検査で、左前下行枝に50～75％程度の狭窄病変を認めた。矢印は病変部を示す。血行再建術の適応と考えられた。心筋虚血の有無を評価するために適切な検査はどれか。",
+      "options": [
+        "Holter心電図",
+        "FDG-PET検査",
+        "Master 2階段法",
+        "MIBG心筋シンチグラフィ",
+        "運動負荷タリウム心筋シンチグラフィ"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "E",
+      "is_correct": true,
+      "raw_output": "E. 運動負荷タリウム心筋シンチグラフィ\n\nこの検査は、運動負荷下における心筋の血流を評価することができるため、心筋虚血の有無を評価するのに適している。",
+      "output_length": 76,
+      "output_language": {
+        "detected_lang": "jpn_Jpan",
+        "confidence": 0.9993701577186584,
+        "top_3": [
+          {
+            "lang": "jpn_Jpan",
+            "confidence": 0.9993701577186584
+          },
+          {
+            "lang": "yue_Hant",
+            "confidence": 0.00048588085337542
+          },
+          {
+            "lang": "zho_Hant",
+            "confidence": 4.647496098186821e-05
+          }
+        ],
+        "text_length": 76
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "1歳の男児。発熱と皮疹を主訴に母親に連れられて来院した。4日前から38〜39℃の発熱が続き、今朝、母親が皮疹に気付いたという。体温39.3℃。脈拍140/分、整。受診時の患児の背部の写真を別に示す。両側眼球結膜に充血を認める。口唇に発赤を認める。両側頸部に径2cmのリンパ節を数個ずつ触知する。四肢末端に紅斑と浮腫を認める。心音と呼吸音とに異常を認めない。血液所見：赤血球410万、Hb 11.7g/dL、Ht 36％、白血球13,600（桿状核好中球6％、分葉核好中球61％、単球4％、リンパ球29％）、血小板41万、フィブリノゲン860mg/dL（基準186〜355）。血液生化学所見：総蛋白6.0g/dL、アルブミン3.0g/dL、AST 240U/L、ALT 195U/L。CRP 4.2mg/dL。心エコー検査で異常所見を認めない。入院の上、標準的治療を行うこととした。治療効果判定に使用する所見はどれか。",
+      "options": [
+        "発熱",
+        "体幹の皮疹",
+        "眼球結膜充血",
+        "頸部リンパ節腫脹",
+        "四肢末端の紅斑・浮腫"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "安静による改善が乏しい背部痛をきたすのはどれか。2つ選べ。",
+      "options": [
+        "脊柱側弯症",
+        "大動脈解離",
+        "転移性脊椎腫瘍",
+        "腰部脊柱管狭窄症",
+        "腰椎椎間板ヘルニア"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E. 腰椎椎間板ヘルニア",
+      "output_length": 12,
+      "output_language": {
+        "detected_lang": "bod_Tibt",
+        "confidence": 0.23977379500865936,
+        "top_3": [
+          {
+            "lang": "bod_Tibt",
+            "confidence": 0.23977379500865936
+          },
+          {
+            "lang": "deu_Latn",
+            "confidence": 0.18222558498382568
+          },
+          {
+            "lang": "vie_Latn",
+            "confidence": 0.17589832842350006
+          }
+        ],
+        "text_length": 12
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "肝硬変を母地として発生した最大径2cm、単発の肝細胞癌に対する治療方針を決定する上で重要でないのはどれか。",
+      "options": [
+        "腹水の有無",
+        "ビリルビン値",
+        "肝硬変の成因",
+        "肝性脳症の有無",
+        "プロトロンビン時間"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B. ビリルビン値です。\n\nビリルビン値は肝機能の指標ですが、肝細胞癌の治療方針には直接関係しません。肝細胞癌の治療は、肝硬変の進行度、�",
+      "output_length": 69,
+      "output_language": {
+        "detected_lang": "jpn_Jpan",
+        "confidence": 0.36481717228889465,
+        "top_3": [
+          {
+            "lang": "jpn_Jpan",
+            "confidence": 0.36481717228889465
+          },
+          {
+            "lang": "yue_Hant",
+            "confidence": 0.04429292678833008
+          },
+          {
+            "lang": "mai_Deva",
+            "confidence": 0.0286097414791584
+          }
+        ],
+        "text_length": 69
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "高齢者虐待の防止、高齢者の養護者に対する支援等に関する法律で規定される養護者による行為で、高齢者虐待にあてはまらないのはどれか。",
+      "options": [
+        "食事の提供を拒絶する。",
+        "わいせつな行為をする。",
+        "就寝時にベッド柵で囲む。",
+        "排泄物の処理を拒絶する。",
+        "本人の財産を許諾なく処分する。"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "C. 就寝時にベッド柵で囲む。",
+      "output_length": 15,
+      "output_language": {
+        "detected_lang": "vie_Latn",
+        "confidence": 0.36243385076522827,
+        "top_3": [
+          {
+            "lang": "vie_Latn",
+            "confidence": 0.36243385076522827
+          },
+          {
+            "lang": "bod_Tibt",
+            "confidence": 0.0774562656879425
+          },
+          {
+            "lang": "min_Latn",
+            "confidence": 0.07550302147865295
+          }
+        ],
+        "text_length": 15
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "無症候性骨転移を伴う前立腺癌にまず行う治療はどれか。",
+      "options": [
+        "PDE 5〈phosphodiesterase 5〉阻害薬投与",
+        "抗癌化学療法",
+        "ホルモン療法",
+        "経尿道的レーザー前立腺切除術",
+        "ロボット支援腹腔鏡下前立腺全摘除術"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "C.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "感染症について正しいのはどれか。",
+      "options": [
+        "結核は検疫感染症である。",
+        "コレラの治療医療費は全額公費負担となる。",
+        "髄膜炎菌感染症は定期予防接種の対象である。",
+        "マラリアは感染症法に基づく入院勧告の対象となる。",
+        "新型インフルエンザは、診断後直ちに都道府県知事に届け出る。"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "E",
+      "is_correct": true,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "逆流性食道炎の誘因とならないのはどれか。",
+      "options": [
+        "肥満",
+        "高齢",
+        "亀背",
+        "萎縮性胃炎",
+        "カルシウム拮抗薬"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D. 萎縮性胃炎",
+      "output_length": 8,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 8
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "84歳の男性。胃癌の精査のため入院中である。入院時に左前腕に皮下血腫を認めていたが、その後血腫は左の側胸部、側腹部から大腿部にまで拡大した。これまでに出血症状の既往はなく、家族歴に特記すべきことはない。意識は清明。体温36.8℃。脈拍110/分、整。血圧100/60mmHg。眼瞼結膜は貧血様で、眼球結膜に黄染を認めない。胸骨右縁第2肋間を最強点とするLevine 2/6の収縮期駆出性雑音を聴取する。呼吸音に異常を認めない。腹部は平坦で、心窩部に圧痛を認める。肝・脾を触知しない。四肢等体幹に皮下血腫と紫斑を散在性に認める。血液所見：赤血球298万、Hb 7.2g/dL、Ht 23％、白血球7,400、血小板33万、出血時間3分30秒（基準7分以下）、PT-INR 1.0（基準0.9～1.1）、APTT 70.4秒（基準対照32.2）、血漿フィブリノゲン398mg/dL（基準186～355）、血清FDP 5μg/mL（基準10以下）。最も考えられる疾患はどれか。",
+      "options": [
+        "後天性血友病",
+        "ビタミンK欠乏症",
+        "von Willebrand病",
+        "抗リン脂質抗体症候群",
+        "播種性血管内凝固〈DIC〉"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "お薬手帳の役割として正しいのはどれか。2つ選べ。",
+      "options": [
+        "薬剤医療費の適正化",
+        "ジェネリック薬品の普及促進",
+        "患者による処方の自己管理の促進",
+        "重複処方、相互作用による健康被害の防止",
+        "薬局薬剤師の判断による処方内容の修正・改善"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D. 重複処方、相互作用による健康被害の防止",
+      "output_length": 22,
+      "output_language": {
+        "detected_lang": "jpn_Jpan",
+        "confidence": 0.24335013329982758,
+        "top_3": [
+          {
+            "lang": "jpn_Jpan",
+            "confidence": 0.24335013329982758
+          },
+          {
+            "lang": "bod_Tibt",
+            "confidence": 0.0778995156288147
+          },
+          {
+            "lang": "azb_Arab",
+            "confidence": 0.0432579405605793
+          }
+        ],
+        "text_length": 22
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "40歳の初妊婦。妊娠6週の問診で、20歳から喫煙を開始し、現在も20本/日喫煙していることが分かった。妊婦への説明として適切なのはどれか。2つ選べ。",
+      "options": [
+        "「早産の可能性が高くなります」",
+        "「急に禁煙すると胎児に危険です」",
+        "「胎児形態異常の頻度は2倍に上昇します」",
+        "「妊娠12週になるまでは禁煙してください」",
+        "「赤ちゃんの体重が小さくなりやすいと言われています」"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "47歳の男性。胸部絞扼感を主訴に来院した。高血圧症、脂質異常症で自宅近くの診療所に通院中であった。本日午前7時に下顎に放散する胸部絞扼感を突然自覚し、症状が軽減しないため15分後にタクシーで来院した。意識は清明。脈拍80/分、整。血圧156/80mmHg。呼吸数18/分。SpO2 98％（room air）。心音と呼吸音とに異常を認めない。血液所見：赤血球501万、Hb 15.1g/dL、白血球12,000、血小板22万。血液生化学所見：AST 40U/L、ALT 28U/L、LD 178U/L（基準176～353）、CK 100U/L（基準30～140）、尿素窒素11mg/dL、クレアチニン0.9mg/dL、総コレステロール212mg/dL、トリグリセリド168mg/dL、HDLコレステロール42mg/dL、Na 142mEq/L、K 4.7mEq/L、Cl 102mEq/L。CRP 1.2mg/dL。胸部エックス線写真に異常を認めない。心電図を別に示す。来院後、静脈路を確保し、ニトログリセリンを舌下投与した。次に行うべき対応として適切なのはどれか。",
+      "options": [
+        "心臓MRI",
+        "電気ショック",
+        "Holter心電図",
+        "冠動脈造影検査",
+        "安静時心筋シンチグラフイ"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D. 冠動脈造影検査",
+      "output_length": 10,
+      "output_language": {
+        "detected_lang": "eng_Latn",
+        "confidence": 0.29554444551467896,
+        "top_3": [
+          {
+            "lang": "eng_Latn",
+            "confidence": 0.29554444551467896
+          },
+          {
+            "lang": "deu_Latn",
+            "confidence": 0.2597736716270447
+          },
+          {
+            "lang": "bod_Tibt",
+            "confidence": 0.25080960988998413
+          }
+        ],
+        "text_length": 10
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "射精の中枢があるのはどれか。",
+      "options": [
+        "大脳皮質",
+        "橋",
+        "頸胸髄",
+        "胸腰髄",
+        "腰仙髄"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "45歳の男性。造船所でアーク溶接作業に従事している。本日、午前11時ころ、作業場が暑かったので、保護具を外して汗をぬぐってしまい、溶接時に発生する光に曝露したという。特に自覚症状はなく、その後の作業にも差し障りはなかったが、念のためにと同じ作業場の同僚が気遣い、昼食後、午後2時に同僚とともに医務室を訪れた。意識は清明。眼球結膜に軽度充血を認める。視野は良好。眼や耳の痛みは訴えていない。瞳孔、口腔粘膜および皮膚に異常を認めない。対応として適切なのはどれか。",
+      "options": [
+        "問題ないと伝える。",
+        "救急車を要請する。",
+        "水分を経口摂取させる。",
+        "呼吸機能検査を勧める。",
+        "眼科医への紹介受診を勧める。"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "E",
+      "is_correct": true,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "尿蛋白量を決定する因子でないのはどれか。",
+      "options": [
+        "尿浸透圧",
+        "糸球体内圧",
+        "尿細管機能",
+        "糸球体基底膜の蛋白透過性",
+        "糸球体上皮細胞〈ポドサイト〉機能"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C. 尿細管機能",
+      "output_length": 8,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 8
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "45歳の女性。息切れを主訴に来院した。6か月前にRaynaud現象と両手のこわばりが出現した。2か月前から労作時の息切れを自覚していたが、1週間前から増悪したため受診した。意識は清明。体温36.5℃。脈拍80/分、整。血圧130/80mmHg。呼吸数22/分。SpO2 95 ％ （room air）。両肘関節より遠位部および背部に暗紫色斑と皮膚硬化とを認める。眼瞼結膜と眼球結膜とに異常を認めない。口腔内に異常を認めない。心音では、II音の亢進と胸骨左縁第4肋間にIII/VIの吸気で増強する収縮期雑音とを認める。呼吸音に異常を認めない。下腿に軽度の浮腫を認める。尿所見：蛋白（―）、潜血（―）。血液所見：Hb 12.9g/dL、白血球7,800、血小板46万。血液生化学所見：尿素窒素10mg/dL、クレアチニン0.5mg/dL、KL-6 430U/mL（基準500未満）。免疫血清学所見：CRP 1.4mg/dL、抗核抗体320倍（基準20以下）、抗Scl-70抗体 240U/mL（基準7未満）。心電図で右心負荷所見を認める。胸部エックス線写真で異常を認めない。次に行うべき検査はどれか。",
+      "options": [
+        "冠動脈造影",
+        "心エコー検査",
+        "気管支鏡検査",
+        "ポリソムノグラフイ",
+        "ガリウムシンチグラフイ"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "次の文を読み、以下の問いに答えよ。82歳の女性。発熱と意識障害のため救急車で搬入された。現病歴： 3日前から発熱し、食事もむせるようになった。本日朝から呼びかけへの反応が乏しくなった。既往歴：72歳時からAlzheimer型認知症に対してドネペジルを内服中である。生活歴：ADLは車いす移動。2年前からサービス付き高齢者向け住宅に入居している。家族歴：特記すべきことはない。現　症：呼びかけにより開眼し「苦しい」と発語はあるが問いかけには答えられない。痛み刺激に対して手で払いのける。体温38.2℃。心拍数40/分、整。血圧140/90mmHg。呼吸数24/分。SpO2 92％（リザーバー付マスク10L/分酸素投与下）。瞳孔は高度に縮瞳し、対光反射は消失している。鼻汁、流涎および発汗がみられる。運動麻痺を認めない。腱反射の異常を認めない。両側肺底部にcoarse cracklesを聴取する。腹部は平坦、軟で、肝・脾を触知しない。下腿に浮腫を認めない。下肢に筋力低下を認める。流涎に対して最初に行うべき処置はどれか。",
+      "options": [
+        "気管挿管",
+        "口腔内吸引",
+        "経鼻胃管挿入",
+        "輪状甲状靱帯穿刺",
+        "経鼻エアウェイ挿入"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "48歳の女性。胸やけを主訴に来院した。3か月前から胸やけが出現し、食事に気を付け経過をみていたが改善しないため受診した。既往歴と家族歴に特記すべきことはない。喫煙歴はない。飲酒は機会飲酒。半年前に勤務異動があり仕事が忙しくなった。意識は清明。脈拍68/分､整。血圧112/70mmHg。心音と呼吸音とに異常を認めない。腹部は平坦、軟で、肝・脾を触知しない。上部消化管内視鏡像を別に示す。考えられるのはどれか。",
+      "options": [
+        "Barrett食道",
+        "逆流性食道炎",
+        "好酸球性食道炎",
+        "食道アカラシア",
+        "非びらん性胃食道逆流症〈NERD〉"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "E",
+      "is_correct": true,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "身体診察と用いる手指の部位との組合せで適切なのはどれか。",
+      "options": [
+        "脾腫の触診 --------- 手背",
+        "腹部の打診 --------- 母指の先端",
+        "上顎洞の圧痛 --------- 手掌近位部",
+        "声音振盪の触診 --------- 示指の先端",
+        "鎖骨上リンパ節の触診 --------- 示指から環指までの指腹"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "E",
+      "is_correct": true,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "チアノーゼを生じないのはどれか。",
+      "options": [
+        "Fallot四徴症",
+        "大動脈二尖弁",
+        "完全大血管転位症",
+        "総肺静脈還流異常症",
+        "Eisenmenger症候群"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B. 大動脈二尖弁",
+      "output_length": 9,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 9
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "死にゆく人の心の動きを、否認、怒り、取引き、抑うつ、受容の5段階で表し、終末期ケアの在り方に影響を与えた“On death and dying”（死ぬ瞬間）の著者はどれか。",
+      "options": [
+        "William Osler〈ウィリアム・オスラー〉",
+        "Helen Adams Keller〈ヘレン・アダムス・ケラー〉",
+        "Albert Schweitzer〈アルベルト・シュバイツァ一〉",
+        "Florence Nightingale〈フロレンス・ナイチンゲール〉",
+        "Elisabeth Kübler-Ross〈エリザベス・キュブラー＝ロス〉"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "E",
+      "is_correct": true,
+      "raw_output": "E. Elisabeth Kübler-Ross",
+      "output_length": 24,
+      "output_language": {
+        "detected_lang": "deu_Latn",
+        "confidence": 0.6140581369400024,
+        "top_3": [
+          {
+            "lang": "deu_Latn",
+            "confidence": 0.6140581369400024
+          },
+          {
+            "lang": "kor_Hang",
+            "confidence": 0.217803955078125
+          },
+          {
+            "lang": "ltz_Latn",
+            "confidence": 0.07282102853059769
+          }
+        ],
+        "text_length": 24
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "25歳の男性。耳介からの出血が止まらないため救急車で搬送された。喧嘩の際に避けた刃物が右耳をかすめて出血し、圧迫しても止血しないという。創部の写真を別に示す。創の縫合前に用いることができる消毒薬はどれか。",
+      "options": [
+        "過酢酸",
+        "エタノール",
+        "塩化ベンザルコニウム",
+        "グルタールアルデヒド",
+        "次亜塩素酸ナトリウム"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E. 次亜塩素酸ナトリウムです。\n\n次亜塩素酸ナトリウムは、創の消毒に広く使用される薬剤です。創の表面を消毒し、細菌の繁殖を防ぐ効果があります。創の",
+      "output_length": 74,
+      "output_language": {
+        "detected_lang": "jpn_Jpan",
+        "confidence": 0.18808619678020477,
+        "top_3": [
+          {
+            "lang": "jpn_Jpan",
+            "confidence": 0.18808619678020477
+          },
+          {
+            "lang": "zho_Hant",
+            "confidence": 0.052978578954935074
+          },
+          {
+            "lang": "yue_Hant",
+            "confidence": 0.03272633254528046
+          }
+        ],
+        "text_length": 74
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "66歳の男性。意識障害とけいれんのため救急車で搬入された。3年前から頭部外傷後てんかんで抗けいれん薬の内服治療を受けていた。この1年間はけいれん発作がなかったため、2週間前から服薬していなかったところ、外出先で突然、強直間代けいれんを起こし、居合わせた人が救急車を要請した。発症から10分後の救急隊接触時には間代けいれんがわずかにあったが、救急搬送中に消失した。搬入時、けいれんを認めないが、意識レベルはJCS I-3。体温36.9℃。心拍数92/分、整。血圧140/90mmHg。呼吸数16/分。SpO2 99％（マスク6L/分酸素投与下）。処置室でバイタルサインを測定し、静脈路を確保し生理食塩液の輸液を開始した直後に、強直間代けいれんが再発した。直ちに投与すべきなのはどれか。",
+      "options": [
+        "モルヒネ",
+        "ジアゼパム",
+        "ペンタゾシン",
+        "重炭酸ナトリウム",
+        "グルコン酸カルシウム"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "45歳の男性。膵腫瘍の精査のため来院した。15年前から2型糖尿病で自宅近くの診療所で内服治療を受けている。3か月前から急激に血糖コントロールが悪化したため腹部超音波検査を受けたところ、膵腫瘍が認められ紹介受診となった。eGFR 48mL/分/1.73m2。腹部造影CTを計画する際に検査前後数日間の休薬を検討すべき薬剤はどれか。",
+      "options": [
+        "DPP-4阻害薬",
+        "SGLT2阻害薬",
+        "ビグアナイド薬",
+        "スルホニル尿素薬",
+        "α-グルコシダーゼ阻害薬"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "径2cmのリンパ節で癌の転移よりも炎症性の腫大を疑うのはどれか。",
+      "options": [
+        "硬い。",
+        "圧痛を伴う。",
+        "可動性が乏しい。",
+        "鎖骨上窩にある。",
+        "辺縁が不整である。"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "気道確保後に迅速簡易超音波検査を行うこととした。出血の確認に適切でない部位はどれか。",
+      "options": [
+        "心嚢",
+        "脾臓周囲",
+        "膀胱直腸窩",
+        "モリソン窩",
+        "傍結腸溝周囲"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "10か月の男児。嘔吐と血便を主訴に母親に連れられて来院した。今朝から急に嘔吐が続き、時折激しく泣くこともあり、昼間から血便が複数回みられた。意識は清明だが不機嫌で激しく泣いている。体温37.2℃。脈拍160/分、整。血圧84/52mmHg。呼吸数30/分。毛細血管再充満時間1秒。SpO2 99％（room air）。心音と呼吸音に異常を認めない。腹部は軟で、右上腹部に腫瘤を触知する。血液検査所見に異常を認めない。腹部エックス線写真では右上腹部に腸管ガス像がなく、鏡面像や腹腔内遊離ガス像は認めなかった。腹部超音波像ではtarget signを認めた。保護者への説明として適切なのはどれか。",
+      "options": [
+        "「高圧浣腸で整復できれば帰宅できます」",
+        "「炎症を抑えるため抗菌薬の内服が必要です」",
+        "「腹膜炎を併発しているため緊急手術になります」",
+        "「グリセリン浣腸をして便の状態を確認しましょう」",
+        "「高圧浣腸で整復できなければ開腹手術になります」"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "地域医療構想で用いられる病床機能区分に含まれないのはどれか。",
+      "options": [
+        "高度急性期",
+        "急性期",
+        "亜急性期",
+        "回復期",
+        "慢性期"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E. 慢性期",
+      "output_length": 6,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 6
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "次の文を読み、以下の問いに答えよ。76歳の男性。食欲低下と全身倦怠感を主訴に来院した。現病歴：58歳時に高血圧症と診断され、内服加療を受けていた。5年前から尿蛋白1g/日以上が持続するようになり、腎機能も徐々に増悪してきていた。1週間前から食欲が低下し、全身倦怠感が強くなってきたため、外来通院中の病院を受診した。既往歴：72歳時に狭心症で入院加療歴がある。生活歴：喫煙歴は20歳から40本/日を56年間。飲酒は日本酒1合/日。家族歴：母親が高血圧症で治療歴がある。現　症：意識は清明。身長162cm、体重47kg。体温36.4℃。脈拍64/分、整。血圧146/92mmHg。呼吸数16/分。SpO2 96％（room air）。眼瞼結膜に異常を認めない。頸静脈の怒張を認めない。心音と呼吸音に異常を認めない。腹部は平坦、軟で、肝・脾を触知しない。両下腿に圧痕性浮腫を認める。検査所見：尿所見：蛋白3＋、糖（−）、潜血（−）、1日尿蛋白3.3g/日。血液所見：赤血球292万、Hb 8.8g/dL、Ht 28％、白血球5,800、血小板18万。血液生化学所見：総蛋白6.3g/dL、アルブミン3.4g/dL、尿素窒素86 mg/dL、クレアチニン8.4mg/dL、eGFR 6mL/min/1.73m2、尿酸9.8mg/dL、血糖113mg/dL、Na 131mEq/L、K 7.2mEq/L、Cl 104mEq/L。CRP 0.8mg/dL。胸部エックス線写真で心胸郭比51％。血液透析を開始するため右内頸静脈から透析用カテーテルを留置することとなった。超音波ガイド下にカテーテルを挿入中、患者の体動がみられ、胸が苦しいとの訴えがあった。患者の意識と呼吸状態の確認とともにまず行うべきことは何か。",
+      "options": [
+        "SpO2の確認",
+        "胸部造影CT",
+        "Dダイマー測定",
+        "フロセミド静注",
+        "ジアゼパム静注"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "20歳の男性。歩行困難のため救急車で搬入された。路上で倒れているところを通行人が発見し救急車を要請した。意識レベルはJCS I-3。体温36.2℃。心拍数72/分、整。血圧112/80mmHg。呼吸数16/分。SpO2 94％（room air）。心音と呼吸音とに異常を認めない。四肢の筋力低下のため起き上がれない。血液生化学所見：総蛋白7.8g/dL、アルブミン3.8g/dL、尿素窒素12mg/dL、クレアチニン1.1mg/dL、Na 136mEq/L、K 1.9mEq/L、Cl 106mEq/L、Ca 8.8mg/dL、P 2.5mg/dL。動脈血ガス分析（room air）：pH 7.24、PaCO2 38Torr、PaO2 88Torr、HCO3- 16.0mEq/L。遅れて来院した家族の話では以前からシンナー（有機溶剤トルエン含有）吸引の習慣があったという。今後起こりうる可能性があるのはどれか。2つ選べ。",
+      "options": [
+        "下痢",
+        "胆管癌",
+        "呼吸筋麻痺",
+        "腱反射亢進",
+        "多源性心室頻拍"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "C. 呼吸筋麻痺",
+      "output_length": 8,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 8
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "実施した生検の結果では、いずれも肺腺癌の所見であった。患者に説明する内容として誤っているのはどれか。",
+      "options": [
+        "治癒は困難である。",
+        "腫瘍の遺伝子検査が必要である。",
+        "薬物による抗癌治療が適応となる。",
+        "セカンドオピニオンを受けることができる。",
+        "緩和ケアは抗癌治療が終了してから始める。"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "UNKNOWN",
+      "is_correct": false,
+      "raw_output": "Eです。\n\n緩和ケアは、抗癌治療が終了した後ではなく、病状が進行し、治療の効果が期待できなくなった場合に始めることがあります。ただし、患者が治療の効果が期待できなくなったと判断した",
+      "output_length": 90,
+      "output_language": {
+        "detected_lang": "jpn_Jpan",
+        "confidence": 0.9996239542961121,
+        "top_3": [
+          {
+            "lang": "jpn_Jpan",
+            "confidence": 0.9996239542961121
+          },
+          {
+            "lang": "zho_Hant",
+            "confidence": 0.00015592205454595387
+          },
+          {
+            "lang": "zho_Hans",
+            "confidence": 6.741835386492312e-05
+          }
+        ],
+        "text_length": 90
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "82歳の男性。発熱、嘔吐および水様下痢を主訴に来院した。3日前から38℃前後の発熱、嘔吐および1日8回の水様下痢が持続しているという。経口水分摂取が困難であるため入院した。入院時検査で便中ノロウイルス抗原が陽性であった。診察にあたり、①アルコール手指消毒を行ったのち、②ビニールガウンを着用し、③プラスチック手袋を着用した。その後腹部の聴診と触診を行った。診察後はプラスチック手袋とビニールガウンを外し、④聴診器を白衣のポケットにしまい、⑤石けんと流水での手洗いを行った。下線部のうち感染対策として誤っているのはどれか。",
+      "options": [
+        "①",
+        "②",
+        "③",
+        "④",
+        "⑤"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D. ④\n\n聴診器は直接患者の体に触れるため、感染対策としては適切な処理は、アルコール消毒や石けんと流水での手洗いを行う必要があります。ただし、白衣のポケットに",
+      "output_length": 80,
+      "output_language": {
+        "detected_lang": "jpn_Jpan",
+        "confidence": 0.9361702799797058,
+        "top_3": [
+          {
+            "lang": "jpn_Jpan",
+            "confidence": 0.9361702799797058
+          },
+          {
+            "lang": "yue_Hant",
+            "confidence": 0.016755081713199615
+          },
+          {
+            "lang": "zho_Hant",
+            "confidence": 0.0101779755204916
+          }
+        ],
+        "text_length": 80
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "便を用いた検査のうち、診断に最も有用なのはどれか。",
+      "options": [
+        "脂肪染色",
+        "潜血",
+        "虫卵",
+        "毒素検出",
+        "培養"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C. 虫卵です。\n\n便を用いた検査の中で、虫卵検査は、寄生虫感染の診断に最も有用なものです。特に、肝吸虫、糸状虫、強殖性アメーバ症などの感染",
+      "output_length": 70,
+      "output_language": {
+        "detected_lang": "jpn_Jpan",
+        "confidence": 0.5651815533638,
+        "top_3": [
+          {
+            "lang": "jpn_Jpan",
+            "confidence": 0.5651815533638
+          },
+          {
+            "lang": "zho_Hans",
+            "confidence": 0.026972351595759392
+          },
+          {
+            "lang": "zho_Hant",
+            "confidence": 0.02481798827648163
+          }
+        ],
+        "text_length": 70
+      }
+    },
+    {
+      "input_lang": "ja",
+      "input_lang_name": "Japanese",
+      "question": "64歳の女性。1年前から徐々に物忘れがひどくなってきていることを心配した家族に伴われて来院した。最近は財布をしまったことや食事をしたことを思い出せないこともあるという。この患者の診断に有用な検査はどれか。",
+      "options": [
+        "Rorschachテスト",
+        "田中・Binet知能検査",
+        "津守・稲毛式発達検査",
+        "Wechsler成人知能検査",
+        "簡易精神症状評価尺度［Brief Psychiatric Rating Scale〈BPRS〉］"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D. \n\nWechsler成人知能検査は、認知機能の評価に適しており、認知症の診断に有用な検査です。特に、物忘れや認知機能の低下を示す症状がある場合に使用されることが多いです。",
+      "output_length": 88,
+      "output_language": {
+        "detected_lang": "jpn_Jpan",
+        "confidence": 0.4236719608306885,
+        "top_3": [
+          {
+            "lang": "jpn_Jpan",
+            "confidence": 0.4236719608306885
+          },
+          {
+            "lang": "yue_Hant",
+            "confidence": 0.06874141097068787
+          },
+          {
+            "lang": "zho_Hans",
+            "confidence": 0.01986423321068287
+          }
+        ],
+        "text_length": 88
+      }
+    }
+  ]
+}

@@ -219,3 +219,12 @@ __marimo__/
 
 # Hide template files
 **/gitignored-*
+src/multimeditron/translation/experiments/results/high_resource_translation_results.json
+src/multimeditron/translation/datasets/formatted_datasets/
+src/multimeditron/translation/datasets/raw/
+src/multimeditron/translation/models/
+src/multimeditron/translation/models/nllb-consensus-finetuned/
+src/multimeditron/translation/experiments/results/base_nllb/mediBench_translation/high_resource_translation_results_FULL.json
+src/multimeditron/translation/experiments/results/base_nllb/mediBench_translation/cleaned_high_resource_translation_results_FULL.json
+src/multimeditron/translation/experiments/results/base_nllb/mediBench_translation/cleaned_high_resource_translation_results_stats_FULL.json
+src/multimeditron/translation/datasets/generated_datasets/consensus/

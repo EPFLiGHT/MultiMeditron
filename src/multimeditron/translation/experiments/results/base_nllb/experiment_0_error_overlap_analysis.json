@@ -1,0 +1,283 @@
+{
+  "analysis": "Error Overlap Analysis",
+  "source_file": "Experiment 0: Does Meditron Need Translation?",
+  "overlap_metrics": {
+    "total_samples": 4996,
+    "both_correct": 2486,
+    "both_wrong": 1515,
+    "trans_only_correct": 487,
+    "native_only_correct": 508,
+    "both_correct_pct": 49.75980784627702,
+    "both_wrong_pct": 30.32425940752602,
+    "trans_only_correct_pct": 9.747798238590873,
+    "native_only_correct_pct": 10.168134507606084,
+    "translation_errors": 2023,
+    "native_errors": 2002,
+    "error_overlap_pct": 74.88877904102817,
+    "ensemble_potential_accuracy": 69.67574059247397,
+    "ensemble_potential_gain": 9.747798238590867,
+    "examples": {
+      "both_correct": [
+        {
+          "question": "男，6岁，身高85cm，智能落后，只能数1～10。体检：皮肤粗糙，眼睑水肿，眼距宽，鼻梁扁平，牙列不齐，常舌伸口外，流涎，毛发黄，发际低，骨龄摄片示腕部骨化中心4个。1．为确诊，应选择下列哪项检查？（...",
+          "language": "zh",
+          "correct_answer": "B"
+        },
+        {
+          "question": "在真核生物中，经RNA聚合酶Ⅱ催化产生的转录产物为（　　）。...",
+          "language": "zh",
+          "correct_answer": "A"
+        },
+        {
+          "question": "12岁患儿，因高度浮肿，大量蛋白尿，于外院诊断为原发性肾病综合征，经用泼尼松60mg/d，治疗8周，现尿蛋白（+++～++++），尿红细胞50个/HP，血清补体C3正常，肾功能正常。1．可能的诊断是（...",
+          "language": "zh",
+          "correct_answer": "C"
+        },
+        {
+          "question": "2．经抢救意识逐渐恢复，此时的医患关系模式属于（　　）。...",
+          "language": "zh",
+          "correct_answer": "B"
+        },
+        {
+          "question": "男性，40岁，因发热，便秘，食欲不振12天入院，查体：肝大，肋下1cm，软，脾肋下及边，血常规WBC 2.7×109/L，中性粒细胞52%，淋巴细胞44%，血清ALT 120U/L，肥达反应：“O”1...",
+          "language": "zh",
+          "correct_answer": "A"
+        }
+      ],
+      "both_wrong": [
+        {
+          "question": "5个月小儿，发热2天，体温38.2℃，口周发绀，咳嗽，喘憋，前囟平软，心率128次/分，满肺喘鸣音，背部有固定的湿啰音；胸部X线呈现小片阴影及肺气肿改变。3．不正确的治疗是（　　）。...",
+          "language": "zh",
+          "correct_answer": "C",
+          "trans_predicted": "A",
+          "native_predicted": "A"
+        },
+        {
+          "question": "动物实验显示，口服葡萄糖比静脉注射相同剂量葡萄糖引起的胰岛素分泌更多，这是因为口服可引起下列哪种具有很强的刺激胰岛素分泌的胃肠激素释放（　　）。...",
+          "language": "zh",
+          "correct_answer": "B",
+          "trans_predicted": "A",
+          "native_predicted": "A"
+        },
+        {
+          "question": "2．鉴别l型或2型糖尿病最常用的指标是（　　）。...",
+          "language": "zh",
+          "correct_answer": "B",
+          "trans_predicted": "C",
+          "native_predicted": "C"
+        },
+        {
+          "question": "小儿时期中性粒细胞和淋巴细胞出现两次交叉，分别是在生后（　　）。...",
+          "language": "zh",
+          "correct_answer": "B",
+          "trans_predicted": "A",
+          "native_predicted": "A"
+        },
+        {
+          "question": "3．呼吸道合胞病毒肺炎（　　）。...",
+          "language": "zh",
+          "correct_answer": "A",
+          "trans_predicted": "B",
+          "native_predicted": "B"
+        }
+      ],
+      "trans_only_correct": [
+        {
+          "question": "血浆各类脂蛋白中，按它们所含胆固醇及其酯的量从多到少的排列顺序是（　　）。...",
+          "language": "zh",
+          "correct_answer": "C",
+          "native_predicted": "A"
+        },
+        {
+          "question": "门脉性肝硬化形成假小叶，其病理特点不正确的是（　　）。...",
+          "language": "zh",
+          "correct_answer": "B",
+          "native_predicted": "D"
+        },
+        {
+          "question": "关于休克的治疗原则，不正确的是（　　）。...",
+          "language": "zh",
+          "correct_answer": "B",
+          "native_predicted": "D"
+        },
+        {
+          "question": "4．卵巢颗粒细胞肿瘤的标志物是（　　）。...",
+          "language": "zh",
+          "correct_answer": "C",
+          "native_predicted": "B"
+        },
+        {
+          "question": "在保护病人隐私时应考虑除外（　　）。...",
+          "language": "zh",
+          "correct_answer": "D",
+          "native_predicted": "A"
+        }
+      ],
+      "native_only_correct": [
+        {
+          "question": "病人将医生的评价归之于早年生活中所接触到的权威人物所具有的品质过程，心理学中称之为（　　）。...",
+          "language": "zh",
+          "correct_answer": "C",
+          "trans_predicted": "D"
+        },
+        {
+          "question": "以下对动机的理解错误的是（　　）。...",
+          "language": "zh",
+          "correct_answer": "A",
+          "trans_predicted": "B"
+        },
+        {
+          "question": "患者，2岁，低热、盗汗、乏力半个月余，头痛，间断抽搐5天。查体：精神萎靡，颈强，克氏征阳性。胸片正常，OT试验（+++）。脑脊液：白细胞320×106/L，中性粒细胞占0.4，淋巴细胞占0.6，蛋白质...",
+          "language": "zh",
+          "correct_answer": "D",
+          "trans_predicted": "A"
+        },
+        {
+          "question": "女，60岁。双下肢水肿2周。既往高血压10年，平时血压140／90mmHg，糖尿病3年。尿蛋白3.8g/d，尿红细胞3～5/HP，血Alb 29g/L，空腹Glu 8.5mmol/L，Scr 198μ...",
+          "language": "zh",
+          "correct_answer": "B",
+          "trans_predicted": "D"
+        },
+        {
+          "question": "地西泮的药理作用不包括（　　）。...",
+          "language": "zh",
+          "correct_answer": "D",
+          "trans_predicted": "C"
+        }
+      ]
+    },
+    "by_language": {
+      "zh": {
+        "both_correct": 762,
+        "both_wrong": 193,
+        "trans_only_correct": 9,
+        "native_only_correct": 36,
+        "total": 1000
+      },
+      "ja": {
+        "both_correct": 317,
+        "both_wrong": 449,
+        "trans_only_correct": 80,
+        "native_only_correct": 150,
+        "total": 996
+      },
+      "ru": {
+        "both_correct": 536,
+        "both_wrong": 211,
+        "trans_only_correct": 143,
+        "native_only_correct": 110,
+        "total": 1000
+      },
+      "fr": {
+        "both_correct": 314,
+        "both_wrong": 415,
+        "trans_only_correct": 146,
+        "native_only_correct": 125,
+        "total": 1000
+      },
+      "es": {
+        "both_correct": 557,
+        "both_wrong": 247,
+        "trans_only_correct": 109,
+        "native_only_correct": 87,
+        "total": 1000
+      }
+    }
+  },
+  "original_stats": {
+    "translation": {
+      "accuracy": 59.507606084867895,
+      "correct": 2973,
+      "total": 4996,
+      "by_language": {
+        "zh": {
+          "correct": 771,
+          "total": 1000,
+          "accuracy": 77.10000000000001
+        },
+        "ja": {
+          "correct": 397,
+          "total": 996,
+          "accuracy": 39.859437751004016
+        },
+        "ru": {
+          "correct": 679,
+          "total": 1000,
+          "accuracy": 67.9
+        },
+        "fr": {
+          "correct": 460,
+          "total": 1000,
+          "accuracy": 46.0
+        },
+        "es": {
+          "correct": 666,
+          "total": 1000,
+          "accuracy": 66.60000000000001
+        }
+      }
+    },
+    "native": {
+      "accuracy": 59.927942353883104,
+      "correct": 2994,
+      "total": 4996,
+      "by_language": {
+        "zh": {
+          "correct": 798,
+          "total": 1000,
+          "accuracy": 79.80000000000001
+        },
+        "ja": {
+          "correct": 467,
+          "total": 996,
+          "accuracy": 46.88755020080321
+        },
+        "ru": {
+          "correct": 646,
+          "total": 1000,
+          "accuracy": 64.60000000000001
+        },
+        "fr": {
+          "correct": 439,
+          "total": 1000,
+          "accuracy": 43.9
+        },
+        "es": {
+          "correct": 644,
+          "total": 1000,
+          "accuracy": 64.4
+        }
+      }
+    },
+    "skipped": {
+      "total": 2101,
+      "by_reason": {
+        "Missing or empty options": 2096,
+        "Answer 'A OR D' is not a single letter": 1,
+        "Generation error: predict processes one line at a time (remove '\\n')": 4
+      },
+      "by_language": {
+        "xh": 116,
+        "fr": 116,
+        "rw": 116,
+        "ha": 116,
+        "ln": 116,
+        "lg": 116,
+        "ig": 116,
+        "st": 116,
+        "ee": 116,
+        "sw": 116,
+        "om": 116,
+        "sn": 116,
+        "yo": 116,
+        "wo": 116,
+        "am": 116,
+        "en": 116,
+        "tw": 116,
+        "zu": 116,
+        "vai": 8,
+        "ja": 5
+      }
+    }
+  }
+}

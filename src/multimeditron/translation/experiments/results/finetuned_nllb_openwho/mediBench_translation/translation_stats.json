@@ -1,0 +1,20 @@
+{
+  "total_samples": 100,
+  "total_translations": 480,
+  "by_target_lang": {
+    "am": 96,
+    "ha": 96,
+    "sw": 96,
+    "yo": 96,
+    "zu": 96
+  },
+  "by_source_lang": {
+    "en": 19,
+    "zh": 64,
+    "ja": 4,
+    "ru": 2,
+    "fr": 3,
+    "es": 4
+  },
+  "failed": 0
+}

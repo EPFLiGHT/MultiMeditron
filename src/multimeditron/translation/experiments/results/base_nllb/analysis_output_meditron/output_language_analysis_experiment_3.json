@@ -1,0 +1,5359 @@
+{
+  "experiment": "Meditron Output Language Analysis - African Languages (v2)",
+  "description": "Native Meditron evaluation with IMPROVED language detection (min 10 chars)",
+  "model": "ClosedMeditron/Mulimeditron-Proj-CLIP-generalist",
+  "min_chars_for_detection": 10,
+  "languages": [
+    "am",
+    "ha",
+    "zu",
+    "yo",
+    "sw"
+  ],
+  "statistics": {
+    "accuracy": {
+      "overall_accuracy": 29.5,
+      "total": 200,
+      "correct": 59,
+      "by_input_language": {
+        "am": {
+          "accuracy": 30.0,
+          "language_name": "Amharic",
+          "total": 40,
+          "correct": 12
+        },
+        "ha": {
+          "accuracy": 32.5,
+          "language_name": "Hausa",
+          "total": 40,
+          "correct": 13
+        },
+        "zu": {
+          "accuracy": 40.0,
+          "language_name": "Zulu",
+          "total": 40,
+          "correct": 16
+        },
+        "yo": {
+          "accuracy": 20.0,
+          "language_name": "Yoruba",
+          "total": 40,
+          "correct": 8
+        },
+        "sw": {
+          "accuracy": 25.0,
+          "language_name": "Swahili",
+          "total": 40,
+          "correct": 10
+        }
+      }
+    },
+    "response_length_summary": {
+      "short_responses": 160,
+      "long_responses": 40,
+      "short_pct": 80.0,
+      "long_pct": 20.0
+    },
+    "output_language_analysis": {
+      "note": "Language detection only performed on responses >= 10 characters",
+      "overall_output_language_distribution": {
+        "amh_Ethi": 1,
+        "deu_Latn": 1,
+        "hau_Latn": 3,
+        "tum_Latn": 1,
+        "ssw_Latn": 2,
+        "zul_Latn": 8,
+        "vie_Latn": 5,
+        "min_Latn": 1,
+        "swh_Latn": 17,
+        "yor_Latn": 1
+      },
+      "overall_output_language_pct": {
+        "amh_Ethi": 2.5,
+        "deu_Latn": 2.5,
+        "hau_Latn": 7.5,
+        "tum_Latn": 2.5,
+        "ssw_Latn": 5.0,
+        "zul_Latn": 20.0,
+        "vie_Latn": 12.5,
+        "min_Latn": 2.5,
+        "swh_Latn": 42.5,
+        "yor_Latn": 2.5
+      },
+      "by_input_language": {
+        "am": {
+          "language_name": "Amharic",
+          "total_samples": 40,
+          "long_responses": 1,
+          "short_responses": 39,
+          "output_language_distribution": {
+            "amh_Ethi": 1
+          },
+          "matches_input_lang_pct": 100.0,
+          "responds_in_english_pct": 0.0,
+          "examples": [
+            {
+              "question_preview": "በአንድ ቅፅ ውስጥ ያለው የፕሮቲን ፒ መጠን ምን ያህል እንደሆነ ለማወቅ እንፈልጋለን ። በዚህ ቅፅ ውስጥ 7 ሚሊግራም የፕሮቲን ፒ ንጥረ ነገር በ 35S-ሜት ...",
+              "raw_output": "በአንድ ቅፅ ውስጥ ያለው የፕሮቲን ፒ መጠን �",
+              "output_length": 29,
+              "detected_output_lang": "amh_Ethi",
+              "confidence": 1.0000098943710327
+            }
+          ]
+        },
+        "ha": {
+          "language_name": "Hausa",
+          "total_samples": 40,
+          "long_responses": 5,
+          "short_responses": 35,
+          "output_language_distribution": {
+            "deu_Latn": 1,
+            "hau_Latn": 3,
+            "tum_Latn": 1
+          },
+          "matches_input_lang_pct": 60.0,
+          "responds_in_english_pct": 0.0,
+          "examples": [
+            {
+              "question_preview": "Wace cuta ce ke haifar da karancin acetylcholine?...",
+              "raw_output": "A. Cutar Alzheimer",
+              "output_length": 18,
+              "detected_output_lang": "deu_Latn",
+              "confidence": 0.6006256937980652
+            },
+            {
+              "question_preview": "Daga cikin wadannan maganganu game da cututtukan hepatitis na yau da kullum, wanne ne daidai?...",
+              "raw_output": "B. Suna iya zama sanadin ƙwayoyin cuta na hepatitis C",
+              "output_length": 53,
+              "detected_output_lang": "hau_Latn",
+              "confidence": 0.9998548030853271
+            },
+            {
+              "question_preview": "A cikin cututtuka da aka ambata a ƙasa, waɗanne ne yawanci suke tare da angina?...",
+              "raw_output": "B. Ciwon Gishiri",
+              "output_length": 16,
+              "detected_output_lang": "tum_Latn",
+              "confidence": 0.898452639579773
+            }
+          ]
+        },
+        "zu": {
+          "language_name": "Zulu",
+          "total_samples": 40,
+          "long_responses": 14,
+          "short_responses": 26,
+          "output_language_distribution": {
+            "ssw_Latn": 2,
+            "zul_Latn": 8,
+            "vie_Latn": 2,
+            "min_Latn": 1,
+            "swh_Latn": 1
+          },
+          "matches_input_lang_pct": 57.1,
+          "responds_in_english_pct": 0.0,
+          "examples": [
+            {
+              "question_preview": "Yimaphi kula mazwi ayiqiniso? I-staphylococcus aureus......",
+              "raw_output": "B. Yibhaktheriya yeGram-positive",
+              "output_length": 32,
+              "detected_output_lang": "ssw_Latn",
+              "confidence": 0.6666114926338196
+            },
+            {
+              "question_preview": "Yiziphi iziphakamiso ezilandelayo mayelana nezindlela ze-chromatographic ezinembile?...",
+              "raw_output": "A. I-gas-solid chromatography iyinhlobo ye-adsorption chromatography",
+              "output_length": 68,
+              "detected_output_lang": "zul_Latn",
+              "confidence": 0.35035374760627747
+            },
+            {
+              "question_preview": "Khetha izitatimende eziqondile kulezi ziphakamiso ezilandelayo:...",
+              "raw_output": "Ndiyakwazi ukuthi inqubomgomo yokugoma inqondile eFrance, inqubomgomo yokugoma ingaphansi komthwalo wemfanelo kahulumeni. \n\nJawabho A.",
+              "output_length": 134,
+              "detected_output_lang": "zul_Latn",
+              "confidence": 0.9999793767929077
+            }
+          ]
+        },
+        "yo": {
+          "language_name": "Yoruba",
+          "total_samples": 40,
+          "long_responses": 1,
+          "short_responses": 39,
+          "output_language_distribution": {
+            "yor_Latn": 1
+          },
+          "matches_input_lang_pct": 100.0,
+          "responds_in_english_pct": 0.0,
+          "examples": [
+            {
+              "question_preview": "A dábàá pé kí o gba abẹ́rẹ́ àjẹsára:...",
+              "raw_output": "A. Àwọn Ọmọbìnrin Tí Wọ́n Ń Bí",
+              "output_length": 30,
+              "detected_output_lang": "yor_Latn",
+              "confidence": 1.0000096559524536
+            }
+          ]
+        },
+        "sw": {
+          "language_name": "Swahili",
+          "total_samples": 40,
+          "long_responses": 19,
+          "short_responses": 21,
+          "output_language_distribution": {
+            "swh_Latn": 16,
+            "vie_Latn": 3
+          },
+          "matches_input_lang_pct": 84.2,
+          "responds_in_english_pct": 0.0,
+          "examples": [
+            {
+              "question_preview": "Kati ya protini zifuatazo, ni ipi inayosababisha uchochezi zaidi?...",
+              "raw_output": "D. Protini ya C-Reactive (CRP) \n\nProtini ya C-Reactive (CRP) ni protini inayosababisha uchochezi mkubwa zaidi. Ina uwezo wa kuongeza uchochezi wa mwili, hasa katika",
+              "output_length": 164,
+              "detected_output_lang": "swh_Latn",
+              "confidence": 0.999995231628418
+            },
+            {
+              "question_preview": "Chagua sentensi sahihi kuhusu osmolarity na osmolality?...",
+              "raw_output": "A. Osmolarity ni idadi ya osmoles kwa lita moja ya suluhisho",
+              "output_length": 60,
+              "detected_output_lang": "swh_Latn",
+              "confidence": 0.9999887943267822
+            },
+            {
+              "question_preview": "Kati ya mapendekezo yafuatayo kuhusu electrophoresis, ni ipi ambayo ni sahihi?...",
+              "raw_output": "A. \n\nUV-kuonekana absorption spectrophotometer inaweza kutumika kama detector katika capillary electrophoresis.",
+              "output_length": 111,
+              "detected_output_lang": "swh_Latn",
+              "confidence": 0.9261744022369385
+            }
+          ]
+        }
+      }
+    },
+    "skipped": {}
+  },
+  "detailed_results": [
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "በተለያዩ ሞኖክሎናል ፀረ-ተባይ ዓይነቶች ውስጥ የትኛው (የትኞቹ) ቅጥያዎች ጥቅም ላይ አይውሉም?",
+      "options": [
+        "የሺማብ ዛፍ",
+        "ዛምባ",
+        "ሙባረክ",
+        "ሞማብ",
+        "ዳማብ"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ቀጥሎ ከተዘረዘሩት ፕሮቲኖች ውስጥ የትኛው ለበሽታ መከላከያ በጣም ልዩ ነው?",
+      "options": [
+        "የኦሮሞሞኪዮይድ",
+        "ትራንስኮርቲን",
+        "ትራንስፈሪን",
+        "ሲ ሬአክቲቭ ፕሮቲን (CRP)",
+        "አልፋ2 ማክሮግሎቡሊን"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ኦስሞላሪቲ እና ኦስሞላሊቲን በተመለከተ ትክክለኛውን ሀሳብ (ሃሳቦች) ምልክት ያድርጉ?",
+      "options": [
+        "ኦስሞላሪቲ በአንድ ሊትር ፈሳሽ ውስጥ የኦስሞሎች ብዛት ነው",
+        "ኦስሞላሊቲ በአንድ ኪሎግራም ፈሳሽ ውስጥ ያሉ ኦስሞሎች ብዛት ነው",
+        "በፕላዝማ ውስጥ ያለው ፕሮቲን ከጠቅላላው የፕላዝማ መጠን 7 በመቶውን ይይዛል",
+        "ኦስሞላሪቲ እና ኦስሞላሊቲ ለተቀነሰ የውሃ መፍትሄ ግራ ሊጋቡ ይችላሉ",
+        "የፕላዝማ ኦስሞላርነት የሚለካው በክሪዮስኮፒ ነው"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከኤሌክትሮፎረሲስ ጋር በተያያዘ ከሚከተሉት ሐሳቦች መካከል ትክክለኛው የትኛው ነው?",
+      "options": [
+        "UV-የሚታይ የመምጠጥ ስፔክትሮፎቶሜትር እንደ ካፒላር ኤሌክትሮፎረሲስ ዳሳሽ ሆኖ ሊያገለግል ይችላል",
+        "የሴሉሎስ አሲቴት ጄል መለያየት በሙቀት መጠን ላይ ተጽዕኖ ያሳድራል",
+        "በጄል ኤሌክትሮፎረሲስ ውስጥ የመለየት ውጤት ከ viscosity ገለልተኛ ነው",
+        "ካታሮሜትሩ እንደ ካፒላር ኤሌክትሮፎረሲስ ዳሳሽ ሆኖ ሊያገለግል ይችላል",
+        "ናሙናውን በ20 ማይክሮ ሊት ናሙና የሚወስድ ቀለበት በመጠቀም ማስገባት"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "የ immunoglobulinsን አወቃቀር በተመለከተ ትክክለኛው ሀሳብ (ቶች) ምንድነው?",
+      "options": [
+        "ክብደት ያለው ሰንሰለት ቢያንስ አራት ጎራዎችን ይይዛል",
+        "ሁሉም የኢሚዩኖግሎቡሊን ዓይነቶች አገናኝ ክልል አላቸው።",
+        "ፖሊሜራይዝድ የሆኑት IgA እና IgM ከሰውነት ክፍል ጋር ይያያዛሉ።",
+        "የፀረ-ተባይ ማወቂያ ቦታው የቀላል ሰንሰለቶች አሚኖ-ተርሚናል ክልሎችን ብቻ ያቀፈ ነው",
+        "እነዚህ ግላይኮፕሮቲኖች ናቸው"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "የጉንፋን ክትባት እንዲሰጥ የሚመከረው",
+      "options": [
+        "ልጃገረዶች ሲወለዱ",
+        "በ12 ወር ዕድሜ ላይ የሚገኙ ወንዶችና ሴቶች",
+        "የ11 እና የ12 ዓመት ልጃገረዶች",
+        "ልጃገረዶች በጉርምስና ዕድሜ ላይ ሲደርሱ",
+        "ነፍሰ ጡር ሴቶች"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "የአሲቴል ኮሊን እጥረት ምን አይነት በሽታ ያስከትላል?",
+      "options": [
+        "የአልዛይመር በሽታ",
+        "የፓርኪንሰን በሽታ",
+        "የሥነ ልቦና መዛባት",
+        "የዊልሰን በሽታ",
+        "የክሩዝፌልድ በሽታ  ጃኮብ"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ስለ በሽታ መከላከያ መድሃኒቶች የተሳሳቱ ሀሳቦች ምንድናቸው?",
+      "options": [
+        "ሳይክሎስፖሪን የኩላሊት መከላከያ አለው",
+        "Mycophenolate mofetil የዲ ኤን ኤ ውህደትን ይከለክላል",
+        "ሌፍሉኖሚድ የፒሪሚዲን ውህደትን ይከለክላል",
+        "ታክሮሊሙስ በኩላሊት ውስጥ ይዋሃዳል",
+        "ሲሮሊመስ ሊፖፊል የሆነ ሞለኪውል ነው።"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከእነዚህ ሐሳቦች መካከል ትክክለኛው የትኛው ነው? ወርቃማው ስታፊሎኮክ",
+      "options": [
+        "ለሪተር ሲንድሮም ተጠያቂ ነው",
+        "ግራም ፖዚቲቭ ባክቴሪያ ነው።",
+        "ይህ ኦክሳይድ አዎንታዊ ባክቴሪያ ነው።",
+        "ብዙውን ጊዜ ለሆስፒታል ኢንፌክሽኖች ተጠያቂ ነው",
+        "ይህ ባክቴሪያ በአካባቢው በብዛት የሚገኝ ነው።"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ሜቴሞግሎቢንን በተመለከተ ትክክለኛው ሀሳብ (ሃሳቦች) የትኛው ነው?",
+      "options": [
+        "ደም ሮዝ ቀለም እንዲኖረው የሚያደርግ ቀለም ነው",
+        "በኤንዛይም ኦክሳይድ ሊሰራ የሚችል ሲሆን ናድ የተባለ ኢንዛይም ደግሞ በኤንዛይም ኦክሳይድ ሊሰራ ይችላል።",
+        "በተለምዶ በሰውነት ውስጥ በ100 ሚሊ ሊትር ደም ውስጥ 1 ግራም ይገኛል",
+        "ከፍተኛ መጠን ያለው ሲያኖሲስ ያስከትላል",
+        "ይህ በሽታ በሰው ልጆች ላይ የሚከሰተው አኒሊን በከፍተኛ ሁኔታ ሲበከል ነው።"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "የዩሪክ አሲድ ሜታቦሊዝምን በተመለከተ ትክክለኛው ሀሳብ ምንድነው?",
+      "options": [
+        "የዩሪክ አሲድ የሚወገደው በባክቴሪያ ተክሎች አማካኝነት ወደ አልላንቶይን በመለወጥ ነው",
+        "የዩሪክ አሲድ የሚመነጨው ከፒራሚዲክ ቤዝ አዴኒን እና ጋኒን ነው",
+        "አዴኒን እና ጋኒን ወደ ኢኖሲኒክ አሲድ ከዚያም ወደ ሃይፖክሳንቲን ኤላታንቲን በመከፋፈል የዩሪክ አሲድ ይፈጥራሉ",
+        "አዴኒን በቀጥታ በጓናዝ አማካኝነት ከዛንቲን ሊሰጥ ይችላል",
+        "ዩሪክ አሲድ በዋነኝነት የሚወገደው በሽንት ነው።"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ትክክለኛው ሀሳብ (ሀሳቦች) ምንድነው? በጣም ሊፖፊል (ከፍተኛ የክፍያ መጠን ያለው) ንጥረ ነገር ምርጥ ባዮአፕሊን ለማግኘት የሚከተለው ይመከራል-",
+      "options": [
+        "ያለ ውኃ ማጥለቅ",
+        "በማይክሮኒዝድ መልክ ማቅረብ",
+        "ይህ መድሃኒት በጡንቻ መከላከያ ክኒን መልክ የሚቀርብ ነው።",
+        "ከፍተኛ ቅባት ባለው ምግብ ውስጥ መፈጨት",
+        "ማታ ማታ ከመተኛቱ በፊት እንዲበላ ማድረግ"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ቀጥሎ ከተዘረዘሩት የደም ዓይነቶች መካከል ትክክለኛው የትኛው ነው?",
+      "options": [
+        "የ ABO ፀረ እንግዳ አካላት IgM ናቸው",
+        "ፀረ-ኤ እና ፀረ-ቢ ፀረ-ሰውነት ተፈጥሯዊ እና ያልተለመዱ ናቸው",
+        "RH-አሉታዊ የሆነ ሰው በተፈጥሮው የፀረ-Rh Ac አለው",
+        "በቀይ የደም ሴሎች ላይ ያሉ አንቲጂኖችን ለማግኘት የቤዝ ቪንሰንት ዘዴ ጥቅም ላይ ይውላል",
+        "የደም ቡድን ካርታ ለማዘጋጀት አንድ ውሳኔ ብቻ በቂ ነው"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ቀጥሎ ከተዘረዘሩት የክሮማቶግራፊ ዘዴዎች መካከል ትክክለኛው የትኛው ነው?",
+      "options": [
+        "ጋዝ/ጠጣር ዓይነት የጋዝ ደረጃ ክሮማቶግራፊ የአድሶርፕሽን ክሮማቶግራፊ ነው",
+        "በመደበኛ ደረጃ የክፍፍል ክሮማቶግራፊ በጣም ፖላር የሆኑ ፈሳሾችን ለመለየት ያስችላል",
+        "derivatization በጣም ፖላር ወይም ሙቀት መረጋጋት ሞለኪውሎች ተግባራዊ ይሆናል",
+        "የጄል ማጣሪያ ክሮማቶግራፊ ኦርጋኒክ ተንቀሳቃሽ ደረጃን ይጠቀማል",
+        "የክፍፍል ክሮማቶግራፊ ለከፍተኛ ሞለኪውላዊ ክብደት (> 10 000 Da) ሞለኪውሎች ይሠራል"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከሚከተሉት ሐሳቦች መካከል ትክክለኛዎቹን ይምረጡ:",
+      "options": [
+        "በፈረንሳይ የክትባት ፖሊሲ የመንግስት ኃላፊነት ነው",
+        "በፈረንሳይ የክትባት ፖሊሲው የዓለም ጤና ድርጅት ያወጣውን የተራዘመ የክትባት መርሃ ግብር ያከብራል",
+        "በፈረንሳይ የቢሲጂ ክትባት ለሁሉም ሕፃናት ግዴታ ነው",
+        "የክትባት መርሃ ግብር የሚዘጋጀው ተላላፊ በሽታዎችን፣ የጥቅም እና አደጋ ጥናቶችን እና ወጪ ቆጣቢነት ጥናቶችን ከግምት በማስገባት ነው።",
+        "ነፍሰ ጡር ሴቶች ክትባት አይወስዱ"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከዚህ በታች ከተዘረዘሩት የቫይረስ ሄፓታይተስ በሽታዎች ጋር በተያያዘ ትክክለኛው ሐሳብ የትኛው ነው?",
+      "options": [
+        "በሄፓታይተስ ቢ ቫይረስ ምክንያት ሊሆን ይችላል",
+        "በሄፓታይተስ ሲ ቫይረስ ምክንያት ሊሆን ይችላል",
+        "በሄፓታይተስ ኤ ቫይረስ ምክንያት ሊሆን ይችላል",
+        "ወደ ሲሮሲስ ሊሸጋገሩ ይችላሉ",
+        "ከሄፓታይተስ ፉልሚኔንስ የበለጠ የተለመዱ ናቸው"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከዚህ በታች ከተዘረዘሩት ባዮሎጂያዊ ምርመራዎች መካከል አንደኛው ብቻ የጉበት እብጠት መኖሩን የሚያሳይ ነው። የትኛው ነው?",
+      "options": [
+        "አላኒን አሚኖትራንስፌሬስ",
+        "አልካላይን ፎስፌታዝ",
+        "ጋማግሎቡሊን",
+        "ጠቅላላ ቢሊሩቢን",
+        "ጋማ ግሉታሚል ትራንስፌራዝ"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "የሚከተሉት የ ABO ስርዓት ሀሳቦች ትክክል ያልሆኑ የትኞቹ ናቸው?",
+      "options": [
+        "የ ABO ሥርዓትን የሚቆጣጠሩት ጂኖች አሚኖ አሲድ ቅደም ተከተል ያላቸው A እና B አንቲጂኖችን ይመዘግባሉ።",
+        "የቡድን AB ማለት የተለመዱ ፀረ-ኤ እና ፀረ-ቢ ፀረ እንግዳ አካላት አለመኖራቸው ነው።",
+        "የቡድን A አንቲጂን በአንዳንድ ግለሰቦች ፈሳሽ ውስጥ ይገኛል ነገር ግን የቡድን B አንቲጂን አይገኝም ።",
+        "ያልተለመዱ የ ABO ፀረ እንግዳ አካላት የሚከሰቱት ከማይጣጣሙ የደም ዝውውሮች በኋላ ነው።",
+        "ያልተስተካከለ የ ABO ፀረ እንግዳ አካላት የሚከሰቱት ያልተስተካከለ ፅንስ ካላቸው እርግዝና በኋላ ነው።"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከሚከተሉት ሐሳቦች ውስጥ ለ Mycobacterium tuberculosis የሚሠራው የትኛው ነው?",
+      "options": [
+        "ከፈረስ ደም ጋር በተቀላቀለ ጄሎስ ሊገለል ይችላል",
+        "በተገቢው ማቀዝቀዣ ውስጥ በ72 ሰዓታት ውስጥ ያድጋል።",
+        "ለሜኒንጂቲስ ተጠያቂ አይደለም",
+        "የሽንት በሽታ ሊያስከትል ይችላል",
+        "አሚኖ አሲድ በጭራሽ አይነካውም"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከተጠቀሱት በሽታዎች መካከል ከከፍተኛ የደም ግፊት ጋር ተያይዞ ሊመጣ የሚችለው የትኛው ነው?",
+      "options": [
+        "የአጥንት ሜታስታሲስ",
+        "የመጀመሪያ ደረጃ የፓራታይሮይድ በሽታ",
+        "ሥር የሰደደ የኩላሊት ሕመም",
+        "ቫይታሚን ዲ ከመጠን በላይ መውሰድ",
+        "የጉበት ሳይቶሊስስ"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ብቸኛ IgA እጥረት የሚባለው በሽታ የመከላከል አቅም እጥረት ሲሆን የሚከተሉት ባህሪያት አሉት",
+      "options": [
+        "በጣም የተለመደው የስሜት በሽታ መከላከያ ጉድለት ነው",
+        "በአብዛኛው በአጋጣሚ የሚገኝ ነው።",
+        "ከ CD4O ሞለኪውል ሊጋንድ (CD4OL/CD154) ጋር የተያያዘ ነው",
+        "ለአተነፋፈስ ኢንፌክሽኖች ተጋላጭ ያደርጋል",
+        "በመርፌ የሚሰራው የጋማ ግሎቡሊን ነው።"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "የሳንባ ነቀርሳ በሽታ በሚታከምበት ጊዜ ከነዚህ አንቲባዮቲኮች ውስጥ የትኛው የዓይን ተግባር መመርመር ያስፈልገዋል?",
+      "options": [
+        "ኤታምቡቶል",
+        "ኢሶኒያዚድ",
+        "ፒራዚናሚድ",
+        "ሪፋምፒሲን",
+        "ስትሬፕቶሚሲን"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "የ TCA ማራዘሚያ ያለ Quick ጊዜ ማራዘሚያ የሚከተሉትን ሊያካትት ይችላል:",
+      "options": [
+        "የደም መፍሰስ ቢ",
+        "መከላከያ መጠን ያለው የ HBPM ሕክምና",
+        "የፀረ ቫይታሚን ኬ መድሃኒት",
+        "በደም ዝውውር ላይ ያለ የደም መፍሰስ መከላከያ",
+        "የፋክተር 12 እጥረት"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከእነዚህ β-blocker መድኃኒቶች መካከል የትኛው (የተመረጠው) ለልብ የሚበጅ አይደለም?",
+      "options": [
+        "አቴኖሎል",
+        "ኔቢቮሎል",
+        "ካርቬሊዶል",
+        "ሜቶፕሮሎል",
+        "ፕሮፕራኖሎል"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከሚከተሉት ሀሳቦች ውስጥ የትኛው ትክክል ነው?",
+      "options": [
+        "1 ግራም አክቲቭ ክሎሪን በአንድ ሊትር",
+        "በጥቂቱ አሲዳማ የሆነ የፒኤች መጠን አለው",
+        "በውስጡ ባለው የፖታስየም ፐርማንጋኔት አማካኝነት ንቁ ነው",
+        "በብርሃን የማይረጋጋ",
+        "ካልተረጋጋ ለሙቀት የማይረጋጋ"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከዚህ በታች ከተዘረዘሩት ኢንፌክሽኖች መካከል በአብዛኛው አንጂን የሚባሉት የትኞቹ ናቸው?",
+      "options": [
+        "ስካርላቲን",
+        "ሲፊሊስ",
+        "ተላላፊ ሞኖኑክሊዮሲስ",
+        "የሳንባ ነቀርሳ",
+        "የታይፎይድ በሽታ"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከታች ከተዘረዘሩት ሀሳቦች መካከል ቶክስፖላዝማ ጎንዲን በተመለከተ ትክክል ያልሆነው የትኛው ነው?",
+      "options": [
+        "ከእናት ወደ ፅንስ የሚተላለፈው በሽታ በጣም የተለመደ ቢሆንም በሦስተኛው ወር እርግዝና ወቅት በጣም ከባድ አይደለም።",
+        "በሽታው በሰውነት ውስጥ በሚተከሉ አካላት ሊተላለፍ ይችላል",
+        "ድመት መካከለኛ አስተናጋጅ ናት",
+        "የፓራዚት እድገቱ በሴል ውስጥ ብቻ ነው",
+        "በኤች አይ ቪ ቫይረስ የተያዘ ሰው የአንጎል ቶክሶፕላዝሞስ ካለበት በኤድስ ደረጃ ላይ ይገኛል"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከታች ከተዘረዘሩት ህመም ማስታገሻ መድኃኒቶች መካከል የትኞቹ የደረጃ ሁለት ናቸው?",
+      "options": [
+        "ኖራሚዶፒሪን",
+        "ፔቲዲን",
+        "ትራማዶል",
+        "ኬቶፕሮፌን",
+        "የዴክስትሮፕሮፖክሲፌን እና ፓራሲታሞል ጥምረት"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ቀጥሎ ከተዘረዘሩት ሐሳቦች መካከል ትክክለኛውን መልስ (ቶች) ስጥ።",
+      "options": [
+        "የአልቡሚን መጠን መቀነስ",
+        "የሴራሚክ አላኒን አሚኖ ትራንስፌራዝ እንቅስቃሴ መጨመር",
+        "የሴሪየም የብረት መጠን መጨመር",
+        "የአልካላይን ፎስፌታዝ እንቅስቃሴ መጨመር",
+        "የ5' ኒውክሊዮታይዳዝ እንቅስቃሴ መጨመር"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "በሄሞፊሊያ ውስጥ የሚከሰተውን የደም መፍሰስ በሽታ በተመለከተ ከሚከተሉት ሐሳቦች መካከል ትክክለኛው የትኛው ነው?",
+      "options": [
+        "በራስ የመመራት ችሎታ አለው",
+        "የደም ቧንቧ በሽታ",
+        "የደም መፍሰስ",
+        "የድድ በሽታ መታየት አለበት",
+        "ከነዚህ መልሶች አንዳቸውም ትክክል አይደሉም"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ክሎዛፒን በሚታከምበት ጊዜ ምን ክትትል ማድረግ ያስፈልጋል?",
+      "options": [
+        "የጉበት ተግባር",
+        "የኩላሊት ተግባር",
+        "የሴቶች እርግዝና አለመኖር",
+        "የስኳር መጠን",
+        "ኤን ኤፍ ኤስ"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "አንድ ሞለኪውል ብርሃንን ከወሰደ በኋላ ወደ ተለዋዋጭ ሁኔታ ይሸጋገራል፤ ከዚያም የተገኘውን የኃይል መጠን መልሶ ይሰጣል። ይህን ክስተት በተመለከተ ትክክለኛው ሐሳብ ምንድን ነው?",
+      "options": [
+        "የኃይሉ የተወሰነ ክፍል የሚባክነው በሟሟቱ ሞለኪውሎች ላይ በሚያደርጉት ግጭት ነው።",
+        "ፍሎረሰንት የሚያወጣው የብርሃን ሞገድ ርዝመት ከተቀበለው ብርሃን ያነሰ ነው",
+        "ፍሎረሰንት ማጥፋት በ 10-8 ሰከንድ ውስጥ ይከናወናል",
+        "በፎስፎረሰንስ ሁኔታ ወደ መሰረታዊ ደረጃ መመለስ የሚከናወነው ከአንድ ነጠላ ሁኔታ ነው",
+        "ፍሎረሰንት ማጥፋት የሚከናወነው ከመጀመሪያው የኤሌክትሮኒክስ ደረጃ ነው"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ቀጥሎ ከተዘረዘሩት ግላይኮፔፕታይዶች ጋር በተያያዘ ትክክለኛው መልስ የትኛው ነው?",
+      "options": [
+        "በግራም-ተኮር ባክቴሪያዎች ላይ ንቁ ናቸው።",
+        "የባክቴሪያ ግድግዳ ውህደትን ይከለክላል",
+        "በ LCR ውስጥ በደንብ ይሰራጫሉ",
+        "በአብዛኛው በአልትራቫዮሌት ይወሰዳሉ",
+        "የኤም.ኤስ.አር.ኤስ"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከዚህ በታች ከተዘረዘሩት ሐሳቦች ውስጥ የትኛው (የተዘረዘሩት) ከአሚቢያስ ወረርሽኝ ጋር ሊዛመዱ ይችላሉ?",
+      "options": [
+        "የ Entamoeba histolytica histolytica የእጽዋት ቅርጾች መኖሪያ",
+        "የ Entamoeba histolytica minuta የእጽዋት ቅርጾች መኖሪያ",
+        "Entamoeba histolytica የሚባለውን በሽታ ያስወግዳል",
+        "ተላላፊ አይደለም",
+        "የበሽታው ምልክቶች የሉም"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ሪፋምፒሲንን በተመለከተ ከሚከተሉት ሐሳቦች መካከል ትክክለኞቹ የትኞቹ ናቸው?",
+      "options": [
+        "የኤንዛይም ማነቃቂያ ነው",
+        "ኦቶቶክሲክ ሊሆን ይችላል",
+        "በባክቴሪያ ግድግዳ ላይ ይሠራል",
+        "ከኦስትሮፕሮጀስት አፋጣኝ የወሊድ መከላከያ መድሃኒቶች ጋር አብሮ መጠቀም አይመከርም",
+        "ይህ መድሃኒት ከኢሶኒያዚድ ጋር ሲዋሃድ የጉበት መርዛማነት ይጨምራል።"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "በአንድ ቅፅ ውስጥ ያለው የፕሮቲን ፒ መጠን ምን ያህል እንደሆነ ለማወቅ እንፈልጋለን ። በዚህ ቅፅ ውስጥ 7 ሚሊግራም የፕሮቲን ፒ ንጥረ ነገር በ 35S-ሜት ምልክት ተደርጎበታል ፣ የእሱ እንቅስቃሴ 70 Ci.",
+      "options": [
+        "10 ሚሊ ግራም",
+        "3 ሚሊ ግራም",
+        "63 ሚሊ ግራም",
+        "112 ሚሊ ግራም",
+        "42 ሚሊ ግራም"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "UNKNOWN",
+      "is_correct": false,
+      "raw_output": "በአንድ ቅፅ ውስጥ ያለው የፕሮቲን ፒ መጠን �",
+      "output_length": 29,
+      "output_language": {
+        "detected_lang": "amh_Ethi",
+        "confidence": 1.0000098943710327,
+        "top_3": [
+          {
+            "lang": "amh_Ethi",
+            "confidence": 1.0000098943710327
+          },
+          {
+            "lang": "tir_Ethi",
+            "confidence": 1.0149539775738958e-05
+          },
+          {
+            "lang": "chv_Cyrl",
+            "confidence": 1.0001309419749305e-05
+          }
+        ],
+        "text_length": 29
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ካርቦክሲ ሄሞግሎቢን በደም ውስጥ መገኘቱ ከሚከተሉት ምንጮች ሊመጣ ይችላል:",
+      "options": [
+        "ሲጋራ ማጨስ",
+        "የቤንዚን ትነት መተንፈስ",
+        "ከሞተር ተሽከርካሪዎች የሚወጣውን ጋዝ መተንፈስ",
+        "በእሳት አደጋ ወቅት ጋዝ መተንፈስ",
+        "ዲክሎሮሜታንን መተንፈስ"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከታች ከተዘረዘሩት ሐሳቦች መካከል የትኛው ትክክል ነው?",
+      "options": [
+        "ECG የሚከናወነው በቅድሚያ ነው",
+        "LDH ለመጀመሪያ ጊዜ የተገኘ የባዮኬሚካል ምልክት ነው",
+        "CK-MB በጣም ልዩ የሆነ ምልክት ነው",
+        "ህመሙ ወደ የላይኛው እግርና እግር ይሰራጫል",
+        "የ ASAT ጭማሪ ዘግይቷል"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "ከዚህ በታች ከተዘረዘሩት የልብ ምልክት ማድረጊያዎች መካከል የተሳሳተ መልስ የትኛው ነው?",
+      "options": [
+        "ማይጎግሎቢን ከትሮፖኒን ይልቅ ቀደም ብሎ የሚታይ ምልክት ነው።",
+        "ሚዮግሎቢን ለልብ ህመም (MCI) ልዩ ያልሆነ ምልክት ነው።",
+        "የትሮፖኒን መጠን መጨመር ለኤች አይ ዲ ምርመራ ዋስትና ነው።",
+        "የትሮፖኒን መጠን የሚለካው በኤንዛይማዊ በሽታ መከላከያ ዘዴ ነው።",
+        "ትሮፖኒን የሚመነጨው ከ8 ሰዓት በኋላ ነው።"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "am",
+      "input_lang_name": "Amharic",
+      "question": "አስፐርጊለስ ፉሚጋተስ",
+      "options": [
+        "በቅጠሉ አናት ላይ አንድ ረድፍ ሜቱሎች፣ አንድ ረድፍ ፊያሊድስ እና ከዚያ ኮኒዲዎች አሉት",
+        "ከ48 እስከ 72 ሰአታት ውስጥ ይበቅላል",
+        "በየትኛውም ቦታ የሚገኝ እንጉዳይ ነው",
+        "ሁልጊዜ በሽታ አምጪ ነው",
+        "አረንጓዴና አቧራማ ቅኝ ግዛቶች"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Game da nau'o'i daban-daban na kwayoyin cuta guda daya, wanne (waɗanne) daga cikin waɗannan ba a amfani da su?",
+      "options": [
+        "Gishiri",
+        "Zumab",
+        "Hausa da Hausa",
+        "Momab",
+        "Damab"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Wanne daga cikin waɗannan sunadarai ne ya fi sa mutum ya sami ciwon kumburi?",
+      "options": [
+        "Ƙwaƙwalwar ƙwayar cuta",
+        "Ƙirƙirar Ƙirƙiri",
+        "Abin da ake kira transferrin",
+        "C-Reactive Protein (CRP) da aka ƙera",
+        "Alfa2 macroglobulin"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Za a iya tantance madaidaicin magana (s) game da osmolarity da osmolality?",
+      "options": [
+        "Osmolarity shine adadin osmoles a kowace lita na bayani",
+        "Osmolality shi ne adadin osmoles a kowace kilogram na mai narkewa",
+        "A cikin jini, inda furotin yake kusan kashi 7 cikin ɗari na jimlar, osmolality daidai yake da osmolarity da aka raba da 0.93",
+        "Osmolarity da osmolality za a iya rikicewa don dilute ruwa bayani",
+        "Ana auna osmolarity na jini ta hanyar amfani da cryoscopy"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Daga cikin shawarwari masu zuwa game da electrophoresis, wanne ne daidai?",
+      "options": [
+        "Za'a iya amfani da UV-Visible Absorption Spectrophotometer azaman mai ganowa a cikin capillary electrophoresis",
+        "A cellulose acetate gel rabuwa ne rinjayi da yawan zafin jiki",
+        "A cikin gel electrophoresis, sakamakon rabuwa ba shi da alaƙa da danko",
+        "Ana iya amfani da catharometer a matsayin mai ganowa a cikin electrophoresis na capillary",
+        "Injection na samfurin ne ta hanyar 20 microliter samfurin madauki"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Game da tsarin immunoglobulins, wace shawara ce gaskiya?",
+      "options": [
+        "Ƙungiya mai nauyi tana ƙunshe da aƙalla yankuna huɗu, ba tare da la'akari da nau'in ba",
+        "Dukan immunoglobulins suna da wani yanki da ake kira hinge.",
+        "Polymerized IgA da IgM suna ɗaure da wani fili mai ɓoyewa",
+        "Yankin ganewar antigen ya kunshi kawai yankunan aminoterminal na sarƙoƙi masu haske",
+        "Waɗannan glycoproteins ne."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Ana ba da shawarar yin allurar rigakafin zazzabin cizon sauro:",
+      "options": [
+        "Sa'ad da ake haifan 'ya'ya mata",
+        "A watanni 12 a cikin 'yan mata da maza",
+        "'Yan mata 'yan shekara 11 zuwa 12",
+        "Abin da ke faruwa da 'yan mata bayan sun balaga",
+        "A cikin mata masu juna biyu"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Wace cuta ce ke haifar da karancin acetylcholine?",
+      "options": [
+        "Cutar Alzheimer",
+        "Ciwon Parkinson",
+        "Rashin Haƙuri",
+        "Ciwon Wilson",
+        "Ciwon Creutzfeldt  Jacob"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A. Cutar Alzheimer",
+      "output_length": 18,
+      "output_language": {
+        "detected_lang": "deu_Latn",
+        "confidence": 0.6006256937980652,
+        "top_3": [
+          {
+            "lang": "deu_Latn",
+            "confidence": 0.6006256937980652
+          },
+          {
+            "lang": "spa_Latn",
+            "confidence": 0.19491174817085266
+          },
+          {
+            "lang": "kor_Hang",
+            "confidence": 0.044702380895614624
+          }
+        ],
+        "text_length": 18
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Waɗanne ra'ayoyi ne ba daidai ba game da maganin hana garkuwar jiki?",
+      "options": [
+        "Cyclosporine yana kare ƙwayar koda",
+        "Mycophenolate mofetil yana hana haɗin DNA",
+        "Leflunomide yana hana haɓakar pyrimidine",
+        "Tacrolimus yana narkewa ta hanyar koda.",
+        "Sirolimus wani kwayar halittar mai son jiki ne."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Wanne cikin waɗannan kalaman gaskiya ne? Staphylococcus aureus",
+      "options": [
+        "Yana da alhakin ciwon Ritter",
+        "Wannan kwayar cuta ce mai dauke da kwayar cutar Gram-positive.",
+        "Wannan kwayar cuta ce mai dauke da sinadarin oxidase.",
+        "Sau da yawa yana jawo cututtuka a asibiti",
+        "Wannan wata kwayar cuta ce da ake yawan samu a cikin muhalli"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Game da methemoglobin, a nuna madaidaicin jimla (s):",
+      "options": [
+        "Yana sa jinin ya yi ruwan hoda",
+        "Za a iya sarrafa shi ta hanyar wani enzyme mai suna NAD.",
+        "A yawancin lokaci, ana samunsa a cikin jiki a kashi 1 cikin 100 na jini.",
+        "Sa'ad da aka yi amfani da shi sosai, sai ya sa ya zama ruwan hoda.",
+        "Yana faruwa ne a jikin mutum sa'ad da ya kamu da cutar aniline mai tsanani"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Game da metabolism na uric acid, abin da (s) ne daidai shawara (s):",
+      "options": [
+        "Cire uric acid ta hanyar narkar da shi cikin uricolysis zuwa allantoin da ƙwayoyin cuta suke yi",
+        "Uric acid ya samo asali ne daga adenin da guanine",
+        "Adenine da Guanine sun zama inosinic acid da hypoxanthine etxanthine kafin su zama uric acid",
+        "Adenine za a iya ba da xanthine kai tsaye ta hanyar guanase",
+        "Uric acid yana fita ne ta hanyar fitsari"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Don samun mafi kyawun bioavailability na babban abu mai lipophilic (tare da babban rabo mai yawa), ana bada shawara:",
+      "options": [
+        "Yin haɗiye ba tare da ruwa ba",
+        "A gabatar da shi a cikin wani nau'i mai suna micronized",
+        "Bayar da shi a cikin kwamfutar hannu mai jurewa",
+        "Yin amfani da shi a lokacin cin abinci mai kitse",
+        "Sa'ad da muke barci da daddare, sai ya haɗiye shi."
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Daga cikin shawarwari masu zuwa game da rukunin jini, wanne ne daidai:",
+      "options": [
+        "Kwayoyin rigakafi na tsarin ABO sune IgM",
+        "Antibodies na anti-A da anti-B na halitta ne kuma ba na yau da kullum ba ne",
+        "Mutumin da ba shi da ƙwayoyin cuta a jikinsa yana da ƙwayoyin cuta a jikinsa.",
+        "Ana amfani da hanyar Beth-Vincent wajen neman ƙwayoyin rigakafin da ke jikin jini",
+        "Don a zana taswirar rukunin jinin mutum, za a iya yin bincike sau ɗaya kawai"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Wanne daga cikin shawarwari masu zuwa game da hanyoyin chromatographic daidai ne?",
+      "options": [
+        "Gas/Solid gas chromatography wani adsorption chromatography ne",
+        "Rarraba chromatography a cikin lokaci na yau da kullun yana ba da damar raba manyan polar solute",
+        "Ƙaddamarwa tana aiki ne ga ƙwayoyin da suke da ƙarfi sosai ko kuma waɗanda suke da ƙarfi sosai",
+        "Gel-filtration chromatography yana amfani da yanayin motsi na kwayoyin halitta",
+        "Rarraba chromatography ya shafi kwayoyin da suke da nauyi mai yawa (> 10 000 Da)"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Daga cikin wadannan maganganu game da cututtukan hepatitis na yau da kullum, wanne ne daidai?",
+      "options": [
+        "Suna iya zama sanadin ƙwayoyin cuta na hepatitis B",
+        "Suna iya zama sanadin ƙwayoyin cuta na hepatitis C",
+        "Suna iya zama sanadin ƙwayoyin cuta na hepatitis A",
+        "Suna iya sa mutum ya kamu da cutar makogwaro",
+        "Suna da yawa fiye da cututtukan hanta"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B. Suna iya zama sanadin ƙwayoyin cuta na hepatitis C",
+      "output_length": 53,
+      "output_language": {
+        "detected_lang": "hau_Latn",
+        "confidence": 0.9998548030853271,
+        "top_3": [
+          {
+            "lang": "hau_Latn",
+            "confidence": 0.9998548030853271
+          },
+          {
+            "lang": "tur_Latn",
+            "confidence": 4.273087324691005e-05
+          },
+          {
+            "lang": "quy_Latn",
+            "confidence": 2.3751195840304717e-05
+          }
+        ],
+        "text_length": 53
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Ɗaya daga cikin gwaje-gwaje na ƙwayoyin halitta da ke gaba ne kawai zai iya bincika ƙwayoyin cuta na hanta.",
+      "options": [
+        "Alanine Aminotransferase ba shi da wani tasiri a kan kwayoyin halitta.",
+        "Alkalin phosphatases",
+        "Ƙwayoyin cuta na ƙwayar cuta",
+        "Jimlar Bilirubin",
+        "Ƙungiyar Gamma Glutamyltransferase"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Wanne daga cikin wadannan maganganu game da tsarin ABO ba daidai ba ne?",
+      "options": [
+        "Ƙwayoyin halittar da suke ja-gorar tsarin ABO suna tsara jerin amino acid na ƙwayoyin halittar A da B.",
+        "Rukunin AB an bayyana shi ne ta hanyar rashin kwayoyin halitta na yau da kullum anti-A da anti-B.",
+        "An samo antigen na rukuni A a cikin ɓoyewar wasu mutane amma ba antigen na rukuni B.",
+        "Ƙwayoyin ƙwayoyin cuta na ABO da ba su dace ba suna fitowa ne daga jinin da ba ya jituwa da jinin da aka yi masa.",
+        "Kwayoyin rigakafin ABO marasa tsari suna bayyana ne a cikin mata bayan sun haifi jarirai marasa jituwa da juna"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Wanne daga cikin wadannan shawarwari ya shafi Mycobacterium tuberculosis?",
+      "options": [
+        "Za a iya ware shi da jinin doki.",
+        "Zai yi girma cikin sa'o'i 72 a cikin wani wuri mai laushi da ya dace",
+        "Ba shi ke da alhakin ƙwaƙwalwar ƙwaƙwalwa ba",
+        "Yana iya jawo cututtukan fitsari",
+        "Ba shi da wata damuwa game da amino acid"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Daga cikin yanayin cututtukan da aka ambata, nuna wanda zai iya haɗuwa da hypercalcemia?",
+      "options": [
+        "Ƙashin ƙwayar cuta",
+        "Ciwon ƙwaƙwalwar ƙwayar cuta na farko",
+        "Ciwon koda na kullum",
+        "Yawan shan bitamin D",
+        "Cytolysis na hanta"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Rashin ƙarancin IgA shi ne rashin ƙarancin garkuwar jiki wanda ke da alamun:",
+      "options": [
+        "Wannan ita ce cuta da ta fi yawa a cikin cuta da ake kira humoral immunity.",
+        "Ba da saninsa ba ne, sau da yawa.",
+        "Yana da alaƙa da rashin bayyanar ligand na kwayar CD4O (CD4OL/CD154)",
+        "Yana sa mutum ya kamu da cututtukan numfashi",
+        "An yi amfani da allurar gamma globulin don magance shi"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "A lokacin da ake maganin tarin fuka, ga wanne daga cikin wadannan magungunan za a buƙaci a duba aikin ido?",
+      "options": [
+        "Ethambutol",
+        "Isoniazid",
+        "Pyrazinamide",
+        "Rifampicin",
+        "Streptomycin"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Tsawancin TCA, ba tare da tsawaita lokacin Quick ba, na iya kasancewa da alaƙa da:",
+      "options": [
+        "Cutar jini ta B.",
+        "Yin amfani da HBPM a matsayin maganin rigakafi",
+        "An ba shi maganin da ake kira anti-Vitamin K.",
+        "Samun maganin da ke hana jini daga zubewa.",
+        "Ba shi da sinadarin factor XII."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Daga cikin waɗannan β-blockers, wanene (s) ba zaɓaɓɓen zuciya ba ne?",
+      "options": [
+        "Abin da ke ciki",
+        "Nebivolol",
+        "Carvelidol",
+        "Maganin ƙwayoyin cuta",
+        "Kwayar cuta"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Daga cikin shawarwari masu zuwa, ku nuna abin da yake daidai.",
+      "options": [
+        "Da daraja a cikin grams na aiki chlorine da lita",
+        "Yana da ɗan acidic pH don tabbatar da kiyayewa",
+        "Yana aiki ne ta hanyar potassium permanganate da ke ciki",
+        "Ba shi da ƙarfi a cikin haske",
+        "Ba zai iya jure zafi ba idan ba a daidaita shi ba"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "A cikin cututtuka da aka ambata a ƙasa, waɗanne ne yawanci suke tare da angina?",
+      "options": [
+        "Ƙanƙara",
+        "Ciwon Gishiri",
+        "Ƙwayoyin cuta masu yaduwa",
+        "Cutar tarin fuka",
+        "Rashin Lafiyar Jiki"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B. Ciwon Gishiri",
+      "output_length": 16,
+      "output_language": {
+        "detected_lang": "tum_Latn",
+        "confidence": 0.898452639579773,
+        "top_3": [
+          {
+            "lang": "tum_Latn",
+            "confidence": 0.898452639579773
+          },
+          {
+            "lang": "eng_Latn",
+            "confidence": 0.049607712775468826
+          },
+          {
+            "lang": "sna_Latn",
+            "confidence": 0.028974438086152077
+          }
+        ],
+        "text_length": 16
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Waɗanne daga cikin magungunan ciwo da ke gaba suke cikin rukuni na biyu?",
+      "options": [
+        "Noramidopyrine",
+        "Abin da ake kira pethidine",
+        "Abin da ake kira Tramadol",
+        "Abin da ake kira ketoprofen",
+        "Ƙungiyar dextropropoxyphene  paracetamol"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B. Abin da ake kira pethidine",
+      "output_length": 29,
+      "output_language": {
+        "detected_lang": "hau_Latn",
+        "confidence": 0.9988000988960266,
+        "top_3": [
+          {
+            "lang": "hau_Latn",
+            "confidence": 0.9988000988960266
+          },
+          {
+            "lang": "ind_Latn",
+            "confidence": 0.00042352170567028224
+          },
+          {
+            "lang": "zsm_Latn",
+            "confidence": 0.00023473042529076338
+          }
+        ],
+        "text_length": 29
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Daga cikin shawarwari masu zuwa, ba da amsar daidai (s). Cytolysis na hanta yana da alamun:",
+      "options": [
+        "Rage yawan jini da ke cikin jini",
+        "Ƙara yawan aikin alanine aminotransferase a cikin jini",
+        "Ƙara yawan baƙin ƙarfe a cikin jini",
+        "Ƙarin aikin alkaline phosphatases",
+        "Ƙara yawan aikin 5' nucleotidase"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Wanne ne gaskiya a cikin waɗannan kalaman game da cutar hawan jini a cikin haemophilia:",
+      "options": [
+        "Yana Yin Abin da Ya Dace",
+        "Ana iya samun ciwon hawan jini.",
+        "An ga ciwon jini a jikinsa.",
+        "Ana iya samun ciwon gingiva.",
+        "Babu Amsar da ta Dace"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Ta yaya ya kamata a kula da Clozapine?",
+      "options": [
+        "Aikin hanta",
+        "Rashin aiki na koda",
+        "Matar da ba ta da ciki",
+        "Hawan jini cikin jini",
+        "Ƙungiyar Ƙungiyoyin Ƙungiyoyi"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Daga cikin shawarwari masu zuwa game da glycopeptides, wanne ne amsar daidai?",
+      "options": [
+        "Suna aiki a kan ƙwayoyin cuta na Gram-positive.",
+        "Yana hana ƙwayoyin ƙwayoyin cuta",
+        "Za a iya rarraba su a cikin LCR",
+        "Yawancin lokaci ana ba da su ne ta hanyar IV",
+        "Su ne magungunan da aka fi amfani da su wajen maganin MRSA."
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Wanne (waɗanne) daga cikin abubuwan da ke ƙasa za su iya haɗuwa da amoeba infestation?",
+      "options": [
+        "Gidajen tsire-tsire na Entamoeba histolytica histolytica",
+        "Gidajen tsire-tsire na Entamoeba histolytica minuta",
+        "Cire ƙwayoyin cuta na Entamoeba histolytica",
+        "Ba ya yaduwa",
+        "Ba ya nuna alamun cutar"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Ana so a tantance adadin furotin P da ke cikin wani abin da aka ciro. Ana ƙara wa wannan abin da aka ciro 7 mg na furotin P da aka yi alama a 35S-Met wanda aikinsa 70 Ci.mg-1. Bayan chromatography, an cire 4 mg na P, ayyukansu 28 Ci. Menene adadin P da ke cikin wannan abin da aka ciro?",
+      "options": [
+        "10mg cikin rana",
+        "3mg",
+        "63mg cikin rana",
+        "Maganin ƙwayar cuta 112 mg",
+        "42mg a kowace rana"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A. 10mg cikin rana\n\nAna ƙara wa wannan abin da aka ciro 7 mg na furotin P da aka yi alama a 35S-Met wanda aikinsa 70 Ci.mg-1. Bayan chromatography, an",
+      "output_length": 150,
+      "output_language": {
+        "detected_lang": "hau_Latn",
+        "confidence": 0.999974250793457,
+        "top_3": [
+          {
+            "lang": "hau_Latn",
+            "confidence": 0.999974250793457
+          },
+          {
+            "lang": "knc_Latn",
+            "confidence": 3.041102536371909e-05
+          },
+          {
+            "lang": "kmr_Latn",
+            "confidence": 1.3550819858210161e-05
+          }
+        ],
+        "text_length": 150
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Za a iya samun carboxyhaemoglobin a cikin jini daga tushe (ko tushe) masu zuwa:",
+      "options": [
+        "Shan Hayakin Sigari",
+        "Shan iskar gas na benzene",
+        "Shan iskar gas daga motoci",
+        "Shan iskar gas a lokacin gobara",
+        "Haɗuwa da DICLOROMETHANE"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Wanne daga cikin waɗannan maganganun gaskiya ne?",
+      "options": [
+        "ECG an yi shi ne da farko",
+        "LDH ita ce alama ta farko da aka gano",
+        "CK-MB shi ne mafi ƙayyadadden alama",
+        "ciwon ya kai ga gaɓoɓin sama",
+        "Ƙara yawan ASAT ya makara"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Daga cikin shawarwari masu zuwa game da alamun zuciya, wanne ne amsar da ba daidai ba?",
+      "options": [
+        "Myoglobin alama ce ta farko fiye da troponins.",
+        "Myoglobin alama ce da ba ta musamman ba ta ciwon zuciya (MCI).",
+        "Idan troponin ya yi yawa, hakan zai nuna cewa an kamu da ciwon IDM.",
+        "Ana auna adadin troponin ta hanyar amfani da enzyme immunoassay.",
+        "Troponin ya bayyana bayan sa'o'i takwas da samun IDM."
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Game da haemophilia A na tsarin mulki, waɗanne shawarwari ne suka dace:",
+      "options": [
+        "Wannan ita ce cuta da aka fi sani da haemostasis.",
+        "Ana ƙayyade haemophilia A mai tsanani a matsayin FVIII < 5%",
+        "Rashin ƙarancin FVIII yana da alhakin tsawaita ACT tare da TP na al'ada",
+        "Ƙwayoyin cuta suna yaduwa ta hanyar autosomal recessive.",
+        "Desmopressin ba ya aiki a cikin haemophilia A mai tsanani"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Game da serotonin, menene ainihin shawarwarin?",
+      "options": [
+        "shi ne indolamine",
+        "Ana lalata shi ta hanyar monoamines na oxidase na A",
+        "Abin da ake kira tyrosine shi ne sinadarin da ke samar da wannan sinadarin",
+        "Ƙwayoyin jini da ke cikin ƙwayar cuta suna ƙera shi",
+        "shi ne neuromediator da autacoid"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Gano anemia na microcytic (VGM = 62 fL) yana ba da damar yin la'akari da ɗaya ko fiye daga cikin abubuwan da ke biyowa:",
+      "options": [
+        "Rashin jini a jiki",
+        "Anemia na Rashin Sinadarin Folate",
+        "Anemia na rashin baƙin ƙarfe",
+        "Rashin lafiya na Thalassemia",
+        "Cutar ƙwayoyin cuta"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Daga cikin shawarwari masu zuwa game da kolestyramine (QUESTRAN®), wanne ne daidai?",
+      "options": [
+        "Yana hana jujjuyawar bile acid a cikin hanta",
+        "Yana jawo maƙarƙashiya",
+        "Yana rage yadda bitamin da ke narkewa cikin kitse ke shiga cikin hanji",
+        "Ya Kamata a Sha Bayan Abinci",
+        "Ana amfani da shi idan akwai hawan jini a cikin jini"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "ha",
+      "input_lang_name": "Hausa",
+      "question": "Daga cikin magungunan ƙwayoyin cuta da ke ƙasa, wanne ne yake da tasiri a kan ƙwayoyin cuta HIV da HBV?",
+      "options": [
+        "Nevirapine (VIRAMUNE®) Ƙananan ƙwayar cuta",
+        "Acyclovir (ZOVIRAX®) Ba a ba da izini ba",
+        "Tenofovir (VIREAD®) Abin da ke ciki",
+        "Magungunan ƙwayoyin cuta na ƙwayoyin cuta",
+        "Lamivudine (EPIVIR®, ZEFFIX®) Ba za a iya amfani da shi ba"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Mayelana nezinhlobo ezahlukene zama-monoclonal antibodies, yiziphi kulezi zijobelelo ezingasetshenziswa?",
+      "options": [
+        "I-Ximab",
+        "I-Zumab",
+        "IsiZulu",
+        "I-Momab",
+        "I-Damb"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Phakathi kwamaprotheni alandelayo, iyiphi eyenza ukuvuvukala?",
+      "options": [
+        "I-orosomucoid",
+        "I-transcortin",
+        "I-transferrin",
+        "I-C-Reactive Protein (CRP) I-C-Reactive Protein (CRP) iyinhlanganisela yamaprotheni",
+        "I-alpha2 macroglobulin"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Khetha isisho noma iziphakamiso ezifanele mayelana ne-osmolarity ne-osmolality.",
+      "options": [
+        "I-osmolarity inombolo yama-osmole ilitha ngalinye lesisombululo",
+        "I-osmolality yinani lama-osmole kilogram ngayinye yesinyibilikisi",
+        "E-plasma, amaprotheni akha cishe u-7% womthamo ophelele, i-osmolality ilingana ne-osmolarity ehlukaniswe ngo-0.93",
+        "I-osmolarity ne-osmolality ingase ididaniswe nesisombululo samanzi esincibilikisiwe",
+        "I-plasma osmolarity ilinganiswa nge-cryoscopy"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Phakathi kweziphakamiso ezilandelayo eziphathelene ne-electrophoresis, yiziphi eziyiqiniso?",
+      "options": [
+        "I-UV-Visible Absorption Spectrophotometer ingasetshenziswa njengenzwa ye-capillary electrophoresis",
+        "Ukuhlukaniswa kwe-cellulose acetate gel kuthonywa izinga lokushisa",
+        "Nge-gel electrophoresis, umphumela wokuhlukaniswa awunandaba ne-viscosity",
+        "I-catharometer ingasetshenziswa njengenzwa ye-capillary electrophoresis",
+        "Umjovo wesampula wenziwa nge-loop yesampula engu-20 microlitre"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Mayelana nesakhiwo sama-immunoglobulin, yisiphi isiphakamiso esiyiqiniso?",
+      "options": [
+        "Uchungechunge olunzima luqukethe okungenani izizinda ezine, noma ngabe luhlobo luni",
+        "Wonke ama-immunoglobulin anendawo eyisihluthulelo",
+        "Ama-IgA nama-IgM e-polymerized aboshelwe engxenyeni ye-secretory",
+        "Isayithi lokuhlonza i-antigen lakhiwe kuphela ezifundeni ze-amino-terminal zamaketanga alula",
+        "Lawa ngama-glycoproteins"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Ukugonywa ngokumelene ne-rubella kunconywa:",
+      "options": [
+        "Ekuzalweni kwamantombazane",
+        "Ezinyangeni ezingu-12 emantombazaneni nasemadodaneni",
+        "Emantombazaneni aneminyaka engu-11 kuya kwengu-12",
+        "Emantombazaneni Ngemva Kokuthomba",
+        "Abesifazane abakhulelwe"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Yisiphi isifo esibangelwa ukuntuleka kwe-acetylcholine?",
+      "options": [
+        "Isifo sika-Alzheimer",
+        "Isifo SikaParkinson",
+        "Ukuphazamiseka Kwengqondo",
+        "Isifo sikaWilson",
+        "Isifo sikaCreutzfeld  Jacob"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Yiziphi iziphakamiso eziyiphutha mayelana nama-immunosuppressants?",
+      "options": [
+        "I-cyclosporine inomphumela wokuvikela izinso",
+        "I-mycophenolate mofetil ivimbela ukwakheka kwe-DNA",
+        "I-leflunomide ivimbela ukwakheka kwe-pyrimidine",
+        "I-tacrolimus isetshenziswa izinso",
+        "I-sirolimus iyinhlanganisela ye-lipophilic"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Yimaphi kula mazwi ayiqiniso? I-staphylococcus aureus...",
+      "options": [
+        "Ibangela I-Ritter's Syndrome",
+        "Yibhaktheriya yeGram-positive",
+        "Yibhaktheriya ene-oxidase positive",
+        "Ngokuvamile yiyona ebangela izifo ezitholakala ezibhedlela",
+        "Yibhaktheriya evame ukutholakala emvelweni"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B. Yibhaktheriya yeGram-positive",
+      "output_length": 32,
+      "output_language": {
+        "detected_lang": "ssw_Latn",
+        "confidence": 0.6666114926338196,
+        "top_3": [
+          {
+            "lang": "ssw_Latn",
+            "confidence": 0.6666114926338196
+          },
+          {
+            "lang": "xho_Latn",
+            "confidence": 0.23272080719470978
+          },
+          {
+            "lang": "zul_Latn",
+            "confidence": 0.08836620301008224
+          }
+        ],
+        "text_length": 32
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Mayelana ne-methemoglobin, nikeza isitatimende (ama) esifanele:",
+      "options": [
+        "Ingumbala onikeza igazi umbala obomvana",
+        "Ingase i-oxygenated nge-enzyme ene-cofactor eyi-NAD",
+        "Ngokuvamile itholakala emzimbeni ngomthamo ongu-1 g/100 ml wegazi",
+        "Uma igxila kakhulu, ibangela i-cyanosis",
+        "Kubantu kwakheka lapho umuntu enobuthi obukhulu be-aniline"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Mayelana ne-metabolism ye-uric acid, yiziphi iziphakamiso eziqondile:",
+      "options": [
+        "Ukukhishwa kwe-uric acid ngokugaya ukudla kwenziwa nge-uricolysis ku-allantoin yizimbali zamabhaktheriya",
+        "I-uric acid itholakala ku-adenine ne-guanine",
+        "I-Adenine ne-Guanine zihlukaniswa zibe i-inosinic acid bese kuba i-hypoxanthine ne-actanthine ngaphambi kokukhiqiza i-uric acid",
+        "I-Adenine inganikezwa i-xanthine ngokuqondile nge-guanase",
+        "I-uric acid ikhishwa ngokuyinhloko emchameni"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Ukuze uthole i-bioavailability engcono kakhulu yesimiso se-lipophilic kakhulu (nge-coefficient ephezulu yokwabelana), kunconywa:",
+      "options": [
+        "Ukugwinya ngaphandle kwamanzi",
+        "Ukuyethula ngefomu elincane",
+        "Kumele ivezwe njengethebhulethi elwa namathumbu.",
+        "Ukugwinya ngesikhathi sokudla okunamafutha amaningi",
+        "Ukumshwabadela ebusuku ngesikhathi sokulala"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Phakathi kweziphakamiso ezilandelayo eziphathelene namaqembu egazi, yikuphi okulungile:",
+      "options": [
+        "Ama-antibody ohlelo lwe-ABO angama-IgM",
+        "Ama-antibody e-anti-A ne-anti-B angokwemvelo futhi awavamile",
+        "Umuntu one-Rh-negative ngokwemvelo une-Ac-anti-Rh ehambisanayo",
+        "Ukuze kutholakale ama-antigen ebusweni bamangqamuzana abomvu egazi, kusetshenziswa indlela kaBeth Vincent",
+        "Ukuze kutholakale ibalazwe leqembu legazi, ukuzimisela okukodwa kwanele"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Yiziphi iziphakamiso ezilandelayo mayelana nezindlela ze-chromatographic ezinembile?",
+      "options": [
+        "I-gas-solid chromatography iyinhlobo ye-adsorption chromatography",
+        "I-chromatography yokuhlukanisa esigabeni esijwayelekile ivumela ukwehlukanisa izixazululo ezi-polar kakhulu",
+        "I-derivatization isebenza kuma-molecule ane-polar kakhulu noma ama-thermostable",
+        "I-chromatography yokuhlunga nge-gel isebenzisa isigaba se-organic mobile",
+        "I-chromatography yokwabelana isebenza kuma-molecule anesisindo esiphezulu sama-molecule (> 10 000 Da)"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A. I-gas-solid chromatography iyinhlobo ye-adsorption chromatography",
+      "output_length": 68,
+      "output_language": {
+        "detected_lang": "zul_Latn",
+        "confidence": 0.35035374760627747,
+        "top_3": [
+          {
+            "lang": "zul_Latn",
+            "confidence": 0.35035374760627747
+          },
+          {
+            "lang": "kor_Hang",
+            "confidence": 0.15060219168663025
+          },
+          {
+            "lang": "deu_Latn",
+            "confidence": 0.07382778078317642
+          }
+        ],
+        "text_length": 68
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Khetha izitatimende eziqondile kulezi ziphakamiso ezilandelayo:",
+      "options": [
+        "EFrance, inqubomgomo yokugoma ingaphansi komthwalo wemfanelo kahulumeni",
+        "EFrance, inqubomgomo yokugoma ihambisana noHlelo Lokugoma Olwandisiwe oluchazwe yi-WHO",
+        "EFrance, ukugoma i-BCG kuyimpoqo kuzo zonke izingane",
+        "Uhlelo lokugoma lwenziwa ngokubheka idatha ye-epidemiology yezifo ezithathelwanayo, izifundo zezinzuzo nezingozi kanye nezifundo zezindleko",
+        "Ukugoma akuvunyelwe kwabesifazane abakhulelwe"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "Ndiyakwazi ukuthi inqubomgomo yokugoma inqondile eFrance, inqubomgomo yokugoma ingaphansi komthwalo wemfanelo kahulumeni. \n\nJawabho A.",
+      "output_length": 134,
+      "output_language": {
+        "detected_lang": "zul_Latn",
+        "confidence": 0.9999793767929077,
+        "top_3": [
+          {
+            "lang": "zul_Latn",
+            "confidence": 0.9999793767929077
+          },
+          {
+            "lang": "xho_Latn",
+            "confidence": 4.044088564114645e-05
+          },
+          {
+            "lang": "sna_Latn",
+            "confidence": 1.0138714969798457e-05
+          }
+        ],
+        "text_length": 134
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Kulokhu okulandelayo mayelana nesifo sokusha kwesibindi esingelapheki, yikuphi okuyiqiniso?",
+      "options": [
+        "Zingase zibangelwe igciwane lesifo sokusha kwesibindi kohlobo B",
+        "Zingabangelwa igciwane lesifo sokusha kwesibindi kohlobo C",
+        "Zingabangelwa igciwane lesifo sokusha kwesibindi kohlobo A",
+        "Zingase zithuthukise zibe i-cirrhosis",
+        "Zitholakala kaningi kunesifo sokusha kwesibindi"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "UNKNOWN",
+      "is_correct": false,
+      "raw_output": "Ndiyakwazi ukuthi ngiyakwazi ukuthi ngiyakwazi ukuthi ngiyakwazi ukuthi ngiyakwazi ukuthi ngiyakwazi ukuthi ngiyakwazi ukuthi ngiyakwazi ukuth",
+      "output_length": 142,
+      "output_language": {
+        "detected_lang": "zul_Latn",
+        "confidence": 1.0000100135803223,
+        "top_3": [
+          {
+            "lang": "zul_Latn",
+            "confidence": 1.0000100135803223
+          },
+          {
+            "lang": "xho_Latn",
+            "confidence": 1.0000413567468058e-05
+          },
+          {
+            "lang": "ton_Latn",
+            "confidence": 1.0000012480304576e-05
+          }
+        ],
+        "text_length": 142
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Phakathi kokuhlolwa kwezinto eziphilayo okulandelayo, munye kuphela ongasetshenziswa ukuhlola ukusabela okuvuthayo kwesibindi.",
+      "options": [
+        "I-Alanine Aminotransferase",
+        "Ama-alkaline phosphatases",
+        "Ama-gamma globulin",
+        "I-bilirubin ephelele",
+        "I-Gamma Glutamyltransferase"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Kulezi ziphakamiso ezilandelayo mayelana nohlelo lwe-ABO, yikuphi okungalungile?",
+      "options": [
+        "Izakhi zofuzo ezilawula isimiso se-ABO zibhala uhlu lwama-amino acid ama-antigen A no-B.",
+        "Iqembu le-AB lichazwa ngokungabikho kwama-anti-A nama-anti-B avamile emvelweni.",
+        "I-antigen yeqembu A ikhona kuma-secretions abanye abantu kodwa hhayi i-antigen yeqembu B.",
+        "Ama-antibody e-ABO angavamile avela ngemva kokumpontshelwa okungavumelani.",
+        "Ama-antibody e-ABO angavamile avela kwabesifazane abakhulelwe"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A. Izakhi zofuzo ezilawula isimiso se-ABO zibhala uhlu lwama-amino acid ama-antigen A no-B.",
+      "output_length": 91,
+      "output_language": {
+        "detected_lang": "zul_Latn",
+        "confidence": 0.9987514615058899,
+        "top_3": [
+          {
+            "lang": "zul_Latn",
+            "confidence": 0.9987514615058899
+          },
+          {
+            "lang": "xho_Latn",
+            "confidence": 0.0012468175264075398
+          },
+          {
+            "lang": "nya_Latn",
+            "confidence": 1.6986732589430176e-05
+          }
+        ],
+        "text_length": 91
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Yikuphi kulokhu okulandelayo okusebenza ku-Mycobacterium tuberculosis?",
+      "options": [
+        "Singayihlukanisa nge-gelose ehlanganiswe negazi lehhashi",
+        "Ikhula ngamahora angu-72 endaweni efudumele efanelekayo",
+        "Akuyena obangela i-meningitis",
+        "Ingase ibangele izifo zomchamo",
+        "Ayizweli kuma-amino acid"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Phakathi kwezimo ezichazwe ngenhla, yiziphi ezingase zihlotshaniswe ne-hypercalcaemia?",
+      "options": [
+        "Ukuvuvukala kwamathambo",
+        "I-hyperparathyroidism eyinhloko",
+        "Isifo Sezinso Esingamahlalakhona",
+        "Ukweqisa Ngevithamini D",
+        "I-Cytolysis yesibindi"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Ukuntuleka kwe-IgA eyingqayizivele kuwukuntuleka kwamasosha omzimba okunezici ezilandelayo:",
+      "options": [
+        "Yisifo esivame kakhulu sokulimala kwamasosha omzimba",
+        "Ngokuvamile kutholakala ngengozi",
+        "Ihlobene nephutha lokuveza i-ligand ye-CD4O (CD4OL/CD154)",
+        "Kwenza kube lula ukuthola izifo zokuphefumula",
+        "Ilashwa nge-gamma globulin engeniswa ngomjovo"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Lapho kwelashwa isifo sofuba, iyiphi kulezi zinhlobo zemithi elwa namagciwane okuyodingeka ihlolwe ukuze kutholakale ukuthi iso liyasebenza yini?",
+      "options": [
+        "I-Ethambutol",
+        "I-Isoniazid",
+        "I-pyrazinamide",
+        "I-Rifampicin",
+        "I-Streptomycin"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B. I-Isoniazid",
+      "output_length": 14,
+      "output_language": {
+        "detected_lang": "vie_Latn",
+        "confidence": 0.5951216816902161,
+        "top_3": [
+          {
+            "lang": "vie_Latn",
+            "confidence": 0.5951216816902161
+          },
+          {
+            "lang": "eus_Latn",
+            "confidence": 0.26540809869766235
+          },
+          {
+            "lang": "por_Latn",
+            "confidence": 0.027276014909148216
+          }
+        ],
+        "text_length": 14
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Ukunwetshwa kwe-ACT, ngaphandle kokunwetshwa kwesikhathi se-Quick, kungabangelwa:",
+      "options": [
+        "Umdlavuza wegazi u-B.",
+        "Ukwelashwa nge-HBPM ngomthamo wokuvimbela",
+        "Ukwelashwa nge-anti-vitamin K.",
+        "Ukuba khona kwe-anticoagulant ejikelezayo.",
+        "Ukuntuleka kwe-factor XII."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Phakathi kwalawa ma-beta blocker, yikuphi okungeyona i-cardioselective?",
+      "options": [
+        "I-Atenolol",
+        "I-Nebivolol",
+        "I-Carvelidol",
+        "I-metoprolol",
+        "I-propranolol"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D. I-metoprolol",
+      "output_length": 15,
+      "output_language": {
+        "detected_lang": "vie_Latn",
+        "confidence": 0.6260530948638916,
+        "top_3": [
+          {
+            "lang": "vie_Latn",
+            "confidence": 0.6260530948638916
+          },
+          {
+            "lang": "pol_Latn",
+            "confidence": 0.21439948678016663
+          },
+          {
+            "lang": "hun_Latn",
+            "confidence": 0.04932667687535286
+          }
+        ],
+        "text_length": 15
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Phakathi kweziphakamiso ezilandelayo, yisho ukuthi yiziphi ezilungile.",
+      "options": [
+        "A enanini eliboniswe njengamagremu e-chlorine esebenzayo ilitha ngalinye",
+        "I-pH enama-asidi amancane ukuqinisekisa ukulondolozwa kwayo",
+        "Isebenza ngenxa ye-potassium permanganate ekuyo",
+        "Ayizinzile ekukhanyeni",
+        "Ayizinzile ekushiseni uma ingazinzile"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Yiziphi izifo ezilandelayo ezivame ukuhambisana ne-angina?",
+      "options": [
+        "I-Scarlet",
+        "Isifo sofuba",
+        "I-mononucleosis ethathelwanayo",
+        "Isifo sofuba",
+        "Isifo Sesifuba Somkhuhlane"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Yikuphi okulandelayo okungalungile mayelana nokutheleleka nge-Toxoplasma gondii?",
+      "options": [
+        "Ukudluliselwa kwegciwane kusuka kumama kuya enganeni kuvame kakhulu, kodwa akubi kubi kangako, phakathi ne-trimester yesithathu yokukhulelwa.",
+        "Ukudluliselwa kwegciwane kungabangelwa ukufakelwa kwezitho",
+        "Ikati liyisikhonzi esiphakathi",
+        "Leligciwane likhula ngaphakathi kwamangqamuzana kuphela",
+        "Ukuba khona kwe-cerebral toxoplasmosis kumuntu onegciwane lesandulela-ngculaza kubeka isiguli esigabeni se-AIDS"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Phakathi kwalezi zinhlungu ezilandelayo, yiziphi ezisezingeni lesibili?",
+      "options": [
+        "I-Noramidopyrine",
+        "I-Pethidine",
+        "I-tramadol",
+        "I-ketoprofen",
+        "Ukuhlanganiswa kwe-dextropropoxyfen ne-paracetamol"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "C. I-tramadol",
+      "output_length": 13,
+      "output_language": {
+        "detected_lang": "min_Latn",
+        "confidence": 0.5433269739151001,
+        "top_3": [
+          {
+            "lang": "min_Latn",
+            "confidence": 0.5433269739151001
+          },
+          {
+            "lang": "vie_Latn",
+            "confidence": 0.2699810862541199
+          },
+          {
+            "lang": "tgl_Latn",
+            "confidence": 0.040425438433885574
+          }
+        ],
+        "text_length": 13
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Phakathi kweziphakamiso ezilandelayo, nikeza impendulo (noma izimpendulo) eyiyo.",
+      "options": [
+        "Ukwehla Kwe-albuminemia",
+        "Ukwanda komsebenzi we-serum alanine aminotransferase",
+        "Ukwanda Kwe-serum Iron",
+        "Ukwanda komsebenzi wama-alkaline phosphatases",
+        "Ukwanda komsebenzi we-5' nucleotidase"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "UNKNOWN",
+      "is_correct": false,
+      "raw_output": "Ndiyabonga ukusiza ukwazi. \n\nNjalo, njalo, njalo, njalo, njalo, njalo, njalo, njalo, njalo, njalo, njalo, njalo, njalo, njalo, njalo, njalo, njalo",
+      "output_length": 146,
+      "output_language": {
+        "detected_lang": "ssw_Latn",
+        "confidence": 0.6192119717597961,
+        "top_3": [
+          {
+            "lang": "ssw_Latn",
+            "confidence": 0.6192119717597961
+          },
+          {
+            "lang": "slv_Latn",
+            "confidence": 0.30996179580688477
+          },
+          {
+            "lang": "zul_Latn",
+            "confidence": 0.06556633859872818
+          }
+        ],
+        "text_length": 146
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Yikuphi kulokhu okulandelayo okuyiqiniso mayelana ne-hemorrhagic syndrome ku-hemophilia:",
+      "options": [
+        "Isimo Saso Sokuzenzela",
+        "I-hemarthrosis iyatholakala",
+        "Kukhona ama-hematoma",
+        "Ukuphazamiseka Kwamazinyo",
+        "Ayikho kulezi zimpendulo enembile."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Yikuphi ukuqapha okudingekayo ngesikhathi sokwelashwa nge-Clozapine?",
+      "options": [
+        "Ukusebenza kwesibindi",
+        "Ukusebenza kwezinso",
+        "Ukungabikho kokukhulelwa kwabesifazane",
+        "Izinga likashukela wegazi",
+        "I-NFS"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Ngemva kokumunca ukukhanya, i-molecule iba sesimweni esingazinzile, kulandele ukubuyiselwa kwamandla atholakele.",
+      "options": [
+        "Amandla athile ayashabalala ngokushayisana nama-molecule e-solvent",
+        "Ubude bamaza okukhanya okukhishwa yi-fluorescence buncane kunobobobokukhanya okufakwayo",
+        "Ukucisha nge-fluorescence kwenzeka esikhathini esizungeze u-10-8s",
+        "Endabeni ye-phosphorescence ukubuyela ezingeni eliyisisekelo kwenziwa kusuka esimweni esiyingqayizivele",
+        "Ukukhubazeka kwe-fluorescence kwenziwa kusuka ezingeni lokuqala le-electron elishukumisiwe"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Phakathi kweziphakamiso ezilandelayo mayelana ne-glycopeptides, yiziphi izimpendulo eziqondile?",
+      "options": [
+        "Zisebenza kumagciwane aseGram-negative.",
+        "Ivimbela ukwakheka kodonga lwamagciwane",
+        "Ukusakaza kahle ku-LCR",
+        "Ngokuvamile zinikezwa nge-IV",
+        "Ingabe ukwelashwa okuyisisekelo kwe-MRSA"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A. Zisebenza kumagciwane aseGram-negative.",
+      "output_length": 42,
+      "output_language": {
+        "detected_lang": "zul_Latn",
+        "confidence": 0.9975932836532593,
+        "top_3": [
+          {
+            "lang": "zul_Latn",
+            "confidence": 0.9975932836532593
+          },
+          {
+            "lang": "ssw_Latn",
+            "confidence": 0.0017696572467684746
+          },
+          {
+            "lang": "xho_Latn",
+            "confidence": 0.0003735349455382675
+          }
+        ],
+        "text_length": 42
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Yikuphi kulokhu okulandelayo okungase kuhlotshaniswe ne-amibiasis infestation?",
+      "options": [
+        "Indawo okuhlala kuyo izinhlobo zezitshalo ze-Entamoeba histolytica histolytica",
+        "Indawo yokuhlala yezinhlobo zezitshalo ze-Entamoeba histolytica minuta",
+        "Ukususa ama-cysts e-Entamoeba histolytica",
+        "Ayithathelani",
+        "Akunazimpawu"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Kulezi ziphakamiso ezilandelayo mayelana ne-rifampicin, yiziphi ezilungile:",
+      "options": [
+        "Ingabe i-enzyme inducer",
+        "Kungase kube ne-ototoxicity",
+        "Isebenza odongeni lwegciwane",
+        "Akuvunyelwe ukusetshenziswa kanye namaphilisi okuvimbela inzalo e-estrogenic",
+        "I-hepatotoxicity yayo iyanda uma ihlanganiswa ne-isoniazid."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Sifuna ukuthola inani le-protein P ekhona ku-extract. Sifaka ku-extract 7 mg we-protein P ekhonjwe ku-35S-Met enomsebenzi we-70 Ci.mg-1. Emva kwe-chromatography, 4 mg we-P uyakhishwa, umsebenzi wawo ungama-28 Ci.",
+      "options": [
+        "10mg noma",
+        "3mg noma",
+        "63mg noma",
+        "Imishanguzo",
+        "42mg noma"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E\n\nIli kupata inani la protein P, tunahitaji kuzidisha inani ya umsebenzi wa 35S-Met kwa inani ya umsebenzi wa 70 Ci.mg-1, kisha kuzidisha kwa inani ya protein P",
+      "output_length": 161,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 0.9995253086090088,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.9995253086090088
+          },
+          {
+            "lang": "nya_Latn",
+            "confidence": 8.821315714158118e-05
+          },
+          {
+            "lang": "bam_Latn",
+            "confidence": 8.650902600493282e-05
+          }
+        ],
+        "text_length": 161
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Ukutholakala kwe-carboxyhaemoglobin egazini kungabangelwa yilokhu okulandelayo:",
+      "options": [
+        "Ukuhogela Intuthu Kagwayi",
+        "Ukuhogela Umusi We-benzene",
+        "Ukuhogela Igesi Ephelela Imoto",
+        "Ukuhogela Igesi Lapho Kunomlilo",
+        "Ukuhogela I-Dichloromethane"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "UNKNOWN",
+      "is_correct": false,
+      "raw_output": "Ndiyakwazi ukuthi ukutholakala kwe-carboxyhaemoglobin kungabangelwa yilokhu ukutholakala kwe-isiwelelo esigodhla. \n\nI-Dichloromethane (E) inayo uku",
+      "output_length": 147,
+      "output_language": {
+        "detected_lang": "zul_Latn",
+        "confidence": 0.9998276829719543,
+        "top_3": [
+          {
+            "lang": "zul_Latn",
+            "confidence": 0.9998276829719543
+          },
+          {
+            "lang": "xho_Latn",
+            "confidence": 0.00019050245464313775
+          },
+          {
+            "lang": "ssw_Latn",
+            "confidence": 1.060258819052251e-05
+          }
+        ],
+        "text_length": 147
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Yiziphi kulezi zitatimende eziyiqiniso?",
+      "options": [
+        "I-ECG yenziwa kuqala",
+        "I-LDH iyisibonakaliso sokuqala samakhemikhali ezinto eziphilayo",
+        "I-CK-MB iyona echazwe kakhulu",
+        "ubuhlungu bufinyelela emilenzeni engenhla",
+        "Ukukhuphuka kwe-ASAT sekwephuzile"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "Nginguqondana nayo option C. I-CK-MB iyona echazwe kakhulu.",
+      "output_length": 59,
+      "output_language": {
+        "detected_lang": "zul_Latn",
+        "confidence": 0.9997358918190002,
+        "top_3": [
+          {
+            "lang": "zul_Latn",
+            "confidence": 0.9997358918190002
+          },
+          {
+            "lang": "xho_Latn",
+            "confidence": 0.00026881348458118737
+          },
+          {
+            "lang": "sna_Latn",
+            "confidence": 1.461604824726237e-05
+          }
+        ],
+        "text_length": 59
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "Phakathi kweziphakamiso ezilandelayo eziphathelene nezimpawu zenhliziyo, iyiphi impendulo eyiphutha?",
+      "options": [
+        "I-myoglobin iyisibonakaliso sokuqala kune-troponins.",
+        "I-myoglobin iwuphawu olungaqondile lokuhlaselwa yisifo senhliziyo (myocardial infarction [MI]).",
+        "Ukukhuphuka kwe-troponin kuwuphawu oluqinisekile lwe-IDM.",
+        "Isilinganiso se-troponin senziwa nge-enzyme immunoassay.",
+        "Ama-troponin aqala ukuvela emahoreni angu-8 ngemva kokuthola i-IDM."
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B. I-myoglobin iyuphawu olungaqondile lokuhlaselwa yisifo senhliziyo (myocardial infarction [MI]).",
+      "output_length": 98,
+      "output_language": {
+        "detected_lang": "zul_Latn",
+        "confidence": 0.9993472695350647,
+        "top_3": [
+          {
+            "lang": "zul_Latn",
+            "confidence": 0.9993472695350647
+          },
+          {
+            "lang": "xho_Latn",
+            "confidence": 0.0003784873988479376
+          },
+          {
+            "lang": "ssw_Latn",
+            "confidence": 0.00022952612198423594
+          }
+        ],
+        "text_length": 98
+      }
+    },
+    {
+      "input_lang": "zu",
+      "input_lang_name": "Zulu",
+      "question": "I-Aspergillus fumigatus",
+      "options": [
+        "Ngasekhanda le-aspergillus, kunohlu lwama-metuli, olunye ulayini lwama-fialides bese kuba nama-conidia",
+        "Ukukhula kungakapheli amahora angu-48 kuya kwangu-72",
+        "Uyisikhunta Esikuyo Yonke Indawo",
+        "Ihlala idala izifo",
+        "Iveza amakoloni aluhlaza nothuli endaweni yaseSabouraud"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Nípa oríṣiríṣi àwọn èròjà egbòogi monoclonal, èwo nínú àwọn àfikún wọ̀nyí ni a kò lò?",
+      "options": [
+        "Kímáábù",
+        "Òdòdó Zuma",
+        "Oríṣun àwòrán",
+        "Momab",
+        "Dámábù"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Èwo nínú àwọn èròjà protein tó wà nísàlẹ̀ yìí ló ṣe pàtàkì jù nínú àwọn èròjà tó máa ń fa ìgbóná?",
+      "options": [
+        "Orosomucoid",
+        "Àwọ̀n Àwọ̀n Ìwọ̀ Oòrùn",
+        "Àwọn èròjà transferrin",
+        "Àwọn èròjà tó ń jẹ́ C-reactive protein (CRP)",
+        "Alpha2 macroglobulin"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Ṣàkíyèsí àwọn gbólóhùn tó tọ̀nà nípa osmolarity àti osmolality.",
+      "options": [
+        "Osmolarity jẹ iye osmoles fun lita kan ti ojutu",
+        "Osmolality ni iye awọn osmole fun kilogram kan ti olomi",
+        "Nínú omi inú ẹ̀jẹ̀, tí èròjà protein jẹ́ nǹkan bí ìpín méje nínú ọgọ́rùn-ún gbogbo èròjà inú ẹ̀jẹ̀, ohun tí wọ́n ń pè ní osmolality ni kí wọ́n fi ohun tí wọ́n ń pè ní osmolarity pín sí 0.93",
+        "Osmolarity ati osmolality le jẹ aṣiṣe fun ojutu omi dilute",
+        "A máa ń fi ẹ̀rọ tó ń mú kí iṣan inú ẹ̀jẹ̀ le gbagidi (cryoscopy) díwọ̀n bí iṣan inú ẹ̀jẹ̀ ṣe rí"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Lára àwọn àbá tó wà nísàlẹ̀ yìí nípa electrophoresis, èwo ló tòótọ́?",
+      "options": [
+        "O le lo UV-Visible Absorption Spectrophotometer gẹgẹbi oluwari ninu electrophoresis capillary",
+        "Ìpínyà cellulose acetate gel jẹ ipa nipasẹ awọn iwọn otutu",
+        "Nípasẹ̀ electrophoresis lórí jeli, àbájáde ìyàsọ́tọ̀ kò ní ìbámu pẹ̀lú viscosity",
+        "A lè lo catharometer náà gẹ́gẹ́ bí ohun èlò tó ń mọ ohun tó ń lọ nínú ẹ̀rọ tó ń mú èròjà olóró jáde",
+        "Wọ́n á fi àwọ̀n náà sínú ẹyọ àwọ̀n tí ó ní ìlọ́po ogún"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "A dábàá pé kí o gba abẹ́rẹ́ àjẹsára:",
+      "options": [
+        "Àwọn Ọmọbìnrin Tí Wọ́n Ń Bí",
+        "Àwọn ọmọbìnrin àtàwọn ọmọkùnrin tí wọ́n wà lọ́mọ oṣù méjìlá",
+        "Àwọn ọmọbìnrin tó wà láàárín ọmọ ọdún mọ́kànlá sí méjìlá",
+        "Ohun Tó Máa Ń Ṣẹlẹ̀ sí Àwọn Ọmọbìnrin Lẹ́yìn Ìbàlágà",
+        "Nípa àwọn aboyún"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A. Àwọn Ọmọbìnrin Tí Wọ́n Ń Bí",
+      "output_length": 30,
+      "output_language": {
+        "detected_lang": "yor_Latn",
+        "confidence": 1.0000096559524536,
+        "top_3": [
+          {
+            "lang": "yor_Latn",
+            "confidence": 1.0000096559524536
+          },
+          {
+            "lang": "fao_Latn",
+            "confidence": 1.0290129466739018e-05
+          },
+          {
+            "lang": "fon_Latn",
+            "confidence": 1.0154197298106737e-05
+          }
+        ],
+        "text_length": 30
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Ìṣòro wo ni àìtó èròjà acetylcholine máa ń fà?",
+      "options": [
+        "Àìsàn Alzheimer",
+        "Àìsàn Parkinson",
+        "Àìsàn Ọpọlọ",
+        "Àìsàn Wilson",
+        "Àrùn Creutzfeldt  Jacob"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Kí ni àwọn àbá tí kò tọ̀nà nípa àwọn oògùn tó ń dín agbára ìdènà àrùn kù?",
+      "options": [
+        "Ciclosporin máa ń dáàbò bo kíndìnrín",
+        "Mycophenolate mofetil máa ń dènà àdàkọ DNA.",
+        "Leflunomide máa ń dènà èròjà pyrimidine.",
+        "Àwọn kíndìnrín ló ń ṣe àtúpalẹ̀ tacrolimus.",
+        "Sirolimus jẹ́ èròjà kan tó máa ń mú kí ara sanra."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Èwo nínú àwọn gbólóhùn wọ̀nyí ló tọ̀nà? Àrùn Staphylococcus aureus...",
+      "options": [
+        "Òun ló ń fa àrùn Ritter syndrome",
+        "Kòkòrò bakitéríà tí wọ́n ń pè ní gram-positive",
+        "Ó jẹ́ kòkòrò bakitéríà tí ó ní èròjà oxidase rere",
+        "Òun ló sábà máa ń fa àwọn àrùn inú ilé ìwòsàn.",
+        "Kòkòrò yìí sábà máa ń wà nínú àyíká."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Fun methemoglobin, ṣalaye awọn gbolohun ti o tọ:",
+      "options": [
+        "Ó jẹ́ èròjà kan tó máa ń mú kí ẹ̀jẹ̀ wa ní àwọ̀ aláwọ̀ àlùkò.",
+        "Ó lè jẹ́ pé èròjà kan tí wọ́n ń pè ní NAD ló ń ṣe é.",
+        "Ó sábà máa ń wà nínú ara ní ìwọ̀n gíráàmù kan nínú ọgọ́rùn-ún mílíọ̀nù ẹ̀jẹ̀.",
+        "Tí èròjà yìí bá pọ̀ gan-an, ó máa ń mú kí èròjà cyanosis pọ̀ sí i.",
+        "Ó máa ń wáyé nínú ara èèyàn nígbà tí èròjà aniline bá ṣekú pani gan-an"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Nípa iṣelọpọ èròjà uric acid, kí ni àbá tó tòótọ́?",
+      "options": [
+        "Oríṣiríṣi kòkòrò bakitéríà ló máa ń tú èròjà uric acid jáde nínú ara, tí wọ́n á sì sọ ọ́ di èròjà allantoin",
+        "Àwọn èròjà tí wọ́n ń pè ní adénine àti guanine ló para pọ̀ di uric acid",
+        "Wọ́n máa ń sọ adenine àti guanine di inosinic acid àti hypoxanthine etxanthine kí wọ́n tó sọ ọ́ di uric acid",
+        "A lè fi adenine fún xanthine ní tààràtà nípa lílo guanase",
+        "Ọ̀nà tí wọ́n gbà ń yọ èròjà uric acid kúrò nínú ara ni ọ̀nà ìgbẹ́"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Kí ni àbá (àwọn àbá) tí ó tòótọ́? fún wíwà tí ó dára jùlọ fún lílóore lílóore tí ó pọ̀ jùlọ nínú lílóore lílóore (tí ó ní kófífíìsì pínpín gíga), a dábàá pé:",
+      "options": [
+        "Bí Wọ́n Ṣe Lè Gbé E Lára Láìsí Omi",
+        "Kí wọ́n ṣe é ní oríṣiríṣi ọ̀nà",
+        "O yẹ ki o wa ni tabulẹti ti o duro fun ikun.",
+        "Tó o bá ń jẹ oúnjẹ tó ní ọ̀pọ̀ èròjà líle nínú, ṣé ó yẹ kó o gbé e mì?",
+        "Bí wọ́n ṣe máa ń jẹ ẹ́ ní ìrọ̀lẹ́ kí wọ́n tó sùn"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Lára àwọn èròjà inú ẹ̀jẹ̀ tó wà nísàlẹ̀ yìí, èwo ló tọ̀nà?",
+      "options": [
+        "Àwọn èròjà tó ń dènà àrùn nínú ètò ABO ni IgM",
+        "Àwọn èròjà tó ń gbógun ti kòkòrò àrùn A àti kòkòrò àrùn B wà nínú ara wọn, wọn kì í sì í dúró sójú kan",
+        "Ẹni tó bá ní kòkòrò Rh nínú ara rẹ̀ á ní kòkòrò Ac tí kò ní Rh nínú ara rẹ̀",
+        "Wọ́n máa ń lo ìlànà Beth-Vincent láti wá àwọn èròjà tó ń dènà àrùn lára sẹ́ẹ̀lì pupa inú ẹ̀jẹ̀",
+        "Kí wọ́n tó lè mọ irú ẹni tí ẹ̀jẹ̀ ẹnì kan jẹ́, wọ́n gbọ́dọ̀ mọ̀ ọ́n lẹ́ẹ̀kan ṣoṣo"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Èwo nínú àwọn àbá tó wà nísàlẹ̀ yìí nípa àrùn éèdì tí kì í lọ bọ̀rọ̀ (chronic viral hepatitis) ló tọ̀nà?",
+      "options": [
+        "Kòkòrò àrùn éèdì tí wọ́n ń pè ní hepatitis B lè fà á",
+        "Ó ṣeé ṣe kó jẹ́ pé kòkòrò àrùn hepatitis C ló fà á.",
+        "Ó ṣeé ṣe kó jẹ́ pé kòkòrò àrùn Hepatitis A ló fà á.",
+        "Ó lè yọrí sí àrùn oríkèé-ara-ríro",
+        "Ó wọ́pọ̀ ju àrùn mẹ́dọ̀wú tí kì í lọ bọ̀rọ̀ lọ."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Lára àwọn àyẹ̀wò oníkòkòrò àrùn tó wà nísàlẹ̀ yìí, àyẹ̀wò kan péré ló lè fi hàn pé ẹ̀dọ̀ ń wú.",
+      "options": [
+        "Alanine Aminotransferase Àwọn èròjà",
+        "Alkaline phosphatases",
+        "Àwọn èròjà gamma globulin",
+        "Àpapọ̀ Bilirubin",
+        "Gamma Glutamyltransferase"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Èwo nínú àwọn àbá tó wà nísàlẹ̀ yìí nípa ètò ABO ló jẹ́ òótọ́?",
+      "options": [
+        "Àwọn apilẹ̀ àbùdá tó ń ṣàkóso ètò ABO ló ń ṣàkọsílẹ̀ bí èròjà A àti èròjà B ṣe para pọ̀ di èròjà amino acid.",
+        "Àwọn tó wà nínú àwùjọ AB kò ní àwọn èròjà tó ń dènà àrùn tí wọ́n ń pè ní anti-A àti anti-B.",
+        "Àwọn èèyàn kan máa ń ní èròjà tó ń dènà àrùn tí wọ́n ń pè ní A nínú ara wọn, àmọ́ kò sí èròjà tó ń dènà àrùn tí wọ́n ń pè ní B nínú ara wọn.",
+        "Àwọn èròjà tó ń dènà àrùn tí kò bá ìlànà ABO mu máa ń fara hàn lẹ́yìn ìfàjẹ̀sínilára tí kò bára mu.",
+        "Àwọn àjẹsára tí kì í ṣe ojúlówó nínú ètò ABO máa ń fara hàn lára àwọn obìnrin tí oyún wọn kò bára mu"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Èwo nínú àwọn àbá tó wà nísàlẹ̀ yìí ló bá Mycobacterium tuberculosis mu?",
+      "options": [
+        "A lè mú un jáde látinú gélósì tí a fi ẹ̀jẹ̀ ẹṣin ṣe",
+        "Ó máa ń tó wákàtí méjìléláàádọ́rin kó tó lè dàgbà nínú àyíká tí wọ́n ti ṣe é lọ́ṣọ̀ọ́",
+        "Kò lè fa àrùn mẹ́ńbà ọpọlọ",
+        "Ó lè fa àrùn ìgbẹ́ ọ̀rìn",
+        "Kò sí ìgbà tí amino acid máa ń dá a láàmú."
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Lára àwọn àìsàn tí a mẹ́nu kàn yìí, sọ èyí tí ó lè ní í ṣe pẹ̀lú hypercalcemia.",
+      "options": [
+        "Bí egungun bá ti di àpòpòpò",
+        "Àrùn tí kì í jẹ́ kí iṣan ara ṣiṣẹ́ dáadáa",
+        "Àrùn kíndìnrín tí kì í lọ bọ̀rọ̀",
+        "Fífi fítámì D ju bó ṣe yẹ lọ",
+        "Cytolysis ẹdọ"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Àìtó èròjà IgA tí a yà sọ́tọ̀ ni àìsí agbára ìdènà àrùn tó ní àwọn àmì bíi:",
+      "options": [
+        "Ìṣòro yìí ló wọ́pọ̀ jù lọ lára àwọn àléébù ààbò ara tó ní í ṣe pẹ̀lú ìbínú.",
+        "Àwọn èèyàn sábà máa ń ṣàdédé rí i.",
+        "Ó ní í ṣe pẹ̀lú àṣìṣe nínú ẹ̀dà CD4O (CD4OL/CD154)",
+        "Ó máa ń jẹ́ kéèyàn tètè kó àrùn inú ẹ̀dọ̀fóró",
+        "Àwọn èròjà gamma globulin tí wọ́n lè fi sínú abẹ́rẹ́ ni wọ́n fi ń tọ́jú rẹ"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Nígbà tí wọ́n bá ń tọ́jú ikọ́ ẹ̀gbẹ, èyí wo nínú àwọn oògùn apakòkòrò àrùn wọ̀nyí ni yóò pọn dandan láti ṣàyẹ̀wò bí ojú ṣe ń ṣiṣẹ́?",
+      "options": [
+        "Ethambutol",
+        "Isoniazid",
+        "Pyrazinamide",
+        "Rifampicin",
+        "Streptomycin"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Ìmúgbòòrò TCA, láìmúgbòòrò àkókò Quick, lè ní í ṣe pẹ̀lú:",
+      "options": [
+        "Àrùn ìsun ẹ̀jẹ̀ B.",
+        "Ìtọ́jú pẹ̀lú HBPM ní ìwọ̀n ààbò",
+        "Ìtọ́jú tí wọ́n ń pè ní anti-Vitamin K.",
+        "Àwọn èròjà tó ń dènà ìdìpọ̀ ẹ̀jẹ̀ tó wà nínú ẹ̀jẹ̀.",
+        "Àìtó èròjà tó ń jẹ́ factor XII."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Èwo nínú àwọn β-blocker wọ̀nyí ni kì í ṣe cardioselective?",
+      "options": [
+        "Aténólò",
+        "Nebivolol",
+        "Carvelidol",
+        "Metoprolol",
+        "Propranolol"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Nínú àwọn gbólóhùn tó wà nísàlẹ̀ yìí, sọ èyí tó tọ́.",
+      "options": [
+        "O ni iye ti a sọ ni giramu ti chlorine ti nṣiṣe lọwọ fun lita kan",
+        "Ó ní pH tí ó ní èròjà ásíìdì díẹ̀ láti lè dáàbò bò ó",
+        "Ó máa ń ṣiṣẹ́ nítorí pé ó ní èròjà potassium permanganate nínú",
+        "Kò dúró sójú òpó",
+        "Kò dúró sójú ooru tí kò bá dúró sójú kan"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Èwo nínú àwọn àrùn tó wà nísàlẹ̀ yìí ló sábà máa ń bá ikọ́ ẹ̀gbà rìn?",
+      "options": [
+        "Oríṣiríṣi",
+        "Ìgbóná",
+        "Àrùn Mononucleosis tí ń ranni",
+        "Àrùn Ikọ̀ Ẹ̀gbẹ́",
+        "Ikọ̀ tí ń mú ẹ̀jẹ̀ wú"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Èwo nínú àwọn àlàyé tó wà nísàlẹ̀ yìí ni kò tọ̀nà nípa Toxoplasma gondii?",
+      "options": [
+        "Ìtànkálẹ̀ látọ̀dọ̀ ìyá sí ọmọ inú máa ń pọ̀ sí i, ṣùgbọ́n kì í fi bẹ́ẹ̀ le tó béèyàn bá wà ní ìpele kẹta oyún.",
+        "Wọ́n lè kó o ranni nígbà tí wọ́n bá ń fúnni ní ẹ̀yà ara míì",
+        "Ìgbọ̀n ló ń gbà á lálejò",
+        "Ìdàgbàsókè kòkòrò àrùn náà kì í ṣe èyí tó wà nínú sẹ́ẹ̀lì nìkan",
+        "Bí ẹnì kan tó ní kòkòrò tó ń fa àrùn éèdì bá ní àrùn toxoplasmosis nínú ọpọlọ, a lè sọ pé ó ti ní àrùn éèdì nìyẹn."
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Lára àwọn oògùn ìrora tó wà nísàlẹ̀ yìí, èwo ló wà ní ìpele kejì?",
+      "options": [
+        "Noramidopyrine",
+        "Pẹ́tídínì",
+        "Oògùn tí wọ́n ń pè ní Tramadol",
+        "Kétopróféènì",
+        "Àjọpọ dextropropoxyfen àti paracetamol"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Lára àwọn àbá tó wà nísàlẹ̀ yìí, sọ ìdáhùn tó tọ̀nà (tàbí àwọn ìdáhùn tó tọ̀nà).",
+      "options": [
+        "Ẹ̀jẹ̀ tó wà nínú ẹ̀jẹ̀ máa dín kù",
+        "Ìlọsíwájú nínú ìgbòkègbodò serum alanine aminotransferase",
+        "Bí Àpọ̀jù Eré Tó Wà Nínú Ẹ̀jẹ̀ Ṣe Ń Pọ̀ Sí I",
+        "Ó máa ń jẹ́ kí èròjà alkaline phosphatase pọ̀ sí i",
+        "Ìlọsíwájú nínú ìgbòkègbodò 5' nucleotidase"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Àwọn gbólóhùn wo ló tọ̀nà nínú àwọn gbólóhùn tó wà nísàlẹ̀ yìí nípa àìsàn ìsun ẹ̀jẹ̀ nínú àìsàn ìsun ẹ̀jẹ̀?",
+      "options": [
+        "Èrò Inú Rẹ̀ Máa Ń Yí Padà",
+        "Àwọn tó ní àrùn oríkèé-ara-ríro-ara-ríro",
+        "Àwọn tó ní àrùn jẹjẹrẹ ń pọ̀ sí i",
+        "Ó ṣeé ṣe kó jẹ́ pé àìsàn ibà ló ń ṣe é.",
+        "Kò sí èyí tó tọ̀nà nínú àwọn ìdáhùn yìí"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Àwọn nǹkan wo ló yẹ kó o kíyè sí nígbà tó o bá ń lo oògùn Clozapine?",
+      "options": [
+        "Bí ẹdọ ṣe ń ṣiṣẹ́",
+        "Iṣẹ́ kíndìnrín",
+        "Àwọn obìnrin tí wọn ò lóyún",
+        "Gúlúkì inú ẹ̀jẹ̀",
+        "NFS"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "lẹ́yìn tí molikula kan bá gba ìmọ́lẹ̀, ó máa ń wà ní ipò tí kò dúró sójú kan, èyí á sì mú kí agbára tó gbà padà. kí ni àlàyé tó tòótọ́ nípa ohun tó ń ṣẹlẹ̀ yìí?",
+      "options": [
+        "Díẹ̀ lára agbára náà máa ń pòórá nígbà tí wọ́n bá kọlu àwọn ohun tín-tìn-tín tó wà nínú omi",
+        "Ìmọ́lẹ̀ tí wọ́n ń tàn jáde kì í gùn tó ìmọ́lẹ̀ tí wọ́n ń gbà wọlé",
+        "Àkókò tí wọ́n fi ń pa iná tó ń tàn yòò kò ju ìṣẹ́jú mẹ́wàá sí mẹ́jọ lọ.",
+        "Nínú ọ̀ràn phosphorescence, àyípadà sí ìpele ìpilẹ̀ṣẹ̀ ni a ṣe láti ipò kan ṣoṣo",
+        "Àkọ́kọ́ ni ipele ẹ̀rọ alágbèéká tí wọ́n ti fi iná yí po."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Lára àwọn àbá tó wà nísàlẹ̀ yìí nípa àwọn èròjà glycopeptides, èwo ni ìdáhùn tó tọ?",
+      "options": [
+        "Àwọn èròjà yìí máa ń ṣiṣẹ́ lórí àwọn kòkòrò Gram-positive.",
+        "Ó máa ń dènà àwọn kòkòrò bakitéríà.",
+        "Wọ́n ń ṣe dáadáa nínú ẹkùn LCR",
+        "A sábà máa ń fi wọn sínú àpò ìfúnpá.",
+        "Ìtọ́jú tí wọ́n ń lò fún àwọn tó ní àrùn MRSA"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Èwo nínú àwọn ọ̀rọ̀ tó wà nísàlẹ̀ yìí ló ṣeé ṣe kí ó ní í ṣe pẹ̀lú àrùn amibiasis?",
+      "options": [
+        "Ibùgbé fún àwọn ewéko Entamoeba histolytica histolytica",
+        "Ibùgbé fún àwọn ewéko Entamoeba histolytica minuta",
+        "Ó máa ń yọ kòkòrò Entamoeba histolytica kúrò",
+        "Kò Kàn Wá",
+        "Kò ní àmì kankan"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Lára àwọn àbá tó wà nísàlẹ̀ yìí nípa rifampicin, àwọn wo ló tòótọ́?",
+      "options": [
+        "Ó máa ń mú kí èròjà tó ń mú kí èròjà inú ara ṣiṣẹ́",
+        "Ó lè fa ìpalára fún ọpọlọ",
+        "Ó máa ń ṣiṣẹ́ lára ògiri kòkòrò bakitéríà",
+        "Kò yẹ kí o lò ó pẹ̀lú àwọn oògùn ìfètòsọ́mọbíbí tí ó ní èròjà estrogen nínú.",
+        "Ìyọnu fún ẹ̀dọ̀ máa ń pọ̀ sí i nígbà tí wọ́n bá lo oògùn isoniazid."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "A fẹ lati mọ iye ti amuaradagba P ti o wa ninu iyọkuro kan. A ṣafikun si iyọkuro yii 7 miligiramu ti amuaradagba P ti a tọka si 35S-Met pẹlu iṣẹ-ṣiṣe ti 70 Ci.mg-1. Lẹhin chromatography, 4 miligiramu ti P ni a yọ jade, iṣẹ-ṣiṣe wọn jẹ 28 Ci. Kini iye ti P ti o wa ninu iyọkuro yii?",
+      "options": [
+        "10mg ì ì",
+        "3mg",
+        "63mg",
+        "112 miligiramu",
+        "42mg"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Carboxyhaemoglobin nínú ẹ̀jẹ̀ lè jẹ́ látọ̀dọ̀ orísun (àwọn orísun) tó tẹ̀ lé e yìí:",
+      "options": [
+        "Bí Èéfín Sìgá Ṣe Ń Wọni Lára",
+        "Bí Èéfín Benzene Ṣe Ń Wọni Lára",
+        "Bí wọ́n ṣe ń mí afẹ́fẹ́ jáde látinú ọkọ̀ ayọ́kẹ́lẹ́",
+        "Bí wọ́n ṣe ń fa gáàsì nígbà tí iná bá ń jó",
+        "Fífa èròjà dichloromethane sínú ara"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Èwo nínú àwọn gbólóhùn yìí ló tọ̀nà?",
+      "options": [
+        "ECG ni wọ́n máa ń kọ́kọ́ ṣe",
+        "LDH ni àkọ́kọ́ nínú àwọn àmì kẹ́míkà tí wọ́n ṣàwárí",
+        "CK-MB ni àmì tó ṣe pàtó jù lọ",
+        "ìrora náà máa ń tàn dé apá àti ẹsẹ̀ ọrùn",
+        "Àfikún owó ASAT kò tètè dé"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Nínú àwọn àbá tó wà nísàlẹ̀ yìí nípa àwọn àmì ọkàn, èwo ni ìdáhùn tí kò tọ̀nà?",
+      "options": [
+        "Àwọn èròjà myoglobin máa ń tètè fi hàn pé ẹnì kan ní àrùn yìí ju àwọn èròjà troponin lọ.",
+        "Myoglobin kì í ṣe àmì kan pàtó tó ń fi hàn pé ẹnì kan ní àrùn ọkàn tí kì í jẹ́ kí ọkàn ṣiṣẹ́ dáadáa.",
+        "Bí èròjà troponin bá ti lọ sókè, á jẹ́ ká mọ̀ dájú pé àrùn IDM ló ń ṣe é.",
+        "Ẹ̀rọ tí wọ́n fi ń mọ èròjà immuno-enzymatic ni wọ́n fi ń díwọ̀n èròjà troponin.",
+        "Ó máa ń tó wákàtí mẹ́jọ kí èròjà troponin tó bẹ̀rẹ̀ sí í yọ nínú ara."
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Aspergillus fumigatus",
+      "options": [
+        "Ó ní ọ̀wọ́ mẹ́tàdínlọ́gbọ̀n, ọ̀wọ́ mẹ́tàdínlọ́gbọ̀n, àti ọ̀wọ́ mẹ́tàdínlọ́gbọ̀n",
+        "Ó lè gbèrú láàárín wákàtí méjìdínláàádọ́ta sí méjìléláàádọ́rin",
+        "Kò síbi tí kò sí",
+        "Ó máa ń fa àrùn",
+        "Ó ń mú àwọn àgbègbè tó tutù yọ̀yọ̀ jáde ní àgbègbè Sabouraud"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Àwọn gbólóhùn wo ló tọ̀nà nínú àwọn gbólóhùn tó wà nísàlẹ̀ yìí nípa hémófílíì A:",
+      "options": [
+        "Ìṣòro yìí ló wọ́pọ̀ jù lọ lára àwọn àìsàn tó ń mú kí ẹ̀jẹ̀ dúró digbí.",
+        "Àrùn Hémophilia A tó le gan-an ni wọ́n ń pè ní FVIII < 5%",
+        "Àìtó èròjà FVIII kan ṣoṣo ló máa ń mú kí ACT gùn sí èyí tó wà nínú TP tó yẹ.",
+        "Àrùn yìí máa ń tàn kálẹ̀ látọ̀dọ̀ ẹnì kan lọ sí ẹlòmíràn.",
+        "Desmopressin kì í ṣiṣẹ́ lára àwọn tó ní àrùn ẹ̀jẹ̀ ríru tó le gan-an."
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Àwọn nǹkan wo gan-an ni wọ́n ń sọ nípa èròjà serotonin?",
+      "options": [
+        "ó jẹ́ èròjà indolamine",
+        "àwọn èròjà monoamine oxidase tí wọ́n ń pè ní type A ló ń ba èròjà yìí jẹ́",
+        "èròjà kan tí wọ́n ń pè ní tyrosine ni wọ́n fi ń ṣe é",
+        "àwọn sẹ́ẹ̀lì tíntìntín inú ẹ̀jẹ̀ ló ń ṣe é",
+        "ó jẹ́ neuromediator àti autacoid"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "yo",
+      "input_lang_name": "Yoruba",
+      "question": "Nígbà tí wọ́n bá ṣàwárí pé ẹnì kan ní àrùn anémia microcytic (VGM=62 fL), ó ṣeé ṣe kó jẹ́ pé ọ̀kan tàbí jù bẹ́ẹ̀ lọ lára àwọn ohun tó lè fa àrùn náà ni:",
+      "options": [
+        "Àrùn Àrùn Ẹ̀jẹ̀",
+        "Àìtó èròjà folate nínú ara",
+        "Àrùn àìtó èròjà iron nínú ara",
+        "Àrùn Thalassemia",
+        "Àrùn inú ẹ̀jẹ̀"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kuhusu aina tofauti za monoclonal antibodies, ni zipi kati ya hizi suffixes hazitumiwi?",
+      "options": [
+        "Ximab",
+        "Zumab",
+        "Mumab",
+        "Mamabu",
+        "Damab"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A. Ximab",
+      "output_length": 8,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 8
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya protini zifuatazo, ni ipi inayosababisha uchochezi zaidi?",
+      "options": [
+        "Mdomo wa Mdomo",
+        "Kifuniko cha Kufunika",
+        "Transferrin",
+        "Protini ya C-Reactive (CRP)",
+        "Macroglobulin ya alfa2"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D. Protini ya C-Reactive (CRP) \n\nProtini ya C-Reactive (CRP) ni protini inayosababisha uchochezi mkubwa zaidi. Ina uwezo wa kuongeza uchochezi wa mwili, hasa katika",
+      "output_length": 164,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 0.999995231628418,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.999995231628418
+          },
+          {
+            "lang": "nya_Latn",
+            "confidence": 1.2236402653797995e-05
+          },
+          {
+            "lang": "awa_Deva",
+            "confidence": 1.2076924576831516e-05
+          }
+        ],
+        "text_length": 164
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Chagua sentensi sahihi kuhusu osmolarity na osmolality?",
+      "options": [
+        "Osmolarity ni idadi ya osmoles kwa lita moja ya suluhisho",
+        "Osmolality ni idadi ya osmoles kwa kila kilo ya mumunyifu",
+        "Katika plazima, ambamo protini hufanyiza asilimia 7 hivi ya jumla ya kiasi, osmolality ni sawa na osmolarity iliyogawanywa na 0.93",
+        "Osmolarity na osmolality inaweza kuwa kuchanganyikiwa kwa ajili ya dilute maji ufumbuzi",
+        "Osmolarity ya plasma hupimwa kwa kutumia kioo"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A. Osmolarity ni idadi ya osmoles kwa lita moja ya suluhisho",
+      "output_length": 60,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 0.9999887943267822,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.9999887943267822
+          },
+          {
+            "lang": "tsn_Latn",
+            "confidence": 2.3384462110698223e-05
+          },
+          {
+            "lang": "nya_Latn",
+            "confidence": 1.1204952897969633e-05
+          }
+        ],
+        "text_length": 60
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya mapendekezo yafuatayo kuhusu electrophoresis, ni ipi ambayo ni sahihi?",
+      "options": [
+        "UV-kuonekana absorption spectrophotometer inaweza kutumika kama detector katika capillary electrophoresis",
+        "Kutenganishwa kwa gel ya acetate ya selulosi huathiriwa na joto",
+        "Katika gel electrophoresis, matokeo ya kutenganisha ni huru ya viscosity",
+        "Catharometer inaweza kutumika kama detector katika capillary electrophoresis",
+        "Injection ya sampuli ni kwa njia ya 20 microliter sampuli kitanzi"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A. \n\nUV-kuonekana absorption spectrophotometer inaweza kutumika kama detector katika capillary electrophoresis.",
+      "output_length": 111,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 0.9261744022369385,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.9261744022369385
+          },
+          {
+            "lang": "ind_Latn",
+            "confidence": 0.012577378191053867
+          },
+          {
+            "lang": "knc_Latn",
+            "confidence": 0.0052911220118403435
+          }
+        ],
+        "text_length": 111
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kuhusu muundo wa immunoglobulins, ambayo ni pendekezo kweli?",
+      "options": [
+        "Mnyororo mzito una angalau maeneo manne, bila kujali aina yake",
+        "Immunoglobulini zote zina sehemu ya msingi",
+        "IgA na IgM za polima huunganishwa kwenye kipande cha siri",
+        "Tovuti ya utambuzi wa antijeni inajumuisha tu maeneo ya aminoterminal ya minyororo nyepesi",
+        "Hizi ni glycoproteins"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "Jibu ni: E\n\nImmunoglobulins ni glycoproteins, ambazo zina vijidudu vya kawaida na vijidudu vya kipekee.",
+      "output_length": 103,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 0.9997197985649109,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.9997197985649109
+          },
+          {
+            "lang": "tum_Latn",
+            "confidence": 0.00012158900790382177
+          },
+          {
+            "lang": "run_Latn",
+            "confidence": 4.0230930608231574e-05
+          }
+        ],
+        "text_length": 103
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Chanjo ya rubella inapendekezwa:",
+      "options": [
+        "Wakati wa Kuzaliwa kwa Wasichana",
+        "Katika umri wa miezi 12 kwa wasichana na wavulana",
+        "Wasichana wa Miaka 11 na 12",
+        "Kwa Wasichana Baada ya Kubalehe",
+        "Katika Wanawake Wajawazito"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Ni ugonjwa gani unaosababishwa na upungufu wa acetylcholine?",
+      "options": [
+        "Ugonjwa wa Alzheimer",
+        "Ugonjwa wa Parkinson",
+        "Ugonjwa wa Kihisia",
+        "Ugonjwa wa Wilson",
+        "Ugonjwa wa Creutzfeldt-Jakob"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B. Ugonjwa wa Parkinson",
+      "output_length": 23,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 0.9987463355064392,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.9987463355064392
+          },
+          {
+            "lang": "hau_Latn",
+            "confidence": 0.00023446418344974518
+          },
+          {
+            "lang": "lua_Latn",
+            "confidence": 0.00021272199228405952
+          }
+        ],
+        "text_length": 23
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Ni mapendekezo gani yasiyo sahihi kuhusu dawa za kuzuia mfumo wa kinga?",
+      "options": [
+        "Cyclosporine ina ulinzi wa figo",
+        "Mycophenolate mofetil huzuia muundo wa DNA",
+        "Leflunomide huzuia muundo wa pyrimidine",
+        "Tacrolimus hutengenezwa na figo",
+        "Sirolimus ni molekuli inayopenda mafuta"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Ni yapi kati ya madai haya yaliyo sahihi? Staphylococcus aureus...",
+      "options": [
+        "Husababisha Ugonjwa wa Ritter",
+        "Hii ni bakteria ya Gram-positive",
+        "Hii ni bakteria ya oksidasi chanya",
+        "Mara nyingi husababisha maambukizo hospitalini",
+        "Hii ni bakteria inayopatikana mara nyingi katika mazingira"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B. Hii ni bakteria ya Gram-positive",
+      "output_length": 35,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 0.947845458984375,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.947845458984375
+          },
+          {
+            "lang": "yor_Latn",
+            "confidence": 0.01851496286690235
+          },
+          {
+            "lang": "tso_Latn",
+            "confidence": 0.009740971960127354
+          }
+        ],
+        "text_length": 35
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kuhusu methemoglobini, taja sentensi sahihi:",
+      "options": [
+        "Ni rangi inayofanya damu iwe na rangi ya waridi",
+        "Inaweza kuchanganywa na enzyme ambayo cofactor yake ni NAD",
+        "Kwa kawaida chembe hiyo hupatikana katika mwili kwa kiwango cha gramu 1 kwa kila mililita 100 za damu",
+        "Mkusanyiko Mkubwa Husababisha Cyanosis",
+        "Inatokea kwa binadamu wakati wa sumu kali ya aniline"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "D",
+      "is_correct": true,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kuhusu kimetaboliki ya asidi ya uriki, ni yapi madai sahihi?",
+      "options": [
+        "Asidi ya yurea huondolewa kwa njia ya utumbo kupitia uricolysis katika allantoin na mimea ya bakteria",
+        "Asidi ya yurea hutokana na misingi ya adenin na guanini",
+        "Adenine na Guanine hubadilishwa kuwa asidi inosini na kisha kuwa hypoxanthine etxanthine kabla ya kutoa asidi ya uriki",
+        "Adenine inaweza kutolewa moja kwa moja kutoka xanthine kupitia guanase",
+        "Asidi ya yurea huondolewa hasa kupitia mkojo"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "Jibu sahihi ni: C",
+      "output_length": 17,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 0.9986920952796936,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.9986920952796936
+          },
+          {
+            "lang": "ibo_Latn",
+            "confidence": 0.0004333194810897112
+          },
+          {
+            "lang": "zsm_Latn",
+            "confidence": 0.00041715288534760475
+          }
+        ],
+        "text_length": 17
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Ili kupata bioavailability bora ya misingi ya lipophilic sana (na coefficient ya juu ya kugawanya), inashauriwa:",
+      "options": [
+        "Kumeza Bila Maji",
+        "Kuwasilisha katika muundo wa micronized",
+        "Weka dawa hiyo katika kidonge cha kupumua.",
+        "Kumeza wakati wa mlo wenye mafuta mengi",
+        "Kumlisha Anapolala Usiku"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "Jibu sahihi ni: B. \n\nKuwasilisha dawa katika muundo wa micronized huongeza eneo la uwezo wa dawa, na hivyo kuongeza bioavailability.",
+      "output_length": 132,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 1.0000078678131104,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 1.0000078678131104
+          },
+          {
+            "lang": "arb_Latn",
+            "confidence": 1.0676587407942861e-05
+          },
+          {
+            "lang": "luo_Latn",
+            "confidence": 1.0509007552172989e-05
+          }
+        ],
+        "text_length": 132
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya mapendekezo yafuatayo kuhusu vikundi vya damu, ni ipi iliyo sahihi:",
+      "options": [
+        "Antibodies za mfumo wa ABO ni IgM",
+        "Antibodi za anti-A na anti-B ni za asili na si za kawaida",
+        "Mtu mwenye Rhesus-negative kwa kawaida huwa na anti-Rh Ac inayolingana",
+        "Mbinu ya Beth-Vincent hutumiwa kutafuta antijeni kwenye uso wa chembe nyekundu za damu",
+        "Ili kutengeneza kadi ya kikundi cha damu, uamuzi mmoja tu unatosha"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "Jibu ni: D\n\nMbinu ya Beth-Vincent hutumiwa kutafuta antijeni kwenye uso wa chembe nyekundu za damu, ambayo ni kipengele muhimu katika kubainisha kikundi cha damu cha mtu.",
+      "output_length": 170,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 1.0000052452087402,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 1.0000052452087402
+          },
+          {
+            "lang": "ton_Latn",
+            "confidence": 1.1052012268919498e-05
+          },
+          {
+            "lang": "arb_Latn",
+            "confidence": 1.096384039556142e-05
+          }
+        ],
+        "text_length": 170
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Chagua taarifa sahihi kutoka kwa mapendekezo yafuatayo:",
+      "options": [
+        "Katika Ufaransa, sera ya chanjo ni daraka la serikali",
+        "Katika Ufaransa, sera ya chanjo inafuata Mpango Mkubwa wa Uchanjaji wa WHO",
+        "Nchini Ufaransa, ni lazima watoto wote wapate chanjo ya BCG",
+        "Ratiba ya chanjo huwekwa kwa kuzingatia data za magonjwa ya kuambukiza, utafiti wa faida na hatari, na utafiti wa ufanisi wa gharama.",
+        "Hakuna chanjo kwa wanawake wajawazito"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya mapendekezo yafuatayo kuhusu mchochota wa ini sugu, ni yapi sahihi?",
+      "options": [
+        "Yaweza kusababishwa na virusi vya mchochota wa ini aina ya B",
+        "Huenda ikawa ni virusi vya mchochota wa ini aina ya C",
+        "Yaweza kusababishwa na virusi vya mchochota wa ini aina ya A",
+        "Inaweza Kusababisha Ugonjwa wa Figo",
+        "Ugonjwa huo ni wa kawaida kuliko mchochota wa ini"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "Jibu sahihi ni: C.",
+      "output_length": 18,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 0.9978945851325989,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.9978945851325989
+          },
+          {
+            "lang": "ibo_Latn",
+            "confidence": 0.0009951518150046468
+          },
+          {
+            "lang": "zsm_Latn",
+            "confidence": 0.0005357309710234404
+          }
+        ],
+        "text_length": 18
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Miongoni mwa majaribio ya kibiolojia yafuatayo, ni moja tu inayoweza kuchunguza mwitikio wa uchochezi wa ini.",
+      "options": [
+        "Alanine Aminotransferase",
+        "Phosphatases za alkali",
+        "Gamma globulini",
+        "Jumla ya Bilirubini",
+        "Gamma Glutamyltransferase"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya mapendekezo yafuatayo kuhusu mfumo wa ABO, ni ipi ambayo ni ya uongo?",
+      "options": [
+        "Chembe za urithi zinazoongoza mfumo wa ABO hufanyiza utaratibu wa amino asidi za antijeni A na B.",
+        "Kikundi cha AB hufafanuliwa na kutokuwepo kwa kingamwili za kawaida za asili za anti-A na anti-B.",
+        "Antigeni ya kikundi cha A hupatikana katika kinyesi cha watu fulani lakini haipatikani katika antijeni ya kikundi cha B.",
+        "Antibodi zisizo za kawaida za mfumo wa ABO hutokea baada ya kutiwa damu mishipani ambayo hailingani.",
+        "Antibodi zisizo za kawaida za mfumo wa ABO huonekana katika wanawake walio na mimba zisizofaa"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "Jibu ni: C\n\nKwa mfumo wa ABO, kikundi cha A na B kina kingamwili za kawaida za asili za anti-A na anti-B, kwa hivyo chaguo C si sahihi.",
+      "output_length": 135,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 1.000003457069397,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 1.000003457069397
+          },
+          {
+            "lang": "run_Latn",
+            "confidence": 1.1287461347819772e-05
+          },
+          {
+            "lang": "tum_Latn",
+            "confidence": 1.1262386578891892e-05
+          }
+        ],
+        "text_length": 135
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya mapendekezo yafuatayo, ni ipi inayotumika kwa Mycobacterium tuberculosis?",
+      "options": [
+        "Inaweza kutenganishwa kwa gelosi iliyoongezwa damu ya farasi",
+        "Inachukua muda wa saa 72 kukua katika mazingira yanayofaa",
+        "Haisababishi Uvimbe wa Ubongo",
+        "Inaweza kusababisha maambukizo ya mkojo",
+        "Yeye ni kamwe nyeti kwa amino"
+      ],
+      "correct_answer": "D",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya hali za kisaikolojia zilizotajwa, taja moja ambayo inaweza kuhusishwa na hypercalcemia?",
+      "options": [
+        "Maambukizi ya Mifupa",
+        "Hyperparathyroidism ya Asili",
+        "Kushindwa kwa Figo kwa Muda Mrefu",
+        "Kutumia Vitamini D Kupita Kiasi",
+        "Upasuaji wa ini"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B. Hyperparathyroidism ya Asili",
+      "output_length": 31,
+      "output_language": {
+        "detected_lang": "vie_Latn",
+        "confidence": 0.42030853033065796,
+        "top_3": [
+          {
+            "lang": "vie_Latn",
+            "confidence": 0.42030853033065796
+          },
+          {
+            "lang": "ind_Latn",
+            "confidence": 0.351815789937973
+          },
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.07638265937566757
+          }
+        ],
+        "text_length": 31
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Upungufu wa pekee wa IgA ni upungufu wa kinga ambao una sifa zifuatazo:",
+      "options": [
+        "Ni tatizo la kawaida la kinga ya hisia",
+        "Yeye ni kugundua bahati, kwa ujumla",
+        "Husababishwa na kutoelezewa vizuri kwa molekuli ya CD4O (CD4OL/CD154)",
+        "Husababisha maambukizo ya mfumo wa kupumua",
+        "Inatibiwa na gamma globulins ya sindano"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Wakati wa matibabu ya kifua kikuu, ni ipi kati ya dawa hizi za kuua viini itahitajika kuangalia utendaji wa jicho?",
+      "options": [
+        "Ethambutol",
+        "Isoniazid",
+        "Pyrazinamidi",
+        "Rifampicin",
+        "Streptomycin"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "D",
+      "is_correct": false,
+      "raw_output": "D",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Urefu wa TCA, bila urefu wa muda wa Quick, unaweza kuhusishwa na:",
+      "options": [
+        "Hemofilia B.",
+        "Matibabu ya HBPM kwa Kiwango cha Kuzuia",
+        "Matibabu ya vitamini-K.",
+        "Kuwapo kwa dawa ya kuzuia kuvuja damu.",
+        "Ukosefu wa Factor XII."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya hizi β-blockers, ni ipi ambayo sio cardioselective?",
+      "options": [
+        "Atenolol",
+        "Nebivolol",
+        "Carvelidol",
+        "Metoprolol",
+        "Propranolol"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E. Propranolol",
+      "output_length": 14,
+      "output_language": {
+        "detected_lang": "vie_Latn",
+        "confidence": 0.8677058815956116,
+        "top_3": [
+          {
+            "lang": "vie_Latn",
+            "confidence": 0.8677058815956116
+          },
+          {
+            "lang": "als_Latn",
+            "confidence": 0.026016421616077423
+          },
+          {
+            "lang": "hun_Latn",
+            "confidence": 0.022839736193418503
+          }
+        ],
+        "text_length": 14
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya sentensi zifuatazo, taja moja ambayo ni sahihi.",
+      "options": [
+        "Ina thamani ya gramu za klorini hai kwa lita moja",
+        "Ina pH ya asidi kidogo ili kuhakikisha kuhifadhiwa",
+        "Ni hai kwa sababu ya permanganate ya potasiamu iliyo ndani yake",
+        "Si thabiti katika nuru",
+        "Si thabiti kwa joto ikiwa haijaimarishwa"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya maambukizo yafuatayo, ni yapi ambayo kwa kawaida huambatana na angina?",
+      "options": [
+        "Rangi Nyekundu",
+        "Ugonjwa wa Ndui",
+        "Ugonjwa wa Kuambukiza wa Mononucleosis",
+        "Ugonjwa wa Kifua Kikuu",
+        "Kifua cha Typhoid"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A. Rangi Nyekundu",
+      "output_length": 17,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 0.927661657333374,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.927661657333374
+          },
+          {
+            "lang": "sag_Latn",
+            "confidence": 0.039381105452775955
+          },
+          {
+            "lang": "sna_Latn",
+            "confidence": 0.021433506160974503
+          }
+        ],
+        "text_length": 17
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Ni ipi kati ya madai yafuatayo ambayo si sahihi kuhusu maambukizi ya Toxoplasma gondii?",
+      "options": [
+        "Maambukizi kutoka kwa mama hadi kwa mtoto huwa ya kawaida zaidi, lakini si mabaya sana, katika trimester ya tatu ya ujauzito.",
+        "Kuambukizwa kwaweza kutokea wakati wa kupandikiza viungo",
+        "Paka ni mwenyeji wa kati",
+        "Kuenea kwa vimelea ni kwa ndani ya chembe pekee",
+        "Kuwapo kwa toxoplasmosis ya ubongo katika mtu aliye na virusi vya UKIMWI humfanya awe katika hatua ya UKIMWI"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "C",
+      "is_correct": true,
+      "raw_output": "Jibu ni: C\n\nPaka ni mwenyeji wa mwisho wa Toxoplasma gondii, sio wa kati.",
+      "output_length": 73,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 0.9995167255401611,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.9995167255401611
+          },
+          {
+            "lang": "kmb_Latn",
+            "confidence": 0.00039071589708328247
+          },
+          {
+            "lang": "run_Latn",
+            "confidence": 5.047591184847988e-05
+          }
+        ],
+        "text_length": 73
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya dawa zifuatazo za kupunguza maumivu, ni ipi iliyo katika kiwango cha pili?",
+      "options": [
+        "Noramidopyrine",
+        "Pethidine",
+        "Dawa ya Tramadol",
+        "Ketoprofen",
+        "Mchanganyiko wa dextropropoxyphene na paracetamol"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B. Pethidine",
+      "output_length": 12,
+      "output_language": {
+        "detected_lang": "vie_Latn",
+        "confidence": 0.6308565735816956,
+        "top_3": [
+          {
+            "lang": "vie_Latn",
+            "confidence": 0.6308565735816956
+          },
+          {
+            "lang": "eng_Latn",
+            "confidence": 0.10537422448396683
+          },
+          {
+            "lang": "dan_Latn",
+            "confidence": 0.061854515224695206
+          }
+        ],
+        "text_length": 12
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya mapendekezo yafuatayo, toa jibu sahihi (au majibu sahihi).",
+      "options": [
+        "Kupungua kwa kiwango cha damu katika damu",
+        "Kuongezeka kwa utendaji wa alanine aminotransferase katika seramu",
+        "Kiwango cha Chuma Katika Seramu Kinaongezeka",
+        "Kuongezeka kwa utendaji wa fosfati za alkali",
+        "Kuongezeka kwa utendaji wa 5' nucleotidase"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "B",
+      "is_correct": true,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Ni yapi kati ya madai yafuatayo kuhusu ugonjwa wa kutokwa na damu katika hemofilia ambayo ni sahihi?",
+      "options": [
+        "Ni Mwenye Kujitokeza",
+        "Ugonjwa wa mshipa wa damu huonekana",
+        "Hematoma zaweza kuonekana",
+        "Ugonjwa wa fizi",
+        "Hakuna Jibu Sahihi"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Ni nini kinachohitaji kufikiriwa wakati wa kutumia Clozapine?",
+      "options": [
+        "Fungu la ini",
+        "Utendaji wa figo",
+        "Mwanamke asiyekuwa na mimba",
+        "Glucose katika damu",
+        "NFS"
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A. Fungu la ini",
+      "output_length": 15,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 0.9020825624465942,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.9020825624465942
+          },
+          {
+            "lang": "ast_Latn",
+            "confidence": 0.04497641324996948
+          },
+          {
+            "lang": "ind_Latn",
+            "confidence": 0.023544220253825188
+          }
+        ],
+        "text_length": 15
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Baada ya kunyonya mwanga, molekuli iko katika hali ya kutokuwa na utulivu, ikifuatiwa na kurudishwa kwa nishati iliyopatikana. Ni nini madai sahihi kuhusu jambo hili?",
+      "options": [
+        "Baadhi ya nishati hiyo hutoweka kwa kugongana na molekuli za kiyeyushi",
+        "Urefu wa mawimbi ya nuru inayotokezwa na mnururisho ni mdogo kuliko ule wa nuru inayovutwa",
+        "Kuzima kwa fluorescent hufanywa kwa muda wa karibu sekunde 10-8",
+        "Katika kesi ya phosphorescence kurudi kwa kiwango cha msingi hutokea kutoka hali ya singulet",
+        "Fluorescent deactivation hutokea kutoka ngazi ya kwanza ya umeme msisimko"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya mapendekezo yafuatayo kuhusu glycopeptides, ni jibu gani sahihi?",
+      "options": [
+        "Wanafanya kazi dhidi ya bakteria ya Gram-negative.",
+        "Inazuia utengenezaji wa ukuta wa bakteria",
+        "Kueneza vizuri katika LCR",
+        "Kwa kawaida hutolewa kupitia mrija",
+        "Ni tiba ya msingi ya MRSA"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Ambayo (ambayo) ya mapendekezo ya chini inaweza kuhusishwa na amibiasis infestation?",
+      "options": [
+        "Mahali pa mimea ya Entamoeba histolytica histolytica",
+        "Mahali pa mimea ya Entamoeba histolytica minuta",
+        "Kuondoa chembe za Entamoeba histolytica",
+        "Si ya Kuambukiza",
+        "Hakuna dalili zozote"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "A",
+      "is_correct": false,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya mapendekezo yafuatayo kuhusu rifampicin, ni yapi yaliyo sahihi?",
+      "options": [
+        "Ni kichocheo cha enzyme",
+        "Inaweza kuwa na madhara kwa masikio",
+        "Inatenda kwenye ukuta wa bakteria",
+        "Haipendekezi kutumiwa pamoja na estroprogestant oral contraceptives",
+        "Ugonjwa wa ini huongezeka unapotumiwa pamoja na isoniazid."
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C. Inatenda kwenye ukuta wa bakteria.",
+      "output_length": 37,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 0.9997912049293518,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 0.9997912049293518
+          },
+          {
+            "lang": "bem_Latn",
+            "confidence": 0.00013440655311569571
+          },
+          {
+            "lang": "xho_Latn",
+            "confidence": 6.118960300227627e-05
+          }
+        ],
+        "text_length": 37
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Tunataka kujua kiasi cha protini P iliyopo katika dondoo. Tunaongeza kwa dondoo hii 7 mg ya protini P iliyowekwa alama ya 35S-Met ambayo shughuli yake ni 70 Ci.mg-1. Baada ya chromatography, 4 mg ya P imeondolewa, shughuli zao ni 28 Ci. Ni kiasi gani cha P kilichopo katika dondoo hii?",
+      "options": [
+        "10mg",
+        "3mg",
+        "63mg",
+        "112 mg",
+        "Miligramu 42"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "UNKNOWN",
+      "is_correct": false,
+      "raw_output": "Ili kutatua tatizo hili, tunahitaji kutumia kanuni ya kujumuisha-kutengwa. \n\nKwanza, tunahesabu jumla ya protini P iliyopo katika dondoo baada ya kuongeza 7 mg ya",
+      "output_length": 162,
+      "output_language": {
+        "detected_lang": "swh_Latn",
+        "confidence": 1.000007152557373,
+        "top_3": [
+          {
+            "lang": "swh_Latn",
+            "confidence": 1.000007152557373
+          },
+          {
+            "lang": "awa_Deva",
+            "confidence": 1.1183612514287233e-05
+          },
+          {
+            "lang": "cjk_Latn",
+            "confidence": 1.0445240150147583e-05
+          }
+        ],
+        "text_length": 162
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kuwepo kwa carboxyhaemoglobin katika damu kunaweza kutokana na chanzo (au vyanzo) vifuatavyo:",
+      "options": [
+        "Kupumua Moshi wa Tumbaku",
+        "Kupumua Mvuke wa Benzeno",
+        "Kuvuta moshi wa magari",
+        "Kupumua Gesi Wakati wa Moto",
+        "Kupumua Dihydrochloromethane"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "A",
+      "is_correct": true,
+      "raw_output": "A.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Ni ipi kati ya taarifa hizi ni sahihi? Katika mshtuko wa moyo,",
+      "options": [
+        "ECG inafanywa kwa mara ya kwanza",
+        "LDH ni kiashiria cha kwanza cha kibiokemia kilichogunduliwa",
+        "CK-MB ni kiashiria maalum zaidi",
+        "maumivu huenea hadi kwenye viungo vya juu",
+        "ongezeko la ASAT limechelewa"
+      ],
+      "correct_answer": "A",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kati ya mapendekezo yafuatayo kuhusu alama za moyo, ni majibu gani ambayo si sahihi?",
+      "options": [
+        "Myoglobini ni kiashiria cha mapema kuliko troponin.",
+        "Myoglobini ni kiashiria kisicho cha kipekee cha mshtuko wa moyo.",
+        "Kuongezeka kwa kiwango cha troponin ni uthibitisho thabiti kwamba mtu ana ugonjwa wa IDM.",
+        "Kipimo cha troponin huamuliwa kwa kutumia mbinu ya immuno-enzymatic.",
+        "Troponin huanza kutokea muda wa saa nane baada ya IDM."
+      ],
+      "correct_answer": "E",
+      "predicted_answer": "C",
+      "is_correct": false,
+      "raw_output": "C",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Aspergillus fumigatus",
+      "options": [
+        "Chini ya kichwa chake kuna safu ya matumbawe, safu ya matumbawe, na safu ya matumbawe",
+        "Kukua kwa Muda wa Saa 48 hadi 72",
+        "Ni Uyoga Unaoenea Kila Mahali",
+        "Kwa kawaida hutokeza magonjwa",
+        "Kutoa, juu ya katikati ya Sabouraud, makoloni ya kijani na vumbi"
+      ],
+      "correct_answer": "B",
+      "predicted_answer": "E",
+      "is_correct": false,
+      "raw_output": "E",
+      "output_length": 1,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 1
+      }
+    },
+    {
+      "input_lang": "sw",
+      "input_lang_name": "Swahili",
+      "question": "Kuhusu haemophilia A ya katiba, ni sentensi zipi zilizo sahihi:",
+      "options": [
+        "Ugonjwa huo ni wa kawaida sana kati ya magonjwa ya mfumo wa kumeng'enya damu.",
+        "Haemophilia A kali hufafanuliwa kuwa kiwango cha FVIII < 5%",
+        "Upungufu wa pekee wa FVIII husababisha urefu wa ACT na BP ya kawaida",
+        "Ugonjwa huo huambukizwa kwa njia ya autosomal recessive",
+        "Desmopressin haifanyi kazi katika ugonjwa mbaya wa damu aina ya A"
+      ],
+      "correct_answer": "C",
+      "predicted_answer": "B",
+      "is_correct": false,
+      "raw_output": "B.",
+      "output_length": 2,
+      "output_language": {
+        "detected_lang": "TOO_SHORT",
+        "confidence": 0.0,
+        "top_3": [],
+        "text_length": 2
+      }
+    }
+  ]
+}

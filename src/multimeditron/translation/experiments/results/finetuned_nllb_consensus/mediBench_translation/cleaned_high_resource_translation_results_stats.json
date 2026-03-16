@@ -1,0 +1,1811 @@
+{
+  "total": 12150,
+  "valid": 10244,
+  "invalid": 1906,
+  "by_language": {
+    "am": {
+      "valid": 2122,
+      "invalid": 308
+    },
+    "ha": {
+      "valid": 1715,
+      "invalid": 715
+    },
+    "sw": {
+      "valid": 2240,
+      "invalid": 190
+    },
+    "yo": {
+      "valid": 1970,
+      "invalid": 460
+    },
+    "zu": {
+      "valid": 2197,
+      "invalid": 233
+    }
+  },
+  "rejection_reasons": {
+    "question_word_በሆስፒታል_repeated_46x_total": 1,
+    "question_word_ƙwayoyin_repeated_40x_total": 1,
+    "question_repeated_word_39x_consecutive": 4,
+    "question_repeated_word_234x_consecutive": 2,
+    "question_word_wa_repeated_159x_total": 1,
+    "question_word_àti_repeated_51x_total": 1,
+    "question_repeated_word_3x_consecutive": 33,
+    "question_untranslated_english_31.2%": 5,
+    "question_word_በሆስፒታል_repeated_51x_total": 1,
+    "question_long_word_326chars": 2,
+    "question_repeated_word_400x_consecutive": 1,
+    "question_long_word_309chars": 2,
+    "question_repeated_word_23x_consecutive": 9,
+    "option_4_repeated_word_10x_consecutive": 3,
+    "option_2_repeated_word_32x_consecutive": 1,
+    "question_repeated_word_10x_consecutive": 12,
+    "question_untranslated_english_44.7%": 1,
+    "question_untranslated_english_36.8%": 2,
+    "question_long_word_565chars": 1,
+    "question_long_word_520chars": 1,
+    "question_untranslated_english_30.2%": 1,
+    "question_repeated_word_88x_consecutive": 2,
+    "option_4_repeated_word_11x_consecutive": 3,
+    "option_4_repeated_word_5x_consecutive": 10,
+    "question_long_word_216chars": 2,
+    "question_long_word_406chars": 1,
+    "question_untranslated_english_45.5%": 7,
+    "question_untranslated_english_53.8%": 6,
+    "question_long_word_1014chars": 12,
+    "option_4_repeated_word_6x_consecutive": 4,
+    "option_2_repeated_word_5x_consecutive": 11,
+    "option_4_untranslated_english_38.9%": 1,
+    "option_3_repeated_word_7x_consecutive": 5,
+    "question_phrase_repeated_11x": 2,
+    "question_word_ውስጥ_repeated_118x_total": 1,
+    "question_long_word_786chars": 2,
+    "question_untranslated_english_25.2%": 1,
+    "question_word_የሆስፒታል_repeated_32x_total": 1,
+    "question_repeated_word_33x_consecutive": 2,
+    "option_2_repeated_word_4x_consecutive": 10,
+    "question_repeated_word_70x_consecutive": 1,
+    "question_repeated_word_136x_consecutive": 3,
+    "option_0_repeated_word_9x_consecutive": 2,
+    "question_word_ውስጥ_repeated_51x_total": 1,
+    "question_untranslated_english_33.9%": 1,
+    "question_repeated_word_20x_consecutive": 10,
+    "question_repeated_word_125x_consecutive": 1,
+    "question_repeated_word_28x_consecutive": 4,
+    "question_long_word_381chars": 1,
+    "question_long_word_1015chars": 8,
+    "question_repeated_word_217x_consecutive": 1,
+    "question_repeated_word_180x_consecutive": 1,
+    "question_long_word_1002chars": 1,
+    "question_long_word_151chars": 3,
+    "question_untranslated_english_29.4%": 2,
+    "question_untranslated_english_28.4%": 1,
+    "question_repeated_word_161x_consecutive": 2,
+    "question_repeated_word_26x_consecutive": 11,
+    "option_1_word_የሆድ_repeated_6x_total": 1,
+    "option_2_repeated_word_9x_consecutive": 3,
+    "question_long_word_361chars": 3,
+    "question_untranslated_english_31.0%": 3,
+    "question_repeated_word_25x_consecutive": 5,
+    "option_2_word_የሆድ_repeated_11x_total": 1,
+    "question_long_word_594chars": 1,
+    "question_repeated_word_54x_consecutive": 5,
+    "question_long_word_993chars": 1,
+    "question_long_word_487chars": 2,
+    "option_3_repeated_word_5x_consecutive": 9,
+    "question_long_word_323chars": 1,
+    "question_word_da_repeated_40x_total": 2,
+    "question_untranslated_english_27.8%": 2,
+    "question_word_በሆስፒታል_repeated_55x_total": 3,
+    "question_untranslated_english_30.8%": 2,
+    "question_long_word_206chars": 2,
+    "question_repeated_word_105x_consecutive": 1,
+    "question_long_word_529chars": 1,
+    "question_long_word_325chars": 1,
+    "question_word_wa_repeated_138x_total": 1,
+    "question_repeated_word_42x_consecutive": 7,
+    "option_4_repeated_word_8x_consecutive": 6,
+    "question_repeated_word_16x_consecutive": 8,
+    "option_0_repeated_word_5x_consecutive": 12,
+    "option_4_word_ti_repeated_5x_total": 2,
+    "question_repeated_word_22x_consecutive": 8,
+    "question_untranslated_english_28.8%": 3,
+    "question_phrase_repeated_56x": 3,
+    "question_long_word_273chars": 1,
+    "question_repeated_word_78x_consecutive": 3,
+    "question_long_word_398chars": 2,
+    "question_repeated_word_27x_consecutive": 10,
+    "question_word_፣_repeated_54x_total": 1,
+    "question_word_style=\"font-size:_repeated_20x_total": 1,
+    "question_repeated_word_5x_consecutive": 13,
+    "option_4_repeated_word_27x_consecutive": 1,
+    "option_4_word_wa_repeated_4x_total": 1,
+    "question_repeated_word_7x_consecutive": 14,
+    "question_long_word_427chars": 1,
+    "question_untranslated_english_25.8%": 3,
+    "question_repeated_word_64x_consecutive": 3,
+    "question_repeated_word_41x_consecutive": 2,
+    "question_repeated_word_250x_consecutive": 3,
+    "question_long_word_347chars": 2,
+    "question_repeated_word_108x_consecutive": 4,
+    "option_2_repeated_word_20x_consecutive": 1,
+    "question_long_word_365chars": 2,
+    "question_repeated_word_11x_consecutive": 15,
+    "question_word_በሆስፒታል_repeated_32x_total": 1,
+    "question_untranslated_english_33.3%": 11,
+    "question_repeated_word_43x_consecutive": 4,
+    "question_long_word_447chars": 1,
+    "question_long_word_1012chars": 6,
+    "question_repeated_word_121x_consecutive": 2,
+    "question_repeated_word_31x_consecutive": 4,
+    "question_repeated_word_150x_consecutive": 1,
+    "question_repeated_word_12x_consecutive": 16,
+    "question_word_በሆስፒታል_repeated_50x_total": 1,
+    "option_4_phrase_repeated_5x": 1,
+    "question_word_/_repeated_101x_total": 2,
+    "option_3_repeated_word_4x_consecutive": 8,
+    "question_long_word_248chars": 2,
+    "question_long_word_688chars": 1,
+    "option_4_repeated_word_16x_consecutive": 3,
+    "option_4_repeated_word_24x_consecutive": 1,
+    "question_long_word_281chars": 2,
+    "question_repeated_word_15x_consecutive": 10,
+    "question_long_word_306chars": 1,
+    "option_0_repeated_word_4x_consecutive": 8,
+    "question_repeated_word_8x_consecutive": 12,
+    "option_0_repeated_word_39x_consecutive": 2,
+    "option_2_phrase_repeated_295x": 1,
+    "question_repeated_word_65x_consecutive": 1,
+    "question_word_rashin_repeated_39x_total": 1,
+    "option_4_repeated_word_4x_consecutive": 6,
+    "question_repeated_word_36x_consecutive": 5,
+    "question_repeated_word_51x_consecutive": 5,
+    "question_long_word_437chars": 1,
+    "question_repeated_word_182x_consecutive": 1,
+    "question_long_word_616chars": 2,
+    "question_long_word_704chars": 1,
+    "question_long_word_679chars": 1,
+    "question_long_word_474chars": 1,
+    "question_repeated_word_47x_consecutive": 3,
+    "question_repeated_word_103x_consecutive": 1,
+    "question_repeated_word_438x_consecutive": 1,
+    "option_2_repeated_word_7x_consecutive": 7,
+    "question_repeated_word_56x_consecutive": 2,
+    "option_3_word_wa_repeated_7x_total": 1,
+    "option_2_repeated_word_15x_consecutive": 1,
+    "question_long_word_362chars": 1,
+    "question_untranslated_english_30.3%": 2,
+    "question_untranslated_english_29.3%": 2,
+    "question_too_short": 46,
+    "question_repeated_word_113x_consecutive": 3,
+    "question_long_word_715chars": 1,
+    "option_2_repeated_word_8x_consecutive": 6,
+    "question_long_word_589chars": 1,
+    "question_long_word_994chars": 1,
+    "question_long_word_94chars": 2,
+    "option_4_repeated_word_3x_consecutive": 5,
+    "option_0_repeated_word_23x_consecutive": 1,
+    "question_repeated_word_48x_consecutive": 2,
+    "question_full_english_sentence": 72,
+    "question_repeated_word_91x_consecutive": 2,
+    "question_repeated_word_486x_consecutive": 1,
+    "question_word_tumbo_repeated_147x_total": 1,
+    "question_untranslated_english_32.7%": 3,
+    "question_repeated_word_61x_consecutive": 2,
+    "question_untranslated_english_38.5%": 4,
+    "question_word_wa_repeated_184x_total": 1,
+    "question_untranslated_english_41.7%": 3,
+    "question_repeated_word_145x_consecutive": 1,
+    "question_repeated_word_44x_consecutive": 4,
+    "question_repeated_word_18x_consecutive": 7,
+    "question_long_word_318chars": 1,
+    "question_untranslated_english_25.5%": 2,
+    "question_repeated_word_19x_consecutive": 7,
+    "question_word_በሆስፒታል_repeated_80x_total": 1,
+    "question_untranslated_english_50.0%": 1,
+    "question_word_የደም_repeated_56x_total": 1,
+    "option_4_repeated_word_17x_consecutive": 1,
+    "question_repeated_word_59x_consecutive": 2,
+    "question_repeated_word_248x_consecutive": 3,
+    "question_word_tumbo_repeated_77x_total": 1,
+    "question_long_word_490chars": 1,
+    "question_long_word_244chars": 1,
+    "question_untranslated_english_26.2%": 2,
+    "option_1_repeated_word_4x_consecutive": 11,
+    "question_untranslated_english_26.3%": 1,
+    "question_repeated_word_34x_consecutive": 3,
+    "question_word_የደም_repeated_55x_total": 1,
+    "question_repeated_word_188x_consecutive": 1,
+    "question_long_word_521chars": 1,
+    "question_repeated_word_73x_consecutive": 2,
+    "option_3_repeated_word_6x_consecutive": 5,
+    "option_1_word_Àkọlé_repeated_7x_total": 1,
+    "option_4_repeated_word_28x_consecutive": 3,
+    "question_word_የጆሮ_repeated_32x_total": 1,
+    "question_repeated_word_71x_consecutive": 3,
+    "question_word_wa_repeated_113x_total": 1,
+    "question_repeated_word_119x_consecutive": 2,
+    "question_repeated_word_290x_consecutive": 1,
+    "question_long_word_183chars": 2,
+    "question_long_word_404chars": 1,
+    "question_repeated_word_500x_consecutive": 1,
+    "question_repeated_word_227x_consecutive": 1,
+    "question_long_word_479chars": 1,
+    "question_long_word_441chars": 1,
+    "question_repeated_word_252x_consecutive": 4,
+    "question_repeated_word_53x_consecutive": 2,
+    "question_untranslated_english_31.6%": 1,
+    "option_4_repeated_word_267x_consecutive": 1,
+    "option_0_repeated_word_43x_consecutive": 1,
+    "option_4_word_i-Hepatitis_repeated_38x_total": 1,
+    "question_repeated_word_62x_consecutive": 2,
+    "question_word_na_repeated_224x_total": 1,
+    "question_long_word_67chars": 2,
+    "question_repeated_word_123x_consecutive": 4,
+    "question_long_word_1010chars": 1,
+    "question_repeated_word_127x_consecutive": 3,
+    "question_word_ላይ_repeated_43x_total": 1,
+    "question_untranslated_english_28.2%": 3,
+    "question_repeated_word_17x_consecutive": 10,
+    "question_repeated_word_104x_consecutive": 1,
+    "question_untranslated_english_42.9%": 3,
+    "question_long_word_702chars": 1,
+    "question_word_wa_repeated_34x_total": 1,
+    "question_long_word_242chars": 1,
+    "question_long_word_311chars": 1,
+    "question_repeated_word_148x_consecutive": 1,
+    "question_word_ውስጥ_repeated_75x_total": 1,
+    "question_word_living_repeated_51x_total": 1,
+    "question_repeated_word_4x_consecutive": 19,
+    "question_long_word_265chars": 1,
+    "option_2_word_በከተሞች_repeated_8x_total": 1,
+    "question_repeated_word_60x_consecutive": 4,
+    "question_repeated_word_55x_consecutive": 3,
+    "question_long_word_769chars": 1,
+    "question_repeated_word_63x_consecutive": 5,
+    "question_phrase_repeated_68x": 1,
+    "question_repeated_word_13x_consecutive": 10,
+    "question_word_በሆስፒታል_repeated_47x_total": 1,
+    "question_untranslated_english_28.7%": 1,
+    "question_untranslated_english_35.7%": 3,
+    "question_word_wa_repeated_162x_total": 1,
+    "question_untranslated_english_33.7%": 2,
+    "question_repeated_word_49x_consecutive": 3,
+    "question_repeated_word_58x_consecutive": 3,
+    "question_repeated_word_193x_consecutive": 1,
+    "question_word_ውስጥ_repeated_16x_total": 1,
+    "question_repeated_word_153x_consecutive": 1,
+    "question_long_word_709chars": 1,
+    "question_long_word_553chars": 1,
+    "question_repeated_word_89x_consecutive": 2,
+    "question_repeated_word_76x_consecutive": 2,
+    "question_untranslated_english_26.0%": 1,
+    "question_repeated_word_190x_consecutive": 1,
+    "option_4_untranslated_english_38.5%": 1,
+    "question_repeated_word_245x_consecutive": 1,
+    "question_long_word_341chars": 1,
+    "question_repeated_word_45x_consecutive": 4,
+    "question_phrase_repeated_13x": 1,
+    "question_long_word_1016chars": 2,
+    "question_long_word_300chars": 1,
+    "question_long_word_505chars": 1,
+    "option_0_repeated_word_8x_consecutive": 8,
+    "question_long_word_396chars": 1,
+    "question_long_word_366chars": 2,
+    "option_0_phrase_repeated_4x": 2,
+    "option_0_phrase_repeated_6x": 1,
+    "option_0_word_Àìlèjèjì_repeated_5x_total": 1,
+    "question_repeated_word_14x_consecutive": 7,
+    "option_0_repeated_word_10x_consecutive": 4,
+    "question_untranslated_english_26.8%": 1,
+    "question_long_word_588chars": 1,
+    "option_3_repeated_word_11x_consecutive": 3,
+    "question_repeated_word_72x_consecutive": 1,
+    "question_word_የደም_repeated_34x_total": 2,
+    "question_repeated_word_253x_consecutive": 1,
+    "question_long_word_504chars": 1,
+    "option_3_word_asidi_repeated_8x_total": 1,
+    "question_repeated_word_165x_consecutive": 2,
+    "question_repeated_word_40x_consecutive": 4,
+    "question_repeated_word_225x_consecutive": 1,
+    "question_repeated_word_46x_consecutive": 5,
+    "question_long_word_389chars": 1,
+    "question_repeated_word_211x_consecutive": 1,
+    "question_word_ውስጥ_repeated_35x_total": 1,
+    "question_long_word_582chars": 1,
+    "question_long_word_678chars": 1,
+    "question_long_word_631chars": 1,
+    "question_long_word_698chars": 1,
+    "question_long_word_571chars": 1,
+    "question_repeated_word_6x_consecutive": 13,
+    "question_word_saratani_repeated_5x_total": 1,
+    "question_untranslated_english_38.8%": 1,
+    "question_long_word_794chars": 1,
+    "option_3_word_iṣoogun_repeated_17x_total": 1,
+    "question_long_word_1018chars": 1,
+    "question_repeated_word_176x_consecutive": 1,
+    "question_repeated_word_269x_consecutive": 1,
+    "question_long_word_355chars": 3,
+    "question_untranslated_english_27.2%": 1,
+    "question_word_የጭንቀት_repeated_43x_total": 1,
+    "question_word_በሆስፒታል_repeated_35x_total": 1,
+    "question_repeated_word_178x_consecutive": 1,
+    "question_long_word_139chars": 1,
+    "question_long_word_408chars": 1,
+    "question_repeated_word_249x_consecutive": 1,
+    "question_long_word_493chars": 2,
+    "question_long_word_498chars": 1,
+    "option_3_repeated_word_21x_consecutive": 1,
+    "option_3_word_kòkòrò_repeated_7x_total": 1,
+    "question_untranslated_english_36.1%": 1,
+    "question_word_በሆስፒታል_repeated_48x_total": 1,
+    "question_word_በሆስፒታል_repeated_41x_total": 1,
+    "question_long_word_948chars": 1,
+    "question_long_word_502chars": 1,
+    "question_long_word_315chars": 1,
+    "option_4_repeated_word_7x_consecutive": 3,
+    "question_word_ya_repeated_6x_total": 1,
+    "question_repeated_word_92x_consecutive": 1,
+    "question_long_word_352chars": 1,
+    "question_long_word_359chars": 1,
+    "question_long_word_332chars": 1,
+    "question_long_word_506chars": 1,
+    "option_1_long_word_114chars": 1,
+    "option_1_untranslated_english_33.3%": 2,
+    "question_word_angiography_repeated_21x_total": 1,
+    "option_0_word_A,_repeated_7x_total": 1,
+    "option_0_word_Vitamin_repeated_7x_total": 1,
+    "question_word_wa_repeated_4x_total": 1,
+    "question_phrase_repeated_51x": 1,
+    "question_long_word_608chars": 1,
+    "question_untranslated_english_29.5%": 2,
+    "question_word_tumbo_repeated_31x_total": 1,
+    "question_untranslated_english_30.7%": 1,
+    "question_long_word_1004chars": 1,
+    "question_repeated_word_35x_consecutive": 3,
+    "question_repeated_word_192x_consecutive": 1,
+    "question_word_በሆስፒታል_repeated_52x_total": 1,
+    "question_untranslated_english_26.6%": 1,
+    "question_repeated_word_82x_consecutive": 1,
+    "question_repeated_word_220x_consecutive": 2,
+    "option_1_too_short": 3,
+    "option_0_repeated_word_3x_consecutive": 8,
+    "option_2_phrase_repeated_3x": 4,
+    "question_long_word_113chars": 2,
+    "question_repeated_word_86x_consecutive": 2,
+    "question_word_cututtuka_repeated_118x_total": 1,
+    "question_word_wa_repeated_241x_total": 1,
+    "question_untranslated_english_26.1%": 1,
+    "question_untranslated_english_31.1%": 1,
+    "question_repeated_word_126x_consecutive": 1,
+    "question_long_word_340chars": 1,
+    "option_0_repeated_word_7x_consecutive": 4,
+    "option_0_repeated_word_6x_consecutive": 5,
+    "option_1_repeated_word_8x_consecutive": 2,
+    "option_2_word_disease_repeated_5x_total": 1,
+    "question_word_በሆስፒታል_repeated_58x_total": 1,
+    "question_repeated_word_57x_consecutive": 2,
+    "question_repeated_word_75x_consecutive": 5,
+    "question_word_ሆና_repeated_34x_total": 1,
+    "question_repeated_word_97x_consecutive": 1,
+    "question_untranslated_english_28.3%": 1,
+    "question_repeated_word_66x_consecutive": 2,
+    "question_word_በሆስፒታል_repeated_45x_total": 1,
+    "question_long_word_733chars": 1,
+    "question_untranslated_english_35.0%": 3,
+    "question_long_word_284chars": 1,
+    "question_repeated_word_232x_consecutive": 1,
+    "question_word_ti_repeated_58x_total": 1,
+    "question_phrase_repeated_3x": 4,
+    "option_1_repeated_word_31x_consecutive": 1,
+    "option_1_phrase_repeated_3x": 3,
+    "option_1_word_da_repeated_4x_total": 4,
+    "option_4_word_wa_repeated_5x_total": 1,
+    "question_repeated_word_134x_consecutive": 1,
+    "question_repeated_word_93x_consecutive": 3,
+    "question_word_በሆስፒታል_repeated_43x_total": 2,
+    "question_long_word_131chars": 3,
+    "question_repeated_word_149x_consecutive": 3,
+    "option_2_repeated_word_19x_consecutive": 2,
+    "option_4_too_short": 3,
+    "question_phrase_repeated_6x": 1,
+    "option_0_word_የደም_repeated_4x_total": 1,
+    "question_repeated_word_274x_consecutive": 1,
+    "question_long_word_701chars": 1,
+    "question_repeated_word_21x_consecutive": 7,
+    "question_repeated_word_247x_consecutive": 2,
+    "question_repeated_word_164x_consecutive": 1,
+    "question_long_word_379chars": 1,
+    "question_repeated_word_80x_consecutive": 1,
+    "question_repeated_word_112x_consecutive": 1,
+    "question_long_word_298chars": 1,
+    "question_word_o_repeated_109x_total": 1,
+    "question_long_word_364chars": 1,
+    "question_long_word_528chars": 1,
+    "question_long_word_387chars": 1,
+    "option_4_repeated_word_14x_consecutive": 2,
+    "question_repeated_word_179x_consecutive": 3,
+    "question_long_word_570chars": 1,
+    "question_word_Àkọsílẹ̀_repeated_35x_total": 1,
+    "option_4_word_ti_repeated_12x_total": 1,
+    "question_word_ya_repeated_151x_total": 1,
+    "question_untranslated_english_26.9%": 1,
+    "question_untranslated_english_34.1%": 1,
+    "question_long_word_219chars": 1,
+    "question_repeated_word_120x_consecutive": 1,
+    "option_0_phrase_repeated_221x": 1,
+    "question_untranslated_english_31.4%": 1,
+    "question_word_àìtó_repeated_19x_total": 1,
+    "option_3_phrase_repeated_3x": 7,
+    "option_3_untranslated_english_27.3%": 2,
+    "option_3_repeated_word_8x_consecutive": 3,
+    "option_3_word_ti_repeated_7x_total": 1,
+    "question_long_word_924chars": 1,
+    "question_long_word_254chars": 2,
+    "question_word_ውስጥ_repeated_112x_total": 1,
+    "question_long_word_494chars": 1,
+    "question_untranslated_english_42.4%": 1,
+    "option_2_word_የሆድ_repeated_6x_total": 1,
+    "option_3_phrase_repeated_221x": 1,
+    "option_2_phrase_repeated_4x": 1,
+    "question_repeated_word_50x_consecutive": 2,
+    "missing_options": 125,
+    "option_3_repeated_word_25x_consecutive": 1,
+    "option_2_repeated_word_13x_consecutive": 1,
+    "option_0_word_ya_repeated_4x_total": 2,
+    "option_3_long_word_99chars": 1,
+    "option_3_repeated_word_20x_consecutive": 1,
+    "option_3_repeated_word_50x_consecutive": 1,
+    "option_2_long_word_71chars": 1,
+    "option_0_empty": 1,
+    "option_4_word_Virusi_repeated_7x_total": 1,
+    "option_3_repeated_word_10x_consecutive": 1,
+    "option_2_repeated_word_28x_consecutive": 1,
+    "option_3_phrase_repeated_4x": 1,
+    "option_4_untranslated_english_40.0%": 1,
+    "question_long_word_92chars": 1,
+    "question_long_word_100chars": 2,
+    "option_2_repeated_word_12x_consecutive": 2,
+    "option_2_word_ya_repeated_4x_total": 1,
+    "question_word_(የተለመደውን)_repeated_20x_total": 1,
+    "option_3_repeated_word_23x_consecutive": 1,
+    "option_2_repeated_word_16x_consecutive": 1,
+    "option_2_word_ውስጥ_repeated_11x_total": 1,
+    "option_2_repeated_word_25x_consecutive": 1,
+    "option_0_too_short": 7,
+    "question_long_word_249chars": 2,
+    "question_long_word_303chars": 1,
+    "question_word_(በየትኛው)_repeated_39x_total": 1,
+    "question_word_style=\"font-size:_repeated_12x_total": 1,
+    "option_4_word_mzunguko_repeated_4x_total": 1,
+    "question_repeated_word_160x_consecutive": 1,
+    "option_2_word_ya_repeated_5x_total": 2,
+    "option_4_repeated_word_9x_consecutive": 2,
+    "option_3_word_ya_repeated_4x_total": 2,
+    "option_3_too_short": 3,
+    "option_1_repeated_word_7x_consecutive": 4,
+    "question_word_kòkòrò_repeated_26x_total": 1,
+    "option_1_repeated_word_9x_consecutive": 2,
+    "question_phrase_repeated_4x": 1,
+    "option_2_repeated_word_116x_consecutive": 1,
+    "option_2_repeated_word_161x_consecutive": 1,
+    "option_1_repeated_word_18x_consecutive": 1,
+    "question_long_word_257chars": 1,
+    "option_1_word_በሄሞሊቲክ_repeated_12x_total": 1,
+    "option_1_repeated_word_6x_consecutive": 2,
+    "option_4_untranslated_english_30.8%": 1,
+    "option_4_word_ya_repeated_4x_total": 1,
+    "option_3_untranslated_english_35.7%": 1,
+    "option_4_word_wa_repeated_6x_total": 1,
+    "question_word_da_repeated_4x_total": 3,
+    "question_untranslated_english_36.4%": 1,
+    "option_2_untranslated_english_36.4%": 2,
+    "option_2_repeated_word_137x_consecutive": 1,
+    "question_repeated_word_9x_consecutive": 6,
+    "option_3_long_word_419chars": 1,
+    "option_3_word_ti_repeated_5x_total": 1,
+    "option_4_untranslated_english_53.8%": 1,
+    "option_4_phrase_repeated_3x": 1,
+    "option_4_untranslated_english_27.3%": 2,
+    "option_2_phrase_repeated_5x": 1,
+    "option_4_word_I-methicillin-resistant_repeated_4x_total": 1,
+    "option_2_word_autoantibody_repeated_5x_total": 1,
+    "option_4_repeated_word_42x_consecutive": 1,
+    "option_1_repeated_word_5x_consecutive": 6,
+    "option_1_repeated_word_26x_consecutive": 1,
+    "question_word_halittar_repeated_9x_total": 1,
+    "option_3_untranslated_english_30.8%": 2,
+    "option_2_untranslated_english_43.8%": 1,
+    "option_1_untranslated_english_27.3%": 1,
+    "question_repeated_word_218x_consecutive": 1,
+    "question_untranslated_english_37.3%": 1,
+    "question_word_ባዮሲንቴሲስ_repeated_12x_total": 1,
+    "option_3_word_Oríṣun_repeated_4x_total": 1,
+    "question_word_nípa_repeated_53x_total": 1,
+    "option_1_repeated_word_30x_consecutive": 1,
+    "option_3_repeated_word_3x_consecutive": 5,
+    "option_2_untranslated_english_33.3%": 3,
+    "option_1_repeated_word_10x_consecutive": 1,
+    "option_0_repeated_word_76x_consecutive": 1,
+    "option_1_repeated_word_3x_consecutive": 5,
+    "option_2_word_àwọn_repeated_4x_total": 1,
+    "question_word_ẹni_repeated_25x_total": 1,
+    "question_repeated_word_32x_consecutive": 3,
+    "question_untranslated_english_39.7%": 1,
+    "question_word_da_repeated_29x_total": 1,
+    "option_4_repeated_word_31x_consecutive": 1,
+    "option_2_word_da_repeated_4x_total": 1,
+    "option_4_word_na_repeated_4x_total": 1,
+    "option_3_repeated_word_13x_consecutive": 1,
+    "question_untranslated_english_28.6%": 5,
+    "option_3_untranslated_english_33.3%": 1,
+    "option_3_word_የሆድ_repeated_6x_total": 1,
+    "option_2_repeated_word_6x_consecutive": 4,
+    "option_0_word_da_repeated_23x_total": 1,
+    "option_2_phrase_repeated_8x": 1,
+    "question_word_madawa_repeated_21x_total": 1,
+    "option_2_repeated_word_21x_consecutive": 1,
+    "question_word_ya_repeated_4x_total": 3,
+    "option_1_repeated_word_41x_consecutive": 1,
+    "option_0_repeated_word_21x_consecutive": 1,
+    "option_0_word_ya_repeated_6x_total": 1,
+    "question_untranslated_english_27.3%": 6,
+    "option_0_word_da_repeated_4x_total": 1,
+    "option_4_repeated_word_41x_consecutive": 1,
+    "option_1_word_ya_repeated_5x_total": 1,
+    "option_3_word_da_repeated_5x_total": 1,
+    "option_2_repeated_word_3x_consecutive": 3,
+    "option_2_repeated_word_14x_consecutive": 1,
+    "question_repeated_word_156x_consecutive": 1,
+    "option_2_repeated_word_37x_consecutive": 1,
+    "option_3_repeated_word_18x_consecutive": 1,
+    "question_repeated_word_155x_consecutive": 1,
+    "question_long_word_456chars": 1,
+    "question_repeated_word_159x_consecutive": 1,
+    "option_1_repeated_word_46x_consecutive": 1,
+    "option_4_repeated_word_33x_consecutive": 1,
+    "option_1_repeated_word_17x_consecutive": 1,
+    "question_repeated_word_77x_consecutive": 1,
+    "question_word_ya_repeated_7x_total": 1,
+    "option_1_repeated_word_12x_consecutive": 1,
+    "option_4_repeated_word_131x_consecutive": 1,
+    "option_1_repeated_word_265x_consecutive": 1,
+    "option_2_untranslated_english_40.7%": 1,
+    "question_untranslated_english_39.5%": 1,
+    "question_word_የሂሳብ_repeated_22x_total": 1,
+    "question_untranslated_english_34.4%": 4,
+    "question_repeated_word_37x_consecutive": 4,
+    "question_untranslated_english_34.0%": 1,
+    "option_3_repeated_word_12x_consecutive": 1,
+    "option_1_repeated_word_14x_consecutive": 1,
+    "question_untranslated_english_39.1%": 2,
+    "option_4_word_upasuaji_repeated_8x_total": 1,
+    "question_repeated_word_24x_consecutive": 2,
+    "question_word_kwayar_repeated_24x_total": 1,
+    "option_1_untranslated_english_36.4%": 1,
+    "option_0_repeated_word_69x_consecutive": 1,
+    "option_0_untranslated_english_39.1%": 1,
+    "question_repeated_word_84x_consecutive": 4,
+    "option_0_word_ya_repeated_5x_total": 1,
+    "question_repeated_word_414x_consecutive": 1,
+    "question_word_የፕሮቲን_repeated_47x_total": 1,
+    "question_word_wa_repeated_145x_total": 1,
+    "question_long_word_171chars": 5,
+    "question_long_word_65chars": 1,
+    "question_long_word_115chars": 2,
+    "question_long_word_380chars": 1,
+    "question_repeated_word_122x_consecutive": 2,
+    "question_long_word_231chars": 1,
+    "question_word_style=\"font-size:_repeated_15x_total": 1,
+    "question_long_word_161chars": 1,
+    "option_2_word_wa_repeated_7x_total": 1,
+    "question_long_word_91chars": 1,
+    "question_long_word_106chars": 2,
+    "question_word_joto_repeated_139x_total": 1,
+    "question_long_word_146chars": 1,
+    "question_untranslated_english_39.6%": 1,
+    "question_repeated_word_107x_consecutive": 1,
+    "question_long_word_79chars": 1,
+    "question_repeated_word_79x_consecutive": 1,
+    "question_word_cututtuka_repeated_23x_total": 1,
+    "option_2_word_awọn_repeated_50x_total": 1,
+    "option_0_repeated_word_11x_consecutive": 1,
+    "question_word_ti_repeated_55x_total": 1,
+    "question_long_word_170chars": 1,
+    "option_1_repeated_word_19x_consecutive": 1,
+    "option_0_repeated_word_14x_consecutive": 1,
+    "option_2_long_word_115chars": 1,
+    "question_repeated_word_236x_consecutive": 1,
+    "question_word_chembe_repeated_71x_total": 1,
+    "question_long_word_173chars": 2,
+    "question_long_word_189chars": 2,
+    "question_word_style=\"font-family:_repeated_14x_total": 1,
+    "question_long_word_174chars": 1,
+    "question_long_word_209chars": 1,
+    "question_long_word_148chars": 1,
+    "question_word_cha_repeated_61x_total": 1,
+    "question_long_word_256chars": 1,
+    "question_long_word_882chars": 1,
+    "question_word_ya_repeated_8x_total": 1,
+    "question_word_ye-acute_repeated_21x_total": 1,
+    "question_long_word_112chars": 1,
+    "question_long_word_1000chars": 1,
+    "question_long_word_675chars": 1,
+    "option_1_repeated_word_11x_consecutive": 2,
+    "question_long_word_144chars": 2,
+    "question_word_wa_repeated_170x_total": 1,
+    "option_3_untranslated_english_45.5%": 1,
+    "question_long_word_130chars": 2,
+    "option_1_word_ti_repeated_8x_total": 1,
+    "option_2_word_mai_repeated_8x_total": 1,
+    "question_long_word_251chars": 1,
+    "question_long_word_260chars": 1,
+    "question_long_word_168chars": 1,
+    "question_long_word_198chars": 2,
+    "question_long_word_217chars": 1,
+    "question_long_word_187chars": 1,
+    "question_long_word_188chars": 1,
+    "question_repeated_word_118x_consecutive": 1,
+    "question_word_ማጉያ_repeated_37x_total": 1,
+    "question_untranslated_english_38.9%": 2,
+    "question_word_ugonjwa_repeated_7x_total": 1,
+    "option_2_word_Àkọlé_repeated_6x_total": 1,
+    "option_1_word_Àkọlé_repeated_9x_total": 1,
+    "question_repeated_word_266x_consecutive": 1,
+    "question_long_word_363chars": 1,
+    "question_long_word_120chars": 1,
+    "question_repeated_word_52x_consecutive": 2,
+    "question_word_በሆስፒታል_repeated_40x_total": 1,
+    "question_long_word_145chars": 2,
+    "question_long_word_102chars": 2,
+    "question_word_cututtuka_repeated_7x_total": 1,
+    "question_long_word_129chars": 2,
+    "question_word_ugonjwa_repeated_18x_total": 1,
+    "question_long_word_127chars": 3,
+    "option_2_word_፣_repeated_40x_total": 1,
+    "question_untranslated_english_43.8%": 1,
+    "question_long_word_152chars": 1,
+    "question_untranslated_english_46.2%": 1,
+    "question_long_word_191chars": 1,
+    "option_0_word_chembe_repeated_4x_total": 1,
+    "option_1_word_ti_repeated_6x_total": 1,
+    "question_untranslated_english_47.1%": 1,
+    "question_repeated_word_94x_consecutive": 1,
+    "question_long_word_194chars": 2,
+    "question_long_word_179chars": 2,
+    "question_word_na_repeated_30x_total": 1,
+    "question_long_word_201chars": 2,
+    "question_long_word_241chars": 1,
+    "question_word_wa_repeated_83x_total": 1,
+    "question_long_word_638chars": 1,
+    "question_word_የሆድ_repeated_29x_total": 1,
+    "question_long_word_275chars": 1,
+    "question_long_word_167chars": 1,
+    "question_word_ọmọ_repeated_39x_total": 1,
+    "question_word_cha_repeated_20x_total": 1,
+    "question_untranslated_english_54.5%": 1,
+    "question_word_style=\"font-family:_repeated_5x_total": 1,
+    "question_long_word_501chars": 1,
+    "option_3_repeated_word_19x_consecutive": 1,
+    "question_long_word_156chars": 2,
+    "question_repeated_word_30x_consecutive": 4,
+    "question_long_word_617chars": 1,
+    "option_1_word_የሆድ_repeated_5x_total": 1,
+    "question_long_word_196chars": 3,
+    "question_word_shinikizo_repeated_15x_total": 1,
+    "question_untranslated_english_28.1%": 1,
+    "question_long_word_211chars": 1,
+    "option_0_word_i-Hepatitis_repeated_9x_total": 1,
+    "question_long_word_143chars": 1,
+    "question_long_word_126chars": 1,
+    "question_repeated_word_163x_consecutive": 1,
+    "question_long_word_296chars": 1,
+    "question_long_word_508chars": 1,
+    "question_long_word_119chars": 3,
+    "question_long_word_87chars": 2,
+    "question_long_word_108chars": 1,
+    "question_long_word_75chars": 1,
+    "question_long_word_147chars": 2,
+    "question_word_ugonjwa_repeated_17x_total": 1,
+    "question_word_ti_repeated_28x_total": 1,
+    "question_long_word_135chars": 3,
+    "question_long_word_97chars": 1,
+    "option_3_word_o_repeated_82x_total": 1,
+    "option_1_word_okubangelwa_repeated_5x_total": 1,
+    "question_word_style=\"font-family:_repeated_18x_total": 1,
+    "question_long_word_81chars": 1,
+    "question_word_ukuhlanza_repeated_13x_total": 1,
+    "question_long_word_460chars": 1,
+    "question_long_word_611chars": 1,
+    "question_long_word_463chars": 2,
+    "question_long_word_212chars": 1,
+    "question_word_wa_repeated_37x_total": 1,
+    "question_repeated_word_38x_consecutive": 2,
+    "option_2_word_ውስጥ_repeated_4x_total": 1,
+    "question_long_word_601chars": 1,
+    "question_long_word_535chars": 1,
+    "question_long_word_76chars": 2,
+    "question_repeated_word_116x_consecutive": 1,
+    "question_long_word_136chars": 1,
+    "question_word_ti_repeated_4x_total": 1,
+    "question_untranslated_english_30.6%": 2,
+    "question_untranslated_english_34.6%": 1,
+    "question_long_word_263chars": 2,
+    "question_long_word_245chars": 2,
+    "question_repeated_word_100x_consecutive": 1,
+    "question_long_word_77chars": 1,
+    "question_repeated_word_68x_consecutive": 2,
+    "question_long_word_415chars": 1,
+    "question_long_word_178chars": 1,
+    "question_word_የሆድ_repeated_44x_total": 1,
+    "question_untranslated_english_35.3%": 1,
+    "question_repeated_word_29x_consecutive": 2,
+    "question_long_word_192chars": 1,
+    "question_long_word_162chars": 1,
+    "question_long_word_68chars": 2,
+    "question_long_word_225chars": 2,
+    "question_word_mai_repeated_9x_total": 1,
+    "question_word_ya_repeated_10x_total": 1,
+    "question_repeated_word_140x_consecutive": 2,
+    "option_1_word_ya_repeated_4x_total": 1,
+    "question_word_የኒውክሊዮቲክ_repeated_15x_total": 1,
+    "question_long_word_73chars": 1,
+    "question_long_word_159chars": 1,
+    "question_long_word_116chars": 2,
+    "question_long_word_118chars": 1,
+    "question_word_የሆድ_repeated_14x_total": 1,
+    "question_word_tumbo_repeated_11x_total": 1,
+    "question_long_word_182chars": 1,
+    "question_long_word_483chars": 1,
+    "question_repeated_word_144x_consecutive": 1,
+    "question_word_shinikizo_repeated_55x_total": 1,
+    "option_1_word_የደም_repeated_43x_total": 1,
+    "question_word_ugonjwa_repeated_22x_total": 1,
+    "question_word_ephazamisayo_repeated_14x_total": 1,
+    "question_long_word_89chars": 3,
+    "question_word_o_repeated_168x_total": 1,
+    "question_long_word_86chars": 1,
+    "question_long_word_154chars": 1,
+    "question_word_Àkọlé_repeated_8x_total": 1,
+    "option_2_repeated_word_10x_consecutive": 1,
+    "option_1_word_o_repeated_104x_total": 1,
+    "question_long_word_160chars": 1,
+    "question_word_da_repeated_9x_total": 1,
+    "question_word_mchanganyiko_repeated_4x_total": 1,
+    "question_word_ya_repeated_13x_total": 1,
+    "question_repeated_word_138x_consecutive": 1,
+    "question_word_cutar_repeated_7x_total": 1,
+    "question_long_word_941chars": 1,
+    "question_long_word_295chars": 1,
+    "question_long_word_137chars": 3,
+    "question_long_word_124chars": 1,
+    "question_long_word_478chars": 1,
+    "question_long_word_237chars": 1,
+    "question_untranslated_english_32.3%": 1,
+    "question_long_word_210chars": 1,
+    "question_long_word_901chars": 1,
+    "question_long_word_328chars": 1,
+    "question_word_የደም_repeated_37x_total": 1,
+    "question_word_የደም_repeated_36x_total": 1,
+    "question_word_mzunguko_repeated_117x_total": 1,
+    "question_word_o_repeated_167x_total": 1,
+    "question_word_የጉልበት_repeated_6x_total": 1,
+    "question_word_የሆድ_repeated_59x_total": 1,
+    "question_word_tumbo_repeated_34x_total": 1,
+    "question_word_ọmọ_repeated_46x_total": 1,
+    "question_long_word_199chars": 1,
+    "question_long_word_465chars": 1,
+    "question_word_tumbo_repeated_36x_total": 1,
+    "question_untranslated_english_27.1%": 1,
+    "question_long_word_279chars": 1,
+    "question_long_word_488chars": 1,
+    "question_long_word_203chars": 1,
+    "question_word_የፕላዝማ_repeated_10x_total": 1,
+    "option_0_repeated_word_49x_consecutive": 1,
+    "question_long_word_157chars": 1,
+    "question_untranslated_english_37.5%": 1,
+    "question_long_word_155chars": 1,
+    "question_word_፣_repeated_55x_total": 1,
+    "question_long_word_272chars": 1,
+    "question_phrase_repeated_33x": 1,
+    "question_long_word_336chars": 1,
+    "question_word_na_repeated_8x_total": 1,
+    "question_long_word_99chars": 1,
+    "question_long_word_426chars": 1,
+    "question_long_word_329chars": 1,
+    "question_long_word_61chars": 1,
+    "option_0_long_word_87chars": 1,
+    "question_word_ugonjwa_repeated_122x_total": 1,
+    "question_long_word_269chars": 1,
+    "question_word_wa_repeated_137x_total": 1,
+    "question_repeated_word_267x_consecutive": 1,
+    "question_word_ya_repeated_65x_total": 1,
+    "question_long_word_169chars": 1,
+    "question_long_word_80chars": 1,
+    "question_long_word_846chars": 1,
+    "question_long_word_454chars": 1,
+    "question_word_style=\"font-family:_repeated_15x_total": 1,
+    "question_long_word_175chars": 1,
+    "question_long_word_299chars": 1,
+    "question_long_word_665chars": 1,
+    "question_word_ውስጥ_repeated_42x_total": 1,
+    "question_repeated_word_85x_consecutive": 1,
+    "question_long_word_163chars": 1,
+    "question_untranslated_english_27.5%": 1,
+    "question_untranslated_english_42.2%": 1,
+    "question_word_cututtuka_repeated_19x_total": 1,
+    "question_word_giga_repeated_49x_total": 1,
+    "question_word_ውስጥ_repeated_41x_total": 1,
+    "question_repeated_word_185x_consecutive": 1,
+    "option_3_repeated_word_17x_consecutive": 1,
+    "question_repeated_word_124x_consecutive": 1,
+    "question_word_የሳንባ_repeated_8x_total": 1,
+    "question_long_word_64chars": 1,
+    "question_long_word_509chars": 1,
+    "question_long_word_172chars": 1,
+    "question_long_word_197chars": 1,
+    "question_long_word_110chars": 1,
+    "question_long_word_85chars": 1,
+    "question_word_ti_repeated_26x_total": 1,
+    "question_long_word_158chars": 1,
+    "question_word_ya_repeated_36x_total": 1,
+    "question_word_ti_repeated_252x_total": 1,
+    "question_long_word_95chars": 1,
+    "question_long_word_62chars": 2,
+    "question_long_word_141chars": 1,
+    "question_word_upasuaji_repeated_32x_total": 1,
+    "option_3_word_chembe_repeated_4x_total": 1,
+    "question_word_ugonjwa_repeated_25x_total": 1,
+    "question_repeated_word_81x_consecutive": 1,
+    "option_0_repeated_word_17x_consecutive": 1,
+    "question_repeated_word_226x_consecutive": 1,
+    "question_long_word_134chars": 3,
+    "question_word_iṣan_repeated_17x_total": 1,
+    "question_long_word_142chars": 1,
+    "option_1_repeated_word_13x_consecutive": 1,
+    "question_untranslated_english_37.0%": 1,
+    "question_long_word_405chars": 1,
+    "question_word_በዝቅተኛ_repeated_28x_total": 1,
+    "question_word_ugonjwa_repeated_123x_total": 1,
+    "question_word_wa_repeated_19x_total": 1,
+    "question_long_word_184chars": 1,
+    "question_long_word_218chars": 1,
+    "question_long_word_753chars": 1,
+    "question_word_Chuo_repeated_48x_total": 1,
+    "question_word_i-Hospital_repeated_25x_total": 1,
+    "option_0_phrase_repeated_3x": 1,
+    "option_3_repeated_word_15x_consecutive": 1,
+    "question_long_word_114chars": 1,
+    "question_long_word_83chars": 1,
+    "question_long_word_714chars": 1,
+    "option_3_repeated_word_34x_consecutive": 1,
+    "question_untranslated_english_30.4%": 1,
+    "question_long_word_104chars": 1,
+    "question_long_word_165chars": 1,
+    "question_long_word_699chars": 1,
+    "question_phrase_repeated_16x": 1,
+    "question_untranslated_english_26.7%": 2,
+    "question_word_tumbo_repeated_73x_total": 1,
+    "question_long_word_264chars": 1,
+    "question_long_word_495chars": 1,
+    "question_long_word_880chars": 1,
+    "option_0_repeated_word_15x_consecutive": 1,
+    "question_word_ውስጥ_repeated_40x_total": 1,
+    "question_long_word_423chars": 1,
+    "question_long_word_438chars": 1,
+    "question_long_word_549chars": 1,
+    "question_long_word_357chars": 1,
+    "question_word_style=\"font-family:_repeated_16x_total": 1,
+    "option_0_repeated_word_19x_consecutive": 1,
+    "question_word_cututtuka_repeated_6x_total": 1,
+    "question_word_የዕለት_repeated_10x_total": 1,
+    "question_word_nau'i_repeated_6x_total": 1,
+    "question_word_የጭንቅላቱ_repeated_9x_total": 1,
+    "question_word_የኮሌሲስቶግራፊ_repeated_10x_total": 1,
+    "question_word_za_repeated_4x_total": 1,
+    "question_word_chanjo_repeated_23x_total": 1
+  },
+  "rejected_samples": [
+    {
+      "language": "am",
+      "reason": "question_word_በሆስፒታል_repeated_46x_total",
+      "question": "የ 82 ዓመት ሴት:: በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስ",
+      "options": [
+        "ታካሚው በግራ በኩል ተኝቶ ይቀመጣል።",
+        "የጨጓራውን ይዘት ለመሳብ እና የፒኤች ደረጃን ለመፈተሽ።"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_word_ƙwayoyin_repeated_40x_total",
+      "question": "Mace mai shekaru 82. Tana cikin asibiti saboda ƙwayoyin cuta na ƙwayoyin cuta na ƙwayoyin cuta na ƙw",
+      "options": [
+        "Za a saka mai haƙuri a gefen hagu.",
+        "Sa'an nan kuma ya kamata a yi amfani da ma'aunin ma'auni na ma'auni na ma'auni na ma'auni na ma'auni."
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_39x_consecutive",
+      "question": "Obìnrin ẹni ọdún méjìléláàádọ́rin [82] . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+      "options": [
+        "A máa ń fi aláìsàn sí ibùsùn òsì.",
+        "Ó máa ń fa ohun tó wà nínú ikùn, ó sì máa ń ṣàyẹ̀wò pH."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_234x_consecutive",
+      "question": "Mace mai shekaru 73. Ya zo asibiti tare da babban ƙarar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙw",
+      "options": [
+        "Ƙarƙashin ƙwayar cuta",
+        "Ƙwaƙwalwa na yau da kullum"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "question_word_wa_repeated_159x_total",
+      "question": "Mwanamke mwenye umri wa miaka 73. Alikuja hospitalini na malalamiko ya ugonjwa wa ugonjwa wa ugonjwa",
+      "options": [
+        "Ugonjwa wa chembe za urethra baada ya kuzaliwa",
+        "Kipepeo wa kawaida"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_word_àti_repeated_51x_total",
+      "question": "obìnrin ẹni ọdún mẹ́tàléláàádọ́rin [73] tí ó wá sí ilé ìwòsàn pẹ̀lú ẹ̀dùn-ọ̀dùn àti ẹ̀dùn-ọ̀dùn. Ó t",
+      "options": [
+        "Àìsàn tó máa ń wáyé lẹ́yìn téèyàn bá ti bímọ",
+        "Àwọn ẹyẹ àbùùbùtán tí kì í ṣe àjèjì"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_repeated_word_3x_consecutive",
+      "question": "የ 4 ዓመት ወንድ ልጅ: ተደጋጋሚ የሆድ ድርቀት ያሳሰበው እናቱ ወደ ሆስፒታል ወሰደችው:: ከወር በፊት አልፎ አልፎ ከተነሳ በኋላ ድንገተኛ የሆድ ድርቀት ታየ",
+      "options": [
+        "የአንጎል ሞገድ",
+        "የጀርባ አጥንት መርፌ"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_untranslated_english_31.2%",
+      "question": "During the preparation for the examination, sudden shortness of breath worsened, and subsequently th",
+      "options": [
+        "Ìdàrúdàpọ̀ ẹ̀jẹ̀",
+        "Ìdàrúdàpọ̀ ọkàn"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_word_በሆስፒታል_repeated_51x_total",
+      "question": "የ 66 ዓመት ሴት:: በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስ",
+      "options": [
+        "Holter የልብ ኤሌክትሮግራም",
+        "የ FDG-PET ምርመራ"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_long_word_326chars",
+      "question": "1-year-old boy ∙ taken to hospital by his mother with fever and rash ∙ four days ago with fever of 3",
+      "options": [
+        "Zazzaɓi",
+        "Hatsarin jikin mutum"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_400x_consecutive",
+      "question": "Ọmọdékùnrin ọmọ ọdún kan tí ìyá rẹ̀ gbé wá sí ilé ìwòsàn nítorí pé ó ní ibà àti irorẹ̀. Ibà 38-39°C ",
+      "options": [
+        "Kòkòrò tí ń fa ibà",
+        "Irorẹ inú ara"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "question_long_word_309chars",
+      "question": "Umfana oneminyaka eyodwa ubudala. Uhanjiswe esibhedlela ngumama wakhe ngezikhalazo eziyinhloko zomkh",
+      "options": [
+        "Umkhuhlane",
+        "Ukuqubuka kwesiqu somzimba"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_repeated_word_23x_consecutive",
+      "question": "የሄፕታይተስ የሄፕታይተስ የሄፕታይተስ የሄፕታይተስ የሄፕታይተስ የሄፕታይተስ የሄፕታይተስ የሄፕታይተስ የሄፕታይተስ የሄፕታይተስ የሄፕታይተስ የሄፕታይተስ የሄፕታ",
+      "options": [
+        "የሆድ ውስጥ ፈሳሽ",
+        "የቢሊቢን መጠን"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_4_repeated_word_10x_consecutive",
+      "question": "Kí ni ìtọ́jú àkọ́kọ́ tí wọ́n máa ń ṣe fún àrùn jẹjẹrẹ ọpọlọ tí kò ní àmì?",
+      "options": [
+        "PDE 5phosphodiesterase 5 inhibitor administration",
+        "Ìtọ́jú oníkẹ́míkà tó ń dènà àrùn jẹjẹrẹ"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_2_repeated_word_32x_consecutive",
+      "question": "Wanne ne gaskiya game da cututtuka?",
+      "options": [
+        "Tuberculosis wata cuta ce da aka ware.",
+        "Kudin kiwon lafiya na maganin cutar kwalara zai zama cikakken kuɗin gwamnati."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_3x_consecutive",
+      "question": "Wanne ne ba zai haifar da cututtukan cututtukan cututtukan cututtuka ba?",
+      "options": [
+        "Yawan kiba",
+        "Shekaru"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_repeated_word_10x_consecutive",
+      "question": "የ 84 ዓመት ወንድ የሆድ ካንሰር ምርመራ ለማድረግ በሆስፒታል ውስጥ ነው በሆስፒታል ውስጥ በግራ የፊት ክንድ ላይ የደም መፍሰስ ተገኝቷል ፣ ግን ከዚያ በኋላ",
+      "options": [
+        "የድህረ ወሊድ የደም በሽታ",
+        "የቫይታሚን ኬ እጥረት"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_untranslated_english_44.7%",
+      "question": "84 years old male ∙ hospitalized for examination of stomach cancer ∙ admitted to hospital for examin",
+      "options": [
+        "Àrùn ẹ̀jẹ̀ tó máa ń wáyé lẹ́yìn ikú",
+        "Àìtó fítámì K"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_untranslated_english_36.8%",
+      "question": "40 years old first pregnant woman. In the 6th week of pregnancy, she started smoking from the age of",
+      "options": [
+        "\"Ó máa ń jẹ́ kí wọ́n tètè bímọ\".",
+        "\"Tó o bá jáwọ́ nínú sìgá mímu láìròtẹ́lẹ̀, ó lè ṣàkóbá fún ọmọ tó wà nínú oyún rẹ\"."
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_repeated_word_3x_consecutive",
+      "question": "የ 47 ዓመት ዕድሜ ያለው ሰው የደረት ጭንቀት በዋናነት ወደ ሆስፒታል መጣ ። በከፍተኛ የደም ግፊት እና በሊፕቲክ በሽታ በቤት አቅራቢያ በሚገኝ ክሊኒክ ውስጥ",
+      "options": [
+        "የልብ ኤምአርአይ",
+        "የኤሌክትሪክ ፍንዳታ"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_long_word_565chars",
+      "question": "47-shekara maza. Ya zo asibiti tare da babban kuka. Ya kasance a asibitin da ke kusa da gidansa tare",
+      "options": [
+        "MRI na zuciya",
+        "Ƙararrawa"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "question_long_word_520chars",
+      "question": "Mwanaume mwenye umri wa miaka 47. Alikuja hospitalini na malalamiko makubwa ya maumivu ya kifua. Ali",
+      "options": [
+        "MRI ya moyo",
+        "Mshtuko wa umeme"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_untranslated_english_30.2%",
+      "question": "47 years old man. He was admitted to the hospital with chest tightness. He was in a clinic near his ",
+      "options": [
+        "MRI ọkàn",
+        "Ìjì líle ló fà á."
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_88x_consecutive",
+      "question": "ọkùnrin ẹni ọdún márùndínláàádọ́ta . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+      "options": [
+        "Ó sọ fún wọn pé kò sí ìṣòro kankan.",
+        "A nílò ọkọ̀ alágbèérìn."
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "option_4_repeated_word_11x_consecutive",
+      "question": "የዩሪን ፕሮቲን መጠን የሚወስነው ምንድነው?",
+      "options": [
+        "የሽንት ግፊት",
+        "የሲሊኮቲክ ግፊት"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "option_4_repeated_word_5x_consecutive",
+      "question": "Yikuphi okungeyona into enquma inani le-urine protein?",
+      "options": [
+        "Umfutho wokufaka umchamo",
+        "Ingcindezi yangaphakathi ye-silicon"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_long_word_216chars",
+      "question": "የ 45 ዓመት ሴት:: ከስድስት ወር በፊት የሬይኖድ ክስተት እና የሁለቱም እጆች መጨናነቅ ወደ ሆስፒታል መጥቷል:: ከሁለት ወር በፊት የስራ ሰዓት የትንፋሽ እ",
+      "options": [
+        "የኮሮና አተሪዮግራፊ",
+        "የካርዲዮኤኮቲክ ምርመራ"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_long_word_406chars",
+      "question": "የሚከተሉትን ዓረፍተ-ነገሮች ያንብቡ እና ለሚከተሉት ጥያቄዎች መልስ ይስጡ:: የ 82 ዓመት ሴት:: ትኩሳት እና የንቃተ ህሊና ችግር በድንገተኛ መኪና ውስጥ ተ",
+      "options": [
+        "የትንፋሽ ማስገቢያ",
+        "የአፍ ውስጥ ማስወገጃ"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_untranslated_english_45.5%",
+      "question": "Read the following sentence and answer the following question: 82-year-old woman                    ",
+      "options": [
+        "Ƙarƙashin ƙwayar cuta",
+        "Haɗuwa cikin baki"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_untranslated_english_53.8%",
+      "question": "Read the following sentences and answer the following questions:  82 years old woman                ",
+      "options": [
+        "Àpótí tí wọ́n fi ń fa èémí sínú ara",
+        "Fífa nǹkan sínú ẹnu"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_long_word_1014chars",
+      "question": "የ 48 ዓመት ሴት:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::",
+      "options": [
+        "የባሬት የምግብ መስመር",
+        "የተገላቢጦሽ የምግብ መፍጫ ኢንፌክሽን"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_6x_consecutive",
+      "question": "Mace mai shekaru 48. Ya zo asibitin tare da babban ƙarar kirji. An duba shi tun watanni uku da suka ",
+      "options": [
+        "Hanyar cin abinci ta Barrett",
+        "Ciwon ƙwayar ƙwayar ƙwayar cuta"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_2_repeated_word_5x_consecutive",
+      "question": "Wanne ne ya dace a hade tare da binciken jiki da kuma yatsun da aka yi amfani da su?",
+      "options": [
+        "Tactile gynecomastia ------- hannaye da baya",
+        "Bincike a cikin ciki, a kan yatsun kafa."
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_4_untranslated_english_38.9%",
+      "question": "Ewo ni o yẹ fun ayẹwo ara ati awọn ẹya ika ti o lo?",
+      "options": [
+        "Àyẹ̀wò nípa ìfọ̀rọ̀wérọ̀ tó ní í ṣe pẹ̀lú ẹ̀dọ̀fóró -------",
+        "Àyẹ̀wò abẹ́rẹ́ ---- Àyẹ̀wò ìka ẹsẹ̀."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_7x_consecutive",
+      "question": "Wanne ne ba zai iya haifar da cianotic ba?",
+      "options": [
+        "Ciwon ƙwayar cuta na Fallot",
+        "Ƙwaƙwalwar ƙwanƙwasa"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_phrase_repeated_11x",
+      "question": "Oríṣun àwòrán, Getty Images Oríṣun àwòrán, Getty Images Àkọlé àwòrán, On death and dying Oríṣun àwòr",
+      "options": [
+        "William Osler  William Osler ",
+        "Helen Adams Keller Àkọlé àwòrán Helen Adams Keller Àkọlé àwòrán"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_word_ውስጥ_repeated_118x_total",
+      "question": "የ 32 ዓመት ሴት:: በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ ሆስፒታል ውስጥ ሆስፒታል ውስጥ ",
+      "options": [
+        "የጭንቅላት ኤም አር አይ",
+        "የኦክስጅን አቅርቦት"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_untranslated_english_31.2%",
+      "question": "32-year-old woman ∙ accompanied by a friend to hospital for unconsciousness ∙ found a patient lying ",
+      "options": [
+        "MRI na kai",
+        "Ana ba da iskar oxygen"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_long_word_786chars",
+      "question": "2-wata-wata-wata-wata-wata-wata-wata-wata-wata-wata-ta-ta-ta-ta-ta-ta-ta-ta-ta-ta-ta-ta-ta-ta-ta-ta-",
+      "options": [
+        "Shekaru",
+        "Jima'i"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_untranslated_english_25.2%",
+      "question": "2 months old boy. He was taken to hospital by his mother with the main complaint of vomiting. He had",
+      "options": [
+        "Ọdún",
+        "Ibalopo"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_word_የሆስፒታል_repeated_32x_total",
+      "question": "የሚከተሉትን ዓረፍተ-ነገሮች ያንብቡ እና ለሚከተሉት ጥያቄዎች መልስ ይስጡ:: የ 65 ዓመት ዕድሜ ያለው ሰው:: የምግብ መፍጫ ካንሰር ቀዶ ጥገና ከተደረገ በኋ",
+      "options": [
+        "0 ነጥብ",
+        "አንድ ነጥብ"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "question_repeated_word_33x_consecutive",
+      "question": "Read the following sentence and answer the following questions: 65-year-old male ∙ hospitalized afte",
+      "options": [
+        "0 amaphuzu",
+        "Eyokuqala."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_2_repeated_word_4x_consecutive",
+      "question": "Waɗanne abubuwa ne suke sa ido ya faɗi? Zaɓi guda biyu.",
+      "options": [
+        "Tsufa",
+        "Ƙarƙashin ƙwayar cuta"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_70x_consecutive",
+      "question": "Wani mutum mai shekaru 75 yana da ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ",
+      "options": [
+        "Ɗaya",
+        "Na biyu"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_136x_consecutive",
+      "question": "ọkùnrin ẹni ọdún márùndínláàádọ́rin . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ",
+      "options": [
+        "Ẹyọ kan",
+        "Ìkejì"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_0_repeated_word_9x_consecutive",
+      "question": "Wanne ne daidai game da kare rayuka?",
+      "options": [
+        "Ma'aikatar Kula da Rayuwa ta Ma'aikatar Ma'aikatar Ma'aikatar Ma'aikatar Ma'aikatar Ma'aikatar Ma'aikatar Ma'aikatar Ma'aikatar Ma'aikata.",
+        "Adadin iyalai masu kariya ya ragu a cikin 'yan shekarun nan."
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "option_2_repeated_word_4x_consecutive",
+      "question": "የ 32 ዓመት ሴት:: ትናንት ማታ ያለ ስምምነት የግብረ ሥጋ ግንኙነት እንዲፈጽሙ ተገደዋል ፣ ዛሬ በፖሊስ መኮንኖች ተከትለው ምርመራ ተደርጓል:: የፖሊስ መኮ",
+      "options": [
+        "በወሲብ የሚተላለፉ በሽታዎችን መመርመር።",
+        "የድንገተኛ ጊዜ የወሊድ መከላከያ መድሃኒቶችን ማቅረብ።"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_word_ውስጥ_repeated_51x_total",
+      "question": "የ 30 ዓመት የመጀመሪያ እርግዝና እርግዝና በ 33 ኛ ሳምንት በ 0 ኛ ሳምንት በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ ሆስፒታል ውስጥ ሆስፒታል ",
+      "options": [
+        "የሰውነት ሙቀት",
+        "ውስጣዊ ምርመራ"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_untranslated_english_33.9%",
+      "question": "30 years old first-time mother. She came to the hospital complaining of dehydration on the 33rd week",
+      "options": [
+        "Ooru ara",
+        "Ìtọ́jú inú ilé"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_20x_consecutive",
+      "question": "Wace irin ƙwaƙwalwar ajiya ce mai ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ",
+      "options": [
+        "Sunanka.",
+        "Shekaru nawa?"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_repeated_word_125x_consecutive",
+      "question": "የ 32 ዓመት ሴት ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ",
+      "options": [
+        "የማህጸን ምርመራ",
+        "የአልትራሳውንድ ምርመራ"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_28x_consecutive",
+      "question": "32 years old woman ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙",
+      "options": [
+        "Àyẹ̀wò inú ọlẹ̀",
+        "Ṣíṣe àyẹ̀wò onílù tó ga jù."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_long_word_381chars",
+      "question": "Mace mai shekaru 30 ∙ ya zo asibiti tare da ciwon kai, zubar da nono da rashin daidaituwa na al'ada ",
+      "options": [
+        "Gwajin ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwa",
+        "Maganin ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwa"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_long_word_1015chars",
+      "question": "የ 59 ዓመት ወንድ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::",
+      "options": [
+        "አንድ",
+        "ሁለት"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_217x_consecutive",
+      "question": "59 years old male. He came to the hospital complaining of breathing difficulties during labor labor ",
+      "options": [
+        "Ẹyọ kan",
+        "Ìkejì"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_180x_consecutive",
+      "question": "Mace mai shekaru 82. Ya zo asibiti tare da babban rashin jin daɗi da ciwo na ƙashin ƙugu. An gano sh",
+      "options": [
+        "Ƙara yawan morphine.",
+        "Za mu ci gaba da maganin kansa."
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_long_word_1002chars",
+      "question": "አንድ ዓመት ከስድስት ወር የሆናቸው ወንዶች:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::",
+      "options": [
+        "ደም እና ሽንት",
+        "የሽንት መዘጋት"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_long_word_151chars",
+      "question": "Àwọn wo ni ó ní ààrùn kòkòrò-ara-ara-ara-ara-ara-ara-ara-ara-ara-ara-ara-ara-ara-ara-ara-ara-ara-ara",
+      "options": [
+        "Àìsàn tí kì í lọ bọ̀rọ̀ tí wọ́n ń pè ní chronic mesothelioma",
+        "Àìlèfúnni nínú agbára ìdènà àrùn tí ó le gan-an"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_repeated_word_3x_consecutive",
+      "question": "የ 78 ዓመት ሴት ∙ ትኩሳት እና የአንገት ህመም ∙ ከ4 ሳምንታት በፊት የ 39.0 °C ትኩሳት ፣ በቀኝ እግር መገጣጠሚያ ላይ እብጠት እና ህመም ∙ በቀኝ ",
+      "options": [
+        "የቤቼት በሽታ",
+        "Tuberculous Spondylitis የተሰኘው በሽታ"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_untranslated_english_29.4%",
+      "question": "78-year-old woman. She came to the hospital with fever and neck pain. She had a fever of 39.0°C and ",
+      "options": [
+        "Cutar Behçet",
+        "Ciwon ƙwayar ƙwayar ƙwayar ƙwayar cuta"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_untranslated_english_28.4%",
+      "question": "78 years old woman. She came to the hospital with fever and neck pain. Four weeks ago she had a feve",
+      "options": [
+        "Àrùn Behçet",
+        "Tuberculous spondylitis, ìyẹn àrùn tó máa ń mú oríkèé ara wú"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_161x_consecutive",
+      "question": "52-year-old male ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙ ∙",
+      "options": [
+        "Tabbatar da hanyar iska.",
+        "Ƙararrawa ta hanyar hanci da hanci"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "question_repeated_word_26x_consecutive",
+      "question": "Indoda eneminyaka engu-52 ubudala. . . . . . . . . . . . . . . . . . . . . . . . . . .",
+      "options": [
+        "Ukuvikelwa komoya",
+        "Ukufakelwa kwe-nasogastric tube"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "option_1_word_የሆድ_repeated_6x_total",
+      "question": "የ 35 ዓመት ዕድሜ ያለው ሰው የጀርባ ህመም ዋና አቤቱታ ወደ ሆስፒታል መጥቷል ከስድስት ወር ገደማ በፊት የግራ የጀርባ ቧንቧ እብጠት እንዳለበት ያውቅ ነበር",
+      "options": [
+        "በ CT የሚመራ የሳንባ ነቀርሳ ምርመራ",
+        "የ CT መመሪያ የኋለኛው የሆድ ውስጥ የሊምፕቲክ የሆድ ውስጥ የሆድ ውስጥ የሆድ ውስጥ የሆድ ውስጥ የሆድ ህዋስ"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_2_repeated_word_9x_consecutive",
+      "question": "Maza mai shekaru 35. Ya zo asibiti tare da babban ƙarar ciwon baya. Ya kasance yana da masaniya game",
+      "options": [
+        "CT-guided binciken huhu",
+        "CT-guided post-abdominal lymph node biopsy"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "question_long_word_361chars",
+      "question": "Mwanaume mwenye umri wa miaka 35. Alikuja hospitali kwa malalamiko ya maumivu ya mgongo. Alikuwa na ",
+      "options": [
+        "CT-guided biopsy ya mapafu",
+        "CT mwongozo baada ya tumbo lymph node biopsy"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_untranslated_english_31.0%",
+      "question": "35 years old man. He came to the hospital with a complaint of back pain. He had been aware of the sw",
+      "options": [
+        "CT-Guided Pulmonary Examination[àtúnṣe _ àtúnṣe ojúewé]",
+        "CT guide post abdominal lymph node biopsy"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "question_repeated_word_25x_consecutive",
+      "question": "Indoda eneminyaka engu-79 ubudala. I-X-ray ye-X-ray ye-X-ray ye-X-ray ye-X-ray ye-X-ray ye-X-ray ye-",
+      "options": [
+        "Ukuvuvukala kwe-meningitis",
+        "Ukuhlaselwa umgogodla"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "option_2_word_የሆድ_repeated_11x_total",
+      "question": "የ35 ዓመት የድህረ ወሊድ ሴት (((3 እርግዝና እና 2 እርግዝና)):: በ34 ሳምንት እርግዝና ላይ ያለች:: እርግዝናዋን ከጀመረችበት ጊዜ ጀምሮ እርግዝናዋን",
+      "options": [
+        "\"በማህፀን ጀርባ ላይ የሚገኘውን የደም መፍሰስ እንመረምራለን።\"",
+        "\"የማህፀን ሳህኑ የሆድ ክፍልን ይሸፍናል\""
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_long_word_594chars",
+      "question": "35 years old postpartum woman ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((",
+      "options": [
+        "\"Za mu duba bayan mahaifa don mu ga ko akwai jini a ciki\".",
+        "\"Platex yana rufe ƙofar mahaifa\"."
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "question_repeated_word_54x_consecutive",
+      "question": "35 umri wa miaka baada ya kuzaa (((3 mimba 2 kuzaa) ∙ 34 wiki ya ujauzito ∙ 2 wiki ya ujauzito ∙ ali",
+      "options": [
+        "\"Tutaangalia kama kuna uvimbe nyuma ya kibofu cha uzazi\".",
+        "\"Platex hufunika mlango wa tumbo la uzazi\"."
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_long_word_993chars",
+      "question": "35 years old postpartum woman (((three pregnancies, two pregnancies)):::::::::::::::::::::::::::::::",
+      "options": [
+        "Ó ní: \"A máa ń ṣàyẹ̀wò àpọ̀jù ẹ̀jẹ̀ tó wà ní ẹ̀yìn ọ̀pá ìbímọ\".",
+        "Ó ní: \"Àpótí inú oyún náà ti bo ibi tó wà nínú ilé ọmọ\"."
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "question_long_word_487chars",
+      "question": "I-35-year-old postpartum woman (((3 pregnancies, 2 pregnancies) ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙••••••••••••••",
+      "options": [
+        "\"Sizobheka i-hemangioma ngemuva kwe-placenta\".",
+        "\"I-placenta ihlanganisa umlomo wesibeletho\"."
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_long_word_1014chars",
+      "question": "የ 58 ዓመት ሴት:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::",
+      "options": [
+        "የድንች መርዝ",
+        "የፊንጢጣ ነቀርሳ"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_long_word_1014chars",
+      "question": "የ 54 ዓመት ሴት:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::",
+      "options": [
+        "የኦስቲዮፖሮሲስ በሽታ",
+        "የኩላሊት ኦስቲዮፖሮሲስ"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_5x_consecutive",
+      "question": "54-shekara mace                                          ",
+      "options": [
+        "Ciwon ƙwayar ƙwayar ƙwayar cuta",
+        "Ƙananan ƙwayoyin ƙwayoyin ƙwayoyin cuta"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_3x_consecutive",
+      "question": "Women aged 54 years old who have been admitted to hospital for persistent lower back pain, thoracic ",
+      "options": [
+        "Àrùn tó máa ń mú kí egungun di hẹ́gẹhẹ̀gẹ",
+        "Ìṣòro kíndìnrín tó máa ń fa àìjẹunrekánú"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "question_long_word_323chars",
+      "question": "Abesifazane abaneminyaka engu-54 ubudala, abangeniswe esibhedlela ngenxa yobuhlungu obungapheli, uku",
+      "options": [
+        "I-Osteochondrosis ye-tumor",
+        "I-Osteoporosis yezinso"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_word_da_repeated_40x_total",
+      "question": "Maza mai shekaru 28. Ya zo asibiti tare da babban ƙarar hanci da hanci. Ya yarda da hanci da hanci d",
+      "options": [
+        "An yi amfani da maganin kashe ƙwayoyin cuta.",
+        "An yi amfani da maganin rage zafin jiki."
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_untranslated_english_27.8%",
+      "question": "28 years old man. He was admitted to the hospital for nasal congestion and nasal leakage. He had bee",
+      "options": [
+        "Ojúlówó oògùn apakòkòrò àrùn",
+        "Ìtọ́jú tí kì í jẹ́ kí ọpọlọ ṣiṣẹ́ dáadáa"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_word_በሆስፒታል_repeated_55x_total",
+      "question": "የ 52 ዓመት ወንድ:: ከሥራ ባልደረቦቹ ጋር በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታል ውስጥ በሆስፒታ",
+      "options": [
+        "የሆድ ቱቦ ማስገቢያ",
+        "የኦክስጅን አቅርቦት"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_untranslated_english_30.8%",
+      "question": "52 years old man. He was admitted to the hospital with his colleagues for unconsciousness. He was wo",
+      "options": [
+        "Iṣẹ́ abẹ́rẹ́ ni.",
+        "Ọ́síjìn tí wọ́n ń fún wọn"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_long_word_206chars",
+      "question": "የሚከተሉትን ዓረፍተ-ነገሮች ያንብቡ እና ለ 50 እና 51 ጥያቄዎች መልስ ይስጡ:: የ 79 ዓመት ዕድሜ ያለው ሰው:: ሳል እና የመተንፈስ ችግርን በመጥቀስ ወ",
+      "options": [
+        "የሳንባ ምርመራ",
+        "ከፍተኛ ጥራት ያለው ሲቲ"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_105x_consecutive",
+      "question": "Ya karanta kuma ya amsa tambayoyin 50 da 51. Mutum mai shekaru 79 ya zo asibiti tare da kuka da waha",
+      "options": [
+        "Binciken huhu",
+        "Babban ƙwayar CT"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_long_word_529chars",
+      "question": "Read the following sentences and answer questions 50 and 51: A 79-year-old man who came to the hospi",
+      "options": [
+        "Àyẹ̀wò ẹ̀dọ̀fóró",
+        "Ṣíṣe àyẹ̀wò CT"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "question_long_word_325chars",
+      "question": "Funda lemisho elandelayo bese uphendula imibuzo engu-50 no-51: Indoda eneminyaka engu-79 ubudala. ef",
+      "options": [
+        "Ukuhlolwa kwamaphaphu",
+        "I-CT enekhono eliphezulu"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "question_word_wa_repeated_138x_total",
+      "question": "Baada ya usimamizi wa wiki moja katika chumba cha matibabu ya hali ya juu, alihamishiwa kwenye chumb",
+      "options": [
+        "Ugonjwa wa mifupa ya magoti",
+        "Kitanda cha muda mrefu"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_42x_consecutive",
+      "question": "An yi aikin rigakafin rigakafin rigakafin rigakafin rigakafin rigakafin rigakafin rigakafin rigakafi",
+      "options": [
+        "Wannan shi ne Statin.",
+        "Maganin ƙwayar ƙwayar cuta"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_8x_consecutive",
+      "question": "Wanne ne ya fi dacewa da manufar riƙe catheter na urinary?",
+      "options": [
+        "Yin rigakafin cututtukan fitsari",
+        "Yadda za a rage yawan kuɗin kula da marasa lafiya"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_16x_consecutive",
+      "question": "Waɗanne magunguna ne ya kamata a dakatar da maganin rigakafin rigakafin rigakafin rigakafin rigakafi",
+      "options": [
+        "Tacrolimus",
+        "Indomethacin"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_0_repeated_word_5x_consecutive",
+      "question": "Wanne ne daidai gwargwado?",
+      "options": [
+        "Ƙididdigar ƙididdigar ƙididdigar ƙididdigar ƙididdigar ƙididdigar ƙididdiga",
+        "Wannan shi ne abin da za a yi amfani da shi don a yi amfani da shi."
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_4_word_ti_repeated_5x_total",
+      "question": "Àwọn wo ló máa ń fara hàn nínú àrùn COPD? Yan méjì.",
+      "options": [
+        "Àìmọye afẹ́fẹ́ tó kù",
+        "Ìmúgbòòrò sí i"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_repeated_word_22x_consecutive",
+      "question": "የ 20 ዓመት ወንድ:: በቀኝ እግር መገጣጠሚያ ላይ በተፈጠረው ችግር እና ህመም ምክንያት በአምቡላንስ ውስጥ ተወስዷል:: የኩባንያ ሰራተኛ ነው:: የሶከር ክለ",
+      "options": [
+        "የቴፒንግ ቋሚ",
+        "አንቲባዮቲክ መድሃኒቶች"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_untranslated_english_28.8%",
+      "question": "20-year-old male. Was transported by ambulance because of deformity and pain in the right ankle join",
+      "options": [
+        "Tape da aka gyara",
+        "Yin amfani da maganin kashe ƙwayoyin cuta"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_phrase_repeated_56x",
+      "question": "<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>",
+      "options": [
+        "Tape ti wa ni titiipa",
+        "Àwọn oògùn apakòkòrò àrùn"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_long_word_273chars",
+      "question": "የ 50 ዓመት ሴት:: ትኩሳት እና የመተንፈስ ችግር በዋናው አቤቱታ ላይ ተገኝቷል:: ከስድስት ወር በፊት የደም መፍሰስን አምኗል ፣ በጡት ኤክስሬይ በግራ በታ",
+      "options": [
+        "የደም ቧንቧ መቆንጠጥ",
+        "አዎንታዊ የትንፋሽ መቆጣጠሪያ"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_78x_consecutive",
+      "question": "Mace mai shekaru 50 ∙ ta yi jinya tare da zazzabi da wahalar numfashi ∙ an gano cutar aspergillosis ",
+      "options": [
+        "Ƙarƙashin zuciya.",
+        "Kula da numfashi mai kyau"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "question_long_word_398chars",
+      "question": "Mwanamke mwenye umri wa miaka 50, alichunguzwa na malalamiko kuu ya homa na shida ya kupumua. Aligun",
+      "options": [
+        "Upasuaji wa moyo",
+        "Udhibiti wa kupumua kwa shinikizo zuri"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_2_repeated_word_5x_consecutive",
+      "question": "50 years old woman ∙ admitted fever and breathing difficulties to the main complaint ∙ admitted hemo",
+      "options": [
+        "Àpọ́n tí wọ́n fi gún ọkàn.",
+        "Iṣakoso atẹgun rere"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "question_repeated_word_27x_consecutive",
+      "question": "Owesifazane oneminyaka engama-50 ubudala. I-hemorrhagic fever and breathing difficulties in the main",
+      "options": [
+        "Ukushaywa kwenhliziyo",
+        "Ukulawula ukuphefumula kwe-positive pressure"
+      ]
+    }
+  ]
+}

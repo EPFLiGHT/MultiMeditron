@@ -1,0 +1,1300 @@
+{
+  "total": 12375,
+  "valid": 11482,
+  "invalid": 893,
+  "by_language": {
+    "am": {
+      "valid": 2349,
+      "invalid": 126
+    },
+    "ha": {
+      "valid": 2023,
+      "invalid": 452
+    },
+    "sw": {
+      "valid": 2407,
+      "invalid": 68
+    },
+    "yo": {
+      "valid": 2271,
+      "invalid": 204
+    },
+    "zu": {
+      "valid": 2432,
+      "invalid": 43
+    }
+  },
+  "rejection_reasons": {
+    "option_3_repeated_word_25x_consecutive": 1,
+    "option_0_word_ya_repeated_4x_total": 2,
+    "option_0_phrase_repeated_3x": 3,
+    "option_3_repeated_word_20x_consecutive": 1,
+    "option_3_repeated_word_21x_consecutive": 2,
+    "option_4_repeated_word_43x_consecutive": 1,
+    "option_4_repeated_word_18x_consecutive": 1,
+    "option_4_repeated_word_112x_consecutive": 1,
+    "option_0_repeated_word_74x_consecutive": 1,
+    "option_2_repeated_word_4x_consecutive": 10,
+    "question_too_short": 34,
+    "question_repeated_word_5x_consecutive": 11,
+    "option_2_word_àwòrán,_repeated_5x_total": 1,
+    "option_4_repeated_word_20x_consecutive": 2,
+    "option_0_repeated_word_3x_consecutive": 6,
+    "option_0_word_ጡንቻን_repeated_4x_total": 1,
+    "option_1_repeated_word_5x_consecutive": 4,
+    "option_3_repeated_word_7x_consecutive": 4,
+    "option_2_repeated_word_25x_consecutive": 1,
+    "option_3_phrase_repeated_5x": 1,
+    "question_repeated_word_6x_consecutive": 21,
+    "option_1_phrase_repeated_4x": 2,
+    "option_3_repeated_word_3x_consecutive": 4,
+    "option_2_word_ya_repeated_4x_total": 3,
+    "option_4_repeated_word_27x_consecutive": 1,
+    "option_2_word_ƙwayoyin_repeated_4x_total": 1,
+    "option_2_repeated_word_6x_consecutive": 7,
+    "option_2_word_kòkòrò_repeated_25x_total": 1,
+    "option_0_repeated_word_28x_consecutive": 1,
+    "option_1_repeated_word_4x_consecutive": 7,
+    "option_0_phrase_repeated_4x": 1,
+    "option_4_too_short": 2,
+    "option_4_repeated_word_7x_consecutive": 8,
+    "option_0_repeated_word_6x_consecutive": 5,
+    "option_3_repeated_word_4x_consecutive": 17,
+    "option_3_word_ya_repeated_4x_total": 2,
+    "option_3_repeated_word_35x_consecutive": 1,
+    "option_0_too_short": 4,
+    "option_1_repeated_word_7x_consecutive": 5,
+    "option_2_repeated_word_3x_consecutive": 8,
+    "option_4_repeated_word_10x_consecutive": 2,
+    "option_3_repeated_word_5x_consecutive": 8,
+    "option_1_untranslated_english_27.3%": 1,
+    "option_4_repeated_word_17x_consecutive": 1,
+    "question_repeated_word_20x_consecutive": 4,
+    "option_2_repeated_word_20x_consecutive": 2,
+    "option_1_word_ƙwayoyin_repeated_9x_total": 1,
+    "question_repeated_word_182x_consecutive": 1,
+    "option_1_repeated_word_6x_consecutive": 2,
+    "option_4_word_ya_repeated_4x_total": 2,
+    "option_4_word_wa_repeated_6x_total": 1,
+    "option_1_repeated_word_12x_consecutive": 1,
+    "option_3_word_cuta_repeated_7x_total": 1,
+    "option_0_repeated_word_13x_consecutive": 2,
+    "option_1_word_anaemia_repeated_5x_total": 1,
+    "option_4_repeated_word_4x_consecutive": 12,
+    "question_word_da_repeated_4x_total": 2,
+    "option_4_repeated_word_8x_consecutive": 5,
+    "option_3_repeated_word_14x_consecutive": 1,
+    "question_repeated_word_10x_consecutive": 11,
+    "option_4_phrase_repeated_3x": 3,
+    "option_0_repeated_word_9x_consecutive": 4,
+    "option_4_repeated_word_5x_consecutive": 8,
+    "option_1_word_da_repeated_4x_total": 4,
+    "option_3_phrase_repeated_3x": 2,
+    "question_repeated_word_25x_consecutive": 4,
+    "option_2_repeated_word_59x_consecutive": 1,
+    "option_4_long_word_191chars": 1,
+    "option_4_word_I-methicillin-resistant_repeated_4x_total": 1,
+    "option_1_repeated_word_11x_consecutive": 3,
+    "option_2_repeated_word_11x_consecutive": 1,
+    "option_3_repeated_word_88x_consecutive": 1,
+    "option_0_word_I-Isosorbide_repeated_5x_total": 1,
+    "option_1_repeated_word_13x_consecutive": 4,
+    "question_repeated_word_29x_consecutive": 4,
+    "question_word_halittar_repeated_14x_total": 1,
+    "option_0_word_ìjìnlẹ̀_repeated_9x_total": 1,
+    "option_0_repeated_word_4x_consecutive": 6,
+    "question_repeated_word_16x_consecutive": 7,
+    "question_repeated_word_7x_consecutive": 10,
+    "question_phrase_repeated_3x": 2,
+    "question_repeated_word_65x_consecutive": 1,
+    "question_repeated_word_4x_consecutive": 19,
+    "question_word_cututtuka_repeated_7x_total": 1,
+    "question_repeated_word_18x_consecutive": 7,
+    "question_repeated_word_26x_consecutive": 4,
+    "question_repeated_word_12x_consecutive": 8,
+    "question_repeated_word_14x_consecutive": 5,
+    "question_repeated_word_3x_consecutive": 44,
+    "question_repeated_word_35x_consecutive": 4,
+    "question_repeated_word_9x_consecutive": 14,
+    "question_repeated_word_13x_consecutive": 10,
+    "question_repeated_word_17x_consecutive": 7,
+    "question_word_ya_repeated_4x_total": 5,
+    "question_repeated_word_21x_consecutive": 5,
+    "question_repeated_word_28x_consecutive": 2,
+    "question_repeated_word_11x_consecutive": 10,
+    "question_long_word_160chars": 1,
+    "question_repeated_word_67x_consecutive": 1,
+    "question_repeated_word_27x_consecutive": 4,
+    "question_word_መጠን_repeated_62x_total": 1,
+    "question_repeated_word_61x_consecutive": 1,
+    "question_full_english_sentence": 21,
+    "question_repeated_word_227x_consecutive": 1,
+    "question_word_cututtuka_repeated_13x_total": 1,
+    "question_repeated_word_51x_consecutive": 2,
+    "question_repeated_word_36x_consecutive": 2,
+    "option_3_repeated_word_6x_consecutive": 3,
+    "option_2_repeated_word_7x_consecutive": 3,
+    "question_repeated_word_31x_consecutive": 5,
+    "question_repeated_word_236x_consecutive": 1,
+    "option_3_word_da_repeated_4x_total": 1,
+    "question_phrase_repeated_4x": 1,
+    "question_repeated_word_58x_consecutive": 3,
+    "question_repeated_word_72x_consecutive": 1,
+    "question_repeated_word_85x_consecutive": 2,
+    "question_repeated_word_247x_consecutive": 2,
+    "question_repeated_word_43x_consecutive": 4,
+    "option_0_repeated_word_5x_consecutive": 9,
+    "question_repeated_word_44x_consecutive": 6,
+    "question_repeated_word_55x_consecutive": 1,
+    "question_word_wa_repeated_11x_total": 1,
+    "question_repeated_word_34x_consecutive": 3,
+    "question_repeated_word_53x_consecutive": 3,
+    "question_repeated_word_90x_consecutive": 1,
+    "option_2_repeated_word_8x_consecutive": 4,
+    "question_repeated_word_15x_consecutive": 10,
+    "question_repeated_word_83x_consecutive": 2,
+    "question_repeated_word_169x_consecutive": 1,
+    "question_repeated_word_57x_consecutive": 1,
+    "question_word_ጡንቻን_repeated_4x_total": 1,
+    "question_word_àwòrán,_repeated_5x_total": 1,
+    "question_repeated_word_19x_consecutive": 2,
+    "question_repeated_word_125x_consecutive": 2,
+    "question_word_ƙwayoyin_repeated_8x_total": 1,
+    "option_0_long_word_62chars": 1,
+    "question_repeated_word_33x_consecutive": 1,
+    "option_0_word_ẹ̀yà_repeated_9x_total": 1,
+    "question_repeated_word_284x_consecutive": 1,
+    "question_word_gwaje-gwaje_repeated_34x_total": 1,
+    "question_repeated_word_123x_consecutive": 1,
+    "option_3_phrase_repeated_4x": 4,
+    "question_long_word_84chars": 1,
+    "question_repeated_word_37x_consecutive": 4,
+    "question_repeated_word_54x_consecutive": 2,
+    "question_word_shinikizo_repeated_11x_total": 1,
+    "option_1_word_na_repeated_4x_total": 1,
+    "option_2_repeated_word_5x_consecutive": 6,
+    "option_3_repeated_word_13x_consecutive": 1,
+    "question_long_word_222chars": 1,
+    "question_repeated_word_40x_consecutive": 3,
+    "question_word_ukuhlanza_repeated_10x_total": 1,
+    "question_repeated_word_23x_consecutive": 5,
+    "question_word_kibofu_repeated_8x_total": 1,
+    "option_0_repeated_word_8x_consecutive": 3,
+    "option_2_repeated_word_23x_consecutive": 1,
+    "question_repeated_word_8x_consecutive": 13,
+    "question_repeated_word_110x_consecutive": 2,
+    "question_long_word_141chars": 1,
+    "question_word_፣_repeated_85x_total": 1,
+    "question_repeated_word_38x_consecutive": 3,
+    "question_repeated_word_129x_consecutive": 1,
+    "question_repeated_word_86x_consecutive": 1,
+    "option_2_word_ya_repeated_6x_total": 2,
+    "question_repeated_word_46x_consecutive": 3,
+    "question_word_የሆድ_repeated_14x_total": 1,
+    "question_word_tumbo_repeated_11x_total": 1,
+    "question_repeated_word_249x_consecutive": 1,
+    "question_word_Àkọlé_repeated_14x_total": 1,
+    "question_word_o_repeated_150x_total": 1,
+    "question_word_maambukizi_repeated_5x_total": 1,
+    "option_2_repeated_word_10x_consecutive": 2,
+    "option_1_word_o_repeated_129x_total": 1,
+    "question_word_ya_repeated_16x_total": 1,
+    "question_repeated_word_24x_consecutive": 5,
+    "option_2_repeated_word_16x_consecutive": 1,
+    "question_word_kwayar_repeated_26x_total": 1,
+    "question_long_word_487chars": 1,
+    "question_repeated_word_52x_consecutive": 3,
+    "question_word_ti_repeated_16x_total": 1,
+    "question_repeated_word_42x_consecutive": 4,
+    "option_0_repeated_word_10x_consecutive": 1,
+    "option_0_repeated_word_81x_consecutive": 1,
+    "question_word_inú_repeated_9x_total": 1,
+    "question_repeated_word_30x_consecutive": 3,
+    "question_long_word_80chars": 1,
+    "question_long_word_103chars": 1,
+    "question_repeated_word_32x_consecutive": 2,
+    "question_repeated_word_22x_consecutive": 1,
+    "question_repeated_word_91x_consecutive": 1,
+    "question_word_giga_repeated_44x_total": 1,
+    "option_3_repeated_word_22x_consecutive": 2,
+    "question_word_wa_repeated_5x_total": 1,
+    "question_word_rikice-rikice_repeated_13x_total": 1,
+    "question_untranslated_english_38.2%": 1,
+    "question_word_wa_repeated_27x_total": 1,
+    "question_word_tumbo_repeated_20x_total": 1,
+    "question_repeated_word_79x_consecutive": 1,
+    "question_word_kwayar_repeated_19x_total": 1,
+    "question_repeated_word_226x_consecutive": 1,
+    "question_word_በዝቅተኛ_repeated_17x_total": 1,
+    "question_word_wa_repeated_14x_total": 1,
+    "question_word_àwòrán,_repeated_7x_total": 1,
+    "question_word_Chuo_repeated_30x_total": 1,
+    "option_0_word_kòkòrò_repeated_4x_total": 1,
+    "option_3_repeated_word_15x_consecutive": 1,
+    "question_repeated_word_66x_consecutive": 1,
+    "option_0_long_word_100chars": 1,
+    "question_repeated_word_212x_consecutive": 2,
+    "question_word_ƙwayoyin_repeated_31x_total": 1,
+    "question_repeated_word_242x_consecutive": 1,
+    "question_long_word_146chars": 1,
+    "option_4_repeated_word_11x_consecutive": 1,
+    "option_2_repeated_word_24x_consecutive": 1,
+    "question_word_/_repeated_118x_total": 1,
+    "question_repeated_word_70x_consecutive": 2,
+    "option_1_word_Helen_repeated_7x_total": 1,
+    "option_1_word_\"Helen_repeated_5x_total": 1,
+    "option_1_word_U-Helen_repeated_4x_total": 1,
+    "question_long_word_353chars": 1,
+    "option_4_repeated_word_13x_consecutive": 1,
+    "question_long_word_394chars": 1,
+    "question_repeated_word_127x_consecutive": 1,
+    "option_4_repeated_word_26x_consecutive": 2,
+    "question_repeated_word_45x_consecutive": 1,
+    "option_3_repeated_word_8x_consecutive": 1,
+    "question_word_፦_repeated_39x_total": 1,
+    "question_repeated_word_136x_consecutive": 1,
+    "question_repeated_word_41x_consecutive": 2,
+    "question_repeated_word_88x_consecutive": 1,
+    "question_word_፣_repeated_86x_total": 1,
+    "question_word_upasuaji_repeated_17x_total": 1,
+    "question_long_word_246chars": 1,
+    "question_repeated_word_159x_consecutive": 1,
+    "question_repeated_word_56x_consecutive": 1,
+    "question_repeated_word_76x_consecutive": 2,
+    "question_word_የጀርባ_repeated_47x_total": 1,
+    "question_repeated_word_47x_consecutive": 2,
+    "question_repeated_word_160x_consecutive": 2,
+    "question_long_word_294chars": 1,
+    "question_long_word_510chars": 1,
+    "question_repeated_word_100x_consecutive": 1,
+    "question_phrase_repeated_7x": 1,
+    "option_4_repeated_word_12x_consecutive": 3,
+    "question_long_word_303chars": 1,
+    "question_repeated_word_163x_consecutive": 1,
+    "question_repeated_word_201x_consecutive": 2,
+    "question_phrase_repeated_10x": 1,
+    "option_0_word_shan_repeated_5x_total": 1,
+    "question_long_word_287chars": 1,
+    "option_2_repeated_word_85x_consecutive": 1,
+    "question_long_word_207chars": 1,
+    "option_2_repeated_word_9x_consecutive": 2,
+    "option_4_repeated_word_15x_consecutive": 2,
+    "question_repeated_word_39x_consecutive": 1,
+    "option_3_word_በአንገቱ_repeated_10x_total": 1,
+    "option_3_word_shinikizo_repeated_8x_total": 1,
+    "question_repeated_word_120x_consecutive": 1,
+    "option_4_repeated_word_3x_consecutive": 6,
+    "question_repeated_word_59x_consecutive": 2,
+    "option_0_repeated_word_19x_consecutive": 1,
+    "question_repeated_word_479x_consecutive": 1,
+    "question_word_የደም_repeated_74x_total": 1,
+    "option_3_repeated_word_11x_consecutive": 2,
+    "question_repeated_word_179x_consecutive": 1,
+    "question_long_word_245chars": 1,
+    "question_repeated_word_97x_consecutive": 1,
+    "question_repeated_word_126x_consecutive": 1,
+    "question_long_word_298chars": 1,
+    "question_repeated_word_101x_consecutive": 1,
+    "question_repeated_word_48x_consecutive": 1,
+    "question_repeated_word_87x_consecutive": 3,
+    "question_long_word_404chars": 1,
+    "question_repeated_word_130x_consecutive": 1,
+    "question_word_∙_repeated_65x_total": 1,
+    "question_word_ውስጥ_repeated_12x_total": 1,
+    "option_4_word_noma_repeated_4x_total": 2,
+    "question_repeated_word_99x_consecutive": 1,
+    "option_0_word_inú_repeated_5x_total": 1,
+    "question_long_word_93chars": 1,
+    "option_3_repeated_word_9x_consecutive": 2,
+    "question_repeated_word_49x_consecutive": 1,
+    "question_word_tezi_repeated_5x_total": 1,
+    "question_untranslated_english_31.8%": 3,
+    "question_word_na_repeated_120x_total": 1,
+    "question_repeated_word_178x_consecutive": 1,
+    "option_2_word_wa_repeated_5x_total": 1,
+    "question_repeated_word_144x_consecutive": 1,
+    "question_long_word_808chars": 1,
+    "question_repeated_word_69x_consecutive": 1,
+    "question_word_/_repeated_82x_total": 1,
+    "question_repeated_word_233x_consecutive": 1,
+    "question_repeated_word_73x_consecutive": 2,
+    "question_word_na_repeated_26x_total": 1,
+    "question_long_word_910chars": 1,
+    "option_1_repeated_word_32x_consecutive": 1,
+    "option_0_word_vitamini_repeated_6x_total": 1,
+    "question_repeated_word_155x_consecutive": 1,
+    "option_4_word_cuta_repeated_5x_total": 1,
+    "option_0_word_ìlànà_repeated_6x_total": 1,
+    "question_long_word_249chars": 1,
+    "question_repeated_word_80x_consecutive": 1,
+    "option_3_word_riga_repeated_8x_total": 1,
+    "option_1_word_ƙwayar_repeated_6x_total": 1,
+    "option_2_word_Disease_repeated_6x_total": 1,
+    "option_3_long_word_95chars": 1,
+    "question_repeated_word_124x_consecutive": 1,
+    "question_repeated_word_145x_consecutive": 1,
+    "question_long_word_203chars": 1,
+    "option_0_word_ƙwayar_repeated_7x_total": 1,
+    "question_repeated_word_94x_consecutive": 1,
+    "question_repeated_word_192x_consecutive": 1,
+    "option_1_word_wa_repeated_5x_total": 1,
+    "question_long_word_494chars": 1,
+    "question_long_word_306chars": 1,
+    "option_4_repeated_word_16x_consecutive": 1,
+    "question_repeated_word_121x_consecutive": 1,
+    "question_long_word_118chars": 1,
+    "option_4_word_ti_repeated_9x_total": 1,
+    "question_repeated_word_89x_consecutive": 1,
+    "question_word_wa_repeated_4x_total": 1,
+    "option_4_repeated_word_6x_consecutive": 3,
+    "option_2_long_word_102chars": 1,
+    "option_4_word_ara_repeated_6x_total": 1,
+    "option_0_repeated_word_35x_consecutive": 1,
+    "option_2_word_ya_repeated_5x_total": 1,
+    "option_1_repeated_word_49x_consecutive": 1,
+    "option_1_repeated_word_9x_consecutive": 3,
+    "option_2_long_word_133chars": 1,
+    "option_1_phrase_repeated_6x": 1,
+    "question_long_word_435chars": 1,
+    "option_0_repeated_word_11x_consecutive": 1,
+    "option_1_phrase_repeated_3x": 1,
+    "option_1_repeated_word_10x_consecutive": 1,
+    "option_3_word_yanka_repeated_6x_total": 1,
+    "option_1_repeated_word_3x_consecutive": 1,
+    "option_1_too_short": 1,
+    "option_3_long_word_64chars": 1,
+    "option_3_phrase_repeated_7x": 1,
+    "option_3_repeated_word_12x_consecutive": 2,
+    "option_0_word_da_repeated_4x_total": 2,
+    "option_4_word_na_repeated_4x_total": 1,
+    "question_repeated_word_218x_consecutive": 1,
+    "option_4_word_የሆድ_repeated_7x_total": 1,
+    "option_2_repeated_word_13x_consecutive": 1,
+    "option_1_repeated_word_8x_consecutive": 1,
+    "option_3_untranslated_english_27.3%": 1,
+    "option_0_word_ya_repeated_6x_total": 1,
+    "option_1_word_ya_repeated_5x_total": 1,
+    "question_word_na_repeated_11x_total": 1,
+    "question_repeated_word_98x_consecutive": 1,
+    "option_3_word_a_repeated_5x_total": 1,
+    "option_3_repeated_word_53x_consecutive": 1,
+    "option_0_repeated_word_14x_consecutive": 1,
+    "option_2_word_da_repeated_4x_total": 1,
+    "option_2_phrase_repeated_4x": 1,
+    "question_repeated_word_117x_consecutive": 1,
+    "option_1_repeated_word_19x_consecutive": 1,
+    "question_word_ya_repeated_7x_total": 1,
+    "option_0_repeated_word_22x_consecutive": 1,
+    "option_1_repeated_word_167x_consecutive": 1,
+    "option_0_repeated_word_23x_consecutive": 1,
+    "option_0_word_ƙwayoyin_repeated_5x_total": 1,
+    "option_2_phrase_repeated_10x": 1,
+    "option_0_long_word_65chars": 1,
+    "option_0_repeated_word_145x_consecutive": 1,
+    "question_long_word_508chars": 1,
+    "option_0_word_ya_repeated_5x_total": 1,
+    "option_3_word_የቀዶ_repeated_4x_total": 1
+  },
+  "rejected_samples": [
+    {
+      "language": "yo",
+      "reason": "option_3_repeated_word_25x_consecutive",
+      "question": "Nípa bí àwọn èròjà immunoglobulin ṣe rí, èwo nínú àwọn èròjà yìí ló tòótọ́?",
+      "options": [
+        "Ó kéré tán, ẹ̀ka mẹ́rin ló wà nínú ẹ̀ka tó wúwo yìí, láìka irú ẹ̀ka tó jẹ́ sí.",
+        "Gbogbo àwọn èròjà immunoglobulin ní àgbègbè kan tí wọ́n ń pè ní \" hinge region \""
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "option_0_word_ya_repeated_4x_total",
+      "question": "Ni ipi kati ya mapendekezo yafuatayo kuhusu mbinu za kromatografia ambayo ni sahihi?",
+      "options": [
+        "Chromatografia ya gesi ya aina ya gesi/ngumu ni chromatografia ya adsorption",
+        "Chromatografia ya kugawanya katika awamu ya kawaida huruhusu kutenganisha vimumunyisho vyenye polar sana"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_0_phrase_repeated_3x",
+      "question": "Èwo nínú àwọn àbá tó wà nísàlẹ̀ yìí nípa àwọn ọ̀nà tí wọ́n ń gbà ṣe àyẹ̀wò àbùdá ló tọ̀nà?",
+      "options": [
+        "Àkọsílẹ̀ Onírúurú Àkọsílẹ̀ Onírúurú Àkọsílẹ̀ Onírúurú",
+        "Àkọsílẹ̀ àpapọ̀ nípa ìyàsọ́tọ̀ nínú ìyàsọ́tọ̀ nínú ìyàsọ́tọ̀ nínú ìyàsọ́tọ̀ nínú ìyàsọ́tọ̀ nínú ìyàsọ́tọ̀ nínú ìyàsọ́tọ̀ nínú ìyàsọ́tọ̀ nínú ìyàsọ́tọ̀"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_20x_consecutive",
+      "question": "Zaɓi kalmomin da suka dace daga cikin waɗannan kalmomin:",
+      "options": [
+        "A Faransa, gwamnati ce ke da alhakin yin allurar rigakafi",
+        "A Faransa, manufofin allurar rigakafi sun yi daidai da shirin allurar rigakafin da WHO ta tsara"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_3_repeated_word_21x_consecutive",
+      "question": "Yan àwọn gbólóhùn tó tọ̀nà nínú àwọn gbólóhùn tó wà nísàlẹ̀ yìí:",
+      "options": [
+        "Orílẹ̀-èdè Faransé ló ń bójú tó ọ̀ràn àjẹsára",
+        "Nílẹ̀ Faransé, ètò àjẹsára tí wọ́n ń ṣe ní ìbámu pẹ̀lú Ìtòlẹ́sẹẹsẹ Àjẹsára Gíga Jù Lọ tí Àjọ Ìlera Àgbáyé ṣètò"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_43x_consecutive",
+      "question": "Wanne daga cikin waɗannan maganganu ba daidai ba ne game da kamuwa da cutar Toxoplasma gondii?",
+      "options": [
+        "Yaduwa daga uwa zuwa jariri ya fi yawa, amma ba shi da tsanani, a cikin watanni uku na uku na ciki.",
+        "Za a iya yaɗuwa ta wurin ƙwayoyin cuta a lokacin da ake cusa wani gaɓa na jiki"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_18x_consecutive",
+      "question": "Bayan shan haske, wani kwayar halitta tana cikin halin rashin kwanciyar hankali, sannan kuma dawo da",
+      "options": [
+        "Wasu cikin makamashin suna ɓacewa sa'ad da suka yi karo da ƙwayoyin da ke cikin ruwan.",
+        "Hasken da ake fitarwa ba shi da tsawon zango kamar na hasken da ake sha"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_112x_consecutive",
+      "question": "Daga cikin wadannan shawarwari game da rifampicin, wanne ne daidai:",
+      "options": [
+        "Mai ba da enzyme ne",
+        "Zai iya haifar da ƙwayoyin cuta"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_0_repeated_word_74x_consecutive",
+      "question": "Aspergillus fumigatus",
+      "options": [
+        "Ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarar ƙwarƙwarƙwarƙwarƙwarƙwarƙwarƙwarƙwarƙwarƙwarƙwarƙwarƙwarƙwarƙwarƙwarƙwarƙw",
+        "Zai yi girma cikin sa'o'i 48 zuwa 72"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_2_repeated_word_4x_consecutive",
+      "question": "Wanne ne daga cikin magungunan nan mai rage hawan jini?",
+      "options": [
+        "Ƙungiyar DIAMOX",
+        "Ƙungiyar Sartan"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_too_short",
+      "question": "የአጥንት ሽፍታ",
+      "options": [
+        "ከ70 ዓመት በኋላ 70 በመቶ የሚሆኑ ሴቶች በዚህ በሽታ ይያዛሉ።",
+        "የአጥንት ስብራት ዋነኛው ክሊኒካዊ ምልክት ነው።"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_too_short",
+      "question": "የኮሌራ በሽታ",
+      "options": [
+        "የሆድ ውስጥ አሲድነት መጨመር",
+        "ከባድ ተቅማጥ ሊያስከትል ይችላል"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_too_short",
+      "question": "Ikọ́ fée",
+      "options": [
+        "ó máa ń jẹ́ kí kíndìnrín nínú ikùn pọ̀ sí i",
+        "ó lè fa ìgbẹ́ gbuuru"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "question_too_short",
+      "question": "Ikholera",
+      "options": [
+        "i-hyper-acidity yesisu",
+        "ingase ibangele isifo sohudo"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_5x_consecutive",
+      "question": "Menene ainihin abin da aka ce game da ƙwayoyin ƙwayoyin ƙwayoyin ƙwayoyin ƙwayoyin cuta?",
+      "options": [
+        "Suna da alhakin ƙananan ƙwayoyin alopecia da yawa",
+        "Mista Canis ne ya ba da mafi yawan kuɗin."
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_2_word_àwòrán,_repeated_5x_total",
+      "question": "Àwọn nǹkan wo gan-an ni wọ́n sọ nípa àwọn èròjà kéékèèké tí wọ́n fi ń gé irun?",
+      "options": [
+        "Òun ló ń fa ọ̀pọ̀lọpọ̀ àwọn nǹkan kéékèèké tó máa ń mú kí irun máa já",
+        "Ọ̀gbẹ́ni kan tó ń jẹ́ canis ló ṣe èyí tó pọ̀ jù nínú wọn."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_20x_consecutive",
+      "question": "Ƙarƙashin jini:",
+      "options": [
+        "Dole ne a tantance cutar bayan an gwada jini da kuma pH na jini",
+        "Cutar da ke tattare da ƙarancin sinadarin phosphorus na jini tana da alaƙa da ƙwayar bitamin D3"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_0_repeated_word_3x_consecutive",
+      "question": "Wanne ne gaskiya a cikin waɗannan kalaman? Tsayayyar ƙwayoyin cuta na ƙwayoyin cuta ga ƙwayoyin cuta",
+      "options": [
+        "Ƙarƙashin ƙarancin ƙarancin ƙarancin ƙwayoyin cuta",
+        "ba na gado ba ne"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "option_0_word_ጡንቻን_repeated_4x_total",
+      "question": "ከታች ከተዘረዘሩት ሐሳቦች መካከል የተሳሳተ ሐሳብ የትኛው ነው?",
+      "options": [
+        "ጡንቻን መቋቋም የሚችሉ ጡንቻን መቋቋም የሚችሉ ጡንቻዎች ጡንቻን መቋቋም የሚችሉ ጡንቻን በመሸፈን ይዘጋጃሉ",
+        "የጋስትሮ መከላከያ ሽፋን በፖሊመር የውሃ እገዳዎች ሊገኝ ይችላል"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_1_repeated_word_5x_consecutive",
+      "question": "A cikin waɗannan abubuwa da aka faɗa game da magungunan ƙwayoyin cuta, wanne ne ba gaskiya ba?",
+      "options": [
+        "Ana samun allunan da za su iya jurewa ta hanyar rufe allunan da abin da za su iya jurewa.",
+        "Za'a iya yin kwalliyar kwalliyar kwalliyar kwalliyar kwalliyar kwalliya tare da dakatarwar ruwa na polymer"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_7x_consecutive",
+      "question": "Menene matakai dabam-dabam a zagayen tsuntsaye?",
+      "options": [
+        "ƙwai da ake fitarwa a cikin najasa",
+        "Rhabditoid larva a cikin farji"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_2_repeated_word_25x_consecutive",
+      "question": "Game da zazzabin cizon sauro, wanne ne cikin waɗannan kalaman ya dace?",
+      "options": [
+        "Binciken asibiti yana taimakawa sosai",
+        "Plasmodium malariae ne ke haddasa zazzaɓin kashi na uku"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "option_3_phrase_repeated_5x",
+      "question": "Yimaphi ama-molecule alandelayo aphikisanayo nabesifazane abakhulelwe?",
+      "options": [
+        "I-mefloquine (i-LARIAM®)",
+        "I-Spiramycin (i-ROVAMYCINE®)"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_6x_consecutive",
+      "question": "Kí ló máa ṣẹlẹ̀ nígbà tí ìtọ̀sẹẹsẹ ìtọ̀sẹẹsẹ ìtọ̀sẹẹsẹ ìtọ̀sẹẹsẹ ìtọ̀sẹẹsẹ ìtọ̀sẹẹsẹ bá parí?",
+      "options": [
+        "Àwọn ẹ̀yà ara tó wà ní etí àti àwọn ẹ̀yà ara tó wà ní ìsàlẹ̀ máa ń tú ká",
+        "Àwọn àtọwọ́ tó wà ní etí àti àyà wọn ti ṣí"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_1_phrase_repeated_4x",
+      "question": "Wanne daga cikin magungunan da ke ƙasa zai iya haifar da haemolysis idan akwai ƙarancin glucose-6-ph",
+      "options": [
+        "Impramine (TOFRANIL®) Ba za a iya amfani da shi ba",
+        "ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwa"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_3x_consecutive",
+      "question": "Wanne ne ba gaskiya ba game da kwayar cutar hepatitis C?",
+      "options": [
+        "Kwayar cuta ce ta RNA daga iyalin Flaviviridae.",
+        "Ba a yawan kamuwa da cutar ta hanyar jima'i"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "option_2_word_ya_repeated_4x_total",
+      "question": "Kati ya madai yafuatayo yanayohusu hali ya kichefuchefu ya mtoto mchanga, ni moja tu ambayo si ya kw",
+      "options": [
+        "Kuna kasoro ya muda ya ini",
+        "Anaweza Kukutana na Mtoto Aliyezaliwa Mapema"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_27x_consecutive",
+      "question": "Daga cikin shawarwari masu zuwa game da abubuwan da ke faruwa na fluorescence, nuna abin da yake dai",
+      "options": [
+        "Sa'ad da wannan ya faru, zafin jiki yana fitowa.",
+        "Yanayin da ake kira singulet idan aka kwatanta da phosphorescence inda ake kira doublet"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_2_word_ƙwayoyin_repeated_4x_total",
+      "question": "Daga cikin waɗannan tambayoyi game da cutar sankarar bargo, wanne ne amsar da ta dace?",
+      "options": [
+        "Zai Iya Shafan Yaro",
+        "Ƙididdigar ƙwayoyin cuta na ƙwayoyin cuta na iya ƙayyade Matutes"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_7x_consecutive",
+      "question": "Cire alamar da ke nuna cewa ba gaskiya ba ne.",
+      "options": [
+        "An halicce shi a cikin hanta",
+        "Vitamin K da Ya Shafi Mutum"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_2_repeated_word_6x_consecutive",
+      "question": "Waɗanne amsoshi ne suka dace game da halayen AIS:",
+      "options": [
+        "Suna ƙaruwa da ƙwayar furotin",
+        "Suna rage yawan kitse"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_2_word_kòkòrò_repeated_25x_total",
+      "question": "Èwo nínú àwọn àbá tó wà nísàlẹ̀ yìí ni kò bá AES (Blood Exposure Accident) mu?",
+      "options": [
+        "Ó pọn dandan láti ṣe àyẹ̀wò kòkòrò àrùn éèdì lára aláìsàn náà, kódà láìjẹ́ pé aláìsàn náà fọwọ́ sí i.",
+        "Ìpín ìyípadà ààrùn HIV lẹ́yìn AES jẹ́ 0.3%"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_0_repeated_word_28x_consecutive",
+      "question": "Wanne ne gaskiya a cikin waɗannan kalaman?",
+      "options": [
+        "Ana iya amfani da ma'aunin ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar cuta.",
+        "Troponin alama ce mai saurin kamuwa da ciwon zuciya amma ba ta musamman ba ce."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_3x_consecutive",
+      "question": "Daga cikin magungunan antihypertensive da ke ƙasa, wanne ne aka ba da shawarar a yi amfani da shi a ",
+      "options": [
+        "Magungunan kashe zafin jiki",
+        "Masu hana ƙwayoyin cuta"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_1_repeated_word_4x_consecutive",
+      "question": "Daga cikin maganganu masu zuwa, wanne ne daidai? Ana sakin acetylcholine ta hanyar:",
+      "options": [
+        "Ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwa",
+        "Ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwa"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "option_0_phrase_repeated_4x",
+      "question": "Kulezi zinkulumo ezilandelayo, iyiphi enembile? I-acetylcholine ikhishwa:",
+      "options": [
+        "Amangqamuzana Amangqamuzana Amangqamuzana Amangqamuzana",
+        "Amangqamuzana Amangqamuzana Amangqamuzana Amangqamuzana Amangqamuzana"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "option_4_too_short",
+      "question": "ከሚከተሉት ሐሳቦች መካከል ትክክለኛው የትኛው ነው?",
+      "options": [
+        "እኔ",
+        "ሐ)"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "option_4_too_short",
+      "question": "Kati ya mapendekezo yafuatayo, ni yapi yaliyo sahihi? hypertriglyceridemia huonekana wakati wa dysli",
+      "options": [
+        "I. Matokeo",
+        "IIa"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_7x_consecutive",
+      "question": "Menene ba daidai ba?",
+      "options": [
+        "Yana da tsarin da ke kusa da glycopeptides",
+        "Aikinsa kamar ƙwayoyin cuta ne."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_0_repeated_word_6x_consecutive",
+      "question": "A cikin waɗannan kalaman, wanne ne ba daidai ba?",
+      "options": [
+        "Alluran rigakafi na furotin suna da ƙarfin garkuwar jiki kuma suna amfani da ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwa",
+        "Alluran da ba su yi aiki ba suna ƙarfafa garkuwar jiki"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_4x_consecutive",
+      "question": "Wanne ne ba daidai ba a cikin shawarwari na gaba game da cutar gout da kuma yadda za a magance ta?",
+      "options": [
+        "Jiko yana faruwa ne sa'ad da lu'ulu'u na sodium chlorate suka zubo a jikin mutum",
+        "Akwai ciwon kumburi a lokacin cutar gout."
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "option_3_word_ya_repeated_4x_total",
+      "question": "Kati ya mapendekezo yafuatayo kuhusu masharti ya uhalali wa sheria ya Beer-Lambert, ni yapi sahihi?",
+      "options": [
+        "Suluhisho linalopimwa lazima liwe wazi",
+        "Mkusanyiko katika hali ya kuyeyuka, kupimwa, lazima chini ya micromolarity"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "option_1_phrase_repeated_4x",
+      "question": "Yimiphi imithi ekhulisa umphumela we-theophylline?",
+      "options": [
+        "I-Cimetidine (i-TAGAMET®)",
+        "I-ketoconazole (i-NIZORAL®) I-ketoconazole (i-NIZORAL®) I-ketoconazole (i-NIZORAL®) I-ketoconazole (i-NIZORAL®)"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "option_2_word_ya_repeated_4x_total",
+      "question": "Kati ya mapendekezo yafuatayo kuhusu sumu ya paracetamol, ni ipi sahihi?",
+      "options": [
+        "Kutumia makaa-mawe kwa muda mrefu hupunguza bioavailability ya paracetamol",
+        "N-acetylcysteine inayotumiwa kwenye mifupa ikichanganywa na makaa-mawe yenye sumu hupoteza uwezo wake wa kuondoa sumu"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_35x_consecutive",
+      "question": "Wace shawara ce za a iya amfani da ita ga ciwon ƙwayar cuta na lymphoma?",
+      "options": [
+        "Wannan cuta ce ta ƙwayoyin lymphoid na farko.",
+        "A yawancin lokaci, cutar tana ci gaba daidai da juna."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_0_too_short",
+      "question": "Wanne daga cikin wadannan atoms ne wanda za'a iya auna shi ta atomic absorption:",
+      "options": [
+        "S",
+        "Ƙarƙashin ƙarfe"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "option_0_too_short",
+      "question": "Kati ya atomu zifuatazo, ni ipi inayoweza kupimwa kwa njia ya kunyonya atomu:",
+      "options": [
+        "S",
+        "Imani"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_1_repeated_word_7x_consecutive",
+      "question": "A waɗanne yanayi ne ake samun cutar hyperprotidemia?",
+      "options": [
+        "Haɗakar jini",
+        "Cutar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar cuta"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_2_repeated_word_3x_consecutive",
+      "question": "Àwọn ìdáhùn wo ni kò tọ̀nà nípa paracetamol?",
+      "options": [
+        "Iye tó pọ̀ jù tí o lè lò ni 3g/ 24h",
+        "A kò tọ́jú oògùn yìí fún àwọn tó ní àrùn kíndìnrín."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_7x_consecutive",
+      "question": "Wanne ne daga cikin hanyoyin da ke ƙasa yake auna fitowar haske daga ƙwayoyin halitta ko kuma atoms?",
+      "options": [
+        "Ƙididdigar launi",
+        "Ƙarƙashin wuta"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_10x_consecutive",
+      "question": "Ka ba da amsoshin da suka dace.",
+      "options": [
+        "Ƙara yawan aikin alkaline phosphatases",
+        "Cutar Kwayar Jini"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_5x_consecutive",
+      "question": "Wanne ne daidai a cikin waɗannan amsoshi game da Angkor?",
+      "options": [
+        "Maganin da aka fi so a lokacin bala'i shi ne magungunan da ke ɗauke da sinadarin nitrate.",
+        "Zaɓin maganin da za a yi amfani da shi shi ne nitrated derivative."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_1_untranslated_english_27.3%",
+      "question": "Wanne daga cikin shawarwari masu zuwa daidai ne? Za a iya yin amfani da maganin alurar riga kafi:",
+      "options": [
+        "A zafin jiki na 70 °C na tsawon minti 30",
+        "A saka a cikin autoclave a zazzabi 120°C na minti 20"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_17x_consecutive",
+      "question": "Wanne daga cikin shawarwari masu zuwa daidai ne? Ga wani batun, magani yana da madaidaicin madaidaic",
+      "options": [
+        "Jikinsa ba ya canzawa ko da wane irin magani ne aka ba shi",
+        "Adadin da aka haɗa da furotin ya bambanta da kashi"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_4x_consecutive",
+      "question": "A cikin abubuwan da ke gaba, waɗanne ne za su iya jawo HTA?",
+      "options": [
+        "Ƙwaƙwalwar ƙwaƙwalwa",
+        "Ƙungiyar Ƙungiyar Ƙwararrun Ƙwararru"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_20x_consecutive",
+      "question": "Lára àwọn oògùn ìtọ́jú ìtọ́jú ìtọ́jú ìtọ́jú ìtọ́jú ìtọ́jú ìtọ́jú ìtọ́jú ìtọ́jú ìtọ́jú ìtọ́jú ìtọ́jú ",
+      "options": [
+        "Amiloride",
+        "Furosemide"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_2_repeated_word_20x_consecutive",
+      "question": "Hawan jini a cikin masu ciwon sukari da suka dogara da insulin:",
+      "options": [
+        "Wani ɓangare na wannan yana faruwa ne ta hanyar ƙara yawan gluconeogenesis na hanta.",
+        "Yana faruwa ne sa'ad da glucose ya kasa shiga cikin ƙwayoyin tsoka"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_1_word_ƙwayoyin_repeated_9x_total",
+      "question": "Waɗanne shawarwari ne suka dace game da rashin adenosine deaminase (ADA)?",
+      "options": [
+        "An haife shi ne daga wata cuta a cikin kwayar halittar da ke ɗauke da X chromosome",
+        "Yana sa ƙwayoyin ƙwayoyin cuta na ƙwayoyin cuta na ƙwayoyin cuta na ƙwayoyin cuta na ƙwayoyin cuta na ƙwayoyin cuta na ƙwayoyin cuta na ƙwayoyin cuta"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_182x_consecutive",
+      "question": "Ƙarin ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwa",
+      "options": [
+        "Kwayar ƙwayar cuta",
+        "Cutar ƙwayar cuta"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_1_repeated_word_4x_consecutive",
+      "question": "Waɗanne daga cikin cututtukan da ke ƙasa za su iya faruwa idan aka yi amfani da tetracyclines daidai",
+      "options": [
+        "Ƙara yawan hawan jini",
+        "Dental Dyschromia Ƙananan ƙwayar ƙwayar ƙwayar ƙwayar cuta"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_too_short",
+      "question": "የሚጥል በሽታ",
+      "options": [
+        "የአንጎል በሽታ",
+        "ከጠቅላላው ሕዝብ መካከል 5 በመቶ የሚሆነው በዚህ በሽታ ይሠቃያል"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_2_repeated_word_4x_consecutive",
+      "question": "Ciwon Tashin Jiki",
+      "options": [
+        "ciwon jijiya ne na ɗan lokaci",
+        "kashi biyar cikin ɗari na mutanen duniya ne suke da wannan cutar"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_1_repeated_word_6x_consecutive",
+      "question": "Wanne daga cikin wadannan maganganu ya shafi monoclonal antibodies?",
+      "options": [
+        "Kwayoyin rigakafin monoclonal da ake amfani da su wajen warkarwa yawanci IgD ne.",
+        "Suna da ƙayyadaddun ƙayyadaddun ƙayyadaddun ƙayyadaddun ƙayyadaddun ƙayyadaddun ƙididdiga"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "option_4_word_ya_repeated_4x_total",
+      "question": "Kati ya mapendekezo yafuatayo, ni yapi yaliyo sahihi? Daktari wa dawa wa hospitali anayehusika na ku",
+      "options": [
+        "Katika Gereza la Uhalifu na Mahakama ya Marekebisho",
+        "Mbele ya Mahakama ya Biashara"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "option_4_word_wa_repeated_6x_total",
+      "question": "Ni ipi kati ya madai yafuatayo ambayo si ya kweli?",
+      "options": [
+        "Ufafanuzi wa safu ya rangi hutathmini ubora wa kutenganishwa kwa misombo miwili mfululizo",
+        "Chromatografia ya kutenganisha-kueneza ni njia ya kusafisha molekuli kubwa"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_1_repeated_word_12x_consecutive",
+      "question": "Èwo nínú àwọn àbá tó wà nísàlẹ̀ yìí ni kò tọ̀nà?",
+      "options": [
+        "Ìdáhùn tó wà nínú òpó chromatography máa ń fi bí àwọn èròjà méjì tó wà ní ìsọ̀rí ṣe pín ara wọn sí tó hàn",
+        "Ṣíṣe àyẹ̀wò àyẹ̀wò àyẹ̀wò àyẹ̀wò àyẹ̀wò àyẹ̀wò àyẹ̀wò àyẹ̀wò àyẹ̀wò àyẹ̀wò àyẹ̀wò àyẹ̀wò"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_word_cuta_repeated_7x_total",
+      "question": "Da yake magana game da ƙwayoyin cuta da suke tsayayya wa magungunan ƙwayoyin cuta, menene ainihin ab",
+      "options": [
+        "Tsayayya ga aminosides na iya zama ta hanyar rashin aiki na enzymatic, lalacewar maƙasudin, ko rashin iyawar bangon ƙwayoyin cuta",
+        "Cutar ƙwayoyin cuta da ake kira chromosomal mutation resistance ce aka fi sani da ita."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_4x_consecutive",
+      "question": "Game da ciwon Paget, wace ce amsar da ta dace a cikin waɗannan tambayoyin?",
+      "options": [
+        "Cutar Paget cuta ce da ake kira osteodystrophy",
+        "Yana Shafan Yara Ƙanana Sosai"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_0_repeated_word_13x_consecutive",
+      "question": "Wanne cikin waɗannan kalaman gaskiya ne?",
+      "options": [
+        "Ƙwaƙwalwar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar cuta",
+        "cortisol ne yake lura da yanayin jikin mutum"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "option_1_word_anaemia_repeated_5x_total",
+      "question": "Kulokhu okulandelayo, yiziphi izifo zomzimba ezihambisana nokungasebenzi kahle kwezinso okungamahlal",
+      "options": [
+        "I-acidosis ye-metabolic",
+        "I-Normochrome normocytic anaemia i-normochrome normocytic anaemia i-normocytic anaemia i-normocytic anaemia i-normocytic anaemia"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_too_short",
+      "question": "የማሟያ ሥርዓት",
+      "options": [
+        "ከማንኛውም መከላከያ ውጭ የሚኖር",
+        "በባክቴሪያ lipopolysaccharides ሊነቃ ይችላል"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "option_0_word_ya_repeated_4x_total",
+      "question": "Kati ya mapendekezo yafuatayo kuhusu hemochromatosis, ni ipi sahihi?",
+      "options": [
+        "Aina ya 2 ya hemokromatosi ya urithi ndiyo ya kawaida zaidi",
+        "Mageuzi ya C282Y yanapatikana mara nyingi katika ugonjwa wa chembe za urithi aina ya I"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_4x_consecutive",
+      "question": "An tabbatar da dokar Beer-Lambert ta hanyar:",
+      "options": [
+        "Ƙididdigar ƙididdigar UV-Visible",
+        "Ƙididdigar ƙididdigar atomatik"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_word_da_repeated_4x_total",
+      "question": "Likitan asibiti da ke da alhakin sayan, adanawa, da kuma ba da magunguna.",
+      "options": [
+        "Dukan magungunan da Social Security ke biyan kuɗin su ana iya saya daga kantin magani na asibitin gwamnati.",
+        "Dukan magungunan da aka yi amfani da su a asibiti an riga an ba su takardar izinin amfani da su"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_2_repeated_word_20x_consecutive",
+      "question": "Daga cikin shawarwari masu zuwa game da metabolism na phosphocalcium, wanne ne ba daidai ba?",
+      "options": [
+        "Calcium ne kawai yake aiki sa'ad da yake cikin yanayi mai guba.",
+        "Parathormone wani hormone ne mai yawan calcium da kuma phosphorus."
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_4_repeated_word_8x_consecutive",
+      "question": "Àwọn Ohun Tó Wà Nípa Ọtí Ológun",
+      "options": [
+        "A rí àpọ̀jù ẹ̀jẹ̀ tó ń jáde láti inú agbárí.",
+        "Ọ̀nà tí wọ́n gbà ń mú oúnjẹ jáde ni èyí tó pọ̀ jù nínú wọn ń gbà."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_14x_consecutive",
+      "question": "Wanne daga cikin shawarwari masu zuwa game da hanyoyin bincike na lantarki ba daidai ba ne?",
+      "options": [
+        "Auna pH hanya ce da ake amfani da ma'aunin iko",
+        "A cikin ammeter, dangantakar da ke tsakanin siginar da aka auna da kuma maida hankali a cikin ma'aunin ma'auni shine madaidaiciya"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_10x_consecutive",
+      "question": "Waɗanne abubuwa ne ke haifar da ƙwayoyin ƙwayoyin ƙwayoyin ƙwayoyin ƙwayoyin ƙwayoyin ƙwayoyin ƙwayo",
+      "options": [
+        "Shan Sigari da Ya Wajaba",
+        "Ƙwaƙwalwar ƙwayar cuta"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "option_4_phrase_repeated_3x",
+      "question": "Kulezi zinhlayiya ezilandelayo ze-opioid, iyiphi eyi-morphine agonist/antagonist?",
+      "options": [
+        "I-Naloxone (i-NARCAN)",
+        "I-Nalorphine (i-NALORPHINE) I-Nalorphine (i-NALORPHINE)"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_0_repeated_word_9x_consecutive",
+      "question": "Wanne ne ya yi daidai a cikin waɗannan ra'ayoyi game da yadda iskar carbon monoxide take sa abubuwa ",
+      "options": [
+        "ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar cuta",
+        "haɗewa da haemoglobin maimakon O2"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_5x_consecutive",
+      "question": "Waɗanne sakamako ne za a iya danganta su da motsawar muscarinic receptors na tsakiya da na gefen:",
+      "options": [
+        "Ƙwaƙwalwar ƙwaƙwalwa",
+        "Cutar ƙwayar cuta"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_too_short",
+      "question": "አንጎር",
+      "options": [
+        "ይህ ደግሞ የማይቀለበስ በሽታ ነው።",
+        "የቤታ ማገጃ መድኃኒቶች"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "question_too_short",
+      "question": "Langor",
+      "options": [
+        "ni hali ambayo haiwezi kurekebishwa",
+        "katika matibabu ya msingi tunapata beta-blockers"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_too_short",
+      "question": "Ọ̀gẹ̀dẹ̀",
+      "options": [
+        "àìsàn yìí kì í lọ bọ̀rọ̀",
+        "àwọn èròjà tó ń ṣèdíwọ́ fún èròjà beta wà lára àwọn èròjà tí wọ́n máa ń lò nígbà tí wọ́n bá ń tọ́jú àìsàn"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "question_too_short",
+      "question": "I-Angkor",
+      "options": [
+        "kuyisimo esingalungiseki",
+        "ekwelapheni okuyisisekelo sithola ama-beta blocker"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_2_repeated_word_3x_consecutive",
+      "question": "Ɗaya daga cikin waɗannan ra'ayoyi ne kawai ba daidai ba, ka faɗi wanne ne?",
+      "options": [
+        "Rashin ƙoshin ciki",
+        "Rashin ƙwayar ƙwayar ƙwayar cuta"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_1_word_da_repeated_4x_total",
+      "question": "Wanne ne daidai a cikin waɗannan kalaman?",
+      "options": [
+        "Duk wani amfani da miyagun ƙwayoyi da gangan, na dindindin ko na wucin gadi, tare da munanan halayen jiki ko na tunani",
+        "Amfani da magani da ke haifar da illa da ba a zata ba"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "question_too_short",
+      "question": "ALT ni:",
+      "options": [
+        "Viungo vya Figo",
+        "kiashiria cha kolestasi"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_too_short",
+      "question": "Ọtí Àmujù",
+      "options": [
+        "àrùn jẹjẹrẹ ni olórí ohun kẹta tó ń ṣekú pa àwọn èèyàn nílẹ̀ faransé",
+        "èyí tó pọ̀ jù lára wọn ló jẹ́ obìnrin"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "option_3_phrase_repeated_3x",
+      "question": "የሚከተሉት የኢንቴሮኮክ ፕሮፖዛሎች የትኛው ትክክል አይደለም?",
+      "options": [
+        "እነዚህ ከስትሬፕቶኮከስ ቤተሰብ የተውጣጡ የግራም + ኩኪዎች ናቸው",
+        "ሁሉም ለሶስተኛ ትውልድ ሴፋሎስፖሪን የመቋቋም አቅም አላቸው"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_25x_consecutive",
+      "question": "Sa'ad da mutum yake fama da ciwon ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ƙwaƙwalwar ",
+      "options": [
+        "Gamma-glutamyl ta canja wuri",
+        "Daga cikin 5'nucleotidase"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_4_repeated_word_7x_consecutive",
+      "question": "Daga cikin shawarwari masu zuwa, wanne ne daidai? Idan aka kwatanta da bushewa a cikin tanda, bushew",
+      "options": [
+        "Yana da sauri",
+        "Ana Bukatar Mai da Hankali Sosai"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "option_4_repeated_word_4x_consecutive",
+      "question": "የኦስቲዮፖሮሲስን ህክምና በተመለከተ ከዚህ በታች ከተዘረዘሩት ሐሳቦች መካከል ትክክለኛው የትኛው ነው?",
+      "options": [
+        "ቢፎስፎናቶች በስብ የበለጸገ ምግብ መመገብ አለባቸው",
+        "የቢፎስፎኔት ሕክምና የጡት ካንሰርን የመያዝ እድልን ይጨምራል"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_2_repeated_word_59x_consecutive",
+      "question": "Àwọn nǹkan wo gan-an ni wọ́n ń sọ nípa àwọn oògùn tó ń dènà ìsoríkọ́?",
+      "options": [
+        "Mirtazapine jẹ antidepressant ti o yan lati mu iṣan serotonin pada.",
+        "Milnacipram jẹ ohun ti o n ṣe idiwọ iṣan serotonin ati norepinephrine."
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_4_long_word_191chars",
+      "question": "Kí ni ìdáhùn tó tòótọ́ nípa àwọn èròjà tó ń fa àìsàn àti bí àwọn oògùn ṣe ń ṣiṣẹ́ pa pọ̀?",
+      "options": [
+        "Ìyípadà nínú pH ìgbẹ́ máa ń ṣàkóbá fún àtúpalẹ̀ àwọn oògùn",
+        "Ẹ̀dọ̀, ẹ̀dọ̀ ẹ̀dọ̀ àti kíndìnrín ló sábà máa ń yí oògùn padà"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "option_4_word_I-methicillin-resistant_repeated_4x_total",
+      "question": "Yimaphi amabhaktheriya alandelayo asohlangothini lwe-amoxicillin?",
+      "options": [
+        "I-staphylococcus ene-coagulation engeyinhle",
+        "I-meningococcus"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_1_repeated_word_11x_consecutive",
+      "question": "Àwọn wo ló tọ̀nà?",
+      "options": [
+        "Michaelis Menten's equation ṣe àdàkọ sí sigmoid kan",
+        "Lineweaver Burk's line has a slope of 1/Vmax and the original ordinal is KM/Vmax. Ìsàlẹ̀ ìsàlẹ̀ ìsàlẹ̀ ìsàlẹ̀ ìsàlẹ̀ ìsàlẹ̀ ìsàlẹ̀ ìsàlẹ̀ ìsàlẹ̀ ìsàlẹ̀ ìsàlẹ̀ ìsàlẹ̀"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_2_repeated_word_11x_consecutive",
+      "question": "Èwo nínú àwọn àbá tó wà nísàlẹ̀ yìí nípa àwọn ọ̀nà tí wọ́n ń gbà lo ìràwọ̀ ni ó tọ́?",
+      "options": [
+        "Àtùpà tungsten-iodine tó wà nínú ohun èlò kan tí wọ́n ń pè ní visible-UV spectrophotometer máa ń ṣe àwọn àyẹ̀wò ní àwọn gígùn ìgbì tí kò ju 300 nm lọ",
+        "Àtùpà UV tí a fi ń ṣe àtúpalẹ̀ ìtànṣán-ìmọ̀-ìmọ̀ yóò jẹ àtùpà deuterium"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "option_0_phrase_repeated_3x",
+      "question": "Yimiphi imithi engasetshenziswa ekwelapheni i-CMV?",
+      "options": [
+        "I-Ganciclovir (i-CYMEVAN®) I-Ganciclovir (i-CYMEVAN®) I-Ganciclovir (i-CYMEVAN®)",
+        "I-Cidofovir (i-VISTIDE®) I-Cidofovir (i-VISTIDE®) isetshenziselwa ukwelashwa"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_88x_consecutive",
+      "question": "Game da fibrinolysis, wanne (s) ne madaidaicin bayani (s):",
+      "options": [
+        "Tissue plasminogen activator (t-PA) yana kunna plasminogen musamman a cikin ƙwayar fibrin",
+        "Ƙwayoyin endothelial suna ɓoye mai kunna plasminogen"
+      ]
+    }
+  ]
+}

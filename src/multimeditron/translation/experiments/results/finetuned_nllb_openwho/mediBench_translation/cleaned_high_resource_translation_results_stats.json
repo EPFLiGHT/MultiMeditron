@@ -1,0 +1,538 @@
+{
+  "total": 480,
+  "valid": 428,
+  "invalid": 52,
+  "by_language": {
+    "am": {
+      "valid": 91,
+      "invalid": 5
+    },
+    "ha": {
+      "valid": 72,
+      "invalid": 24
+    },
+    "sw": {
+      "valid": 93,
+      "invalid": 3
+    },
+    "yo": {
+      "valid": 79,
+      "invalid": 17
+    },
+    "zu": {
+      "valid": 93,
+      "invalid": 3
+    }
+  },
+  "rejection_reasons": {
+    "question_repeated_word_28x_consecutive": 1,
+    "question_word_መጠን_repeated_38x_total": 1,
+    "question_repeated_word_18x_consecutive": 1,
+    "question_repeated_word_9x_consecutive": 3,
+    "question_repeated_word_89x_consecutive": 1,
+    "question_word_ya_repeated_164x_total": 1,
+    "question_repeated_word_5x_consecutive": 3,
+    "question_repeated_word_6x_consecutive": 4,
+    "question_repeated_word_37x_consecutive": 1,
+    "question_repeated_word_29x_consecutive": 1,
+    "option_3_repeated_word_22x_consecutive": 1,
+    "option_2_repeated_word_4x_consecutive": 1,
+    "question_repeated_word_23x_consecutive": 1,
+    "option_3_repeated_word_5x_consecutive": 1,
+    "question_repeated_word_44x_consecutive": 2,
+    "question_repeated_word_3x_consecutive": 1,
+    "question_word_የጀርባ_repeated_33x_total": 1,
+    "question_word_kibofu_repeated_33x_total": 1,
+    "question_repeated_word_79x_consecutive": 1,
+    "question_repeated_word_20x_consecutive": 2,
+    "option_0_word_izikhombisi_repeated_6x_total": 1,
+    "question_repeated_word_21x_consecutive": 1,
+    "question_repeated_word_149x_consecutive": 1,
+    "question_repeated_word_4x_consecutive": 3,
+    "question_full_english_sentence": 2,
+    "option_3_word_ነቀርሳ_repeated_4x_total": 1,
+    "option_1_repeated_word_19x_consecutive": 1,
+    "option_2_repeated_word_10x_consecutive": 1,
+    "question_repeated_word_7x_consecutive": 2,
+    "question_repeated_word_96x_consecutive": 1,
+    "question_repeated_word_58x_consecutive": 1,
+    "question_repeated_word_66x_consecutive": 1,
+    "question_repeated_word_16x_consecutive": 1,
+    "option_3_word_da_repeated_4x_total": 1,
+    "question_untranslated_english_31.6%": 1,
+    "question_repeated_word_8x_consecutive": 1,
+    "question_word_ya_repeated_4x_total": 1,
+    "question_word_àwòrán,_repeated_12x_total": 1,
+    "question_repeated_word_62x_consecutive": 1
+  },
+  "rejected_samples": [
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_28x_consecutive",
+      "question": "Namiji, ɗan shekara 6, tsayinsa ya kai santimita 85, yana da raunin hankali, yana iya ƙidaya 110. Bi",
+      "options": [
+        "Gwajin ƙarfe na trichloride na fitsari",
+        "Gwajin T3, T4, da TSH"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_word_መጠን_repeated_38x_total",
+      "question": "በ12 ዓመቱ ህመምተኛ ላይ ከፍተኛ የፕሮቲን መጠን ያለው የፕሮቲን መጠን ያለው የፕሮቲን መጠን ያለው የፕሮቲን መጠን ያለው የፕሮቲን መጠን ያለው የፕሮቲን መጠ",
+      "options": [
+        "የተወለደ የኩላሊት በሽታ ሲንድሮም",
+        "ቀላል የኩላሊት በሽታ ሲንድሮም"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_18x_consecutive",
+      "question": "A cikin marasa lafiya masu shekaru 12 da haihuwa, wanda aka gano a asibiti a matsayin cututtukan cut",
+      "options": [
+        "Kwayar cututtukan ƙwayar cuta",
+        "Kwayar cututtukan ƙwayar cuta mai sauƙi"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_9x_consecutive",
+      "question": "ọmọ ọdún méjìlá, tí wọ́n ṣe àyẹ̀wò rẹ̀ ní ilé ìwòsàn gẹ́gẹ́ bí ẹni tó ní àrùn ẹ̀dọ̀fóró tí ó ti bẹ̀r",
+      "options": [
+        "Àrùn kíndìnrín àbínibí",
+        "Àrùn ẹ̀dọ̀fóró tí kò léwu"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_89x_consecutive",
+      "question": "Mace mai shekaru 82. Tana asibiti saboda ciwon kumburin kumburin kumburin kumburin kumburin kumburin",
+      "options": [
+        "Ana saka mai haƙuri a gefen hagu.",
+        "Za mu iya shan abin da ke cikin ciki kuma mu duba pH."
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "question_word_ya_repeated_164x_total",
+      "question": "Mwanamke mwenye umri wa miaka 82; amelazwa hospitalini kwa sababu ya meningitis ya spongiform. Kwa s",
+      "options": [
+        "Mgonjwa huwekwa kwenye kitanda cha kushoto.",
+        "Kuvuta yaliyomo kwenye tumbo na kuangalia pH."
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_5x_consecutive",
+      "question": "Obìnrin ẹni ọdún méjìléláàádọ́rin [82] tí ó wà ní ilé ìwòsàn nítorí àrùn mẹ́nífásítì tí wọ́n ń pè ní",
+      "options": [
+        "A ó fi aláìsàn sí ibùjókòó òsì.",
+        "Wọ́n máa ń fa ohun tó wà nínú ikùn wọlé, kí wọ́n sì wò ó bóyá ó ní èròjà pH."
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "question_repeated_word_6x_consecutive",
+      "question": "Owesifazane oneminyaka engu-82 ubudala. Ulele esibhedlela ngenxa ye-pneumoblastic meningitis. Ngenxa",
+      "options": [
+        "Ukufaka isiguli njengendawo yokulala yangakwesobunxele.",
+        "Ukudonsa okuqukethwe yisisu nokuhlola i-pH."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_37x_consecutive",
+      "question": "Wata mata mai shekaru 73 ta zo asibiti tare da babban kuka game da cututtukan cututtukan cututtukan ",
+      "options": [
+        "Kwayar cututtukan cututtukan cututtuka",
+        "Kwayar cuta mai saurin yaduwa"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_29x_consecutive",
+      "question": "Namiji, mai shekaru 40, an kwantar da shi asibiti na tsawon kwanaki 12 saboda zazzabi, maƙarƙashiya,",
+      "options": [
+        "Zazzabin cizon sauro",
+        "Ciwon hawan jini mai tsanani"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_22x_consecutive",
+      "question": "3. Kamuwa da cututtukan ƙwayoyin cuta.",
+      "options": [
+        "Ab mai hanawa, mai hanawa",
+        "Matsayin gyare-gyare"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_2_repeated_word_4x_consecutive",
+      "question": "Cututtuka na ciki suna haifar da ciwo ko rashin jin daɗi a wani ɓangare na farfajiyar jiki.",
+      "options": [
+        "Yana a kan wannan latitud na gangar jikin",
+        "An yi amfani da shi a cikin allurar rigakafi da aka yi amfani da shi a cikin rigakafi."
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_9x_consecutive",
+      "question": "4. Abubuwan da ke haifar da cututtukan cututtukan cututtukan cututtukan cututtukan cututtukan cututt",
+      "options": [
+        "LT (ƙwaƙwalwar ƙwayoyin cuta)",
+        "ST ((Magungunan cututtukan cututtukan cututtukan cututtukan cututtuka)"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_23x_consecutive",
+      "question": "Ana amfani da maganin maganin maganin maganin maganin maganin maganin maganin maganin maganin magani",
+      "options": [
+        "Ciwon zuciya",
+        "Arthritis mai yawa"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_repeated_word_5x_consecutive",
+      "question": "Wani mutum mai shekaru 72 ya gabatar da likitansa na kulawa na farko saboda yana da wahalar haɗiyewa",
+      "options": [
+        "Muscle mai zagaye da tsayi na esophagus",
+        "Cricopharyngeus da tsoka mai zagaye na esophagus"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_44x_consecutive",
+      "question": "Ọkùnrin, ọmọ ọdún márùndínlógójì, ẹ̀jẹ̀ ń tú lára pẹ̀lú ibà fún ọ̀sẹ̀ méjì. Àyẹ̀wò ara: Àìtó ẹ̀jẹ̀ n",
+      "options": [
+        "Àpótí tí wọ́n fi ń gún egungun",
+        "Àdàpọ̀ àdàpọ̀"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_3x_consecutive",
+      "question": "Wanne daga cikin waɗannan cututtukan cututtukan cututtukan huhu ne?",
+      "options": [
+        "Kwayar cuta mai saurin yaduwa",
+        "Ciwon ƙwayar cuta"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_word_የጀርባ_repeated_33x_total",
+      "question": "ሴት፣ 33 ዓመት  የግራ ታችኛው የሆድ ህመም፣ የ1 ዓመት እብጠት  የኤክስሬይ ፈሳሽ ኢንፍሉዌንዛ ምርመራ የጀርባ አንጀት መጨረሻ እና የጀርባ አንጀት የጀርባ ",
+      "options": [
+        "የኢንፍሉዌንዛ",
+        "የአሚባ በሽታ"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "question_word_kibofu_repeated_33x_total",
+      "question": "Mwanamke, umri wa miaka 48. Damu ya kuambukiza ya miezi mitatu. Uchunguzi wa waganga wa uzazi: kibof",
+      "options": [
+        "Kipindi cha IB1",
+        "Kipindi cha IA2"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "question_repeated_word_79x_consecutive",
+      "question": "Owesifazane, oneminyaka engu-48 ubudala. Ukopha okuxhumene nezinyanga ezi-3. Ukuhlolwa kwezokwelapha",
+      "options": [
+        "Isigaba IB1",
+        "Isigaba IA2"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_20x_consecutive",
+      "question": "A gbé ọmọdébìnrin kan tó jẹ́ ọmọ ọdún mẹ́fà lọ sọ́dọ̀ oníṣègùn nítorí ìrora àti ọgbẹ́ tó ń pọ̀ sí i ",
+      "options": [
+        "Àrùn myeloma ọ̀pọ̀lọpọ̀",
+        "Àrùn histiocytosis inú ẹ̀yà Langerhans"
+      ]
+    },
+    {
+      "language": "zu",
+      "reason": "option_0_word_izikhombisi_repeated_6x_total",
+      "question": "Incazelo engezansi mayelana nezindinganiso zokuxilonga izifo zengqondo ayilungile.",
+      "options": [
+        "Izinkomba ezihlanganisiwe zihlanganisa izikhombisi zezimpawu, izikhombisi zobukhulu besifo, izikhombisi zokungasebenzi kahle, izikhombisi zesikhathi sokugula, izikhombisi zohlobo oluthile, izikhombisi ze-pathogenesis",
+        "Izinkomba ze-pathogenesis ziyisisekelo sezilinganiso zokubandakanyeka"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_21x_consecutive",
+      "question": "Ọ̀dọ́mọkùnrin kan, ọ̀pọ̀lọpọ̀ ọ̀pọ̀lọpọ̀ ọ̀pọ̀lọpọ̀ ọ̀pọ̀lọpọ̀ ọ̀pọ̀lọpọ̀ ọ̀pọ̀lọpọ̀ ọ̀pọ̀lọpọ̀ ọ̀pọ",
+      "options": [
+        "Àrùn inú egungun",
+        "Àrùn inú egungun"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_149x_consecutive",
+      "question": "Wani mutum mai shekaru 32 ya gabatar da tarihin watanni 2 na ƙaruwar lalacewa, yawan kamuwa da cutut",
+      "options": [
+        "Rashin jini na aplastic",
+        "Kwayar cutar mononucleosis mai yaduwa"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_9x_consecutive",
+      "question": "Ọkùnrin kan tó jẹ́ ẹni ọdún méjìlélọ́gọ́ta ní ìtàn oṣù méjì tí ó ní àárẹ̀ tí ó ń pọ̀ sí i, ààrùn ọ̀n",
+      "options": [
+        "Àrùn àìtó ẹ̀jẹ̀",
+        "Àrùn mononucleosis tó ń ranni"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_4x_consecutive",
+      "question": "Àdánwò tí wọ́n ṣe lórí ẹranko fi hàn pé èròjà glukosì tí wọ́n ń mu lẹ́nu máa ń mú kí wọ́n tú èròjà i",
+      "options": [
+        "Àwọn èròjà tó ń mú kí ọ̀fun di hẹ́gẹhẹ̀gẹ",
+        "Ìdàrúdàpọ̀"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_full_english_sentence",
+      "question": "Namiji, 42 years old  2 years of intermittent urination, 2 months of weakness  BP 155/100mmHg, cardi",
+      "options": [
+        "Kwayar cututtukan ƙwayar cuta",
+        "Kwayar cuta ta IgA"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "option_3_word_ነቀርሳ_repeated_4x_total",
+      "question": "ከታች የተዘረዘሩት የኤፕራቶሚክ ዕጢዎች ስህተቶች የትኞቹ ናቸው?",
+      "options": [
+        "በውጫዊው ጆሮና በወንድ ብልት ላይ የሚከሰት የጡት ነቀርሳ የመባባስ እድሉ አነስተኛ ነው",
+        "የጡንቻ ሽፋን ላይ የሚከሰት እድገትና ፋይብሮአድኖማ የሚባለው በጎነት ያለው ዕጢ"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_1_repeated_word_19x_consecutive",
+      "question": "Mene ne kuskuren bayaninka game da epithelial tumour?",
+      "options": [
+        "Ba sa saurin ciwon nono a cikin kunnuwan waje da azzakari",
+        "Ciwon ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar cuta"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "option_2_repeated_word_10x_consecutive",
+      "question": "Èwo nínú àwọn àpèjúwe tó wà nísàlẹ̀ yìí ló jẹ́ àṣìṣe nípa ọ̀nà tí wọ́n gbà ń ṣàpèjúwe ẹ̀jẹ̀ inú ara?",
+      "options": [
+        "Àwọn ọgbẹ́ tó máa ń wà ní etí ẹ̀yìn àti ẹ̀yà ìbímọ kì í tètè burú sí i",
+        "Ìdàgbàsókè ẹ̀dọ̀fóró inú ọmú, tí ó máa ń di fibroadenoma, jẹ́ ọ̀kan lára àwọn ọ̀nà tí wọ́n fi ń ṣe àìsàn"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_7x_consecutive",
+      "question": "2. Kwayar cutar da ke haifar da cututtukan cututtukan cututtukan cututtukan cututtukan cututtukan cu",
+      "options": [
+        "Kwayar cutar Staphylococcus aureus",
+        "Kwayar cutar lymphocytopenia"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_20x_consecutive",
+      "question": "Game da karyewar kashin kashin kashin kashin kashin kashin kashin kashin kashin kashin kashin kashin",
+      "options": [
+        "Nau'in I, raunin da bai cika ba",
+        "Nau'in II, cikakkiyar karaya ba tare da motsawa ba"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_6x_consecutive",
+      "question": "Ọ̀pọ̀lọpọ̀ ọ̀pọ̀lọpọ̀ ọ̀pọ̀lọpọ̀ ọ̀pọ̀lọpọ̀ ọ̀pọ̀lọpọ̀ ọ̀pọ̀lọpọ̀ ọ̀pọ̀lọpọ̀",
+      "options": [
+        "Àrùn jẹjẹrẹ ọmú",
+        "Àrùn àpọ̀jù ọmú"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_full_english_sentence",
+      "question": "Namiji, 37 years old  Hatsarin da aka ji a ƙasan dama na kirji 6 hours, ciwon ciki na sama bayan rau",
+      "options": [
+        "Cutar bugun jini a cikin kirji",
+        "Raunin hanta"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_96x_consecutive",
+      "question": "Namiji, shekara 16, yana da zazzabi, anaemia, zubar da jini, hanta, amosanin gabbai, ƙarancin ƙwayoy",
+      "options": [
+        "Acute lymphocytic leukemia",
+        "Acute myeloid leukemia, nau'in M3"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_repeated_word_7x_consecutive",
+      "question": "አንድ የ15 ዓመት ልጅ እናቱ የፊት እብጠትና የጭስ ሽንት ቅሬታዎች ባሉበት ሁኔታ ወደ ቢሮው ይዛው መጣች። እናቱ ከሳምንት በፊት በልጁ ፊት ላይ እብጠትን አስ",
+      "options": [
+        "መደበኛ የኤሪትሮሳይት ውርወራ ፍጥነት",
+        "አዎንታዊ የሆነ የስትሬፕቶዛይም ምርመራ"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_58x_consecutive",
+      "question": "Ọmọdékùnrin ọmọ ọdún mẹ́ẹ̀dógún kan tí ìyá rẹ̀ mú wá sí ọ́fíìsì pẹ̀lú àríyànjiyàn nípa ọ̀pọ̀lọpọ̀ ọ̀",
+      "options": [
+        "Iwọn idalẹnu erythrocyte deede",
+        "Àdánwò streptozyme rere"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_66x_consecutive",
+      "question": "Ọkùnrin, ọmọ ọdún mẹ́ẹ̀ẹ́dọ́gbọ̀n, ọ̀bẹ ní ẹ̀yìn, ẹ̀jẹ̀ ń tú látinú ọgbẹ́ fún wákàtí méjì, àyẹ̀wò ar",
+      "options": [
+        "<20%",
+        "20% ìmúdàgba 40%"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_16x_consecutive",
+      "question": "Halin cututtukan cututtukan cututtukan cututtukan cututtukan cututtukan cututtukan cututtukan cututt",
+      "options": [
+        "Uric acid",
+        "Ƙwayar zuma"
+      ]
+    },
+    {
+      "language": "am",
+      "reason": "question_repeated_word_5x_consecutive",
+      "question": "አንድ የ35 ዓመት አፍሪካ አሜሪካዊ ሴት ባለፉት 2 ሳምንታት ውስጥ በተዘዋዋሪ የልብ ምታት ምክንያት ወደ ሐኪሙ ትመጣለች ። በዚህ ጊዜ ውስጥ ደግሞ consti",
+      "options": [
+        "አድሬናሌክቶሚ ያድርጉ",
+        "የሆድ ውስጥ ሲቲ ስካን ያድርጉ"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "option_3_word_da_repeated_4x_total",
+      "question": "Kwayoyin Neutrophils da lymphocytes sun haɗu sau biyu a lokacin ƙuruciya, bi da bi bayan haihuwa.",
+      "options": [
+        "46 days da 46 months",
+        "46 days da 46 years"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_5x_consecutive",
+      "question": "Mafi yawan nau'ikan cututtukan cututtukan cututtukan cututtukan cututtukan cututtuka sune:",
+      "options": [
+        "Ciwon haila",
+        "Cutar ƙwanƙwasawa"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_untranslated_english_31.6%",
+      "question": "Mace, 68 years old  8 years of right knee joint pain, 1 year of restricted activity with aggravating",
+      "options": [
+        "Ankylosing spondylitis",
+        "Yin gyaran gwiwa"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_4x_consecutive",
+      "question": "Obìnrin, ẹni ọdún méjìdínláàádọ́rin. Ìrora oríkèé oríkèé oríkèé oríkèé ọ̀tún fún ọdún mẹ́jọ.",
+      "options": [
+        "Iṣẹ́ abẹ ní ibi tí egungun ẹ̀yìn wà",
+        "Àtúnṣe oríkèé èékánná"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_8x_consecutive",
+      "question": "Obìnrin kan tó jẹ́ ẹni ogójì ọdún, tí ó lóyún méjì, tí kò sì ní oyún rí, ní ọ̀sẹ̀ mẹ́rìnlá tí ó ti l",
+      "options": [
+        "Àtúnyẹ̀wò aláfojúsùn transvaginal",
+        "Àkójọ àwòkọ́ṣe ìfúnpá Chorionic villus"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_4x_consecutive",
+      "question": "Ọ̀nà tí àwọn aláìsàn gbà ń ṣe àgbéyẹ̀wò àwọn dókítà wọn ní ìbámu pẹ̀lú àwọn aláṣẹ tí wọ́n bá pàdé ní",
+      "options": [
+        "Ìjùmọ̀sọfúnni",
+        "Àríyànjiyàn nípa ohun tó wà lọ́kàn rẹ"
+      ]
+    },
+    {
+      "language": "sw",
+      "reason": "question_word_ya_repeated_4x_total",
+      "question": "Maana ya kimetaboliki ya njia ya nitrati ya nitrati, bila kujumuisha [...]",
+      "options": [
+        "Kuandaa sukari ya 5-nitrojeni kwa ajili ya utengenezaji wa asidi nuklia",
+        "Inazalisha NADPH inayoendeleza biosynthesis"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_6x_consecutive",
+      "question": "Àmì àìrígbẹyà ọkàn tí ó pẹ jùlọ láti padà sí bó ṣe yẹ nínú ìṣẹ̀lẹ̀ ìṣẹ̀lẹ̀ ìṣẹ̀lẹ̀ ìṣẹ̀lẹ̀ ìṣẹ̀lẹ̀ ì",
+      "options": [
+        "Lactic acid dehydrogenase",
+        "Creatine kinase ati Metabolism ((MB)"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_word_àwòrán,_repeated_12x_total",
+      "question": "Oríṣun àwòrán, Getty Images Àkọlé àwòrán, Àkọlé àwòrán, Àkọlé àwòrán, Àkọlé àwòrán, Àkọlé àwòrán, Àk",
+      "options": [
+        "TAGCCG",
+        "ATCGGC"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_62x_consecutive",
+      "question": "Bayanin da aka bayar game da bishiyar bishiyar bishiyar bishiyar bishiyar bishiyar bishiyar bishiyar",
+      "options": [
+        "Alamun bayyanar cututtuka, ciwo mai tsanani",
+        "Ana iya ganinta a ko'ina cikin jiki, ana iya ganinta a gefen kai da ƙananan kafafu"
+      ]
+    },
+    {
+      "language": "ha",
+      "reason": "question_repeated_word_6x_consecutive",
+      "question": "2. Ƙarƙashin ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar ƙwayar cuta.",
+      "options": [
+        "Rashin tabarau a cikin jijiyoyin jini",
+        "Ƙarƙashin ƙwayoyin cuta"
+      ]
+    },
+    {
+      "language": "yo",
+      "reason": "question_repeated_word_44x_consecutive",
+      "question": "Ọkùnrin, ọmọ ogún ọdún, ọ̀pọ̀lọpọ̀ omi tó wà ní ojú àti ẹ̀yà ẹ̀yà ọ̀tún àti ẹ̀yà òsì ní ọjọ́ méje lẹ",
+      "options": [
+        "Àrùn ẹ̀dọ̀fóró tí ń yára gùn sí i",
+        "Àrùn tí kì í lọ bọ̀rọ̀"
+      ]
+    }
+  ]
+}
