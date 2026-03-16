@@ -22,8 +22,9 @@ from tqdm import tqdm
 from datasets import load_dataset
 from huggingface_hub import hf_hub_download
 
-PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+SRC_ROOT = next((parent for parent in Path(__file__).resolve().parents if parent.name == "src"), None)
+if SRC_ROOT is not None and str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 
 from multimeditron.translation.translator import NLLBTranslator
 

@@ -28,10 +28,15 @@ from collections import defaultdict, Counter
 import evaluate
 import fasttext
 from huggingface_hub import hf_hub_download
-from openai import OpenAI
+try:
+    from openai import OpenAI
+except ImportError as import_err:
+    OpenAI = None
+    OPENAI_IMPORT_ERROR = import_err
 
-project_root = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(project_root))
+SRC_ROOT = next((parent for parent in Path(__file__).resolve().parents if parent.name == "src"), None)
+if SRC_ROOT is not None and str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 
 from multimeditron.model.model import MultiModalModelForCausalLM, ChatTemplate
 from multimeditron.model.data_loader import DataCollatorForMultimodal
@@ -41,6 +46,11 @@ class GPTTranslator:
     """Translator using OpenAI's GPT API."""
     
     def __init__(self, api_key: str = None, model: str = "gpt-5.1"):
+        if OpenAI is None:
+            raise ImportError(
+                "The `openai` package is required for this experiment. "
+                "Install with `pip install '.[experiments]'` or `pip install openai`."
+            ) from OPENAI_IMPORT_ERROR
         self.client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
         self.model = model
         

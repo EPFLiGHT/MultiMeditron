@@ -22,6 +22,7 @@ Usage:
 """
 
 import logging
+import threading
 from pathlib import Path
 from typing import Optional, Tuple, Union
 
@@ -57,12 +58,18 @@ class NLLBTranslator:
                 )
 
         LOGGER.info("Loading NLLB model: %s", model_name)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name, torch_dtype=torch.float16, low_cpu_mem_usage=True)
-
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        model_dtype = torch.float16 if self.device == "cuda" else torch.float32
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(
+            model_name,
+            torch_dtype=model_dtype,
+            low_cpu_mem_usage=self.device == "cuda",
+        )
+
         self.model.to(self.device)
         self.model.eval()
+        self._tokenizer_lock = threading.Lock()
 
         LOGGER.info("Loading fastText language detection model from %s", lang_detect_model)
         try:
@@ -137,15 +144,15 @@ class NLLBTranslator:
         if src_lang == tgt_lang:
             return text
 
-        self.tokenizer.src_lang = src_lang
-
-        inputs = self.tokenizer(
-            text,
-            return_tensors="pt",
-            padding=True,
-            truncation=True,
-            max_length=512
-        ).to(self.device)
+        with self._tokenizer_lock:
+            self.tokenizer.src_lang = src_lang
+            inputs = self.tokenizer(
+                text,
+                return_tensors="pt",
+                padding=True,
+                truncation=True,
+                max_length=512
+            ).to(self.device)
 
         try:
             forced_bos_token_id = self.tokenizer.convert_tokens_to_ids(tgt_lang)

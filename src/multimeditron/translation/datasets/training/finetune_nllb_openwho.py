@@ -105,9 +105,9 @@ print(f"\n⚙️  Preprocessing with bidirectional training...")
 
 def preprocess_function(examples):
     """Creates BOTH EN→X and X→EN examples."""
-    sources = []
-    targets = []
-    tgt_langs = []
+    input_ids = []
+    attention_mask = []
+    labels_list = []
     
     for translation in examples['translation']:
         if 'eng_Latn' not in translation or translation['eng_Latn'] is None:
@@ -126,34 +126,49 @@ def preprocess_function(examples):
         if target_text is None or target_lang is None:
             continue
         
-        # BOTH directions
-        sources.append(eng_text)
-        targets.append(target_text)
-        tgt_langs.append(target_lang)
-        
-        sources.append(target_text)
-        targets.append(eng_text)
-        tgt_langs.append('eng_Latn')
-    
-    model_inputs = tokenizer(
-        sources,
-        max_length=MAX_LENGTH,
-        truncation=True,
-        padding="max_length"
-    )
-    
-    labels_list = []
-    for target, tgt_lang in zip(targets, tgt_langs):
-        tokenizer.src_lang = tgt_lang
-        labels = tokenizer(
-            target,
+        # EN -> target
+        tokenizer.src_lang = "eng_Latn"
+        source_enc = tokenizer(
+            eng_text,
             max_length=MAX_LENGTH,
             truncation=True,
-            padding="max_length"
+            padding="max_length",
         )
-        labels_list.append(labels["input_ids"])
-    
-    model_inputs["labels"] = labels_list
+        tokenizer.tgt_lang = target_lang
+        target_enc = tokenizer(
+            text_target=target_text,
+            max_length=MAX_LENGTH,
+            truncation=True,
+            padding="max_length",
+        )
+        input_ids.append(source_enc["input_ids"])
+        attention_mask.append(source_enc["attention_mask"])
+        labels_list.append(target_enc["input_ids"])
+
+        # target -> EN
+        tokenizer.src_lang = target_lang
+        source_enc = tokenizer(
+            target_text,
+            max_length=MAX_LENGTH,
+            truncation=True,
+            padding="max_length",
+        )
+        tokenizer.tgt_lang = "eng_Latn"
+        target_enc = tokenizer(
+            text_target=eng_text,
+            max_length=MAX_LENGTH,
+            truncation=True,
+            padding="max_length",
+        )
+        input_ids.append(source_enc["input_ids"])
+        attention_mask.append(source_enc["attention_mask"])
+        labels_list.append(target_enc["input_ids"])
+
+    model_inputs = {
+        "input_ids": input_ids,
+        "attention_mask": attention_mask,
+        "labels": labels_list,
+    }
     return model_inputs
 
 tokenized_train = train_dataset.map(

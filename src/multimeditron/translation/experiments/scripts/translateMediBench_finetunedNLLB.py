@@ -19,8 +19,9 @@ from tqdm import tqdm
 from datasets import Dataset
 from huggingface_hub import hf_hub_download
 
-PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+SRC_ROOT = next((parent for parent in Path(__file__).resolve().parents if parent.name == "src"), None)
+if SRC_ROOT is not None and str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 
 from multimeditron.translation.translator import NLLBTranslator
 
@@ -106,6 +107,12 @@ class MediBenchTranslator:
         source_lang = sample.get('language')
         if source_lang not in LANG_TO_NLLB:
             return []
+        question = sample.get('question')
+        options = sample.get('options')
+        answer = sample.get('answer')
+        if not question or not isinstance(options, list) or not options or answer is None:
+            self.stats['failed'] += 1
+            return []
         
         src_nllb = LANG_TO_NLLB[source_lang]
         self.stats['by_source_lang'][source_lang] = (
@@ -114,17 +121,17 @@ class MediBenchTranslator:
         
         translations = []
         for lang_code, (nllb_code, _) in AFRICAN_LANGUAGES.items():
-            question = self.translate_text(sample['question'], src_nllb, nllb_code)
-            options = [
+            translated_question = self.translate_text(question, src_nllb, nllb_code)
+            translated_options = [
                 self.translate_text(opt, src_nllb, nllb_code)
-                for opt in sample['options']
+                for opt in options
             ]
             
             translations.append({
                 'language': lang_code,
-                'question': question,
-                'options': options,
-                'answer': sample['answer'],
+                'question': translated_question,
+                'options': translated_options,
+                'answer': answer,
                 'source_language': source_lang,
             })
             
@@ -155,7 +162,8 @@ class MediBenchTranslator:
             append_checkpoint_index(checkpoint_path, i)
             
             if (i + 1) % 50 == 0:
-                torch.cuda.empty_cache()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
                 gc.collect()
     
     def print_stats(self):

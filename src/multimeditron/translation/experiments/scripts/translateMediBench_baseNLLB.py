@@ -19,8 +19,9 @@ import json
 import gc
 from huggingface_hub import hf_hub_download
 
-project_root = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(project_root))
+src_root = next((parent for parent in Path(__file__).resolve().parents if parent.name == "src"), None)
+if src_root is not None and str(src_root) not in sys.path:
+    sys.path.insert(0, str(src_root))
 
 from multimeditron.translation.translator import NLLBTranslator
 
@@ -135,7 +136,8 @@ class MediBenchTranslator:
             all_translations.extend(translations)
             
             if (i + 1) % 50 == 0:
-                torch.cuda.empty_cache()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
                 gc.collect()
         
         print(f"\n   ✅ Translation complete! Generated {len(all_translations)} MCQs")
