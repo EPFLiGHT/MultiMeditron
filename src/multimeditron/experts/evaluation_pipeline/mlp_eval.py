@@ -1,4 +1,7 @@
-from Benchmark import Benchmark
+try:
+    from .Benchmark import Benchmark
+except ImportError:
+    from Benchmark import Benchmark
 import torch.nn as nn
 import torch
 from torch.utils.data import Dataset, DataLoader, Subset
@@ -66,12 +69,17 @@ class MLP_eval(Benchmark):
         correct = 0
 
         for x, label in test_loader:
-            x = x.to("cuda")
-            label = label.to("cuda")
-            output = torch.sigmoid(model(x))
-            preds = torch.argmax(output, dim=1)
+            x = x.to(self.device)
+            label = label.to(self.device)
+            logits = model(x)
 
-            batch_acc = self.accuracy_function(preds, label)
+            # Multi-label datasets provide float multi-hot targets. In that case,
+            # the accuracy function should consume probabilities directly.
+            if label.ndim > 1:
+                batch_acc = self.accuracy_function(torch.sigmoid(logits), label)
+            else:
+                preds = torch.argmax(logits, dim=1)
+                batch_acc = self.accuracy_function(preds, label)
             correct += batch_acc * len(label)
             total += len(label)
 
@@ -80,7 +88,7 @@ class MLP_eval(Benchmark):
     #returns a MLP classifier trained on a train dataset
     def training(self,data_loader, lr, wd):
             model = MLP_Classifier(self.output_dim, input_dim=self.embedding_dim).to(self.device)
-            criterion = self.loss.to("cuda")
+            criterion = self.loss.to(self.device)
             optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=wd)
             losses = []
 
@@ -89,12 +97,12 @@ class MLP_eval(Benchmark):
                 epoch_loss = 0.0
                 for i, data in enumerate(data_loader):
                     inputs, lab = data
-                    inputs = inputs.to("cuda")
-                    lab = lab.to("cuda")
+                    inputs = inputs.to(self.device)
+                    lab = lab.to(self.device)
                     optimizer.zero_grad()
-                    y = model(inputs).to("cuda")
+                    y = model(inputs).to(self.device)
 
-                    l = criterion(y, lab.to("cuda"))
+                    l = criterion(y, lab.to(self.device))
                     l.backward()
                 
                     optimizer.step()
