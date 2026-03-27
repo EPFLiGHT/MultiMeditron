@@ -39,11 +39,11 @@ from load_from_clip import load_model
 # =====================================
 # For a clean experiment, start with just the enhanced skin10 JSONL.
 EVAL_DATASETS = [
-    "/mloscratch/users/turan/datasets/skin_expert_datasets/skin_diseases_10/skin10_val.jsonl",
+    "/lightscratch/users/turan/datasets/skin_expert_datasets/skin_diseases_10/skin10_val.jsonl",
     # you can add more later:
-    # "/mloscratch/users/turan/datasets/dermnet_eval/dermnet_val.jsonl",
-    # "/mloscratch/users/turan/datasets/isic/isic_val.jsonl",
-    # "/mloscratch/users/turan/datasets/SCIN/scin_api_val.jsonl",
+    # "/lightscratch/users/turan/datasets/dermnet_eval/dermnet_val.jsonl",
+    # "/lightscratch/users/turan/datasets/isic/isic_val.jsonl",
+    # "/lightscratch/users/turan/datasets/SCIN/scin_api_val.jsonl",
 ]
 LINE_NUMBER  = None
 SEED         = 14
@@ -60,12 +60,12 @@ HARD_TOPK      = 3   # consider this many nearest neighbours as candidate negati
 # --------------------------------------------
 
 # Where to save results
-RESULTS_TXT = "/mloscratch/users/turan/evaluation_clip/skin_clip_hard_benchmark.txt"
+RESULTS_TXT = "/lightscratch/users/turan/evaluation_clip/skin_clip_hard_benchmark.txt"
 
 # List your 12 configs here (fill in with your real paths)
 CLIP_CONFIGS = [
-    ("skin_clip_config_10_after", "/mloscratch/users/turan/training/models/combined_dataset_skin_regularization_focused_config_1"),
-    ("skin_clip_config_10_before", "/mloscratch/users/turan/training/models_skin/combined_dataset_skin_regularization_focused_config_1"),
+    ("skin_clip_config_10_after", "/lightscratch/users/turan/training/models/combined_dataset_skin_regularization_focused_config_1"),
+    ("skin_clip_config_10_before", "/lightscratch/users/turan/training/models_skin/combined_dataset_skin_regularization_focused_config_1"),
 ]
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
@@ -230,6 +230,7 @@ def compute_image_embeds(model, processor, device, items, batch_size=IMG_BS):
                 emb = out.image_embeds
             else:
                 raise ValueError("Model has neither get_image_features nor image_embeds.")
+        emb = emb.image_embeds if hasattr(emb, "image_embeds") else emb.pooler_output
         emb = torch.nn.functional.normalize(emb, dim=1)
         chunks.append(emb.cpu())
 
@@ -269,6 +270,7 @@ def compute_label_embeds(model, processor, device, labels, txt_bs=TXT_BS, max_le
                 emb = out.text_embeds
             else:
                 raise ValueError("Model has neither get_text_features nor text_embeds.")
+        emb = emb.image_embeds if hasattr(emb, "image_embeds") else emb.pooler_output
         emb = torch.nn.functional.normalize(emb, dim=1).cpu()
         chunks.append(emb)
         if torch.cuda.is_available():

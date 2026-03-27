@@ -105,13 +105,13 @@ def parse_args() -> argparse.Namespace:
         "--eval-datasets",
         nargs="+",
         default=[
-            "/mloscratch/users/turan/datasets/opthalmology_expert_datasets/eyepacs/eyepacs_val.jsonl",
+            "/lightscratch/users/turan/datasets/opthalmology_expert_datasets/eyepacs/eyepacs_val.jsonl",
         ],
         help="One or more JSONL eval dataset paths.",
     )
     p.add_argument(
         "--log-dir",
-        default="/mloscratch/users/turan/evaluation_clip/logs",
+        default="/lightscratch/users/turan/evaluation_clip/logs",
         help="Directory to write log files.",
     )
 
@@ -122,7 +122,7 @@ def parse_args() -> argparse.Namespace:
         nargs=2,
         metavar=("NAME", "PATH"),
         default=[
-            ["finetuned_clip_2", "/mloscratch/users/turan/training/models_opthalmology/combined_dataset_opthalmology_fine_tuning_config_2"]
+            ["finetuned_clip_2", "/lightscratch/users/turan/training/models_opthalmology/combined_dataset_opthalmology_fine_tuning_config_2"]
         ],
         help="Add a model as: --model <name> <model_path>. Can be repeated.",
     )
@@ -219,7 +219,7 @@ def evaluate_model(
 
     log_print(f"\n=== Text tower probe for {model_name_or_path} ===")
     log_print("pairwise cosine matrix:")
-    for row in pairwise.cpu().numpy():
+    for row in pairwise.float().cpu().numpy():
         log_print("   " + " ".join(f"{v:0.3f}" for v in row))
 
     unique = len(torch.unique(text_embs.cpu(), dim=0))
@@ -251,7 +251,7 @@ def evaluate_model(
 
     log_print(f"\n=== Image tower probe for {model_name_or_path} ===")
     log_print("pairwise cosine matrix:")
-    for row in image_pairwise.cpu().numpy():
+    for row in image_pairwise.float().cpu().numpy():
         log_print("   " + " ".join(f"{v:0.3f}" for v in row))
 
     image_unique = len(torch.unique(image_embs.cpu(), dim=0))

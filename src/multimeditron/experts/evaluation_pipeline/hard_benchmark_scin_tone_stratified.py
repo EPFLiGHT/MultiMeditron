@@ -24,7 +24,10 @@ from transformers import (
     VisionTextDualEncoderProcessor,
 )
 
-from load_from_clip import load_model
+try:
+    from .load_from_clip import load_model
+except ImportError:
+    from load_from_clip import load_model
 
 
 # =========================
@@ -32,22 +35,22 @@ from load_from_clip import load_model
 # =========================
 
 EVAL_DATASETS = [
-    "/mloscratch/users/turan/datasets/skin_expert_datasets/SCIN/scin_api_val.jsonl",
+    "/lightscratch/users/turan/datasets/skin_expert_datasets/SCIN/scin_api_val.jsonl",
 ]
 
 MANIFEST_DATASETS = [
-    "/mloscratch/users/turan/datasets/skin_expert_datasets/SCIN/scin_manifest.jsonl",
+    "/lightscratch/users/turan/datasets/skin_expert_datasets/SCIN/scin_manifest.jsonl",
 ]
 
 CLIP_CONFIGS = [
-    ("skin_clip_config_10_before", "/mloscratch/users/turan/training/models_skin/combined_dataset_skin_regularization_focused_config_1"),
-    ("skin_clip_config_10_after",  "/mloscratch/users/turan/training/models/combined_dataset_skin_regularization_focused_config_1"),
+    ("skin_clip_config_10_before", "/lightscratch/users/turan/training/models_skin/combined_dataset_skin_regularization_focused_config_1"),
+    ("skin_clip_config_10_after",  "/lightscratch/users/turan/training/models/combined_dataset_skin_regularization_focused_config_1"),
 ]
 
 # Reference model used ONLY to build fixed protocol
 REF_MODEL_NAME = "openai/clip-vit-base-patch32"
 
-RESULTS_TXT = "/mloscratch/users/turan/evaluation_clip/scin_skin_tone_hard_results.txt"
+RESULTS_TXT = "/lightscratch/users/turan/evaluation_clip/scin_skin_tone_hard_results.txt"
 
 SEED        = 14
 IMG_BS      = 32
@@ -198,6 +201,24 @@ class ImageDataset(Dataset):
 # EMBEDDINGS
 # =========================
 
+def _extract_embedding_tensor(output, preferred_attr: str):
+    if isinstance(output, torch.Tensor):
+        return output
+    if hasattr(output, preferred_attr):
+        value = getattr(output, preferred_attr)
+        if value is not None:
+            return value
+    if hasattr(output, 'pooler_output'):
+        value = getattr(output, 'pooler_output')
+        if value is not None:
+            return value
+    if hasattr(output, 'last_hidden_state'):
+        value = getattr(output, 'last_hidden_state')
+        if value is not None:
+            return value[:, 0]
+    raise TypeError(f'Could not extract embedding tensor from output type: {type(output)}')
+
+
 @torch.no_grad()
 def compute_image_embeds(model, processor, device, items):
     dl = DataLoader(
@@ -212,11 +233,12 @@ def compute_image_embeds(model, processor, device, items):
         inputs = processor(images=batch, return_tensors="pt")
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
-        if hasattr(model, "get_image_features"):
-            emb = model.get_image_features(**inputs)
-        else:
-            emb = model(**inputs).image_embeds
-
+        output = (
+            model.get_image_features(**inputs)
+            if hasattr(model, "get_image_features")
+            else model(**inputs)
+        )
+        emb = _extract_embedding_tensor(output, 'image_embeds')
         outs.append(torch.nn.functional.normalize(emb, dim=1).cpu())
 
     return torch.cat(outs, dim=0)
@@ -235,11 +257,12 @@ def compute_text_embeds(model, processor, device, texts):
         )
         toks = {k: v.to(device) for k, v in toks.items()
                 if k in ("input_ids", "attention_mask")}
-        emb = (
+        output = (
             model.get_text_features(**toks)
             if hasattr(model, "get_text_features")
-            else model(**toks).text_embeds
+            else model(**toks)
         )
+        emb = _extract_embedding_tensor(output, 'text_embeds')
         outs.append(torch.nn.functional.normalize(emb, dim=1).cpu())
     embeds = torch.cat(outs)
     return embeds, {t: i for i, t in enumerate(uniq)}

@@ -104,6 +104,7 @@ def compute_image_embeds(model, processor, images, batch_size=32):
         pixel_values = inputs["pixel_values"].to(device)
 
         image_embs = model.get_image_features(pixel_values=pixel_values)
+        image_embs = image_embs.image_embeds if hasattr(image_embs, "image_embeds") else image_embs.pooler_output
         embs = torch.nn.functional.normalize(image_embs, dim=-1)
 
         all_embs.append(embs.cpu())
@@ -214,7 +215,7 @@ def visualize_retrieval(
 if __name__ == "__main__":
     # Best ophthalmology expert model (from earlier results)
     OPHTH_MODEL = (
-        "/mloscratch/users/turan/training/models_opthalmology/"
+        "/lightscratch/users/turan/training/models_opthalmology/"
         "combined_dataset_opthalmology_regularization_focused_config_1"
     )
 
@@ -222,7 +223,7 @@ if __name__ == "__main__":
     configs = [
         (
             "messidor",
-            "/mloscratch/users/turan/datasets/messidor2_eval/messidor_val_raw.jsonl",
+            "/lightscratch/users/turan/datasets/messidor2_eval/messidor_val_raw.jsonl",
         )
     ]
 
@@ -232,5 +233,5 @@ if __name__ == "__main__":
             eval_dataset=ds_path,
             k=3,
             preferred_query_labels={"Moderate diabetic retinopathy without macular edema"},
-            out_path=f"/mloscratch/users/turan/evaluation_clip/most_sim_ophthal_{slug}.png",
+            out_path=f"/lightscratch/users/turan/evaluation_clip/most_sim_ophthal_{slug}.png",
         )
