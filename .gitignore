@@ -222,7 +222,8 @@ __marimo__/
 
 # Local training artifacts and generated benchmark data
 cache/
-experts/
+experts/embeddings/
+experts/src/multimeditron/experts/models/*
 parallel_coordinate.html
 plot_param_importance.html
 data_embl_test.pt

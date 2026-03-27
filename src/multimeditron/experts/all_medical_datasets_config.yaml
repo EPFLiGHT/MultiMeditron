@@ -1,0 +1,93 @@
+datamixes:
+  all_medical_and_general:
+    dataset_configs:
+      # === ALIGNMENT PHASE DATASETS ===
+      - llava_pretrain:
+          dataset_path: "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_pretrain_cleaned/train.jsonl"
+          image_column: "modalities"
+          caption_column: "text"
+          weight: 1.0
+      - medtrinity_alignment:
+          dataset_path: "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted_alignment/train.jsonl"
+          image_column: "modalities"
+          caption_column: "text"
+          weight: 1.0
+      # Note: PixMo-Cap and PixMo-Ask-Anything - verify paths if available
+      
+      # === MODALITY SPECIALIZATION (Medical End-to-End datasets) ===
+      - BUSI:
+          dataset_path: "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/BUSI/train.jsonl"
+          image_column: "modalities"
+          caption_column: "text"
+          weight: 1.0
+      - COVID_US:
+          dataset_path: "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/COVID_US/train.jsonl"
+          image_column: "modalities"
+          caption_column: "text"
+          weight: 1.0
+      - ct2:
+          dataset_path: "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/ct2/train.jsonl"
+          image_column: "modalities"
+          caption_column: "text"
+          weight: 1.0
+      - DDTI:
+          dataset_path: "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/DDTI/train.jsonl"
+          image_column: "modalities"
+          caption_column: "text"
+          weight: 1.0
+      - iu_xray:
+          dataset_path: "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/iu_xray/train.jsonl"
+          image_column: "modalities"
+          caption_column: "text"
+          weight: 1.0
+      
+      # === INSTRUCTION TUNING & MEDICAL QA ===
+      - llava_instruct:
+          dataset_path: "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_instruct/train.jsonl"
+          image_column: "modalities"
+          caption_column: "text"
+          weight: 1.0
+      - mammoth:
+          dataset_path: "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_mammoth/train.jsonl"
+          image_column: "modalities"
+          caption_column: "text"
+          weight: 1.0
+      - medtrinity_full:
+          dataset_path: "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted/train.jsonl"
+          image_column: "modalities"
+          caption_column: "text"
+          weight: 1.0
+      - pmc_vqa:
+          dataset_path: "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_PMC_VQA/train.jsonl"
+          image_column: "modalities"
+          caption_column: "text"
+          weight: 1.0
+      
+      # === SPECIALTY EXPERTS (Skin & Ophthalmology) ===
+      - eye:
+          dataset_path: "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/eye_dataset/train.jsonl"
+          image_column: "modalities"
+          caption_column: "text"
+          weight: 1.0
+
+base_configs:
+  baseline_random:
+    learning_rate: 5.0e-4
+    weight_decay: 0.2
+    warmup_steps: 2000
+    num_train_epochs: 10
+    frozen_layers: 0
+
+param_ranges:
+  learning_rate: [5.0e-5, 1.0e-4, 5.0e-4]
+  weight_decay: [0.05, 0.2, 0.4]
+  frozen_layers: [0, 2, 4, 6]
+
+common_config:
+  vision_model_name: "openai/clip-vit-base-patch32"
+  text_model_name: "FacebookAI/roberta-base"
+  output_dir: "./clip_experts_models/"
+  per_device_train_batch_size: 32
+  per_device_eval_batch_size: 64
+  num_workers: 4
+  fp16: true

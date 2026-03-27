@@ -31,12 +31,13 @@ from io import BytesIO
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'evaluation_pipeline'))
 
 from dataclasses import dataclass, field
+from collections import defaultdict
 from typing import List, Optional
 from plotly.io import show
 from evaluation_pipeline.Benchmark import Benchmark
 import optuna
 import torch
-from datasets import load_dataset, interleave_datasets, load_from_disk, Value
+from datasets import concatenate_datasets, interleave_datasets, load_dataset, load_from_disk, Value
 from PIL import Image
 from torchvision.io import ImageReadMode, read_image
 from torchvision.transforms import CenterCrop, ConvertImageDtype, Normalize, Resize
@@ -62,6 +63,7 @@ from transformers.utils.versions import require_version
 from lion.modeling_clip import OpenCLIPVisionTextDualEncoderModel, VisionTextDualEncoderConfig
 
 import wandb
+import yaml
 
 
 
@@ -148,6 +150,9 @@ class DatasetConfig:
     weight: Optional[float] = field(
         default=1.0, metadata={"help": "The weight to assign to this dataset during training."}
         )
+    domain: Optional[str] = field(
+        default=None, metadata={"help": "Semantic training domain used for balanced sampling (e.g. ct, xray, ultrasound)."}
+    )
     
 @dataclass
 class DataTrainingArguments:
@@ -209,7 +214,15 @@ def collate_fn(examples):
     """
     Stack the examples into a format fit for training.
     """
-    
+    examples = [
+        example for example in examples
+        if example.get("pixel_values") is not None
+        and example.get("input_ids") is not None
+        and example.get("attention_mask") is not None
+    ]
+    if not examples:
+        raise ValueError("All samples in the batch were invalid")
+
     pixel_values = torch.stack([example["pixel_values"] for example in examples])
     input_ids = torch.tensor([example["input_ids"] for example in examples], dtype=torch.long)
     attention_mask = torch.tensor([example["attention_mask"] for example in examples], dtype=torch.long)
@@ -222,27 +235,39 @@ def collate_fn(examples):
 
 def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: ModelArguments):
     """
-    Generate a random mixture of datasets based on the relative weights registered in the configuration.
+    Build a domain-balanced training mixture.
+
+    Each dataset is first assigned to a semantic domain (ct, xray, ultrasound, ...).
+    We compute the total number of raw training examples available per domain and
+    set the budget of every domain to the smallest domain size. Within each
+    domain, datasets are sampled proportionally to their raw size. Sampling is
+    performed before costly map() preprocessing so we do not standardize examples
+    that will never be used.
     """
 
-    datasets = []
-    probabilities = []
-    logger.info(f"Loading datasets: {dataset_configs}")
-    for config in dataset_configs:
-        # Load individual dataset
-        if config.get("dataset_name", None) is None:
-            assert(len(config) == 1)
-            config = config[list(config.keys())[0]]
-        config = DatasetConfig(**config)
+    def _normalize_config(config):
+        if isinstance(config, DatasetConfig):
+            parsed = config
+        else:
+            if config.get("dataset_name", None) is None:
+                assert len(config) == 1
+                config = config[list(config.keys())[0]]
+            parsed = DatasetConfig(**config)
+        if not parsed.domain:
+            raise ValueError(
+                f"Dataset {parsed.dataset_name or parsed.data_dir!r} is missing a 'domain' field in the config."
+            )
+        return parsed
 
+    def _load_dataset(config: DatasetConfig):
         if config.data_dir and (
-            os.path.exists(os.path.join(config.data_dir, "state.json")) or
-            os.path.exists(os.path.join(config.data_dir, "dataset_dict.json")) or
-            os.path.exists(os.path.join(config.data_dir, "train", "state.json"))
+            os.path.exists(os.path.join(config.data_dir, "state.json"))
+            or os.path.exists(os.path.join(config.data_dir, "dataset_dict.json"))
+            or os.path.exists(os.path.join(config.data_dir, "train", "state.json"))
         ):
-            dataset = load_from_disk(config.data_dir)
-        elif config.dataset_name.endswith(".jsonl"):  # path to a jsonl
-            dataset = load_dataset(
+            return load_from_disk(config.data_dir, keep_in_memory=True)
+        if config.dataset_name.endswith(".jsonl"):
+            return load_dataset(
                 "json",
                 config.dataset_config_name,
                 cache_dir=model_args.cache_dir,
@@ -252,20 +277,55 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
                 trust_remote_code=model_args.trust_remote_code,
                 data_files=config.dataset_name,
             )
-        else:
-            dataset = load_dataset(
-                config.dataset_name,
-                config.dataset_config_name,
-                cache_dir=model_args.cache_dir,
-                keep_in_memory=False,
-                data_dir=config.data_dir,
-                token=model_args.token,
-                trust_remote_code=model_args.trust_remote_code,
-            )
-        
-        # For each dataset, assign the image column and caption column to standard names
-        train_split = dataset["train"] if "train" in dataset else dataset
+        return load_dataset(
+            config.dataset_name,
+            config.dataset_config_name,
+            cache_dir=model_args.cache_dir,
+            keep_in_memory=False,
+            data_dir=config.data_dir,
+            token=model_args.token,
+            trust_remote_code=model_args.trust_remote_code,
+        )
 
+    def _get_train_split(dataset):
+        return dataset["train"] if "train" in dataset else dataset
+
+    def _allocate_counts(sizes: list[int], total_budget: int) -> list[int]:
+        if not sizes:
+            return []
+        total_size = sum(sizes)
+        if total_size <= total_budget:
+            return sizes
+        raw = [size * total_budget / total_size for size in sizes]
+        counts = [int(value) for value in raw]
+        remainder = total_budget - sum(counts)
+        order = sorted(
+            range(len(sizes)),
+            key=lambda idx: (raw[idx] - counts[idx], sizes[idx]),
+            reverse=True,
+        )
+        for idx in order[:remainder]:
+            counts[idx] += 1
+        counts = [min(count, size) for count, size in zip(counts, sizes, strict=True)]
+        shortfall = total_budget - sum(counts)
+        if shortfall > 0:
+            for idx in order:
+                available = sizes[idx] - counts[idx]
+                if available <= 0:
+                    continue
+                take = min(shortfall, available)
+                counts[idx] += take
+                shortfall -= take
+                if shortfall == 0:
+                    break
+        return counts
+
+    def _subset_before_mapping(train_split, count: int):
+        if count >= len(train_split):
+            return train_split
+        return train_split.shuffle(seed=42).select(range(count))
+
+    def _standardize_split(train_split, config: DatasetConfig):
         if config.dataset_name.endswith(".jsonl"):
             def find_img_path(row):
                 return {
@@ -274,21 +334,12 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
                         os.path.dirname(config.dataset_name), row[config.image_column][0]["value"]
                     ),
                 }
-            train_split = train_split.map(
-                find_img_path,
-                keep_in_memory=False,
-                load_from_cache_file=False,
-                cache_file_name=os.path.join(model_args.cache_dir, f"find_img_path_{config.data_dir.replace('/', '_')}.arrow") if model_args.cache_dir else None,
-            )
+            train_split = train_split.map(find_img_path, load_from_cache_file=not False)
 
         def standardize_sample(row):
             image_value = row[config.image_column]
-
-            # Some datasets store one image in a list (e.g. List(Image)); keep one image per row.
             if isinstance(image_value, list):
                 image_value = image_value[0] if len(image_value) > 0 else None
-
-            # Some datasets store modality metadata as {type, value}; use the underlying path value.
             if (
                 isinstance(image_value, dict)
                 and "type" in image_value
@@ -296,31 +347,79 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
                 and set(image_value.keys()) == {"type", "value"}
             ):
                 image_value = image_value["value"]
-
             return {
                 "image_path": image_value,
                 "caption": str(row[config.caption_column]).replace("<attachment>", ""),
             }
 
-        train_split = train_split.map(
-            standardize_sample,
-            keep_in_memory=False,
-            load_from_cache_file=False,
-            cache_file_name=os.path.join(model_args.cache_dir, f"standardize_{config.data_dir.replace('/', '_')}.arrow") if model_args.cache_dir else None,
-        )
-        train_split = train_split.select_columns(["image_path", "caption"])
+        train_split = train_split.map(standardize_sample, load_from_cache_file=not False)
+        return train_split.select_columns(["image_path", "caption"])
 
-        # Repeat dataset according to epochs weight
-        probabilities.append(config.weight)
-        datasets.append(train_split)
-    
-    # Normalize weights
-    probabilities = np.array(probabilities)
-    probabilities = probabilities / np.sum(probabilities)
-    
-    # Combine all datasets
-    combined_dataset = interleave_datasets(datasets, probabilities=probabilities)
-    return combined_dataset.train_test_split(test_size=0.1)
+    logger.info(f"Loading datasets: {dataset_configs}")
+    parsed_configs = [_normalize_config(config) for config in dataset_configs]
+
+    per_dataset_entries = []
+    domain_sizes = defaultdict(int)
+    for config in parsed_configs:
+        dataset = _load_dataset(config)
+        train_split = _get_train_split(dataset)
+        split_length = len(train_split)
+        per_dataset_entries.append({
+            "config": config,
+            "train_split": train_split,
+            "length": split_length,
+        })
+        domain_sizes[config.domain] += split_length
+
+    if not domain_sizes:
+        raise ValueError("No datasets were loaded for training.")
+
+    target_per_domain = min(domain_sizes.values())
+    logger.info("Domain sizes before balancing: %s", dict(domain_sizes))
+    logger.info("Balanced domain budget: %s example(s) per domain", target_per_domain)
+
+    domain_entries = defaultdict(list)
+    for entry in per_dataset_entries:
+        domain_entries[entry["config"].domain].append(entry)
+
+    balanced_domain_splits = []
+    for domain, entries in domain_entries.items():
+        allocations = _allocate_counts([entry["length"] for entry in entries], target_per_domain)
+        logger.info(
+            "Domain %s allocation: %s",
+            domain,
+            [
+                {
+                    "dataset": entry["config"].dataset_name or entry["config"].data_dir,
+                    "kept": kept,
+                    "available": entry["length"],
+                }
+                for entry, kept in zip(entries, allocations, strict=True)
+            ],
+        )
+        standardized_splits = []
+        for entry, kept_count in zip(entries, allocations, strict=True):
+            if kept_count <= 0:
+                continue
+            sampled_split = _subset_before_mapping(entry["train_split"], kept_count)
+            standardized_splits.append(_standardize_split(sampled_split, entry["config"]))
+        if not standardized_splits:
+            continue
+        domain_dataset = concatenate_datasets(standardized_splits).shuffle(seed=42)
+        if len(domain_dataset) > target_per_domain:
+            domain_dataset = domain_dataset.select(range(target_per_domain))
+        balanced_domain_splits.append(domain_dataset)
+
+    if not balanced_domain_splits:
+        raise ValueError("No balanced domain datasets could be built.")
+
+    combined_dataset = interleave_datasets(
+        balanced_domain_splits,
+        probabilities=[1.0 / len(balanced_domain_splits)] * len(balanced_domain_splits),
+        seed=42,
+        stopping_strategy="all_exhausted",
+    )
+    return combined_dataset.train_test_split(test_size=0.1, seed=42)
 
 def data_processing(config_path):
     # 1. Parse input arguments
@@ -329,7 +428,10 @@ def data_processing(config_path):
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
     parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
-    model_args, data_args, training_args = parser.parse_yaml_file(yaml_file=os.path.abspath(config_path))
+    model_args, data_args, training_args = parser.parse_yaml_file(
+        yaml_file=os.path.abspath(config_path),
+        allow_extra_keys=True,
+    )
 
     # 2. Setup logging and training args
     logging.basicConfig(
@@ -468,15 +570,6 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
     image_transformations = torch.jit.script(image_transformations)
     
 
-    # Preprocessing the datasets.
-    # We need to tokenize input captions and transform the images.
-    def tokenize_captions(examples):
-        captions = list(examples[caption_column])
-        text_inputs = tokenizer(captions, max_length=data_args.max_seq_length, padding="max_length", truncation=True)
-        examples["input_ids"] = text_inputs.input_ids
-        examples["attention_mask"] = text_inputs.attention_mask
-        return examples
-
     def load_image_any(image_obj):
         """Load an image from a file path, bytes payload, or in-memory image object."""
         if image_obj is None:
@@ -500,28 +593,29 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
 
         raise TypeError(f"Unsupported image type: {type(image_obj)}")
 
-    def transform_images(examples):
-        images = []
-        for image_obj in examples[image_column]:
-            pil_image = load_image_any(image_obj)
-            image = torch.from_numpy(np.array(pil_image)).permute(2, 0, 1)
-        
-            images.append(image)
-        
-        examples["pixel_values"] = [image_transformations(image) for image in images]
-        return examples
+    def transform_batch(examples):
+        captions = list(examples[caption_column])
+        text_inputs = tokenizer(
+            captions,
+            max_length=data_args.max_seq_length,
+            padding="max_length",
+            truncation=True,
+        )
 
-    def filter_corrupt_images(examples):
-        """remove problematic images"""
-        valid_images = []
+        pixel_values = []
         for image_obj in examples[image_column]:
             try:
-                load_image_any(image_obj)
-                valid_images.append(True)
+                pil_image = load_image_any(image_obj)
+                image = torch.from_numpy(np.array(pil_image)).permute(2, 0, 1)
+                pixel_values.append(image_transformations(image))
             except Exception as e:
-                logger.warning(f"Corrupt image found: {str(image_obj)[:300]}, Error: {str(e)}")
-                valid_images.append(False)
-        return valid_images
+                logger.warning(f"Skipping invalid image sample: {str(image_obj)[:300]}, Error: {str(e)}")
+                pixel_values.append(None)
+
+        examples["input_ids"] = text_inputs.input_ids
+        examples["attention_mask"] = text_inputs.attention_mask
+        examples["pixel_values"] = pixel_values
+        return examples
 
     if training_args.do_train:
         if "train" not in dataset:
@@ -532,41 +626,11 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
             train_dataset = train_dataset.select(range(max_train_samples))
 
         logger.info(f"Dataset length: {len(train_dataset)}")
-        train_dataset = train_dataset.filter(
-            filter_corrupt_images, batched=True, num_proc=data_args.preprocessing_num_workers
-        )
-        logger.info(f"Dataset length without corrupt images: {len(train_dataset)}")
-        if len(train_dataset) == 0:
-            raise ValueError(
-                "All training samples were filtered out as invalid images. "
-                "Check image mounts/paths and dict bytes/path payload handling."
-            )
-
-        train_dataset = train_dataset.map(
-            function=tokenize_captions,
-            batched=True,
-            remove_columns=[col for col in column_names if col != image_column],
-            num_proc=data_args.preprocessing_num_workers,
-            load_from_cache_file=not data_args.overwrite_cache,
-            desc="Running tokenizer on train dataset",
-        )
-
-        # Transform images on the fly as doing it on the whole dataset takes too much time.
-        train_dataset.set_transform(transform_images)
+        train_dataset.set_transform(transform_batch)
 
     if training_args.do_eval:
         test_dataset = dataset["test"]
-        test_dataset = test_dataset.map(
-            function=tokenize_captions,
-            batched=True,
-            remove_columns=[col for col in column_names if col != image_column],
-            num_proc=data_args.preprocessing_num_workers,
-            load_from_cache_file=not data_args.overwrite_cache,
-            desc="Running tokenizer on test dataset",
-        )
-
-        # Transform images on the fly as doing it on the whole dataset takes too much time.
-        test_dataset.set_transform(transform_images)
+        test_dataset.set_transform(transform_batch)
 
     # 8. Initialize our trainer
     trainer = Trainer(
@@ -658,16 +722,31 @@ def objective(trial, bench_list, config_path):
     
     model.eval()
     benchmark_results = []
+    benchmark_names = []
     for benchmark in bench_list:
-        benchmark_results.append(benchmark.evaluate(training_args.output_dir))
+        # Save benchmark results
+        name = benchmark.__class__.__name__
+        accuracy = benchmark.evaluate(training_args.output_dir)
+        benchmark_results.append(accuracy)
+        benchmark_names.append(name)
+        print(f"Benchmark {name} accuracy: {accuracy}")
+        logger.info(f"Benchmark {name} accuracy: {accuracy}")
+
+    # Optionnel: sauvegarde dans un fichier
+    with open(os.path.join(training_args.output_dir, "benchmark_accuracies.txt"), "w") as f:
+        f.write(f"Run name: {training_args.run_name}\n")
+        f.write(f"Learning rate: {training_args.learning_rate}\n")
+        f.write(f"Weight decay: {training_args.weight_decay}\n")
+        f.write(f"Freezed layers: {n_frz}\n")
+        for name, acc in zip(benchmark_names, benchmark_results):
+            f.write(f"{name}: {acc}\n")
 
     temp = 1.0
-    for i in range(0, len(benchmark_results)): 
-        temp = temp * benchmark_results[i] 
-    temp2 = (float)(math.pow(temp, (1 / len(benchmark_results)))) 
-    res = (float)(temp2) 
-    
-    #return res
+    for i in range(0, len(benchmark_results)):
+        temp = temp * benchmark_results[i]
+    temp2 = float(math.pow(temp, (1 / len(benchmark_results))))
+    res = float(temp2)
+
     wandb.finish()
     return res
 
@@ -705,17 +784,17 @@ def plot_study(study):
 
 if __name__ == "__main__":
     import argparse
-    from evaluation_pipeline.ultrasound_new_benchmark import Anatomical_benchmark
-    from evaluation_pipeline.xray_eval import XRay_benchmark
-    
+    from evaluation_pipeline.build_benchmarks import build_benchmarks_from_names
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--config_file", type=str, required=True)
     args = parser.parse_args()
-    
-    bench_list = [
-    Anatomical_benchmark(),
-    XRay_benchmark(is_lion_model=False),
-    ]
-    
+
+    with open(args.config_file, 'r', encoding='utf-8') as f:
+        config_dict = yaml.safe_load(f) or {}
+
+    benchmark_selection = config_dict.get('benchmark_selection')
+    bench_list = build_benchmarks_from_names(benchmark_selection)
+
     study = train(bench_list, args.config_file)
     plot_study(study)
