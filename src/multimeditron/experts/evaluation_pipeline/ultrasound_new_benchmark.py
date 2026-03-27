@@ -1,136 +1,227 @@
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+from typing import Iterable
+
+import numpy as np
 import torch
 import torch.nn as nn
-from load_from_clip import load_model, encode_img
-import json
-from torch.utils.data import Dataset, DataLoader
 from sklearn.utils.class_weight import compute_class_weight
-from Benchmark import Benchmark
-import numpy as np
-import os
-from transformers import (
-    VisionTextDualEncoderModel,
-    VisionTextDualEncoderProcessor,
-    AutoImageProcessor,
-    AutoTokenizer,
-    VisionTextDualEncoderConfig
-)
-from transformers import CLIPModel, CLIPProcessor
-from mlp_eval import MLP_eval
+from torch.utils.data import Dataset
 from tqdm import tqdm
-import sys
+from transformers import VisionTextDualEncoderModel
 
-# Integer labels used for anatomical region classification
-BREAST  = 0
+from Benchmark import Benchmark
+from load_from_clip import encode_img
+from mlp_eval import MLP_eval
+
+
+BREAST = 0
 OTHER = 1
 ABDOMEN = 2
-TYROID = 3
+THYROID = 3
 
-# Loads a JSONL file and encodes all images using the provided model with the provided label
-def load_dataset(path : str, label: int, image_path: str, model):
-    X_train = []
-    Y_train = []
-    with open(path, "r", encoding="utf-8") as file:
-        for f in tqdm(file):
-            Y_train.append(label)
+NUM_CLASSES = 4
 
-            correct_line = json.loads(f) 
-            image_value = correct_line["modalities"][0]["value"]
-            if isinstance(image_value, str) and image_value.startswith("/mloscratch/"):
-                image_value = image_value.replace("/mloscratch/", "/lightscratch/", 1)
-            new_path = image_path + image_value
+DATASET_ROOT = Path("/lightscratch/users/deschryv/clipFineTune/ultrasound_evaluation")
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+CACHE_ROOT = PROJECT_ROOT / "src" / "multimeditron" / "experts" / "embeddings"
 
-            X_train.append(encode_img(model, new_path))
-    return (torch.stack(X_train), torch.tensor(Y_train))
 
-# PyTorch Dataset for anatomical classification (training split)
-# Aggregates multiple ultrasound datasets into a single multi-class dataset
+
+
+
+def _resolve_dataset_file(dataset_root: Path, filename: str) -> Path:
+    path = dataset_root / filename
+    if path.exists():
+        return path
+
+    fallback_map = {
+        "classifier-lungs-radiopedia-final_test.jsonl": "classifier-lungs-radiopedia-2_test.jsonl",
+    }
+    fallback = fallback_map.get(filename)
+    if fallback is not None:
+        fallback_path = dataset_root / fallback
+        if fallback_path.exists():
+            return fallback_path
+
+    return path
+
+DATASET_FILES = {
+    "train": [
+        ("classifier-breast-radiopedia-final_train.jsonl", BREAST),
+        ("classifier-heart-radiopedia-final_train.jsonl", OTHER),
+        ("classifier-lungs-radiopedia-final_train.jsonl", OTHER),
+        ("classifier-abdomen-radiopedia-final_train.jsonl", ABDOMEN),
+        ("classifier-thyroid-radiopedia-final_train.jsonl", THYROID),
+    ],
+    "test": [
+        ("classifier-breast-radiopedia-final_test.jsonl", BREAST),
+        ("classifier-heart-radiopedia-final_test.jsonl", OTHER),
+        ("classifier-lungs-radiopedia-final_test.jsonl", OTHER),
+        ("classifier-abdomen-radiopedia-final_test.jsonl", ABDOMEN),
+        ("classifier-thyroid-radiopedia-final_test.jsonl", THYROID),
+    ],
+}
+
+
+def _resolve_image_path(raw_path: str, dataset_root: Path) -> Path:
+    if raw_path.startswith("/mloscratch/"):
+        raw_path = raw_path.replace("/mloscratch/", "/lightscratch/", 1)
+
+    path = Path(raw_path)
+    if path.is_absolute():
+        return path
+
+    return dataset_root / path
+
+
+def _extract_image_path(example: dict, dataset_root: Path) -> Path:
+    modalities = example.get("modalities")
+    if not modalities:
+        raise ValueError("Missing or empty 'modalities' field")
+
+    image_value = modalities[0].get("value")
+    if not isinstance(image_value, str) or not image_value:
+        raise ValueError("Missing image path in modalities[0]['value']")
+
+    return _resolve_image_path(image_value, dataset_root)
+
+
+def load_jsonl_embeddings(
+    jsonl_path: Path,
+    label: int,
+    model: VisionTextDualEncoderModel,
+    dataset_root: Path,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    embeddings: list[torch.Tensor] = []
+    labels: list[int] = []
+
+    with jsonl_path.open("r", encoding="utf-8") as f:
+        for line in tqdm(f, desc=jsonl_path.name):
+            example = json.loads(line)
+            image_path = _extract_image_path(example, dataset_root)
+
+            embedding = encode_img(model, str(image_path))
+            embeddings.append(embedding.cpu())
+            labels.append(label)
+
+    if not embeddings:
+        raise ValueError(f"No embeddings generated from {jsonl_path}")
+
+    return torch.stack(embeddings), torch.tensor(labels, dtype=torch.long)
+
+
 class BodyPartsDataset(Dataset):
-    
-    def __init__(self, model, model_name, load, path):
-        path = "/lightscratch/users/deschryv/clipFineTune/ultrasound_evaluation/"
-        if not load:
-            BUSI = (load_dataset(path+"classifier-breast-radiopedia-final_train.jsonl", BREAST, "", model))
-            CAMUS = (load_dataset(path+"classifier-heart-radiopedia-final_train.jsonl", OTHER, "", model))
-            COVIDUS = load_dataset(path+"classifier-lungs-radiopedia-final_train.jsonl", OTHER, "", model)
-            CT2 = (load_dataset(path+"classifier-abdomen-radiopedia-final_train.jsonl", ABDOMEN, "", model))
-            DDTI = (load_dataset(path+"classifier-thyroid-radiopedia-final_train.jsonl", TYROID, "", model))
+    def __init__(
+        self,
+        model: VisionTextDualEncoderModel,
+        model_name: str,
+        split: str,
+        dataset_root: Path = DATASET_ROOT,
+        cache_root: Path = CACHE_ROOT,
+        use_cache: bool = True,
+    ) -> None:
+        if split not in DATASET_FILES:
+            raise ValueError(f"Unknown split: {split}")
 
-            self.data = torch.cat([BUSI[0], CAMUS[0], COVIDUS[0], CT2[0], DDTI[0]], dim=0)
-            self.labels = torch.cat([BUSI[1], CAMUS[1], COVIDUS[1], CT2[1], DDTI[1]], dim=0)
+        self.dataset_root = Path(dataset_root)
+        self.cache_root = Path(cache_root) if cache_root is not None else CACHE_ROOT
+        self.cache_root.mkdir(parents=True, exist_ok=True)
 
-            torch.save(self.data, "data_embl_" + model_name + ".pt")
-            torch.save(self.labels, "data_lab_" + model_name + ".pt")
-        else:
-            self.data = torch.load(path + "/data_embl_"+ model_name +".pt")
-            self.labels = torch.load(path + "/data_lab_"+ model_name + ".pt")
-    
-    def __len__(self):
-        return len(self.data)
-    
-    def __getitem__(self, idx):
-        return self.data[idx], self.labels[idx]
+        data_cache = self.cache_root / f"{model_name}_{split}_embeddings.pt"
+        labels_cache = self.cache_root / f"{model_name}_{split}_labels.pt"
 
-# PyTorch Dataset for anatomical classification (test split)
-# Same logic as training dataset but uses test JSON files
-class BodyPartsDatasetTEST(Dataset):
-    
-    def __init__(self, model, model_name, load, save_path):
-        path = "/lightscratch/users/deschryv/clipFineTune/ultrasound_evaluation/"
-        if not load:
-            BUSI = (load_dataset(path+"classifier-breast-radiopedia-final_test.jsonl", BREAST, "", model))
-            CAMUS = (load_dataset(path+"classifier-heart-radiopedia-final_test.jsonl", OTHER, "", model))
-            COVIDUS = load_dataset(path+"classifier-lungs-radiopedia-final.jsonl", OTHER, "", model)
-            CT2 = (load_dataset(path+"classifier-abdomen-radiopedia-final_test.jsonl", ABDOMEN, "", model))
-            DDTI = (load_dataset(path+"classifier-thyroid-radiopedia-final_test.jsonl", TYROID, "", model))
+        if use_cache and data_cache.exists() and labels_cache.exists():
+            self.data = torch.load(data_cache, map_location="cpu")
+            self.labels = torch.load(labels_cache, map_location="cpu")
+            return
 
-            self.data = torch.cat([BUSI[0], CAMUS[0], COVIDUS[0], CT2[0], DDTI[0]], dim=0)
-            self.labels = torch.cat([BUSI[1], CAMUS[1], COVIDUS[1], CT2[1], DDTI[1]], dim=0)
+        tensors = []
+        label_tensors = []
 
-            torch.save(self.data, save_path + "/data_embl_test_"+ model_name + ".pt")
-            torch.save(self.labels, save_path + "/data_lab_test_" + model_name + ".pt")
-        else:
-            self.data = torch.load(save_path + "/data_embl_test_"+ model_name +".pt")
-            self.labels = torch.load(save_path + "/data_lab_test_"+ model_name +".pt")
+        for filename, label in DATASET_FILES[split]:
+            data, labels = load_jsonl_embeddings(
+                jsonl_path=_resolve_dataset_file(self.dataset_root, filename),
+                label=label,
+                model=model,
+                dataset_root=self.dataset_root,
+            )
+            tensors.append(data)
+            label_tensors.append(labels)
 
-    def __len__(self):
-        return len(self.data)
-    
-    def __getitem__(self, idx):
+        self.data = torch.cat(tensors, dim=0)
+        self.labels = torch.cat(label_tensors, dim=0)
+
+        torch.save(self.data, data_cache)
+        torch.save(self.labels, labels_cache)
+
+    def __len__(self) -> int:
+        return len(self.labels)
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
         return self.data[idx], self.labels[idx]
 
 
-# Full evaluation pipeline:
-# - Builds datasets
-# - Computes class weights for imbalance
-# - Runs an MLP benchmark on top of CLIP embeddings
-def evaluate_pipeline(model, model_name):
-    device = "cuda"
+def build_class_weights(labels: torch.Tensor) -> torch.Tensor:
+    labels_np = labels.cpu().numpy().astype(int)
+    classes = np.unique(labels_np)
+    weights = compute_class_weight(
+        class_weight="balanced",
+        classes=classes,
+        y=labels_np,
+    )
+    return torch.tensor(weights, dtype=torch.float32)
+
+
+def evaluate_pipeline(model: VisionTextDualEncoderModel, model_name: str):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
-    print("beginnig of the evaluation")
-    train_dataset = BodyPartsDataset(model, model_name, False, "/lightscratch/users/cljordan/multimeditron/src/multimeditron/experts/embeddings")
-    print("traning dataset loaded")
-    data_loader = DataLoader(dataset=train_dataset, batch_size=512)
-    test_dataset = BodyPartsDatasetTEST(model, model_name, False, "/lightscratch/users/cljordan/multimeditron/src/multimeditron/experts/embeddings")
-    print("test dataset loaded")
-    print("start of the mlp evaluation")
-    labelsWEIGHT = np.array(train_dataset.labels)
-    labelsWEIGHT = np.unique(labelsWEIGHT.astype(int))
+    model.eval()
 
-    class_weights = compute_class_weight(class_weight='balanced', classes=labelsWEIGHT, y=np.array(train_dataset.labels))
-    weights = torch.tensor(class_weights, dtype=torch.float)
+    print("Starting anatomical ultrasound evaluation")
 
-    mlp_bench = MLP_eval(output_dim=4, training_set=train_dataset, test_set=test_dataset, loss=nn.CrossEntropyLoss(weight=weights))
-    return mlp_bench.evaluate()
+    train_dataset = BodyPartsDataset(
+        model=model,
+        model_name=model_name,
+        split="train",
+        use_cache=True,
+    )
+    print(f"Training dataset loaded: {len(train_dataset)} samples")
 
-# Benchmark for an ultrasound image encoder. 
-#Evaluates the model's ability to classify different images with a multi layer perceptron head into four categories: BREAST, OTHER, ABDOMEN, TYROID
-class Anatomical_benchmark(Benchmark):
+    test_dataset = BodyPartsDataset(
+        model=model,
+        model_name=model_name,
+        split="test",
+        use_cache=True,
+    )
+    print(f"Test dataset loaded: {len(test_dataset)} samples")
 
-    def evaluate(self, model_path):
+    class_weights = build_class_weights(train_dataset.labels)
+    loss = nn.CrossEntropyLoss(weight=class_weights)
 
-        return evaluate_pipeline(VisionTextDualEncoderModel.from_pretrained(model_path), "test")
+    benchmark = MLP_eval(
+        output_dim=NUM_CLASSES,
+        training_set=train_dataset,
+        test_set=test_dataset,
+        loss=loss,
+    )
+    return benchmark.evaluate()
+
+
+class AnatomicalBenchmark(Benchmark):
+    def evaluate(self, model_path: str):
+        model = VisionTextDualEncoderModel.from_pretrained(model_path)
+        model_name = Path(model_path).name
+        return evaluate_pipeline(model=model, model_name=model_name)
+
 
 if __name__ == "__main__":
-    bench = Anatomical_benchmark()
-    model_path = sys.argv[1]
-    bench.evaluate(model_path)
+    if len(sys.argv) != 2:
+        raise SystemExit("Usage: python ultrasound_new_benchmark.py <model_path>")
+
+    benchmark = AnatomicalBenchmark()
+    result = benchmark.evaluate(sys.argv[1])
+    print(result)
