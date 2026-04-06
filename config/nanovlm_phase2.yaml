@@ -1,0 +1,43 @@
+base_llm: "HuggingFaceTB/SmolLM2-360M-Instruct"
+tokenizer_type: "qwen3"
+attachment_token: "<|image|>"
+seed: 42
+
+# Phase 2: Instruction Fine-tuning
+training_mode: "END2END" 
+base_model: "./output/nanovlm-phase1-alignment" # MUST BE UPDATED TO YOUR PHASE 1 CHECKPOINT FOLDER
+
+truncation: true
+max_sequence_length: 4096
+
+modalities:
+  - modality_type: "image"
+    model_type: "meditron_clip"
+    hidden_size: 960 
+    clip_name: "google/siglip2-base-patch16-512" 
+
+loaders:
+  - loader_type: "fs-image"
+    modality_type: "image"
+    base_path: "./data/cauldron_images" 
+
+training_args:
+  output_dir: "./output/nanovlm-phase2-finetune"
+  run_name: "nanovlm-phase2"
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  max_steps: 40000 
+  learning_rate: 5.0e-5 # Low learning rate to protect the LLM
+  mm_projector_lr: null # Not needed anymore, projector is already smart
+  weight_decay: 0.0
+  warmup_ratio: 0.03
+  lr_scheduler_type: "cosine"
+  bf16: true
+  logging_steps: 100
+  save_steps: 500
+  remove_unused_columns: false
+  deepspeed: "config/deepspeed.json"
+  report_to: "none"
+
+datasets:
+  - packed_path: "./data/cauldron_formatted.jsonl"
