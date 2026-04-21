@@ -112,10 +112,18 @@ class ImageProcessor(BaseModalityProcessor):
 
 @AutoModality.register("meditron_clip")
 class ImageModality(BaseModality):
+    """Single-CLIP image modality with an MLP projection to the LLM hidden space."""
+
     config_class = ImageConfig
     preprocessor_class = ImageProcessor
 
     def __init__(self, config: ImageConfig):
+        """Initialize the ImageModality with a pretrained CLIP vision tower and projector.
+
+        Args:
+            config (ImageConfig): Configuration specifying the CLIP model name,
+                hidden size, and projection type.
+        """
         super().__init__(config)
 
         self.vision_tower_name = config.clip_name
@@ -128,6 +136,14 @@ class ImageModality(BaseModality):
         self.projector = MLPProjector(self.embedding_size, config.hidden_size, dtype=self.dtype)
 
     def forward(self, inputs) -> torch.FloatTensor:
+        """Extract CLIP vision features from a batch of images and project to LLM hidden size.
+
+        Args:
+            inputs (List[torch.Tensor]): List of preprocessed image tensors, one per sample.
+
+        Returns:
+            torch.FloatTensor: Projected patch embeddings of shape (batch, num_patches, hidden_size).
+        """
         inputs = torch.stack(inputs, dim=0)
         inputs = inputs.to(self.feature_extractor.device)
         image_features = self.feature_extractor.vision_model(inputs).last_hidden_state[:, 1:, :]

@@ -30,8 +30,20 @@
 🎉 Latest Updates
 =================
 
-2025/09:
-    - First version of the MultiMeditron pipeline!
+v1.0.0 (2025/10/01):
+    - MultiMeditron v1.0.0 published.
+
+v1.1.0 (2026/04/15):
+    - Added full 7-expert vs 5-expert evaluation analysis (GMAI, SLAKE, PathVQA).
+    - Documented PathVQA root cause: severe binary "No" bias in the 7-expert model.
+    - Added a proper train/val/test split to gating training (`test_split`).
+
+v1.1.1 (2026/04/16):
+    - Added PathVQA routing analysis (500 test images) for 5-expert and 7-expert gating.
+    - Documented routing shift from Generalist to Skin/MRI on histopathology images.
+
+v1.1.2 (2026/04/21):
+    - Clarified release wording in this documentation page.
 
 
 ✨ Overview

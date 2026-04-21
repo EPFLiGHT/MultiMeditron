@@ -1,0 +1,59 @@
+base_llm: /capstor/store/cscs/swissai/a127/meditron/hf_cache/hub/models--OpenMeditron--Meditron3-8B/snapshots/15914bcb040cd1a4f263afcd85b84f09ad2efd95
+base_model: null
+resume_from_checkpoint: false
+wandb_run_id: null
+attachment_token: <|reserved_special_token_0|>
+tokenizer_type: llama
+token_size: 4096
+
+loaders:
+  - loader_type: raw-image
+    modality_type: image
+
+modalities:
+  - model_type: moe_meditron_clip_pep
+    image_processor: /users/surech/meditron/MultiMeditron/models/CLIP/clip-vit-base-patch32
+    hidden_size: 4096
+    expert_clip_names:
+      - /capstor/store/cscs/swissai/a127/meditron/models/openai/clip-vit-base-patch32
+      - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/OphthalmologyExpert
+      - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/SkinExpert
+      - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/UltraSoundCLIP/checkpoint-4350
+      - /users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-CT
+      - /users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-MRI
+      - /users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-Xray
+    generalist_idx: 0
+    gating_path: ""
+    fusion_method: cross_attn
+    top_k_experts: 3
+
+training_mode: ALIGNMENT
+
+datasets:
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_pretrain_cleaned
+
+training_args:
+  output_dir: /users/surech/meditron/MultiMeditron/models/freeze/attn_pep/test-7experts-alignment
+  run_name: test-7experts-alignment
+  dataloader_num_workers: 4
+  remove_unused_columns: false
+  ddp_find_unused_parameters: false
+  learning_rate: 1.0e-5
+  bf16: true
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 1
+  max_steps: 5
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs:
+    use_reentrant: true
+  save_strategy: steps
+  save_steps: 5
+  max_grad_norm: 1.0
+  accelerator_config:
+    dispatch_batches: false
+  lr_scheduler_type: cosine_with_min_lr
+  lr_scheduler_kwargs:
+    min_lr: 1.0e-6
+  report_to: none
+  logging_steps: 1
+  weight_decay: 0.01

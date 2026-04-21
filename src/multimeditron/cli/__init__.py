@@ -10,12 +10,19 @@ This tools is part of the MultiMeditron project,
 made by the LiGHT group at EPFL."""
 
 def ensure_config_empty_dict(config, key):
+    """Ensure a config dictionary key exists and is initialized as an empty dict.
+
+    Args:
+        config (dict): The configuration dictionary.
+        key (str): The key to check and initialize.
+    """
     if key not in config or config[key] is None:
         config[key] = {}
 
 
 @click.group(epilog=EPILOG)
 def main_cli():
+    """MultiMeditron CLI — entry point for training, evaluation, and utilities."""
     logging.basicConfig(
         format="%(asctime)s [%(levelname)s] -- %(message)s",
         level=logging.INFO,

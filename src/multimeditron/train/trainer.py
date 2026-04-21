@@ -14,6 +14,8 @@ if os.environ.get('ENABLE_BENCHY', None) == '1':
 
 
 class TrainingMode(IntEnum):
+    """Enumeration of supported multimodal training modes."""
+
     ALIGNMENT = 0
     END2END = 1
     LM_ONLY = 2
@@ -77,6 +79,12 @@ class MultimodalTrainer(Trainer):
         self.model_accepts_loss_kwargs = False
 
     def get_train_dataloader(self):
+        """Return the training DataLoader, optionally wrapped with a Benchy benchmark iterator.
+
+        Returns:
+            DataLoader: The training dataloader, optionally wrapped for throughput benchmarking
+                when the ENABLE_BENCHY environment variable is set to '1'.
+        """
         train_dataloader = super().get_train_dataloader()
 
         if os.environ.get('ENABLE_BENCHY', None) == '1':
@@ -184,6 +192,15 @@ class MultimodalTrainer(Trainer):
             return super().train(*args, **kwargs)
 
     def training_step(self, *args, **kwargs):
+        """Execute a single training step, optionally recording a PyTorch profiler trace.
+
+        Args:
+            *args: Positional arguments passed to the parent Trainer's training_step.
+            **kwargs: Keyword arguments passed to the parent Trainer's training_step.
+
+        Returns:
+            torch.Tensor: The training loss for this step.
+        """
         if self.enable_pytorch_profiling:
             from torch.profiler import record_function
             with record_function("training_step"):

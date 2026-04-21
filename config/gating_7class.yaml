@@ -1,0 +1,107 @@
+# config/gating_7class.yaml — 7-class GatingNetwork training config
+#
+# Used by scripts/train_gating.py. CLI flags override values here.
+#
+# Launch:
+#   Debug:  sbatch sbatch_train_gating_debug.sh
+#   Prod:   sbatch sbatch_train_gating.sh
+
+# ── Model ──
+num_classes: 7
+top_k: 1
+image_processor_path: "openai/clip-vit-base-patch32"
+
+# class_names: expert model paths, in class-index order.
+# These are stored in config.json and used by MOEImageModality to build the
+# gating→expert permutation.
+class_names:
+  - "/users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-CT"
+  - "/capstor/store/cscs/swissai/a127/meditron/models/openai/clip-vit-base-patch32"
+  - "/users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-MRI"
+  - "/capstor/store/cscs/swissai/a127/meditron/models/CLIP/UltraSoundCLIP/checkpoint-4350"
+  - "/users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-Xray"
+  - "/capstor/store/cscs/swissai/a127/meditron/models/CLIP/OphthalmologyExpert"
+  - "/capstor/store/cscs/swissai/a127/meditron/models/CLIP/SkinExpert"
+
+# Human-readable labels for logging (same order as class_names)
+class_labels:
+  - "CT"
+  - "General"
+  - "MRI"
+  - "Ultrasound"
+  - "Xray"
+  - "Ophthalmology"
+  - "Skin"
+
+# ── Dataset mapping ──
+# Map class index → list of Arrow dataset paths (HuggingFace load_from_disk format).
+dataset_class_map:
+  # Class 0 — CT (6461 images)
+  0:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_ct2"
+
+  # Class 1 — General / natural images (558K images)
+  1:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_llava_pretrain"
+
+  # Class 2 — MRI
+  # NOTE: No dedicated MRI-only dataset available yet. Using image_PMC_VQA as a
+  # placeholder (~61K mixed medical images, some MRI). Replace with a dedicated
+  # MRI arrow dataset when one is prepared.
+  2:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_PMC_VQA"
+
+  # Class 3 — Ultrasound (combined ~31K images)
+  3:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_BUSI"
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_COVID_US"
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_DDTI"
+
+  # Class 4 — Xray (2964 images)
+  4:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_iu_xray"
+
+  # Class 5 — Ophthalmology (32535 images)
+  5:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/eye_dataset"
+
+  # Class 6 — Skin (63417 images)
+  6:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/skin_dataset"
+
+# ── Training ──
+output_dir: "/iopsstor/scratch/cscs/surech/multimeditron/checkpoints/gating/7class"
+num_epochs: 20
+lr: 1e-4
+weight_decay: 1e-4
+batch_size: 64
+num_workers: 4
+val_split: 0.1
+# Hold out a separate test split that is never seen during training.
+# Carved off before train/val, so val_acc is not leaked into model selection.
+test_split: 0.1
+seed: 42
+label_smoothing: 0.05
+gradient_accumulation_steps: 1
+
+# Set > 0 to cap the number of training samples per class (useful for balancing)
+# Set 0 for no cap.
+max_samples_per_class: 10000
+
+# ── Backbone ──
+pretrained_backbone: true       # Initialize ResNet50 with ImageNet weights
+freeze_backbone: true           # Freeze backbone initially (train only fc head)
+unfreeze_after_epoch: 5         # Unfreeze backbone after this many epochs (0 = never)
+
+# ── Scheduler ──
+scheduler: "cosine"             # "cosine", "step", or "none"
+warmup_epochs: 2
+
+# ── Checkpointing ──
+save_every_n_epochs: 5
+# resume_from: null             # Path to a save_pretrained checkpoint to resume from
+
+# ── Logging ──
+use_wandb: true
+wandb_project: "multimeditron-gating"
+# wandb_run_name: null          # Auto-generated if null

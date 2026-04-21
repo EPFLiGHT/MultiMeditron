@@ -5,8 +5,20 @@ The categorized data should be put in the folders `data/train/{modality}/{catego
 ## 2. Train the router
 Run the following command:
 ```bash
-python3 image_router_train.py --data_dir=data/images --resnet_size=50 --batch_size=32 --num_epochs=10 --learning_rate=0.001 --num_runs=1 --output_dir=output
+python3 image_router_train.py --data_dir=data/images --resnet_size=50 --batch_size=32 --num_epochs=10 --lr=0.001 --output_dir=output
 ```
+
+All CLI flags:
+
+| Flag | Default | Description |
+|---|---|---|
+| `--resnet_size` | 50 | ResNet variant: 18, 34, or 50 |
+| `--max_samples_per_class` | 1000 | Cap on samples per class for class-balanced training |
+| `--lr` | 0.0001 | Learning rate |
+| `--batch_size` | 16 | Batch size |
+| `--data_dir` | `data/images/` | Root directory; must contain `train/` and `test/` subdirs with one folder per class |
+| `--output_dir` | `output` | Where to save the trained model weights |
+| `--num_epochs` | 20 | Number of training epochs |
 
 # How to train the expert model?
 The expert model's goal is to extract features from the data. For images, we use a CLIP model fine-tuned on captionized images.
@@ -35,6 +47,59 @@ BiomedCLIP is available on HuggingFace Hub, but the code of `expert_model_train.
 `python3 biomed_train.py --data_url chexpert/chexpert.jsonl --output_dir chexpert_test --num_epochs 20 --save_model True`
 
 Use the command `python3 biomed_train.py -h` for additional help.
+
+# `gating_routing_analysis.py`
+
+## 1. What is it for?
+
+Analyses routing behaviour of both the 5-expert and 7-expert gating networks.
+For each of 5 modality-pure held-out datasets it reports:
+- Top-1 routed expert and percentage of images assigned to it
+- Average softmax weight per expert
+
+Use this to verify that each modality is routed to the correct specialist expert
+after a gating retrain, or to diagnose CT/US confusion bugs (see April 2026 audit).
+
+## 2. How to use?
+
+Run directly on the login node (no GPU required — ResNet50 on CPU):
+
+```bash
+python3 scripts/gating_routing_analysis.py
+```
+
+Or submit via the dedicated SLURM script (debug partition, ~1 min):
+
+```bash
+sbatch sbatch_gating_analysis.sh
+```
+
+Results are printed to stdout and saved to `/users/surech/meditron/reports/R-gating-routing-analysis.<jobid>.out`.
+
+---
+
+# `compare_modality_results.py`
+
+## 1. What is it for?
+
+Produces a side-by-side Markdown table comparing per-modality GMAI accuracy between the 5-expert baseline (checkpoint-3063) and the 7-expert model (checkpoint-800).
+Also shows GMAI department subtasks (ophthalmology, dermatology) and sample counts.
+
+## 2. How to use?
+
+```bash
+python3 scripts/compare_modality_results.py
+```
+
+Optional flags:
+
+| Flag | Default | Description |
+|---|---|---|
+| `--results-root` | `/users/surech/meditron/reports/lmms_eval_results` | Root directory of lmms-eval output directories |
+| `--model-a` | auto-discovered | Explicit path to model A result directory |
+| `--model-b` | auto-discovered | Explicit path to model B result directory |
+
+---
 
 # `prep_image_datasets.py`
 

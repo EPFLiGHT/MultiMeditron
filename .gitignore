@@ -219,3 +219,6 @@ __marimo__/
 
 # Hide template files
 **/gitignored-*
+
+# Core dumps
+core_*
