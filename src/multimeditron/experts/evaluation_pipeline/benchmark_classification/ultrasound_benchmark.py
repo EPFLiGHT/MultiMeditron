@@ -1,73 +1,199 @@
 from __future__ import annotations
 
+import json
+import sys
 from pathlib import Path
 
+import torch
+from torch.utils.data import Dataset
+from tqdm import tqdm
+from transformers import VisionTextDualEncoderModel
+
 from .base import ClassificationBenchmark
-from .datasets import load_or_build_dataset, read_jsonl
+from load_from_clip import encode_img
 
 
-class UltrasoundBenchmark(ClassificationBenchmark):
-    name = "ultrasound"
-    num_classes = 4
+BREAST = 0
+OTHER = 1
+ABDOMEN = 2
+THYROID = 3
 
-    dataset_root = Path("/lightscratch/users/deschryv/clipFineTune/ultrasound_evaluation")
+NUM_CLASSES = 4
 
-    BREAST = 0
-    OTHER = 1
-    ABDOMEN = 2
-    THYROID = 3
+DATASET_ROOT = Path("/lightscratch/users/deschryv/clipFineTune/ultrasound_evaluation")
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
+CACHE_ROOT = PROJECT_ROOT / "src" / "multimeditron" / "experts" / "embeddings"
 
-    train_sources = [
+DATASET_FILES = {
+    "train": [
         ("classifier-breast-radiopedia-final_train.jsonl", BREAST),
         ("classifier-heart-radiopedia-final_train.jsonl", OTHER),
         ("classifier-lungs-radiopedia-final_train.jsonl", OTHER),
         ("classifier-abdomen-radiopedia-final_train.jsonl", ABDOMEN),
         ("classifier-thyroid-radiopedia-final_train.jsonl", THYROID),
-    ]
-
-    test_sources = [
+    ],
+    "test": [
         ("classifier-breast-radiopedia-final_test.jsonl", BREAST),
         ("classifier-heart-radiopedia-final_test.jsonl", OTHER),
         ("classifier-lungs-radiopedia-final_test.jsonl", OTHER),
         ("classifier-abdomen-radiopedia-final_test.jsonl", ABDOMEN),
         ("classifier-thyroid-radiopedia-final_test.jsonl", THYROID),
-    ]
+    ],
+}
 
-    def load_split_examples(self, split_sources: list[tuple[str, int]]) -> tuple[list[dict], list[int]]:
-        all_examples = []
-        all_labels = []
+# Some dataset files were renamed — fall back to alternate names when missing.
+_FILENAME_FALLBACKS = {
+    "classifier-lungs-radiopedia-final_test.jsonl": "classifier-lungs-radiopedia-2_test.jsonl",
+}
 
-        for filename, label in split_sources:
-            examples = read_jsonl(self.dataset_root / filename)
-            all_examples.extend(examples)
-            all_labels.extend([label] * len(examples))
 
-        return all_examples, all_labels
+def _resolve_dataset_file(dataset_root: Path, filename: str) -> Path:
+    path = dataset_root / filename
+    if path.exists():
+        return path
+    fallback = _FILENAME_FALLBACKS.get(filename)
+    if fallback is not None:
+        fallback_path = dataset_root / fallback
+        if fallback_path.exists():
+            return fallback_path
+    return path
+
+
+def _resolve_image_path(raw_path: str, dataset_root: Path) -> Path:
+    if raw_path.startswith("/mloscratch/"):
+        raw_path = raw_path.replace("/mloscratch/", "/lightscratch/", 1)
+    path = Path(raw_path)
+    if path.is_absolute():
+        return path
+    return dataset_root / path
+
+
+def _extract_image_path(example: dict, dataset_root: Path) -> Path:
+    modalities = example.get("modalities")
+    if not modalities:
+        raise ValueError("Missing or empty 'modalities' field")
+    image_value = modalities[0].get("value")
+    if not isinstance(image_value, str) or not image_value:
+        raise ValueError("Missing image path in modalities[0]['value']")
+    return _resolve_image_path(image_value, dataset_root)
+
+
+def _load_jsonl_embeddings(
+    jsonl_path: Path,
+    label: int,
+    model: VisionTextDualEncoderModel,
+    dataset_root: Path,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    embeddings: list[torch.Tensor] = []
+    labels: list[int] = []
+    with jsonl_path.open("r", encoding="utf-8") as f:
+        for line in tqdm(f, desc=jsonl_path.name):
+            example = json.loads(line)
+            image_path = _extract_image_path(example, dataset_root)
+            embeddings.append(encode_img(model, str(image_path)).cpu())
+            labels.append(label)
+    if not embeddings:
+        raise ValueError(f"No embeddings generated from {jsonl_path}")
+    return torch.stack(embeddings), torch.tensor(labels, dtype=torch.long)
+
+
+class BodyPartsDataset(Dataset):
+    def __init__(
+        self,
+        model: VisionTextDualEncoderModel,
+        model_name: str,
+        split: str,
+        dataset_root: Path = DATASET_ROOT,
+        cache_root: Path = CACHE_ROOT,
+        use_cache: bool = True,
+    ) -> None:
+        if split not in DATASET_FILES:
+            raise ValueError(f"Unknown split: {split}")
+
+        self.dataset_root = Path(dataset_root)
+        self.cache_root = Path(cache_root) if cache_root is not None else CACHE_ROOT
+        self.cache_root.mkdir(parents=True, exist_ok=True)
+
+        data_cache = self.cache_root / f"{model_name}_{split}_embeddings.pt"
+        labels_cache = self.cache_root / f"{model_name}_{split}_labels.pt"
+
+        if use_cache and data_cache.exists() and labels_cache.exists():
+            self.data = torch.load(data_cache, map_location="cpu")
+            self.labels = torch.load(labels_cache, map_location="cpu")
+            return
+
+        tensors = []
+        label_tensors = []
+        for filename, label in DATASET_FILES[split]:
+            data, labels = _load_jsonl_embeddings(
+                jsonl_path=_resolve_dataset_file(self.dataset_root, filename),
+                label=label,
+                model=model,
+                dataset_root=self.dataset_root,
+            )
+            tensors.append(data)
+            label_tensors.append(labels)
+
+        self.data = torch.cat(tensors, dim=0)
+        self.labels = torch.cat(label_tensors, dim=0)
+        torch.save(self.data, data_cache)
+        torch.save(self.labels, labels_cache)
+
+    def __len__(self) -> int:
+        return len(self.labels)
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
+        return self.data[idx], self.labels[idx]
+
+
+class UltrasoundBenchmark(ClassificationBenchmark):
+    num_classes = NUM_CLASSES
+
+    def __init__(
+        self,
+        max_train_examples: int | None = None,
+        max_test_examples: int | None = None,
+        cache_root: Path | None = None,
+        dataset_root: Path | None = None,
+    ) -> None:
+        super().__init__(
+            cache_root=cache_root,
+            max_train_examples=max_train_examples,
+            max_test_examples=max_test_examples,
+        )
+        self._dataset_root = Path(dataset_root) if dataset_root else DATASET_ROOT
 
     def build_train_dataset(self, model, model_name: str, use_cache: bool = True):
-        train_examples, train_labels = self.load_split_examples(self.train_sources)
-
-        return load_or_build_dataset(
-            cache_prefix=f"{model_name}_{self.name}_train",
-            examples=train_examples,
-            labels=train_labels,
+        ds = BodyPartsDataset(
             model=model,
-            dataset_root=self.dataset_root,
-            cache_root=self.cache_root,
+            model_name=model_name,
+            split="train",
+            dataset_root=self._dataset_root,
+            cache_root=self.cache_root or CACHE_ROOT,
             use_cache=use_cache,
-            desc="ultrasound-train",
         )
+        if self.max_train_examples is not None and len(ds) > self.max_train_examples:
+            ds.data = ds.data[:self.max_train_examples]
+            ds.labels = ds.labels[:self.max_train_examples]
+        return ds
 
     def build_test_dataset(self, model, model_name: str, use_cache: bool = True):
-        test_examples, test_labels = self.load_split_examples(self.test_sources)
-
-        return load_or_build_dataset(
-            cache_prefix=f"{model_name}_{self.name}_test",
-            examples=test_examples,
-            labels=test_labels,
+        ds = BodyPartsDataset(
             model=model,
-            dataset_root=self.dataset_root,
-            cache_root=self.cache_root,
+            model_name=model_name,
+            split="test",
+            dataset_root=self._dataset_root,
+            cache_root=self.cache_root or CACHE_ROOT,
             use_cache=use_cache,
-            desc="ultrasound-test",
         )
+        if self.max_test_examples is not None and len(ds) > self.max_test_examples:
+            ds.data = ds.data[:self.max_test_examples]
+            ds.labels = ds.labels[:self.max_test_examples]
+        return ds
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        raise SystemExit("Usage: python ultrasound_benchmark.py <model_path>")
+    benchmark = UltrasoundBenchmark()
+    print(benchmark.evaluate(sys.argv[1]))

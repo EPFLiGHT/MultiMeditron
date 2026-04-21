@@ -9,13 +9,16 @@ from sklearn.model_selection import KFold
 from tqdm import tqdm
 import numpy as np
 
-# Simple MLP classifier used on top of precomputed embeddings
 class MLP_Classifier(torch.nn.Module):
+    """3-layer MLP classifier trained on top of precomputed image embeddings.
+
+    Architecture: input_dim → 512 → 256 → output_dim, with ReLU activations.
+    """
 
     FIRST_DIM = 512
     SECOND_DIM = 256
 
-    def __init__(self,  output_dim:int, input_dim=512):
+    def __init__(self, output_dim: int, input_dim=512):
         super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.input_dim = input_dim
@@ -31,15 +34,34 @@ class MLP_Classifier(torch.nn.Module):
     def forward(self, x):
         return self.network(x)
 
-# Benchmark that evaluates an image encoder by training and evaluating a multi-layer perceptron on its embeddings
-#takes the training and testing sets of the embeddings as arguments
 class MLP_eval(Benchmark):
+    """Evaluates an image encoder by training an MLP classifier on its frozen embeddings.
 
-    def __init__(self, 
-                output_dim: int, 
-                training_set: Dataset, 
+    Protocol:
+    1. Grid-search over learning rates and weight decays using k-fold cross-validation
+       on the training set to select the best hyperparameters.
+    2. Retrain the MLP on the full training set with the best hyperparameters.
+    3. Report accuracy on the held-out test set.
+
+    Args:
+        output_dim: Number of classes.
+        training_set: Dataset of precomputed embeddings + labels for training.
+        test_set: Dataset of precomputed embeddings + labels for evaluation.
+        k: Number of folds for cross-validation (default: 10).
+        embedding_dim: Dimensionality of input embeddings (default: 512).
+        iteration_number: Unused, kept for API compatibility.
+        n_epoch: Number of training epochs per fold (default: 100).
+        loss: Loss function (default: CrossEntropyLoss). Use a weighted variant
+            for imbalanced datasets.
+        accuracy_function: Callable(preds, labels) → float. Defaults to top-1
+            accuracy. Override for multi-label tasks (e.g. F1).
+    """
+
+    def __init__(self,
+                output_dim: int,
+                training_set: Dataset,
                 test_set: Dataset,
-                k=10, 
+                k=10,
                 embedding_dim=512,
                 iteration_number=30,
                 n_epoch=100,
@@ -69,7 +91,7 @@ class MLP_eval(Benchmark):
         correct = 0
 
         for x, label in test_loader:
-            x = x.to(self.device)
+            x = x.to(self.device).float()
             label = label.to(self.device)
             logits = model(x)
 
@@ -97,7 +119,7 @@ class MLP_eval(Benchmark):
                 epoch_loss = 0.0
                 for i, data in enumerate(data_loader):
                     inputs, lab = data
-                    inputs = inputs.to(self.device)
+                    inputs = inputs.to(self.device).float()
                     lab = lab.to(self.device)
                     optimizer.zero_grad()
                     y = model(inputs).to(self.device)

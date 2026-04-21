@@ -6,10 +6,17 @@ from random import Random
 
 from .base import ClassificationBenchmark
 from .datasets import load_or_build_dataset, read_jsonl, resolve_image_path
-from ..load_from_clip import encode_img, encode_img_bytes
+from load_from_clip import encode_img, encode_img_bytes
 
 
 class MRIBenchmark(ClassificationBenchmark):
+    """MRI classification benchmark across 4 classes: brain tumor, crohn, healthy, bone infection.
+
+    Images are resolved with a multi-path fallback strategy to handle the fragmented
+    layout of the MRI-glob dataset. When no image file is found on disk, bytes are
+    loaded directly from the parquet shards as a last resort.
+    """
+
     name = "mri"
     num_classes = 4
 

@@ -10,7 +10,7 @@
 
 source .venv/bin/activate
 
-cd /users/cjordan/meditron/MultiMeditron/src/multimeditron/experts
+cd /lightscratch/users/cljordan/multimeditron/src/multimeditron/experts
 
 python train_new_pipeline.py \
   --config_file configurations/all_medical_and_general_baseline_random_config_1.yaml

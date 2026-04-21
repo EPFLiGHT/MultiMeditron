@@ -24,7 +24,6 @@ import logging
 import os
 import numpy as np
 import sys
-import pyarrow as pa
 from io import BytesIO
 
 # Add evaluation_pipeline to Python path so modules can import each other
@@ -33,7 +32,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'evaluation_pipeline'
 from dataclasses import dataclass, field
 from collections import defaultdict
 from typing import List, Optional
-from plotly.io import show
 from evaluation_pipeline.Benchmark import Benchmark
 import optuna
 import torch
@@ -43,7 +41,6 @@ from torchvision.io import ImageReadMode, read_image
 from torchvision.transforms import CenterCrop, ConvertImageDtype, Normalize, Resize
 from torchvision.transforms.functional import InterpolationMode
 from multiprocessing import Pool
-import os
 
 import transformers
 from transformers import (
@@ -52,7 +49,6 @@ from transformers import (
     AutoTokenizer,
     HfArgumentParser,
     VisionTextDualEncoderModel,
-    VisionTextDualEncoderConfig,
     Trainer,
     TrainingArguments,
     set_seed,

@@ -8,44 +8,34 @@ from .datasets import load_or_build_dataset
 from load_from_clip import encode_img
 
 
-class SkinIntegratedBenchmark(ClassificationBenchmark):
-    """Integrated skin disease benchmark built from coherent source manifests.
+class OphthalmologyDRBenchmark(ClassificationBenchmark):
+    """Binary diabetic retinopathy benchmark built from coherent fundus datasets.
 
-    This benchmark avoids the broken aggregate SKIN_data manifests whose `text`
-    field contains free-form descriptions. Instead it combines Skin10 and ISIC
-    splits that still resolve images cleanly and can be mapped to a stable class
-    taxonomy compatible with the current single-label evaluation pipeline.
+    This benchmark intentionally focuses on a single clinically meaningful task:
+    distinguishing normal fundus images from any level of diabetic retinopathy.
+    The current default sources are EyePACS and Messidor-2 because both are
+    centered on diabetic retinopathy grading and ship with manifests whose image
+    paths resolve cleanly on the shared storage.
     """
 
-    name = 'skin_integrated'
+    name = "ophthalmology_dr"
+    num_classes = 2
 
     default_train_jsonls = (
-        Path('/lightscratch/users/turan/datasets/skin_expert_datasets/skin_diseases_10/skin10_train.jsonl'),
-        Path('/lightscratch/users/turan/datasets/skin_expert_datasets/isic/isic_train.jsonl'),
+        Path('/lightscratch/users/turan/datasets/opthalmology_expert_datasets/eyepacs/eyepacs_train.jsonl'),
+        Path('/lightscratch/users/turan/datasets/opthalmology_expert_datasets/messidor2_eval/messidor_train.jsonl'),
     )
     default_test_jsonls = (
-        Path('/lightscratch/users/turan/datasets/skin_expert_datasets/skin_diseases_10/skin10_val.jsonl'),
-        Path('/lightscratch/users/turan/datasets/skin_expert_datasets/isic/isic_val.jsonl'),
+        Path('/lightscratch/users/turan/datasets/opthalmology_expert_datasets/eyepacs/eyepacs_val.jsonl'),
+        Path('/lightscratch/users/turan/datasets/opthalmology_expert_datasets/messidor2_eval/messidor_val.jsonl'),
     )
     default_image_roots = (
-        Path('/lightscratch/users/turan/datasets/skin_expert_datasets/skin_diseases_10'),
-        Path('/lightscratch/users/turan/datasets/skin_expert_datasets/isic'),
+        Path('/lightscratch/users/turan/datasets/opthalmology_expert_datasets/eyepacs'),
+        Path('/lightscratch/users/turan/datasets/opthalmology_expert_datasets/messidor2_eval'),
     )
 
-    labels = [
-        'atopic-dermatitis',
-        'basal-cell-carcinoma',
-        'benign-keratosis-like-lesions',
-        'eczema',
-        'melanocytic-nevi',
-        'melanoma',
-        'psoriasis-pictures-lichen-planus-and-related-diseases',
-        'seborrheic-keratoses-and-other-benign-tumors',
-        'tinea-ringworm-candidiasis-and-other-fungal-infections',
-        'warts-molluscum-and-other-viral-infections',
-    ]
+    labels = ['normal', 'diabetic_retinopathy']
     label_to_idx = {label: idx for idx, label in enumerate(labels)}
-    num_classes = len(labels)
 
     def __init__(
         self,
@@ -53,14 +43,8 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
         test_jsonls: tuple[str | Path, ...] | None = None,
         image_roots: tuple[str | Path, ...] | None = None,
         cache_root: Path | None = None,
-        max_train_examples: int | None = None,
-        max_test_examples: int | None = None,
     ) -> None:
-        super().__init__(
-            cache_root=cache_root,
-            max_train_examples=max_train_examples,
-            max_test_examples=max_test_examples,
-        )
+        super().__init__(cache_root=cache_root)
         chosen_train = train_jsonls if train_jsonls is not None else self.default_train_jsonls
         chosen_test = test_jsonls if test_jsonls is not None else self.default_test_jsonls
         chosen_roots = image_roots if image_roots is not None else self.default_image_roots
@@ -78,21 +62,21 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
             with jsonl_path.open('r', encoding='utf-8') as f:
                 for line in f:
                     example = json.loads(line)
-                    label = self.find_label(example, jsonl_path)
-                    if label is None:
-                        dropped_unlabeled += 1
-                        continue
-
                     image_path = self.resolve_example_image_path(example, jsonl_path.parent)
                     if image_path is None:
                         dropped_missing_images += 1
                         continue
 
-                    normalized = dict(example)
-                    normalized['label'] = label
-                    normalized['__image_path__'] = str(image_path)
-                    normalized['__source_jsonl__'] = str(jsonl_path)
-                    examples.append(normalized)
+                    label = self.find_label(example)
+                    if label is None:
+                        dropped_unlabeled += 1
+                        continue
+
+                    example = dict(example)
+                    example['label'] = label
+                    example['__image_path__'] = str(image_path)
+                    example['__source_jsonl__'] = str(jsonl_path)
+                    examples.append(example)
 
         print(
             f'[{split_name}] kept {len(examples)} example(s), '
@@ -122,39 +106,44 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
 
         return None
 
-    def _extract_skin10_label(self, image_value: str) -> str | None:
-        parts = Path(image_value).parts
-        if len(parts) >= 2 and parts[0] == 'rebuilt':
-            label = parts[1]
-            if label in self.label_to_idx:
-                return label
-        return None
+    def find_label(self, example: dict) -> str | None:
+        raw_label = example.get('label')
+        if raw_label:
+            normalized = str(raw_label).strip().lower()
+            if normalized in {'normal', 'healthy', 'no diabetic retinopathy', 'no_dr', 'no_diabetic_retinopathy'}:
+                return 'normal'
+            if normalized in {
+                'diabetic retinopathy',
+                'mild diabetic retinopathy',
+                'moderate diabetic retinopathy',
+                'severe diabetic retinopathy',
+                'proliferative diabetic retinopathy',
+            }:
+                return 'diabetic_retinopathy'
 
-    def _extract_isic_label(self, text: str) -> str | None:
-        text = text.lower()
-        if 'basal cell carcinoma' in text:
-            return 'basal-cell-carcinoma'
-        if 'benign keratosis' in text:
-            return 'benign-keratosis-like-lesions'
-        if 'melanocytic nevus' in text or 'melanocytic nevi' in text:
-            return 'melanocytic-nevi'
-        if 'melanoma' in text:
-            return 'melanoma'
-        return None
+        text = str(example.get('text', '')).lower()
+        if 'no diabetic retinopathy' in text:
+            return 'normal'
+        if 'normal fundus' in text or 'healthy fundus' in text or 'healthy retina' in text:
+            return 'normal'
+        if 'mild diabetic retinopathy' in text:
+            return 'diabetic_retinopathy'
+        if 'moderate diabetic retinopathy' in text:
+            return 'diabetic_retinopathy'
+        if 'severe diabetic retinopathy' in text:
+            return 'diabetic_retinopathy'
+        if 'proliferative diabetic retinopathy' in text:
+            return 'diabetic_retinopathy'
+        if 'diabetic retinopathy' in text:
+            return 'diabetic_retinopathy'
 
-    def find_label(self, example: dict, source_jsonl: Path) -> str | None:
-        image_value = example['modalities'][0]['value']
-        if 'skin_diseases_10' in str(source_jsonl):
-            return self._extract_skin10_label(image_value)
-        if 'isic' in str(source_jsonl):
-            return self._extract_isic_label(str(example.get('text', '')))
         return None
 
     def load_train_examples(self) -> list[dict]:
-        return self._read_examples(self.train_jsonls, 'skin-integrated-train')
+        return self._read_examples(self.train_jsonls, 'ophthalmology-dr-train')
 
     def load_test_examples(self) -> list[dict]:
-        return self._read_examples(self.test_jsonls, 'skin-integrated-test')
+        return self._read_examples(self.test_jsonls, 'ophthalmology-dr-test')
 
     def examples_to_labels(self, examples: list[dict]) -> list[int]:
         return [self.label_to_idx[str(example['label'])] for example in examples]
@@ -167,8 +156,8 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
 
     def build_train_dataset(self, model, model_name: str, use_cache: bool = True):
         train_examples = self.load_train_examples()
-        train_examples = self._sample_examples_random(train_examples, self.max_train_examples, seed=42)
         train_labels = self.examples_to_labels(train_examples)
+
         return load_or_build_dataset(
             cache_prefix=f'{model_name}_{self.name}_train',
             examples=train_examples,
@@ -177,14 +166,14 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
             dataset_root=self.dataset_root,
             cache_root=self.cache_root,
             use_cache=use_cache,
-            desc='skin-integrated-train',
+            desc='ophthalmology-dr-train',
             embed_example=self.embed_example,
         )
 
     def build_test_dataset(self, model, model_name: str, use_cache: bool = True):
         test_examples = self.load_test_examples()
-        test_examples = self._sample_examples_random(test_examples, self.max_test_examples, seed=43)
         test_labels = self.examples_to_labels(test_examples)
+
         return load_or_build_dataset(
             cache_prefix=f'{model_name}_{self.name}_test',
             examples=test_examples,
@@ -193,6 +182,6 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
             dataset_root=self.dataset_root,
             cache_root=self.cache_root,
             use_cache=use_cache,
-            desc='skin-integrated-test',
+            desc='ophthalmology-dr-test',
             embed_example=self.embed_example,
         )

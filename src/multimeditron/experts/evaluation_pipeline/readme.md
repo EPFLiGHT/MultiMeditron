@@ -2,6 +2,99 @@
 
 Toolkit for evaluating CLIP-style vision-language models on medical imaging tasks using multiple evaluation protocols: basic image-text alignment, hard negative retrieval, skin tone stratified analysis, qualitative visualization and classification evaluation.
 
+## Training Pipeline with Integrated Evaluation (`train_new_pipeline.py`)
+
+`train_new_pipeline.py` trains a CLIP-style dual encoder (vision + text) on medical imaging datasets and evaluates it automatically at the end of each Optuna trial using the classification benchmarks.
+
+### What it does
+
+1. Loads and mixes domain-specific datasets (CT, MRI, X-ray, ultrasound, skin, ophthalmology) with configurable weights
+2. Runs Optuna hyperparameter search (learning rate, weight decay, frozen layers)
+3. After each trial, evaluates the trained model on the benchmarks listed in `benchmark_selection`
+4. Returns the best hyperparameters and plots the Optuna study
+
+### Usage
+
+```bash
+python src/multimeditron/experts/train_new_pipeline.py \
+  --config_file src/multimeditron/experts/configurations/e2e_test_config.yaml \
+  2>&1 | tee src/multimeditron/experts/logs/train_$(date +%Y%m%d_%H%M%S).log
+```
+
+### Config format
+
+```yaml
+# Model
+vision_model_name: openai/clip-vit-base-patch32
+text_model_name: FacebookAI/roberta-base
+output_dir: models/my_run
+
+# Training
+learning_rate: 5.0e-05
+num_train_epochs: 1
+per_device_train_batch_size: 32
+fp16: true
+
+# Datasets
+dataset_configs:
+  - data_dir: /path/to/CT2D-glob-mini
+    domain: ct
+    image_column: modalities_images
+    caption_column: text
+    weight: 1.0
+
+# Benchmarks to run after each trial
+benchmark_selection:
+  - ct
+  - mri
+  - skin_integrated
+  - ophthalmology
+  - scin
+  - ultrasound
+  - xray
+```
+
+### Environment variables for benchmarks
+
+Each benchmark requires its dataset paths to be set before running. If a path is missing the benchmark cannot be built. For a quick smoke test, also set size limits:
+
+```bash
+# CT
+export CT_MAX_TRAIN_EXAMPLES=200
+export CT_MAX_TEST_EXAMPLES=50
+
+# MRI
+export MRI_MAX_TRAIN_EXAMPLES=200
+export MRI_MAX_TEST_EXAMPLES=50
+
+# Skin integrated
+export SKIN_INTEGRATED_MAX_TRAIN_EXAMPLES=200
+export SKIN_INTEGRATED_MAX_TEST_EXAMPLES=50
+
+# Ophthalmology (required — no default paths)
+export OPHTH_DATASET_ROOT=/path/to/eyepacs
+export OPHTH_TRAIN_JSONL=/path/to/ophthalmology_train.jsonl
+export OPHTH_TEST_JSONL=/path/to/ophthalmology_val.jsonl
+export OPHTH_MAX_TRAIN_EXAMPLES=200
+export OPHTH_MAX_TEST_EXAMPLES=50
+
+# X-ray (point to the NIH ChestX-ray14 dataset root with images_001/ ... images_012/ shards)
+export XRAY_KAGGLE_DATA_ROOT=/path/to/nih_chest_xrays
+
+# Ultrasound
+export ULTRASOUND_MAX_TRAIN_EXAMPLES=200
+export ULTRASOUND_MAX_TEST_EXAMPLES=50
+```
+
+### Disable W&B
+
+```bash
+# In train_new_pipeline.py, uncomment:
+os.environ["WANDB_DISABLED"] = "true"
+```
+
+---
+
 ## Overview
 
 This pipeline provides several evaluation methods:

@@ -10,9 +10,8 @@ from torch.utils.data import Dataset
 from tqdm import tqdm
 
 import kagglehub
-from Benchmark import Benchmark
+from benchmark_classification.base import ClassificationBenchmark
 from load_from_clip import load_model, encode_img
-from mlp_eval import MLP_eval
 
 
 XRAY_LABELS = [
@@ -118,6 +117,16 @@ def _resolve_image_path(image_name, images_root, kaggle_root=None):
 
 
 class Xray_Dataset(Dataset):
+    """PyTorch Dataset of NIH ChestX-ray14 image embeddings and multi-hot labels.
+
+    Embeddings are computed once and cached to disk as .pt files under
+    {data_root}/embeddings/. Subsequent instantiations with the same saving_name
+    load directly from cache without re-encoding.
+
+    Labels are multi-hot vectors of length 15 (one entry per XRAY_LABELS class),
+    since a single image can have multiple findings.
+    """
+
     def get_label(self, finding_labels):
         label_list = finding_labels.split('|')
         output = [0] * len(XRAY_LABELS)
@@ -133,7 +142,7 @@ class Xray_Dataset(Dataset):
 
     def __init__(self, evaluated_clip, saving_name, rows, csv_path, images_root, kaggle_root=None):
         self.data = []
-        self.label = []
+        self.labels = []
         self.evaluated_clip = evaluated_clip
         data_root = os.path.dirname(csv_path)
         self.images_root = images_root
@@ -146,7 +155,7 @@ class Xray_Dataset(Dataset):
 
         if os.path.exists(file_name_data) and os.path.exists(file_name_lab):
             self.data = torch.load(file_name_data, map_location="cpu")
-            self.label = torch.load(file_name_lab, map_location="cpu")
+            self.labels = torch.load(file_name_lab, map_location="cpu")
             return
 
         encoded_images = []
@@ -158,59 +167,75 @@ class Xray_Dataset(Dataset):
 
         if encoded_images:
             self.data = torch.stack(encoded_images)
-            self.label = torch.stack(encoded_labels)
+            self.labels = torch.stack(encoded_labels)
         else:
             self.data = torch.empty((0, 512), dtype=torch.float32)
-            self.label = torch.empty((0, len(XRAY_LABELS)), dtype=torch.float32)
+            self.labels = torch.empty((0, len(XRAY_LABELS)), dtype=torch.float32)
 
         torch.save(self.data, file_name_data)
-        torch.save(self.label, file_name_lab)
+        torch.save(self.labels, file_name_lab)
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
-        return self.data[idx], self.label[idx]
+        return self.data[idx], self.labels[idx]
 
 
-def eval_pipeline(clip_path, clip_name, csv_path, device):
-    evaluated_clip = load_model(clip_path).to(device)
-    evaluated_clip.eval()
+class XRay_benchmark(ClassificationBenchmark):
+    """NIH ChestX-ray14 multi-label classification benchmark.
 
-    _, resolved_csv_path, images_root, kaggle_root = _resolve_xray_paths()
-    csv_path = str(resolved_csv_path if csv_path is None else csv_path)
+    Evaluates a vision encoder on 15 pathology classes using a multi-label MLP.
+    The CSV is expected to be pre-shuffled (use randomize_csv before first run).
+    An 80/20 train/test split is applied on the shuffled rows.
+    Loss is BCEWithLogitsLoss and accuracy is measured with macro F1.
+    """
 
-    with open(csv_path, newline='', encoding='utf-8') as f:
-        rows = list(csv.DictReader(f))
+    num_classes = len(XRAY_LABELS)
 
-    train_end = int(len(rows) * 0.8)
-    train_rows = rows[:train_end]
-    test_rows = rows[train_end:]
-
-    train_dataset = Xray_Dataset(evaluated_clip, clip_name + "_train", train_rows, csv_path, images_root, kaggle_root)
-    test_dataset = Xray_Dataset(evaluated_clip, clip_name + "_test", test_rows, csv_path, images_root, kaggle_root)
-    mlp_eval = MLP_eval(
-        15,
-        train_dataset,
-        test_dataset,
-        loss=nn.BCEWithLogitsLoss(),
-        accuracy_function=multi_label_f1_score,
-    )
-    accuracy = mlp_eval.evaluate()
-    return accuracy
-
-
-class XRay_benchmark(Benchmark):
-    def __init__(self, is_lion_model):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.is_lion_model = is_lion_model
-        _, csv_path, _, _ = _resolve_xray_paths()
+    def __init__(
+        self,
+        is_lion_model: bool = False,
+        max_train_examples: int | None = None,
+        max_test_examples: int | None = None,
+        cache_root=None,
+    ):
+        super().__init__(
+            cache_root=cache_root,
+            max_train_examples=max_train_examples,
+            max_test_examples=max_test_examples,
+        )
+        _, csv_path, self.images_root, self.kaggle_root = _resolve_xray_paths()
         self.csv_path = str(csv_path)
+        self._split_cache = None
 
-    def evaluate(self, clip_path):
-        clip_name = os.path.basename(os.path.normpath(clip_path))
-        self.clip_name = clip_name
-        return eval_pipeline(clip_path, clip_name, self.csv_path, self.device)
+    def build_loss(self, train_dataset):
+        return nn.BCEWithLogitsLoss()
+
+    def build_mlp_kwargs(self) -> dict:
+        return {'accuracy_function': multi_label_f1_score}
+
+    def _get_split_rows(self):
+        if self._split_cache is None:
+            with open(self.csv_path, newline='', encoding='utf-8') as f:
+                rows = list(csv.DictReader(f))
+            train_end = int(len(rows) * 0.8)
+            train_rows = rows[:train_end]
+            test_rows = rows[train_end:]
+            if self.max_train_examples is not None:
+                train_rows = train_rows[:self.max_train_examples]
+            if self.max_test_examples is not None:
+                test_rows = test_rows[:self.max_test_examples]
+            self._split_cache = (train_rows, test_rows)
+        return self._split_cache
+
+    def build_train_dataset(self, model, model_name: str, use_cache: bool = True):
+        train_rows, _ = self._get_split_rows()
+        return Xray_Dataset(model, model_name + "_train", train_rows, self.csv_path, self.images_root, self.kaggle_root)
+
+    def build_test_dataset(self, model, model_name: str, use_cache: bool = True):
+        _, test_rows = self._get_split_rows()
+        return Xray_Dataset(model, model_name + "_test", test_rows, self.csv_path, self.images_root, self.kaggle_root)
 
 
 if __name__ == "__main__":

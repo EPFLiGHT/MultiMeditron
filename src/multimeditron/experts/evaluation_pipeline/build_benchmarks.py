@@ -14,23 +14,21 @@ if EVAL_DIR not in sys.path:
     sys.path.insert(0, EVAL_DIR)
 
 
-SKIN_ENV_VARS = {
-    "train_jsonl": "SKIN_TRAIN_JSONL",
-    "test_jsonl": "SKIN_TEST_JSONL",
-    "image_root": "SKIN_IMAGE_ROOT",
-    "cache_dir": "SKIN_CACHE_DIR",
-}
 
 SKIN_INTEGRATED_ENV_VARS = {
     "train_jsonls": "SKIN_INTEGRATED_TRAIN_JSONLS",
     "test_jsonls": "SKIN_INTEGRATED_TEST_JSONLS",
     "image_roots": "SKIN_INTEGRATED_IMAGE_ROOTS",
+    "max_train_examples": "SKIN_INTEGRATED_MAX_TRAIN_EXAMPLES",
+    "max_test_examples": "SKIN_INTEGRATED_MAX_TEST_EXAMPLES",
 }
 
 OPHTH_ENV_VARS = {
     "dataset_root": "OPHTH_DATASET_ROOT",
     "train_jsonl": "OPHTH_TRAIN_JSONL",
     "test_jsonl": "OPHTH_TEST_JSONL",
+    "max_train_examples": "OPHTH_MAX_TRAIN_EXAMPLES",
+    "max_test_examples": "OPHTH_MAX_TEST_EXAMPLES",
 }
 
 MRI_ENV_VARS = {
@@ -57,6 +55,22 @@ SCIN_ENV_VARS = {
     "ref_model_name": "SCIN_REF_MODEL_NAME",
 }
 
+ULTRASOUND_ENV_VARS = {
+    "dataset_root": "ULTRASOUND_DATASET_ROOT",
+    "max_train_examples": "ULTRASOUND_MAX_TRAIN_EXAMPLES",
+    "max_test_examples": "ULTRASOUND_MAX_TEST_EXAMPLES",
+}
+
+XRAY_ENV_VARS = {
+    "data_root": "XRAY_DATA_ROOT",
+    "max_train_examples": "XRAY_MAX_TRAIN_EXAMPLES",
+    "max_test_examples": "XRAY_MAX_TEST_EXAMPLES",
+}
+
+
+def _parse_optional_int(raw_value: str | None) -> int | None:
+    return None if raw_value in (None, "") else int(raw_value)
+
 
 def _validate_optional_env_block(name: str, values: dict[str, str | None], env_names: dict[str, str]):
     provided_count = sum(value is not None for value in values.values())
@@ -78,31 +92,13 @@ def _validate_optional_env_block(name: str, values: dict[str, str | None], env_n
     return True
 
 
-def _maybe_build_skin_benchmark():
-    config = {
-        "train_jsonl": os.environ.get(SKIN_ENV_VARS["train_jsonl"]),
-        "test_jsonl": os.environ.get(SKIN_ENV_VARS["test_jsonl"]),
-        "image_root": os.environ.get(SKIN_ENV_VARS["image_root"]),
-    }
-    cache_dir = os.environ.get(SKIN_ENV_VARS["cache_dir"], "")
-
-    if not _validate_optional_env_block("Skin", config, SKIN_ENV_VARS):
-        return None
-
-    from evaluation_pipeline.disease_classification_pipeline.skin_benchmark import SkinDiseaseBenchmark
-
-    return SkinDiseaseBenchmark(
-        train_jsonl=config["train_jsonl"],
-        test_jsonl=config["test_jsonl"],
-        image_root=config["image_root"],
-        cache_dir=cache_dir,
-    )
-
 
 def _maybe_build_skin_integrated_benchmark():
     train_jsonls = _split_env_paths(os.environ.get(SKIN_INTEGRATED_ENV_VARS["train_jsonls"]))
     test_jsonls = _split_env_paths(os.environ.get(SKIN_INTEGRATED_ENV_VARS["test_jsonls"]))
     image_roots = _split_env_paths(os.environ.get(SKIN_INTEGRATED_ENV_VARS["image_roots"]))
+    max_train_examples = _parse_optional_int(os.environ.get(SKIN_INTEGRATED_ENV_VARS["max_train_examples"]))
+    max_test_examples = _parse_optional_int(os.environ.get(SKIN_INTEGRATED_ENV_VARS["max_test_examples"]))
 
     from evaluation_pipeline.benchmark_classification.skin_integrated_benchmark import SkinIntegratedBenchmark
 
@@ -118,7 +114,10 @@ def _maybe_build_skin_integrated_benchmark():
         default_roots_exist = all(path.exists() for path in SkinIntegratedBenchmark.default_image_roots)
         if not (default_train_exists and default_test_exists and default_roots_exist):
             return None
-        return SkinIntegratedBenchmark()
+        return SkinIntegratedBenchmark(
+            max_train_examples=max_train_examples,
+            max_test_examples=max_test_examples,
+        )
 
     missing = [key for key, is_present in provided.items() if not is_present]
     if missing:
@@ -139,15 +138,23 @@ def _maybe_build_skin_integrated_benchmark():
         train_jsonls=tuple(train_jsonls),
         test_jsonls=tuple(test_jsonls),
         image_roots=tuple(image_roots),
+        max_train_examples=max_train_examples,
+        max_test_examples=max_test_examples,
     )
 
 
-def _maybe_build_ophthalmology_benchmark():
-    config = {
+def _ophthalmology_config_from_env():
+    return {
         "dataset_root": os.environ.get(OPHTH_ENV_VARS["dataset_root"]),
         "train_jsonl": os.environ.get(OPHTH_ENV_VARS["train_jsonl"]),
         "test_jsonl": os.environ.get(OPHTH_ENV_VARS["test_jsonl"]),
     }
+
+
+def _maybe_build_ophthalmology_benchmark():
+    config = _ophthalmology_config_from_env()
+    max_train_examples = _parse_optional_int(os.environ.get(OPHTH_ENV_VARS["max_train_examples"]))
+    max_test_examples = _parse_optional_int(os.environ.get(OPHTH_ENV_VARS["max_test_examples"]))
 
     if not _validate_optional_env_block("Ophthalmology", config, OPHTH_ENV_VARS):
         return None
@@ -158,17 +165,29 @@ def _maybe_build_ophthalmology_benchmark():
         dataset_root=config["dataset_root"],
         train_jsonl=config["train_jsonl"],
         test_jsonl=config["test_jsonl"],
+        max_train_examples=max_train_examples,
+        max_test_examples=max_test_examples,
     )
 
 
+def _maybe_build_ophthalmology_dr_benchmark():
+    config = _ophthalmology_config_from_env()
+
+    if not _validate_optional_env_block("Ophthalmology", config, OPHTH_ENV_VARS):
+        return None
+
+    from evaluation_pipeline.benchmark_classification.ophthalmology_dr_benchmark import OphthalmologyDRBenchmark
+
+    return OphthalmologyDRBenchmark(
+        train_jsonls=(config["train_jsonl"],),
+        test_jsonls=(config["test_jsonl"],),
+        image_roots=(config["dataset_root"],),
+    )
 
 
 
 def _build_ct_benchmark():
     from evaluation_pipeline.benchmark_classification.ct_benchmark import CTBenchmark
-
-    def _parse_optional_int(raw_value: str | None) -> int | None:
-        return None if raw_value in (None, "") else int(raw_value)
 
     def _parse_optional_bool(raw_value: str | None) -> bool | None:
         if raw_value in (None, ""):
@@ -201,9 +220,6 @@ def _build_mri_benchmark():
 
     def _parse_optional_float(raw_value: str | None) -> float | None:
         return None if raw_value in (None, "") else float(raw_value)
-
-    def _parse_optional_int(raw_value: str | None) -> int | None:
-        return None if raw_value in (None, "") else int(raw_value)
 
     def _parse_optional_bool(raw_value: str | None) -> bool | None:
         if raw_value in (None, ""):
@@ -285,6 +301,37 @@ def _maybe_build_scin_benchmark():
     )
 
 
+def _maybe_build_ultrasound_benchmark():
+    from benchmark_classification.ultrasound_benchmark import UltrasoundBenchmark, DATASET_ROOT
+
+    dataset_root_env = os.environ.get(ULTRASOUND_ENV_VARS["dataset_root"])
+    dataset_root = Path(dataset_root_env) if dataset_root_env else DATASET_ROOT
+    if not dataset_root.exists():
+        return None
+    max_train_examples = _parse_optional_int(os.environ.get(ULTRASOUND_ENV_VARS["max_train_examples"]))
+    max_test_examples = _parse_optional_int(os.environ.get(ULTRASOUND_ENV_VARS["max_test_examples"]))
+    return UltrasoundBenchmark(
+        max_train_examples=max_train_examples,
+        max_test_examples=max_test_examples,
+        dataset_root=dataset_root,
+    )
+
+
+def _maybe_build_xray_benchmark():
+    from evaluation_pipeline.xray_eval import XRay_benchmark, _resolve_xray_paths
+
+    _, csv_path, _, _ = _resolve_xray_paths()
+    if not csv_path.exists():
+        return None
+    max_train_examples = _parse_optional_int(os.environ.get(XRAY_ENV_VARS["max_train_examples"]))
+    max_test_examples = _parse_optional_int(os.environ.get(XRAY_ENV_VARS["max_test_examples"]))
+    return XRay_benchmark(
+        is_lion_model=False,
+        max_train_examples=max_train_examples,
+        max_test_examples=max_test_examples,
+    )
+
+
 def build_benchmarks_from_names(names: list[str] | tuple[str, ...] | None) -> List[object]:
     """Build only the requested benchmarks by stable benchmark name.
 
@@ -298,18 +345,15 @@ def build_benchmarks_from_names(names: list[str] | tuple[str, ...] | None) -> Li
     normalized = {name.lower(): name for name in requested}
 
     available_builders = {
+        'ct': _build_ct_benchmark,
         'mri': _build_mri_benchmark,
-        'ct': _maybe_build_ct_benchmark if '_maybe_build_ct_benchmark' in globals() else None,
-        'skin': _maybe_build_skin_benchmark,
         'skin_integrated': _maybe_build_skin_integrated_benchmark,
         'ophthalmology': _maybe_build_ophthalmology_benchmark,
+        'ophthalmology_dr': _maybe_build_ophthalmology_dr_benchmark,
         'scin': _maybe_build_scin_benchmark,
+        'ultrasound': _maybe_build_ultrasound_benchmark,
+        'xray': _maybe_build_xray_benchmark,
     }
-
-    # CT is always available in the default suite, but we keep the builder local here
-    # to avoid changing its current environment-driven behavior.
-    from evaluation_pipeline.benchmark_classification.ct_benchmark import CTBenchmark
-    available_builders['ct'] = _build_ct_benchmark
 
     built = []
     unknown = sorted(set(normalized) - set(available_builders))
@@ -341,17 +385,18 @@ def build_default_benchmarks() -> List[object]:
     configured via environment variables.
     """
 
-    from evaluation_pipeline.benchmark_classification.ct_benchmark import CTBenchmark
-    from evaluation_pipeline.benchmark_classification.mri_benchmark import MRIBenchmark
-    from evaluation_pipeline.ultrasound_new_benchmark import AnatomicalBenchmark
-    from evaluation_pipeline.xray_eval import XRay_benchmark
-
     benchmarks: List[object] = [
-        #AnatomicalBenchmark(),
-        #XRay_benchmark(is_lion_model=False),
         _build_mri_benchmark(),
         _build_ct_benchmark(),
     ]
+
+    ultrasound_benchmark = _maybe_build_ultrasound_benchmark()
+    if ultrasound_benchmark is not None:
+        benchmarks.append(ultrasound_benchmark)
+
+    xray_benchmark = _maybe_build_xray_benchmark()
+    if xray_benchmark is not None:
+        benchmarks.append(xray_benchmark)
 
     skin_benchmark = _maybe_build_skin_benchmark()
     if skin_benchmark is not None:

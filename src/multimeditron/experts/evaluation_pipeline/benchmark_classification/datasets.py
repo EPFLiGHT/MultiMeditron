@@ -11,7 +11,7 @@ from torch.utils.data import Dataset
 from tqdm import tqdm
 from transformers import VisionTextDualEncoderModel
 
-from ..load_from_clip import encode_img
+from load_from_clip import encode_img
 
 
 DEFAULT_CACHE_ROOT = Path(__file__).resolve().parents[1] / "embeddings"
@@ -54,6 +54,13 @@ def load_embeddings_from_examples(
     desc: str,
     embed_example: Callable[[dict, int, VisionTextDualEncoderModel, Path], torch.Tensor | None] | None = None,
 ) -> tuple[torch.Tensor, torch.Tensor]:
+    """Compute image embeddings for a list of examples using the vision encoder.
+
+    If embed_example is provided, it is called per example (useful for benchmarks
+    with custom image loading logic). Otherwise falls back to the default path:
+    resolve the image path from example['modalities'][0]['value'] and call encode_img.
+    Examples whose image is missing or whose embed_example returns None are skipped.
+    """
     embeddings = []
     kept_labels = []
     missing_images = 0
@@ -101,6 +108,14 @@ def load_or_build_dataset(
     prepare_images: Callable[[list[dict], Path, str], None] | None = None,
     embed_example: Callable[[dict, int, VisionTextDualEncoderModel, Path], torch.Tensor | None] | None = None,
 ) -> BenchmarkDataset:
+    """Load a cached embedding dataset or build it from scratch.
+
+    Cache files are stored as two .pt files: {cache_root}/{cache_prefix}_embeddings.pt
+    and {cache_prefix}_labels.pt. If both exist and use_cache=True, they are loaded
+    directly without re-encoding. Otherwise embeddings are computed and saved for
+    future runs. The cache key is cache_prefix — it must encode the model identity
+    and split name to avoid stale cache hits across different models or train/test splits.
+    """
     cache_root = Path(cache_root or DEFAULT_CACHE_ROOT)
     cache_root.mkdir(parents=True, exist_ok=True)
 
@@ -128,8 +143,15 @@ def load_or_build_dataset(
     return BenchmarkDataset(data=data, labels=labels_tensor)
 
 
-def build_class_weights(labels: torch.Tensor) -> torch.Tensor:
+def build_class_weights(labels: torch.Tensor, num_classes: int | None = None) -> torch.Tensor:
     labels_np = labels.cpu().numpy().astype(int)
-    classes = np.unique(labels_np)
-    weights = compute_class_weight(class_weight="balanced", classes=classes, y=labels_np)
+    classes = np.arange(num_classes) if num_classes is not None else np.unique(labels_np)
+    # For classes absent from the subset, assign weight 1.0
+    present = np.unique(labels_np)
+    weights = np.ones(len(classes), dtype=np.float64)
+    if len(present) > 1:
+        present_weights = compute_class_weight(class_weight="balanced", classes=present, y=labels_np)
+        for i, c in enumerate(classes):
+            if c in present:
+                weights[i] = present_weights[np.where(present == c)[0][0]]
     return torch.tensor(weights, dtype=torch.float32)

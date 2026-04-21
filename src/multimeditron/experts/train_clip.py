@@ -23,6 +23,7 @@ a text encoder pre-trained in the desired language.
 import logging
 import os
 import sys
+from datetime import datetime
 from io import BytesIO
 from dataclasses import dataclass, field
 from collections import defaultdict
@@ -505,11 +506,16 @@ def main(config_path: str):
 
     logger.info(f"Training/evaluation parameters {training_args}")
 
+    # Append timestamp to output_dir to avoid conflicts between runs
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    training_args.output_dir = f"{training_args.output_dir}_{timestamp}"
+
     # Training args
     training_args.dataloader_drop_last = True
     training_args.dataloader_num_workers = 4
     training_args.logging_steps = 50
-    training_args.fp16 = True
+    training_args.fp16 = False
+    training_args.bf16 = True
     training_args.gradient_accumulation_steps = 2
     if not os.environ.get("WANDB_DISABLED", False):  # setup wandb
         training_args.report_to = ["wandb"]
