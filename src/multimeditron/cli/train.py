@@ -13,6 +13,7 @@ from PIL import PngImagePlugin
 from datasets import config as datasets_config
 from pathlib import Path
 
+import contextlib
 import deepspeed
 import torch
 import os
@@ -60,6 +61,8 @@ def build_datasets(config):
         print(ds_config["packed_path"])
         if is_dataset_folder(ds_config["packed_path"]):
             dataset = load_from_disk(ds_config['packed_path'])
+        elif is_jsonl(ds_config["packed_path"]):
+            dataset = load_dataset("json", data_files=ds_config["packed_path"], num_proc=num_proc)["train"]
         else:
             dataset = load_dataset(ds_config["packed_path"], num_proc=num_proc)["train"]
         packed_datasets.append(dataset)
@@ -117,7 +120,10 @@ def train(config: str,
         modality_type = loader_copy.pop("modality_type")
         modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader_copy)
 
-    with deepspeed.zero.Init(dtype=torch.bfloat16):
+    # Only use ZeRO-3 initialization if a DeepSpeed config is provided
+    ds_init_context = deepspeed.zero.Init(dtype=torch.bfloat16) if training_args.deepspeed else contextlib.nullcontext()
+    
+    with ds_init_context:
         if config_dict.get("base_model", None) is None:
             model = bootstrap(config_dict, tokenizer, modalities_config)
         else:
@@ -138,7 +144,8 @@ def train(config: str,
     if os.environ.get('ENABLE_NSYS') == '1' and not os.environ.get('ENABLE_BENCHY') == '1':
         trainer_callbacks.append(NvtxAnnotationCallback())
 
-    
+    custom_lr = config_dict.get("custom_lr", {})
+
     trainer = MultimodalTrainer(
             model=model,
             args=training_args,
@@ -154,6 +161,7 @@ def train(config: str,
             training_mode=TRAINING_MAPPING[config_dict["training_mode"]],
             pytorch_profiler_config=config_dict.get("pytorch_profiler", None),
             callbacks=trainer_callbacks,
+            custom_lr=custom_lr,
     )
 
     # === Weights & Biases ===
@@ -180,9 +188,11 @@ def train(config: str,
         wandb_run = wandb.init(**wandb_kwargs)
 
         # attach deepspeed config
-        with open(config_dict["training_args"]["deepspeed"], "r") as ds_file:
-            deepspeed_config = json.load(ds_file)
-        wandb_run.config.update({"deepspeed_config": deepspeed_config})
+        ds_path = config_dict["training_args"].get("deepspeed")
+        if ds_path:
+            with open(ds_path, "r") as ds_file:
+                deepspeed_config = json.load(ds_file)
+            wandb_run.config.update({"deepspeed_config": deepspeed_config})
 
     # === Train (resume or fresh) ===
     if resume_flag:
@@ -199,3 +209,4 @@ def train(config: str,
     
     if torch.distributed.is_available() and torch.distributed.is_initialized():
         torch.distributed.barrier()
+
