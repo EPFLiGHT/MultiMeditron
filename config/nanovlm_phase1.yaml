@@ -1,34 +1,34 @@
 base_llm: "HuggingFaceTB/SmolLM2-360M-Instruct"
+token_size: 960
 tokenizer_type: "qwen3"
 attachment_token: "<|image|>"
 seed: 42
 
-# Phase 1: Expert Alignment
-training_mode: "ALIGNMENT" 
+# Phase 1: Expert Alignment (projector-only training)
+training_mode: "ALIGNMENT"
 base_model: null # Start from random projector
 
 truncation: true
-max_sequence_length: 4096
+max_sequence_length: 2048
 
+# === nanoVLM backbone: SigLIP2 ===
 modalities:
-  - modality_type: "image"
-    model_type: "meditron_clip"
-    hidden_size: 960 
-    clip_name: "google/siglip2-base-patch16-512" 
+  - model_type: "meditron_clip"
+    clip_name: "google/siglip2-base-patch16-224"
+    hidden_size: 960
 
 loaders:
   - loader_type: "fs-image"
     modality_type: "image"
-    base_path: "./data/cauldron_images" 
+    base_path: "/iopsstor/scratch/cscs/haaissa/cauldron_data/images"
 
 training_args:
-  output_dir: "./output/nanovlm-phase1-alignment"
+  output_dir: "/iopsstor/scratch/cscs/haaissa/multimeditron/checkpoints/nanovlm-phase1-alignment"
   run_name: "nanovlm-phase1"
   per_device_train_batch_size: 2
   gradient_accumulation_steps: 8
-  max_steps: 10000 # Phrase 1 is usually shorter
-  learning_rate: 1.0e-3 # High global learning rate because LLM/Vision are completely frozen
-  mm_projector_lr: null # Not needed, we are only training the projector
+  max_steps: 10000
+  learning_rate: 1.0e-3
   weight_decay: 0.0
   warmup_ratio: 0.03
   lr_scheduler_type: "cosine"
@@ -36,8 +36,14 @@ training_args:
   logging_steps: 100
   save_steps: 500
   remove_unused_columns: false
-  deepspeed: "config/deepspeed.json"
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs:
+    use_reentrant: true
+  dataloader_num_workers: 16
+  dataloader_prefetch_factor: 4
+  ddp_find_unused_parameters: false
   report_to: "none"
 
 datasets:
-  - packed_path: "./data/expert_cauldron_formatted.jsonl"
+  - packed_path: "/iopsstor/scratch/cscs/haaissa/cauldron_data/expert_cauldron_formatted.jsonl"
+

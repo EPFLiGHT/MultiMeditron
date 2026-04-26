@@ -1,0 +1,64 @@
+base_llm: "HuggingFaceTB/SmolLM2-360M-Instruct"
+token_size: 960
+tokenizer_type: "qwen3"
+attachment_token: "<|image|>"
+seed: 42
+
+# Single Phase Training: End-to-End from Step 0 — matching nanoVLM exactly
+training_mode: "FULL"
+base_model: null  # Start fresh, not from the blind checkpoint
+
+# Exact nanoVLM learning rates (from models/config.py):
+#   lr_mp = 0.00512   (projector — 5x higher to escape static noise fast)
+#   lr_vision_backbone = 5e-5
+#   lr_language_backbone = 5e-5
+custom_lr:
+  vision: 5.0e-5      # Matches nanoVLM lr_vision_backbone
+  projector: 0.00512  # Matches nanoVLM lr_mp exactly
+  # LLM uses default learning_rate below (matches lr_language_backbone)
+
+truncation: true
+max_sequence_length: 4096  # Matches nanoVLM lm_max_length
+
+# === nanoVLM backbone: SigLIP2 512px + Pixel Shuffle ===
+modalities:
+  - model_type: "meditron_clip"
+    clip_name: "google/siglip2-base-patch16-512"
+    projection_type: "pixel_shuffle"
+    pixel_shuffle_factor: 4
+    hidden_size: 960
+
+loaders:
+  - loader_type: "fs-image"
+    modality_type: "image"
+    base_path: "/iopsstor/scratch/cscs/haaissa/cauldron_data/images"
+
+datasets:
+  - packed_path: "/iopsstor/scratch/cscs/haaissa/cauldron_data/expert_cauldron_formatted.jsonl"
+    type: "jsonl"
+    weight: 1.0
+
+training_args:
+  output_dir: "/iopsstor/scratch/cscs/haaissa/multimeditron/checkpoints/nanovlm-v2-full"
+  run_name: "nanovlm-v2-full-v2"
+  max_steps: 40000                      # Matches nanoVLM max_training_steps
+  per_device_train_batch_size: 2        # Matches nanoVLM batch_size
+  gradient_accumulation_steps: 8        # Matches nanoVLM gradient_accumulation_steps
+  learning_rate: 5.0e-5                 # Matches nanoVLM lr_language_backbone
+  max_grad_norm: 1.0                    # Matches nanoVLM max_grad_norm
+  weight_decay: 0.0
+  warmup_ratio: 0.03
+  lr_scheduler_type: "cosine"
+  logging_steps: 100                    # Matches nanoVLM stats_log_interval
+  save_steps: 500
+  bf16: true
+  remove_unused_columns: false
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs:
+    use_reentrant: true
+  dataloader_num_workers: 8
+  dataloader_prefetch_factor: 2
+  ddp_find_unused_parameters: false
+
+  report_to: "wandb"
+
