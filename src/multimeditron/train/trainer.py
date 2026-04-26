@@ -38,6 +38,7 @@ class MultimodalTrainer(Trainer):
         optimizers=(None, None),
         training_mode: TrainingMode = TrainingMode.ALIGNMENT,
         pytorch_profiler_config=None,
+        custom_lr: Optional[Dict[str, float]] = None,
         **kwargs
     ):
         """
@@ -75,6 +76,79 @@ class MultimodalTrainer(Trainer):
             self.state.is_world_process_zero
         self.pytorch_profiler_config = pytorch_profiler_config if pytorch_profiler_config is not None else {}
         self.model_accepts_loss_kwargs = False
+        self.custom_lr = custom_lr or {}
+
+    def create_optimizer(self):
+        """
+        Setup the optimizer.
+        We provide a custom optimizer if custom_lr is given for different modality parts.
+        """
+        if self.optimizer is None:
+            if not self.custom_lr:
+                # Default behavior
+                return super().create_optimizer()
+                
+            # We construct groups based on component logic
+            # "projector" will get lr_mp
+            # "embedder" (vision) will get lr_vision
+            # the rest will get the default lr
+            
+            decay_parameters = self.get_decay_parameter_names(self.model)
+            
+            optimizer_grouped_parameters = []
+            
+            default_lr = self.args.learning_rate
+            lr_projector = self.custom_lr.get("projector", default_lr)
+            lr_vision = self.custom_lr.get("vision", default_lr)
+            
+            params_projector_decay = []
+            params_projector_nodecay = []
+            params_vision_decay = []
+            params_vision_nodecay = []
+            params_default_decay = []
+            params_default_nodecay = []
+            
+            for n, p in self.model.named_parameters():
+                if not p.requires_grad:
+                    continue
+                # Determine which group this parameter belongs to
+                if "projector" in n:
+                    if n in decay_parameters:
+                        params_projector_decay.append(p)
+                    else:
+                        params_projector_nodecay.append(p)
+                elif "feature_extractor" in n or "vision" in n:
+                    if n in decay_parameters:
+                        params_vision_decay.append(p)
+                    else:
+                        params_vision_nodecay.append(p)
+                else: # Default (LLM + others)
+                    if n in decay_parameters:
+                        params_default_decay.append(p)
+                    else:
+                        params_default_nodecay.append(p)
+            
+            optimizer_grouped_parameters.extend([
+                {"params": params_projector_decay, "weight_decay": self.args.weight_decay, "lr": lr_projector},
+                {"params": params_projector_nodecay, "weight_decay": 0.0, "lr": lr_projector},
+                {"params": params_vision_decay, "weight_decay": self.args.weight_decay, "lr": lr_vision},
+                {"params": params_vision_nodecay, "weight_decay": 0.0, "lr": lr_vision},
+                {"params": params_default_decay, "weight_decay": self.args.weight_decay, "lr": default_lr},
+                {"params": params_default_nodecay, "weight_decay": 0.0, "lr": default_lr},
+            ])
+            
+            # Filter empty groups
+            optimizer_grouped_parameters = [g for g in optimizer_grouped_parameters if len(g["params"]) > 0]
+            
+            optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
+            
+            # Remove lr from optimizer_kwargs as we already assigned it to parameter groups
+            if "lr" in optimizer_kwargs:
+                del optimizer_kwargs["lr"]
+
+            self.optimizer = optimizer_cls(optimizer_grouped_parameters, **optimizer_kwargs)
+
+        return self.optimizer
 
     def get_train_dataloader(self):
         train_dataloader = super().get_train_dataloader()
@@ -114,6 +188,17 @@ class MultimodalTrainer(Trainer):
 
         return (loss, outputs) if return_outputs else loss
 
+    def log(self, logs: Dict[str, float], start_time: Optional[float] = None) -> None:
+        """
+        Inject the captured per-component gradient norms into WandB logs.
+        """
+        if hasattr(self, "_latest_grad_norms"):
+            logs.update(self._latest_grad_norms)
+
+        if start_time is not None:
+            super().log(logs, start_time)
+        else:
+            super().log(logs)
 
     def train(self, *args, **kwargs):
         """
@@ -128,7 +213,6 @@ class MultimodalTrainer(Trainer):
         """
         self.model.train()
 
-        # Set the model in the correct training mode
         if self.training_mode == TrainingMode.ALIGNMENT:
             self.model.freeze_for_alignment()
         elif self.training_mode == TrainingMode.LM_ONLY:
@@ -140,46 +224,31 @@ class MultimodalTrainer(Trainer):
         else:
             raise ValueError(f"Unknown training mode {self.training_mode}")
 
-        # Pytorch profiler (avoid with NGC Pytorch 24.11-25.01)
         if self.enable_pytorch_profiling:
             from torch.profiler import profile, ProfilerActivity
-
-            wait_steps = int(
-                self.pytorch_profiler_config.get('wait_steps', 25))
-            warmup_steps = int(
-                self.pytorch_profiler_config.get('warmup_steps', 25))
-            active_steps = int(
-                self.pytorch_profiler_config.get('active_steps', 1))
+            wait_steps = int(self.pytorch_profiler_config.get('wait_steps', 25))
+            warmup_steps = int(self.pytorch_profiler_config.get('warmup_steps', 25))
+            active_steps = int(self.pytorch_profiler_config.get('active_steps', 1))
 
             if self.args.max_steps < wait_steps + warmup_steps + active_steps:
-                warnings.warn(
-                    f"Profiler will not run: max_steps ({self.args.max_steps}) should be greater than wait_steps ({wait_steps}) + warmup_steps ({warmup_steps}) + active_steps ({active_steps})")
+                warnings.warn(f"Profiler will not run: max_steps ({self.args.max_steps}) should be greater than wait_steps ({wait_steps}) + warmup_steps ({warmup_steps}) + active_steps ({active_steps})")
 
-            print(
-                f"Enabling Pytorch profiling (wait={wait_steps}, warmup={warmup_steps}, active={active_steps} steps)")
+            print(f"Enabling Pytorch profiling (wait={wait_steps}, warmup={warmup_steps}, active={active_steps} steps)")
 
             def trace_handler(p):
-                trace_filename = f"logs/R-{os.environ.get('SLURM_JOB_NAME')}.{os.environ.get('SLURM_JOBID')}_"\
-                    f"pttrace_s{str(wait_steps+warmup_steps)}_{str(wait_steps+warmup_steps+active_steps)}"\
-                    f"_r{os.environ.get('SLURM_PROCID')}.json"
+                trace_filename = f"logs/R-{os.environ.get('SLURM_JOB_NAME')}.{os.environ.get('SLURM_JOBID')}_pttrace_s{str(wait_steps+warmup_steps)}_{str(wait_steps+warmup_steps+active_steps)}_r{os.environ.get('SLURM_PROCID')}.json"
                 p.export_chrome_trace(trace_filename)
                 print(f"Exported Pytorch profiler trace to {trace_filename}")
 
             with profile(
                 activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
-                # record_shapes=True,
                 with_stack=True,
-                # profile_memory=True,
-                # with_flops=True,
-                schedule=torch.profiler.schedule(
-                    wait=wait_steps, warmup=warmup_steps, active=active_steps),
+                schedule=torch.profiler.schedule(wait=wait_steps, warmup=warmup_steps, active=active_steps),
                 on_trace_ready=trace_handler,
-                experimental_config=torch._C._profiler._ExperimentalConfig(
-                    verbose=True)
+                experimental_config=torch._C._profiler._ExperimentalConfig(verbose=True)
             ) as profiler:
                 self.profiler = profiler
                 return super().train(*args, **kwargs)
-
         else:
             return super().train(*args, **kwargs)
 
@@ -188,8 +257,30 @@ class MultimodalTrainer(Trainer):
             from torch.profiler import record_function
             with record_function("training_step"):
                 ret = super().training_step(*args, **kwargs)
-
             self.profiler.step()
-            return ret
         else:
-            return super().training_step(*args, **kwargs)
+            ret = super().training_step(*args, **kwargs)
+
+        # Capture gradients right AFTER backward() but BEFORE zero_grad()
+        if self.model is not None:
+            import math
+            if not hasattr(self, "_latest_grad_norms"):
+                self._latest_grad_norms = {}
+                
+            grad_norms = {"projector": [], "vision": [], "llm": []}
+            for name, param in self.model.named_parameters():
+                if param.grad is not None:
+                    norm = param.grad.detach().float().norm(2).item()
+                    if "projector" in name or "MP" in name:
+                        grad_norms["projector"].append(norm)
+                    elif "feature_extractor" in name or "vision" in name:
+                        grad_norms["vision"].append(norm)
+                    else:
+                        grad_norms["llm"].append(norm)
+
+            for component, norms in grad_norms.items():
+                if norms:
+                    self._latest_grad_norms[f"grad_norm_{component}"] = math.sqrt(sum(n ** 2 for n in norms))
+
+        return ret
+

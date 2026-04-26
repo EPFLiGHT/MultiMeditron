@@ -3,6 +3,7 @@ from multimeditron.model.modalities import BaseModality, BaseModalityConfig, Aut
 from multimeditron.model.projectors.mlp import MLPProjector
 import torch
 from transformers import AutoImageProcessor, AutoModel, AutoConfig
+from multimeditron.model.projectors.pixel_shuffle import PixelShuffleProjector
 
 from typing import Dict, Any
 
@@ -28,6 +29,7 @@ class ImageConfig(BaseModalityConfig):
         hidden_size: int = 4096,
         clip_name: str = "openai/clip-vit-large-patch14",
         projection_type: str = "mlp",
+        pixel_shuffle_factor: int = 1,
         use_2d_position_ids: bool = False,
         **kwargs
     ):
@@ -49,6 +51,7 @@ class ImageConfig(BaseModalityConfig):
 
         self.clip_name = clip_name
         self.projection_type = projection_type
+        self.pixel_shuffle_factor = pixel_shuffle_factor
         self.use_2d_position_ids = use_2d_position_ids
 
 
@@ -78,7 +81,11 @@ class ImageProcessor(BaseModalityProcessor):
 
         feature_extractor_config = AutoConfig.from_pretrained(config.clip_name, trust_remote_code=True)
         self._image_size = (feature_extractor_config.vision_config.image_size // feature_extractor_config.vision_config.patch_size)
-        self._num_patches_per_entry = self._image_size ** 2
+        
+        # Adjust patch count if pixel shuffle is used
+        raw_patches = self._image_size ** 2
+        f = getattr(config, "pixel_shuffle_factor", 1)
+        self._num_patches_per_entry = raw_patches // (f * f)
 
     def process(self, modality: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -92,6 +99,15 @@ class ImageProcessor(BaseModalityProcessor):
         """
         processed_modality = modality.copy()
         image = modality[MODALITY_VALUE_KEY]
+
+        # Force RGB conversion to prevent crashes with grayscale images from external evaluators
+        if hasattr(image, "convert"):
+            image = image.convert("RGB")
+            
+            # Hugging Face processor bug: if H or W is 1 or 3, infer_channel_dimension_format guesses C=1.
+            # We fix this by ensuring the image is always at least 4x4 pixels before processing.
+            if image.width < 4 or image.height < 4:
+                image = image.resize((max(4, image.width), max(4, image.height)))
 
         processed_modality[MODALITY_VALUE_KEY] = self.image_processor(images=image, return_tensors="pt")["pixel_values"][0]
         processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry
@@ -122,15 +138,35 @@ class ImageModality(BaseModality):
         assert self.vision_tower_name is not None, "vision_tower_name must be specified in the config"
 
         self.feature_extractor = AutoModel.from_pretrained(self.vision_tower_name, trust_remote_code=True)
-        self.embedding_size = self.feature_extractor.vision_embed_dim
-        self._num_patches_per_entry = (self.feature_extractor.vision_model.config.image_size // self.feature_extractor.vision_model.config.patch_size) ** 2
 
-        self.projector = MLPProjector(self.embedding_size, config.hidden_size, dtype=self.dtype)
+        # Support both OpenAI CLIP (vision_embed_dim) and SigLIP2 (config.vision_config.hidden_size)
+        if hasattr(self.feature_extractor, 'vision_embed_dim'):
+            self.embedding_size = self.feature_extractor.vision_embed_dim
+        else:
+            self.embedding_size = self.feature_extractor.config.vision_config.hidden_size
+
+        vision_cfg = self.feature_extractor.vision_model.config
+        self._num_patches_per_entry = (vision_cfg.image_size // vision_cfg.patch_size) ** 2
+
+        # SigLIP2 has no CLS token, OpenAI CLIP does
+        self._has_cls_token = getattr(vision_cfg, 'cls_flag', not 'siglip' in self.vision_tower_name.lower())
+
+        if config.projection_type == "pixel_shuffle":
+            self.projector = PixelShuffleProjector(
+                self.embedding_size, 
+                config.hidden_size, 
+                factor=config.pixel_shuffle_factor, 
+                dtype=self.dtype
+            )
+        else:
+            self.projector = MLPProjector(self.embedding_size, config.hidden_size, dtype=self.dtype)
 
     def forward(self, inputs) -> torch.FloatTensor:
         inputs = torch.stack(inputs, dim=0)
         inputs = inputs.to(self.feature_extractor.device)
-        image_features = self.feature_extractor.vision_model(inputs).last_hidden_state[:, 1:, :]
+        last_hidden = self.feature_extractor.vision_model(inputs).last_hidden_state
+        # Skip CLS token for CLIP models that have one; SigLIP2 has no CLS token
+        image_features = last_hidden[:, 1:, :] if self._has_cls_token else last_hidden
 
         projected = self.projector(image_features)
 
@@ -147,4 +183,5 @@ class ImageModality(BaseModality):
     def unfreeze_projection(self):
         for parameters in self.projector.parameters():
             parameters.requires_grad = True
+
 

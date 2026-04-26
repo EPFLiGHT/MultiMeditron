@@ -40,6 +40,11 @@ class PromptTokenizer:
 
         self.special_tokens = {k: self.tokenizer.convert_tokens_to_ids(v) for k, v in chat_template.special_tokens.items() if v is not None}
         self.attachment_token_idx = self.tokenizer.convert_tokens_to_ids(attachment_token)
+        self.attachment_token_str = attachment_token
+
+        # Prevent the tokenizer from splitting the attachment token during apply_chat_template
+        if attachment_token not in self.tokenizer.all_special_tokens:
+            self.tokenizer.add_tokens([attachment_token], special_tokens=True)
 
         self.pad_token_idx = self.convert_tokens_to_ids(self.tokenizer.pad_token)
 
@@ -161,18 +166,48 @@ class PromptTokenizer:
         # Expand the attachments
         tokenized_results = []
         for conv, mod in zip(conversation, modalities):
-            outputs = self.tokenizer.apply_chat_template(
-                conv,
+            # Replace <image> placeholders (e.g. from lmms-eval) with the actual attachment token
+            conv_copied = []
+            for msg in conv:
+                if "content" in msg and isinstance(msg["content"], str):
+                    new_content = msg["content"].replace("<image>", self.attachment_token_str)
+                    conv_copied.append({**msg, "content": new_content})
+                else:
+                    conv_copied.append(msg)
+
+            chat_str = self.tokenizer.apply_chat_template(
+                conv_copied,
                 add_eos_token=add_eos_token,
-                return_dict=True,
-                return_tensors="pt",
+                tokenize=False,
                 add_generation_prompt=add_generation_prompt,
-                enable_thinking=False,
             )
+
+            # Manually split and tokenize to force self.attachment_token_idx to be intact
+            parts = chat_str.split(self.attachment_token_str)
+            token_ids_list = []
+            attention_mask_list = []
+            
+            for i, part in enumerate(parts):
+                if len(part) > 0:
+                    part_enc = self.tokenizer(part, add_special_tokens=False, return_tensors="pt")
+                    token_ids_list.append(part_enc["input_ids"][0])
+                    attention_mask_list.append(part_enc["attention_mask"][0])
+                
+                # Append the attachment token after each part, except the last
+                if i < len(parts) - 1:
+                    token_ids_list.append(torch.tensor([self.attachment_token_idx], dtype=torch.long))
+                    attention_mask_list.append(torch.tensor([1], dtype=torch.long))
+
+            if len(token_ids_list) > 0:
+                raw_token_ids = torch.cat(token_ids_list)
+                raw_attention_mask = torch.cat(attention_mask_list)
+            else:
+                raw_token_ids = torch.tensor([], dtype=torch.long)
+                raw_attention_mask = torch.tensor([], dtype=torch.long)
             
             input_ids, attention_mask = self.expand_attachment_input_tokens(
-                token_ids=outputs["input_ids"].flatten(),
-                attention_mask=outputs["attention_mask"].flatten(),
+                token_ids=raw_token_ids,
+                attention_mask=raw_attention_mask,
                 modalities_for_message=mod,
             )
             
@@ -331,7 +366,9 @@ class PromptTokenizer:
         ).flatten()
         modalities_names = list(map(lambda x: x["type"], modalities_for_message))
 
-        assert len(modalities_names) == len(modalities_indices)
+        if len(modalities_names) != len(modalities_indices):
+            decoded_text = self.tokenizer.decode(token_ids)
+            raise AssertionError(f"Expected {len(modalities_names)} attachment tokens ({self.attachment_token_str}), found {len(modalities_indices)} in text: {decoded_text}")
         assert len(attention_mask) == len(token_ids)
 
         # First, take all the text until the first modality (excluded)
@@ -377,16 +414,39 @@ class PromptTokenizer:
         if isinstance(text, str):
             text = [text]
 
-        outputs = self.tokenizer(text, return_tensors="pt")
+        # Replace <image> placeholders with the actual attachment token
+        text_copied = [t.replace("<image>", self.attachment_token_str) for t in text]
 
         tokenized_results = []
 
         # Iterate on each sample of the batch
         for i in range(len(text)):
+            t = text_copied[i]
+            parts = t.split(self.attachment_token_str)
+            token_ids_list = []
+            attention_mask_list = []
+            
+            for j, part in enumerate(parts):
+                if len(part) > 0:
+                    part_enc = self.tokenizer(part, add_special_tokens=False, return_tensors="pt")
+                    token_ids_list.append(part_enc["input_ids"][0])
+                    attention_mask_list.append(part_enc["attention_mask"][0])
+                
+                if j < len(parts) - 1:
+                    token_ids_list.append(torch.tensor([self.attachment_token_idx], dtype=torch.long))
+                    attention_mask_list.append(torch.tensor([1], dtype=torch.long))
+            
+            if len(token_ids_list) > 0:
+                raw_token_ids = torch.cat(token_ids_list)
+                raw_attention_mask = torch.cat(attention_mask_list)
+            else:
+                raw_token_ids = torch.tensor([], dtype=torch.long)
+                raw_attention_mask = torch.tensor([], dtype=torch.long)
+
             # Expand attachment tokens
             input_ids, attention_mask = self.expand_attachment_input_tokens(
-                token_ids=outputs["input_ids"][i],
-                attention_mask=outputs["attention_mask"][i],
+                token_ids=raw_token_ids,
+                attention_mask=raw_attention_mask,
                 modalities_for_message=modalities[i],
             )
 
@@ -426,3 +486,4 @@ def replace_between_tags_v2(tensor, left_tag, right_tag, replace_value=-100):
         tensor[start : end + len(right_tag)] = replace_value
 
     return tensor
+
