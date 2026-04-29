@@ -1,0 +1,28 @@
+MultiMeditron 3D Volume Modality — Third-Party Notices
+======================================================
+
+This module integrates pretrained 3D vision encoders and borrows
+architectural patterns from upstream projects.
+
+M3D-CLIP (3D ViT vision encoder, BERT text encoder)
+  HuggingFace: GoodBaiBai88/M3D-CLIP
+  License:     Apache-2.0
+  Paper:       arXiv 2404.00578
+
+M3D / M3D-LaMed (architectural reference)
+  Source:      https://github.com/BAAI-DCAI/M3D
+  License:     MIT
+  Note:        the 256-token spatial-pool perceiver contract used by
+               VolumeModality is borrowed from M3D-LaMed.
+
+MONAI (PatchEmbeddingBlock used by M3D-CLIP)
+  Source:      https://github.com/Project-MONAI/MONAI
+  License:     Apache-2.0
+
+LLaVA (chat-template and projector conventions, transitively via M3D)
+  Source:      https://github.com/haotian-liu/LLaVA
+  License:     Apache-2.0
+
+The M3D-CLIP pretraining data (M3D-Cap, sourced from Radiopaedia) is
+released for non-commercial machine-learning research. Downstream
+users redistributing trained derivatives must verify dataset terms.
