@@ -156,11 +156,13 @@ class AutoModalityLoader:
 
 from multimeditron.dataset.loader.image.bytes import RawImageLoader
 from multimeditron.dataset.loader.image.fs import FileSystemImageLoader
+from multimeditron.dataset.loader.volume.volume_loader import FileSystemVolumeLoader
 
 __all__ = [
     "BaseModalityLoader",
     "AutoModalityLoader",
     "RawImageLoader",
     "FileSystemImageLoader",
+    "FileSystemVolumeLoader",
 ]
 

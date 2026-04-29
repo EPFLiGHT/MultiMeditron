@@ -34,7 +34,9 @@ dependencies = [
     "benchy @ git+https://github.com/lukasgd/benchy.git@slurm",
     "datasets @ git+https://github.com/Androz2091/simon-huggingface-datasets.git",
     "gradio",
-    "open_clip_torch"
+    "open_clip_torch",
+    "nibabel",
+    "monai>=1.4"
 ]
 
 [project.optional-dependencies]

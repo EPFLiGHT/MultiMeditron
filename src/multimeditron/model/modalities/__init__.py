@@ -3,6 +3,9 @@ from multimeditron.model.modalities.image_modality_moe import MOEImageConfig, MO
 from multimeditron.model.modalities.image_modality_moe_pep import MOEImageConfigPEP, MOEImageModalityPEP, MOEImageProcessorPEP
 from multimeditron.model.modalities.image_modality import ImageConfig, ImageModality, ImageProcessor
 from multimeditron.model.modalities.image_modality_biomed import BioMedCLIPImageConfig, BioMedCLIPImageModality, BioMedCLIPImageProcessor
+from multimeditron.model.modalities.volume.volume_modality import VolumeModality
+from multimeditron.model.modalities.volume.volume_config import VolumeConfig
+from multimeditron.model.modalities.volume.volume_processor import VolumeProcessor
 
 __all__ = [
     "BaseModality",
@@ -21,4 +24,7 @@ __all__ = [
     "BioMedCLIPImageConfig",
     "BioMedCLIPImageModality",
     "BioMedCLIPImageProcessor",
+    "VolumeConfig",
+    "VolumeModality",
+    "VolumeProcessor",
 ]
