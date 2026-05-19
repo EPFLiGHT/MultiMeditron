@@ -3,7 +3,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 from multimeditron.model.constants import MODALITIES_KEY, MODALITY_TYPE_KEY, MODALITY_VALUE_KEY
-from multimeditron.dataset.loader.volume.volume_loader import FileSystemVolumeLoader, RawVolumeLoader
 
 
 
@@ -158,6 +157,7 @@ class AutoModalityLoader:
 
 from multimeditron.dataset.loader.image.bytes import RawImageLoader
 from multimeditron.dataset.loader.image.fs import FileSystemImageLoader
+from multimeditron.dataset.loader.volume.volume_loader import FileSystemVolumeLoader, RawVolumeLoader
 
 __all__ = [
     "BaseModalityLoader",
