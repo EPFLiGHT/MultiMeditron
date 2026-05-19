@@ -44,6 +44,8 @@ class VolumeModality(BaseModality):
             config.hidden_size,
             dtype=self.dtype,
         )
+        self._patch_grid_pre = config.num_patches_pre
+        self._patch_grid_post = config.num_patches_post
 
         self._embedder_frozen = False
 
@@ -60,23 +62,57 @@ class VolumeModality(BaseModality):
         if tokens.ndim != 3:
             raise ValueError(f"Expected token tensor of shape (B, N, D), got {tuple(tokens.shape)}")
 
-        # M3D-CLIP style outputs include a CLS token. Remove it when possible.
-        if tokens.shape[1] > self.config.proj_out_num:
+        expected_pre_tokens = (
+            self._patch_grid_pre[0] * self._patch_grid_pre[1] * self._patch_grid_pre[2]
+        )
+        if tokens.shape[1] == expected_pre_tokens + 1:
             tokens = tokens[:, 1:, :]
+        elif tokens.shape[1] != expected_pre_tokens:
+            raise ValueError(
+                "Unexpected number of encoder tokens. "
+                f"Expected {expected_pre_tokens} (or {expected_pre_tokens + 1} with CLS), "
+                f"got {tokens.shape[1]}"
+            )
         return tokens
 
-    def _pool_tokens(self, tokens: torch.Tensor) -> torch.Tensor:
-        target_tokens = int(self.config.proj_out_num)
-        if tokens.shape[1] == target_tokens:
-            return tokens
+    def _spatial_pool_tokens(self, tokens: torch.Tensor) -> torch.Tensor:
+        batch_size, token_count, embed_dim = tokens.shape
+        grid_d, grid_h, grid_w = self._patch_grid_pre
+        expected_pre_tokens = grid_d * grid_h * grid_w
+        if token_count != expected_pre_tokens:
+            raise ValueError(
+                "Token count does not match pre-pooling grid. "
+                f"Expected {expected_pre_tokens}, got {token_count}"
+            )
 
-        pooled = F.adaptive_avg_pool1d(tokens.transpose(1, 2), target_tokens)
-        return pooled.transpose(1, 2)
+        x = tokens.transpose(1, 2).reshape(batch_size, embed_dim, grid_d, grid_h, grid_w)
+        pool_d, pool_h, pool_w = self.config.pool_factor
+        x = F.avg_pool3d(
+            x,
+            kernel_size=(pool_d, pool_h, pool_w),
+            stride=(pool_d, pool_h, pool_w),
+        )
+        pooled_tokens = x.flatten(2).transpose(1, 2)
+
+        expected_post_tokens = (
+            self._patch_grid_post[0] * self._patch_grid_post[1] * self._patch_grid_post[2]
+        )
+        if pooled_tokens.shape[1] != expected_post_tokens:
+            raise ValueError(
+                "Unexpected post-pooling token count. "
+                f"Expected {expected_post_tokens}, got {pooled_tokens.shape[1]}"
+            )
+        if pooled_tokens.shape[1] != self.config.proj_out_num:
+            raise ValueError(
+                "Post-pooling token count does not match proj_out_num. "
+                f"Expected {self.config.proj_out_num}, got {pooled_tokens.shape[1]}"
+            )
+        return pooled_tokens
 
     def forward(self, inputs: List[torch.Tensor]) -> torch.FloatTensor:
         x = torch.stack(inputs, dim=0).to(self.device)
         tokens = self._encode_tokens(x)
-        tokens = self._pool_tokens(tokens)
+        tokens = self._spatial_pool_tokens(tokens)
         return self.projector(tokens)
 
     def freeze_modality_embedder(self):
