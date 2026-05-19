@@ -12,12 +12,16 @@ class VolumeConfig(BaseModalityConfig):
     This config is used by:
     - VolumeProcessor (shape resize/normalization contract)
     - VolumeModality (vision encoder + projector settings)
+
+    pretrain_vision_model accepts either:
+    - a Hugging Face model id (e.g. GoodBaiBai88/M3D-CLIP), or
+    - a local model path.
     """
 
     def __init__(
         self,
         hidden_size: int = 4096,
-        pretrain_vision_model: str | None = None,
+        pretrain_vision_model: str = "GoodBaiBai88/M3D-CLIP",
         trust_remote_code: bool = True,
         projection_type: str = "mlp",
         volume_size: Tuple[int, int, int] = (32, 256, 256),
