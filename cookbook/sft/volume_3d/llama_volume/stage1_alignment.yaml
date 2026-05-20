@@ -1,0 +1,54 @@
+base_llm: meta-llama/Llama-3.1-8B-Instruct
+base_model: null
+resume_from_checkpoint: false
+wandb_run_id: null
+attachment_token: <|reserved_special_token_0|>
+tokenizer_type: llama
+token_size: 4096
+
+loaders:
+  - loader_type: fs-volume
+    modality_type: image_3d
+    base_path: $STORAGE_ROOT/volume_3d/images
+
+modalities:
+  - model_type: volume_3d
+    pretrain_vision_model: GoodBaiBai88/M3D-CLIP
+    trust_remote_code: true
+    hidden_size: 4096
+    volume_size: [32, 256, 256]
+    proj_out_num: 256
+
+training_mode: ALIGNMENT
+
+datasets:
+  # Dataset samples should contain modalities like:
+  # {"type": "image_3d", "value": "relative/path/to/volume.npy"}
+  - packed_path: $STORAGE_ROOT/volume_3d/alignment
+
+training_args:
+  output_dir: $MODEL_ROOT/freeze/volume_3d/MultiMeditron-Llama-8B-Alignment-Volume3D/
+  dataloader_num_workers: 8
+  dataloader_prefetch_factor: 2
+  remove_unused_columns: false
+  ddp_find_unused_parameters: false
+  learning_rate: 1.0e-4
+  bf16: true
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 16
+  num_train_epochs: 1
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs:
+    use_reentrant: true
+  save_strategy: epoch
+  max_grad_norm: 1.0
+  run_name: MultiMeditron-Llama-8B-Volume3D-Alignment
+  deepspeed: $WORKING_DIR/config/deepspeed.json
+  accelerator_config:
+    dispatch_batches: false
+  lr_scheduler_type: "cosine_with_min_lr"
+  lr_scheduler_kwargs:
+    min_lr: 3.0e-5
+  report_to: wandb
+  logging_steps: 1
+  weight_decay: 0.01

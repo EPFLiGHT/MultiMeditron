@@ -176,8 +176,14 @@ def _validate_row(sample: Dict[str, Any], modality_type: str, attachment_token: 
 
 @main_cli.command(epilog=EPILOG)
 @click.argument("dataset_path", type=click.Path(exists=True, file_okay=True, dir_okay=True))
-@click.option("--modality", "-m", "modality_type", type=click.Choice(["image"], case_sensitive=False),
-              required=True, help="Modality type to validate (currently only 'image').")
+@click.option(
+    "--modality",
+    "-m",
+    "modality_type",
+    type=click.Choice(["image", "image_3d"], case_sensitive=False),
+    required=True,
+    help="Modality type to validate (supported: image, image_3d).",
+)
 @click.option("--attachment-token", default=DEFAULT_ATTACHMENT_TOKEN, show_default=True,
               help="Token used in text/conversations to indicate modality placement.")
 @click.option("--max-samples", type=int, default=None,
@@ -186,8 +192,12 @@ def _validate_row(sample: Dict[str, Any], modality_type: str, attachment_token: 
               help="Number of processes to use for validation (default: CPU count).")
 @click.option("--verify-load/--no-verify-load", default=False,
               help="Attempt to load modalities using the specified loader to detect corrupt inputs.")
-@click.option("--loader-type", type=str, default=None,
-              help="Loader type to use for validation (e.g. raw-image, fs-image).")
+@click.option(
+    "--loader-type",
+    type=str,
+    default=None,
+    help="Loader type to use for validation (e.g. raw-image/fs-image for image, raw-volume/fs-volume for image_3d).",
+)
 @click.option("--loader-kwargs", type=str, default=None,
               help="JSON string of kwargs to pass to the loader (e.g. '{\"base_path\": \"/data\"}').")
 def check_dataset(dataset_path: str, modality_type: str, attachment_token: str,
