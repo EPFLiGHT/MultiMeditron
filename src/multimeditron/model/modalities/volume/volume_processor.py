@@ -82,18 +82,25 @@ class VolumeProcessor(BaseModalityProcessor):
             )
 
         volume = self._to_chw3d(volume)
+        if volume.shape[0] != 1:
+            raise ValueError(
+                "M3D-CLIP expects single-channel 3D volumes with shape (1, D, H, W); "
+                f"got channel count {volume.shape[0]} from shape {volume.shape}"
+            )
+
         tensor = torch.from_numpy(volume).float()  # (C, D, H, W)
 
         if not torch.isfinite(tensor).all():
             raise ValueError("Volume contains non-finite values (NaN or Inf)")
 
-        # Resize in 3D: interpolate expects (N, C, D, H, W).
-        tensor = F.interpolate(
-            tensor.unsqueeze(0),
-            size=self.volume_size,
-            mode="trilinear",
-            align_corners=False,
-        ).squeeze(0)
+        # Resize in 3D only when needed; preprocessed MedMNIST volumes already match this.
+        if tuple(tensor.shape[-3:]) != self.volume_size:
+            tensor = F.interpolate(
+                tensor.unsqueeze(0),
+                size=self.volume_size,
+                mode="trilinear",
+                align_corners=False,
+            ).squeeze(0)
 
         # Min-max normalize each volume to [0, 1].
         v_min = torch.amin(tensor)

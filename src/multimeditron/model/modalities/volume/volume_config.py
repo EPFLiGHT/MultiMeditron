@@ -32,6 +32,7 @@ class VolumeConfig(BaseModalityConfig):
         clip_revision: str | None = None,
         **kwargs,
     ):
+        kwargs.pop("modality_type", None)
         super().__init__(
             modality_type="image_3d",
             hidden_size=hidden_size,
@@ -55,6 +56,11 @@ class VolumeConfig(BaseModalityConfig):
     def _validate(self) -> None:
         if not self.pretrain_vision_model:
             raise ValueError("A pretrained 3D vision model must be provided via 'pretrain_vision_model'.")
+        if self.projection_type != "mlp":
+            raise ValueError(
+                "VolumeConfig currently supports only projection_type=mlp, "
+                f"got: {self.projection_type}"
+            )
         if len(self.volume_size) != 3:
             raise ValueError(
                 f"volume_size must be (D, H, W), got: {self.volume_size}"

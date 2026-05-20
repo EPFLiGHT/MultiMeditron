@@ -119,6 +119,7 @@ class MultimodalConfig(PretrainedConfig):
         truncation: bool = False,
         max_sequence_length: Optional[int] = None,
         dtype="bfloat16",
+        attn_implementation: str = "flash_attention_2",
         **kwargs
     ):
         """
@@ -146,6 +147,7 @@ class MultimodalConfig(PretrainedConfig):
         self.initializer_range = initializer_range
         self.llm_path = llm_path
         self.dtype = dtype
+        self.attn_implementation = attn_implementation
         self.truncation = truncation
         self.max_sequence_length = max_sequence_length
 
@@ -249,15 +251,20 @@ class MultiModalModelForCausalLM(PreTrainedModel):
 
         dtype = get_torch_dtype(config.dtype)
 
+        attn_implementation = getattr(config, "attn_implementation", "flash_attention_2")
         if bootstrap:
-            self.model = AutoModelForCausalLM.from_pretrained(config.llm_path, attn_implementation="flash_attention_2")
+            self.model = AutoModelForCausalLM.from_pretrained(
+                config.llm_path,
+                torch_dtype=dtype,
+                attn_implementation=attn_implementation,
+            )
         else:
             llm_config = AutoConfig.from_pretrained(
                     config.llm_path,
                     torch_dtype=dtype
                 )
             self.model = AutoModelForCausalLM.from_config(
-                config=llm_config, attn_implementation="eager")
+                config=llm_config, attn_implementation=attn_implementation)
 
         self.model.resize_token_embeddings(config.vocab_size, mean_resizing=False)
 
@@ -281,8 +288,9 @@ class MultiModalModelForCausalLM(PreTrainedModel):
             self.processors_by_type[modality_config.modality_type] = processor
             self.modalities_with_projection.append(modality)
 
-        # Post init
-        self.post_init()
+        # Do not call PreTrainedModel.post_init() here: the LLM and modality
+        # encoders are already initialized by their own constructors, and a
+        # recursive post_init would reinitialize pretrained Linear/Embedding weights.
 
     def _init_weights(self, module):
         """
@@ -710,6 +718,7 @@ def bootstrap(config, tokenizer, modalities_config):
         llm_path=config["base_llm"],
         truncation=config.get("truncation", False),
         max_sequence_length=config.get("max_sequence_length", None),
+        attn_implementation=config.get("attn_implementation", "flash_attention_2"),
     )
 
     model = MultiModalModelForCausalLM(
