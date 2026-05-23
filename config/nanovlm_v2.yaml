@@ -29,17 +29,18 @@ modalities:
     hidden_size: 960
 
 loaders:
-  - loader_type: "fs-image"
+  - loader_type: "raw-image"
     modality_type: "image"
-    base_path: "/iopsstor/scratch/cscs/haaissa/cauldron_data/images"
+
+val_size: 50000
 
 datasets:
-  - packed_path: "/iopsstor/scratch/cscs/haaissa/cauldron_data/expert_cauldron_formatted.jsonl"
+  - packed_path: "/iopsstor/scratch/cscs/haaissa/MultiMeditron_FineVision_Arrow"
     type: "jsonl"
     weight: 1.0
 
 training_args:
-  output_dir: "/iopsstor/scratch/cscs/haaissa/multimeditron/checkpoints/nanovlm-v2-full"
+  output_dir: "/iopsstor/scratch/cscs/haaissa/multimeditron/checkpoints/Dynamic_resize"
   run_name: "nanovlm-v2-full-v2"
   max_steps: 40000                      # Matches nanoVLM max_training_steps
   per_device_train_batch_size: 2        # Matches nanoVLM batch_size

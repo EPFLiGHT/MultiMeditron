@@ -38,7 +38,11 @@ def main():
         config["base_llm"], dtype=torch.bfloat16, use_fast=True)
     tokenizer.pad_token = tokenizer.eos_token
 
-    special_tokens = {'additional_special_tokens': [ATTACHMENT_TOKEN]}
+    special_tokens_list = [ATTACHMENT_TOKEN, "<|global_image|>"]
+    for i in range(1, 9):
+        for j in range(1, 9):
+            special_tokens_list.append(f"<row_{i}_col_{j}>")
+    special_tokens = {'additional_special_tokens': special_tokens_list}
     tokenizer.add_special_tokens(special_tokens)
 
     # Create a model
@@ -86,3 +90,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

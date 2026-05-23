@@ -84,13 +84,12 @@ class ChatTemplate:
     @staticmethod
     def qwen3() -> ChatTemplate:
         delimiters = {
-            "system": {"start": "<|im_start|>system", "end": "<|im_end|>"},
-            "user": {"start": "<|im_start|>user", "end": "<|im_end|>"},
-            "assistant": {"start": "<|im_start|>assistant", "end": "<|im_end|>"},
+            "system": {"start": "<|im_start|>system", "end": "<|im_end|>\n"},
+            "user": {"start": "<|im_start|>user", "end": "<|im_end|>\n"},
+            "assistant": {"start": "<|im_start|>assistant", "end": "<|im_end|>\n"},
         }
-        
-        special_tokens = {'image_start': '<|image_start|>', 'image_end': '<|image_end|>'}
 
+        special_tokens = {'global_image': '<|global_image|>'}
 
         return ChatTemplate(
             name="qwen3",
@@ -123,7 +122,7 @@ class MultimodalConfig(PretrainedConfig):
     ):
         """
         Initializes the MultimodalConfig.
-        
+
         Args:
             vocab_size (int, optional): Vocabulary size for the language model. Defaults to None.
             modalities (List[ModalityConfig]): List of modality configurations. Defaults to an empty list.
@@ -359,7 +358,7 @@ class MultiModalModelForCausalLM(PreTrainedModel):
             modality_with_proj.freeze_modality_embedder()
         for params in self.model.parameters():
             params.requires_grad = True
-    
+
     def unfreeze(self):
         """
         Unfreezes all model parameters for full training.
@@ -432,16 +431,56 @@ class MultiModalModelForCausalLM(PreTrainedModel):
 
         embedded_tokens = self.model.get_input_embeddings()(input_ids)
 
-        # Compute the projection and scatter into embedded token sequence
+        # Compute the projection and scatter into embedded token sequence.
+        # IMPORTANT: We must use out-of-place operations (torch.where) instead of
+        # in-place indexed assignment (embedded_tokens[idx] = ...) to preserve the
+        # autograd computation graph. In-place writes on tensors that are part of
+        # the graph silently break gradient flow to the projector.
+        # --- DEBUG: Print Text Embedding Stats ---
+        with torch.no_grad():
+            if not hasattr(self, "_debug_text_printed"):
+                self._debug_text_printed = 0
+            if self._debug_text_printed < 3:
+                self._debug_text_printed += 1
+                print(f"\n--- [DEBUG] Text Embedding Stats ---", flush=True)
+                print(f"Mean: {embedded_tokens.mean().item():.6f}", flush=True)
+                print(f"Std:  {embedded_tokens.std().item():.6f}", flush=True)
+                print("-" * 40, flush=True)
+        # -----------------------------------------
+
         for modality_name, processed_modality_stack in processed_multimodal_inputs['stacked'].items():
             modality = self._get_modality_by_name(modality_name)
-            
+
             embedded_modality_stack = modality(processed_modality_stack)
 
-            embedded_tokens[processed_multimodal_inputs['batch_idx'][modality_name],
-                            processed_multimodal_inputs['token_range'][modality_name]] = \
-                embedded_modality_stack.view(
-                    -1, embedded_modality_stack.shape[-1]).to(embedded_tokens.dtype)
+            batch_idx = processed_multimodal_inputs['batch_idx'][modality_name]
+            token_range = processed_multimodal_inputs['token_range'][modality_name]
+
+            # --- DEBUG: Print SigLIP Output Values ---
+            with torch.no_grad():
+                _p_count = getattr(self, "_debug_printed", 0)
+                if _p_count <= 3:
+                    print(f"\n--- [DEBUG] {modality_name} Embedding Values ---", flush=True)
+                    print(f"Mean: {embedded_modality_stack.mean().item():.6f}", flush=True)
+                    print(f"Std:  {embedded_modality_stack.std().item():.6f}", flush=True)
+                    print(f"First 5 values: {embedded_modality_stack.view(-1)[:5].tolist()}", flush=True)
+                    print("-" * 40, flush=True)
+            # ----------------------------------------
+
+            # Build a boolean mask marking image token positions [batch, seq_len, 1]
+            mask = torch.zeros(
+                embedded_tokens.shape[:2], dtype=torch.bool, device=embedded_tokens.device
+            )
+            mask[batch_idx, token_range] = True
+            mask = mask.unsqueeze(-1)  # broadcast over hidden_size
+
+            # Build a zeros canvas and place projected visual features into it
+            visual_canvas = torch.zeros_like(embedded_tokens)
+            visual_canvas[batch_idx, token_range] = \
+                embedded_modality_stack.view(-1, embedded_modality_stack.shape[-1]).to(embedded_tokens.dtype)
+
+            # Out-of-place merge: preserves full computation graph for both branches
+            embedded_tokens = torch.where(mask, visual_canvas, embedded_tokens)
 
         return embedded_tokens
 
@@ -495,6 +534,31 @@ class MultiModalModelForCausalLM(PreTrainedModel):
                 - hidden_states (if output_hidden_states=True)
                 - attentions (if output_attentions=True)
         """
+        import sys
+        _print_count = getattr(self, "_debug_printed", 0)
+        if _print_count < 3 and input_ids is not None:
+            self._debug_printed = _print_count + 1
+            print("\n" + "="*50, flush=True)
+            print(f"MULTIMEDITRON RUNTIME DEBUG (FORWARD PASS {_print_count + 1}/3)", flush=True)
+            print(f"Input IDs shape: {input_ids.shape}", flush=True)
+            print(f"Input IDs (first 20): {input_ids[0, :20].tolist()}", flush=True)
+            if labels is not None:
+                print(f"Labels shape: {labels.shape}", flush=True)
+                print(f"Valid Labels count (per batch): {(labels != -100).sum(dim=1).tolist()}", flush=True)
+            if processed_multimodal_inputs is not None and "stacked" in processed_multimodal_inputs:
+                for k, v in processed_multimodal_inputs["stacked"].items():
+                    if hasattr(v, "shape"):
+                        print(f"Image tensor '{k}' shape: {v.shape}", flush=True)
+                    elif isinstance(v, list):
+                        if len(v) > 0 and hasattr(v[0], "shape"):
+                            print(f"Image list '{k}' length: {len(v)}, first item shape: {v[0].shape}", flush=True)
+                        else:
+                            print(f"Image list '{k}' length: {len(v)}", flush=True)
+                    else:
+                        print(f"Image item '{k}' type: {type(v)}", flush=True)
+            print("="*50 + "\n", flush=True)
+            sys.stdout.flush()
+
         if inputs_embeds is None and multimodal_inputs is None:
             multimodal_inputs = [[]] * input_ids.shape[0]
 
@@ -512,6 +576,52 @@ class MultiModalModelForCausalLM(PreTrainedModel):
                     attention_mask = attention_mask[:, :self.config.max_sequence_length]
                 if position_ids is not None:
                     position_ids = position_ids[:, :self.config.max_sequence_length]
+
+        # --- [DEBUG] INPUT VS LABEL VISUALIZATION ---
+        with torch.no_grad():
+            if not hasattr(self, "_debug_deep_printed"):
+                self._debug_deep_printed = 0
+            if self._debug_deep_printed < 2:
+                self._debug_deep_printed += 1
+
+                b_idx = 0 # Look at first sample
+                if input_ids is not None:
+                    ids = input_ids[b_idx]
+                    lab = labels[b_idx] if labels is not None else None
+                    if lab is not None and ids.shape[0] > lab.shape[0]:
+                        ids = ids[:lab.shape[0]]
+
+                    print("\n" + "█"*80, flush=True)
+                    print(f"DEEP DEBUG: BATCH SAMPLE {b_idx} ANALYSIS", flush=True)
+
+                    try:
+                        from transformers import AutoTokenizer as _DebugTok
+                        _tok = _DebugTok.from_pretrained(self.config.llm_path, trust_remote_code=True)
+
+                        # 1. Show the FULL input (What the model sees)
+                        full_text = _tok.decode(ids, skip_special_tokens=False)
+                        print("\n--- FULL INPUT (MODEL'S VIEW) ---", flush=True)
+                        print(full_text[-800:], flush=True)  # Last 800 chars
+
+                        # 2. Show the LEARNED part (What is in the Labels)
+                        if lab is not None:
+                            valid_mask = lab != -100
+                            valid_ids = ids[valid_mask]
+                            if len(valid_ids) > 0:
+                                learned_text = _tok.decode(valid_ids, skip_special_tokens=False)
+                                print("\n--- WHAT THE MODEL IS TRAINING ON (LABELS) ---", flush=True)
+                                print(f"LEARNED CONTENT: {learned_text}", flush=True)
+                            else:
+                                print("\n--- WARNING: LABELS ARE COMPLETELY EMPTY (ALL -100) ---", flush=True)
+                    except Exception as _e:
+                        print(f"[DEEP DEBUG] Could not decode: {_e}", flush=True)
+                        print(f"Input IDs (first 20): {ids[:20].tolist()}", flush=True)
+                        if lab is not None:
+                            valid_ids = ids[lab != -100]
+                            print(f"Label token IDs (first 20): {valid_ids[:20].tolist()}", flush=True)
+
+                    print("█"*80 + "\n", flush=True)
+        # ---------------------------------------------
 
         # Run the transformer model
         return self.model(
@@ -534,16 +644,16 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         **kwargs
     ) -> Generator[torch.Tensor, None, None]:
         """
-        Generates text based on the provided batch of inputs. 
+        Generates text based on the provided batch of inputs.
         This function returns a generator that yields the generated text one token at a time.
-        
+
         The batch dictionary should contain:
             - 'processed_multimodal_inputs': Processed multimodal inputs.
             - 'input_ids': Input token IDs.
             - 'labels': Optional token IDs for labels.
             - 'attention_mask': Attention mask for the input tokens.
             - 'position_ids': Position IDs for the input tokens.
-        
+
         This function is particularly useful for inference streaming
 
         Args:
@@ -605,19 +715,34 @@ class MultiModalModelForCausalLM(PreTrainedModel):
                 logits = outputs.logits[:, -1, :].squeeze(1)
                 logits = logits / temperature
                 softmax = F.softmax(logits, dim=-1)
-    
+
                 if do_sample:
                     next_token_id = []
                     for sample_softmax in softmax:
                         x = torch.multinomial(
                             sample_softmax, num_samples=1)
                         next_token_id.append(x)
-                        
+
                     next_token_id = torch.cat(next_token_id).unsqueeze(0).cpu()
                 else:
                     next_token_id = torch.argmax(
                         softmax, dim=-1).unsqueeze(0).cpu()
                 yield next_token_id
+
+                # --- [DEBUG] Show model input and first generated token ---
+                with torch.no_grad():
+                    if i == 0:  # Only on the first generated token
+                        if not hasattr(self, "_debug_gen_printed"):
+                            self._debug_gen_printed = 0
+                        if self._debug_gen_printed < 5:
+                            self._debug_gen_printed += 1
+                            first_token_id = next_token_id[0].tolist()
+                            input_last_ids = input_ids[0, -10:].tolist()
+                            print("\n" + "▶"*60, flush=True)
+                            print(f"[DEBUG GEN #{self._debug_gen_printed}] LAST 10 INPUT TOKEN IDs: {input_last_ids}", flush=True)
+                            print(f"[DEBUG GEN #{self._debug_gen_printed}] FIRST GENERATED TOKEN ID: {first_token_id}", flush=True)
+                            print("▶"*60 + "\n", flush=True)
+                # -------------------------------------------------------
 
                 for i in range(next_token_id.shape[1]):
                     if finished_mask[i]:
@@ -671,19 +796,41 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         """
         generated_tokens = []
         generator = self.inference_generator(
-                batch, 
-                max_new_tokens=max_new_tokens, 
+                batch,
+                max_new_tokens=max_new_tokens,
                 temperature=temperature,
-                do_sample=do_sample, 
+                do_sample=do_sample,
                 **kwargs
         )
 
         for next_token_id in generator:
             generated_tokens.append(next_token_id)
 
-        return torch.cat(generated_tokens).transpose(1, 0)
+        result = torch.cat(generated_tokens).transpose(1, 0)
 
-        
+        # --- [DEBUG] Print question and answer in readable form ---
+        if not hasattr(self, "_debug_qa_printed"):
+            self._debug_qa_printed = 0
+        if self._debug_qa_printed < 5:
+            self._debug_qa_printed += 1
+            try:
+                from transformers import AutoTokenizer as _AutoTok
+                _tok = _AutoTok.from_pretrained(self.config.llm_path, trust_remote_code=True)
+                _input_ids = batch["input_ids"][0]
+                _question = _tok.decode(_input_ids, skip_special_tokens=False)
+                _answer = _tok.decode(result[0], skip_special_tokens=True)
+                print("\n" + "★"*70, flush=True)
+                print(f"[QA DEBUG #{self._debug_qa_printed}] QUESTION (last 600 chars):", flush=True)
+                print(_question[-600:], flush=True)
+                print(f"\n[QA DEBUG #{self._debug_qa_printed}] MODEL ANSWER: '{_answer}'", flush=True)
+                print("★"*70 + "\n", flush=True)
+            except Exception as _e:
+                print(f"[QA DEBUG] Could not decode: {_e}", flush=True)
+        # ----------------------------------------------------------
+
+        return result
+
+
 
 def bootstrap(config, tokenizer, modalities_config):
     """
@@ -700,7 +847,7 @@ def bootstrap(config, tokenizer, modalities_config):
     Returns:
         MultiModalModelForCausalLM: The initialized multimodal model.
     """
-    
+
 
     multimodal_config = MultimodalConfig(
         hidden_size=config["token_size"],
@@ -715,5 +862,6 @@ def bootstrap(config, tokenizer, modalities_config):
     model = MultiModalModelForCausalLM(
         multimodal_config, bootstrap=True)
     return model
+
 
 
