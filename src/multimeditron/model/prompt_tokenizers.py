@@ -63,15 +63,14 @@ class PromptTokenizer:
         self.pad_token_idx = self.convert_tokens_to_ids(self.tokenizer.pad_token)
 
         # Calculate prefix length for assistant turn (to mask it from the loss)
-        random_string_5_letters = "xzyvd"
-        random_string_chat_templated = self.tokenizer.apply_chat_template(
-            [{"role": "assistant", "content": random_string_5_letters}],
-            tokenize=False,
-            add_special_tokens=False
-        )
-        random_string_location = random_string_chat_templated.find(random_string_5_letters)
+        messages_before = [{"role": "user", "content": "hello"}]
+        messages_after = [{"role": "user", "content": "hello"}, {"role": "assistant", "content": "xzyvd"}]
+        txt_before = self.tokenizer.apply_chat_template(messages_before, tokenize=False, add_special_tokens=False)
+        txt_after = self.tokenizer.apply_chat_template(messages_after, tokenize=False, add_special_tokens=False)
+        loc = txt_after.find("xzyvd")
+        assistant_prefix = txt_after[len(txt_before):loc]
         self.assistant_prefix_len = len(
-            self.tokenizer.encode(random_string_chat_templated[:random_string_location], add_special_tokens=False)
+            self.tokenizer.encode(assistant_prefix, add_special_tokens=False)
         )
 
     @property

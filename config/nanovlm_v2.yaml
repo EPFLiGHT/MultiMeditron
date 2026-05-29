@@ -35,13 +35,13 @@ loaders:
 val_size: 50000
 
 datasets:
-  - packed_path: "/iopsstor/scratch/cscs/haaissa/MultiMeditron_FineVision_Arrow"
+  - packed_path: "/iopsstor/scratch/cscs/haaissa/MultiMeditron_Clean_Arrow"
     type: "jsonl"
     weight: 1.0
 
 training_args:
   output_dir: "/iopsstor/scratch/cscs/haaissa/multimeditron/checkpoints/Dynamic_resize"
-  run_name: "nanovlm-v2-full-v2"
+  run_name: "nanovlm-v2-full-v2-test"
   max_steps: 40000                      # Matches nanoVLM max_training_steps
   per_device_train_batch_size: 2        # Matches nanoVLM batch_size
   gradient_accumulation_steps: 8        # Matches nanoVLM gradient_accumulation_steps

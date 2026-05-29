@@ -44,6 +44,36 @@ def is_main_process() -> bool:
         return True
     return torch.distributed.get_rank() == 0
 
+def hf_m4_transform(batch):
+    import io
+    new_examples = {"conversations": [], "modalities": []}
+    for texts, images in zip(batch.get("texts", []), batch.get("images", [])):
+        convs = []
+        for turn in texts:
+            convs.append({"role": "user", "content": turn["user"]})
+            convs.append({"role": "assistant", "content": turn["assistant"]})
+
+        mods = []
+        if images is not None:
+            for img in images:
+                if img.mode not in ("RGB", "RGBA", "L", "1"):
+                    img = img.convert("RGB")
+                img_byte_arr = io.BytesIO()
+                img.save(img_byte_arr, format='PNG')
+                mods.append({"type": "image", "value": {"bytes": img_byte_arr.getvalue()}})
+
+        # Strip ALL existing image tags (raw dataset uses <image>, some examples have none)
+        # then force-insert exactly len(mods) tags at the start — same logic as prepare_multimeditron_arrow.py
+        if mods and convs:
+            content = convs[0]["content"]
+            content = content.replace("<|image|>", "").replace("<image>", "").strip()
+            image_tags = "<|image|>\n" * len(mods)
+            convs[0]["content"] = image_tags + content
+
+        new_examples["conversations"].append(convs)
+        new_examples["modalities"].append(mods)
+    return new_examples
+
 def build_datasets(config):
     packed_datasets = []
 
@@ -65,6 +95,10 @@ def build_datasets(config):
             dataset = load_dataset("json", data_files=ds_config["packed_path"], num_proc=num_proc)["train"]
         else:
             dataset = load_dataset(ds_config["packed_path"], num_proc=num_proc)["train"]
+        
+        if "texts" in dataset.features:
+            dataset = dataset.with_transform(hf_m4_transform)
+            
         packed_datasets.append(dataset)
 
     ds = concatenate_datasets(packed_datasets).shuffle(seed=config.get("seed", 0))
