@@ -10,9 +10,14 @@ This section contains user guides and tutorials for the MultiMeditron project.
 
    quickstart
    add_modality
+   add_expert
    dataset_format
    training
-   known_issues
+   moe
+   evaluation
+   deployment
    configuration
-   
+   known_issues
+   troubleshooting
+
 

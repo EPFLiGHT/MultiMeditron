@@ -39,3 +39,48 @@ Configuration Reference
     training_args: # Huggingface training arguments. Check the following documentation for more informations: https://huggingface.co/docs/transformers/main_classes/trainer#transformers.TrainingArguments
 
 
+MoE Configuration
+-----------------
+
+When using a Mixture-of-Experts (MoE) vision encoder, the ``modalities`` section requires additional fields.
+
+``modalities.config.model_type``
+   Set to ``moe_meditron_clip`` (or ``moe_meditron_clip_pep`` for PEP-gated variants).
+
+``modalities.config.expert_clip_names``
+   A list of paths to the expert CLIP model checkpoints. Each entry corresponds to one domain expert (e.g. CT, MRI, X-ray).
+
+``modalities.config.gating_path``
+   Path to the trained gating network that routes images to the appropriate experts.
+
+``modalities.config.fusion_method``
+   How expert outputs are combined. Supported values: ``cross_attn`` (attention-based fusion) or ``average`` (simple averaging).
+
+``modalities.config.expert_projection``
+   Projection strategy for expert embeddings. Supported values: ``per_expert`` (one projection per expert) or ``shared`` (single shared projection).
+
+``modalities.config.image_processor``
+   Path to the shared image processor used by all experts (e.g. a CLIP ViT-B/32 processor).
+
+``modalities.config.top_k_experts``
+   Number of experts to activate per image (optional, defaults to all).
+
+Below is a complete example YAML snippet for an MoE configuration:
+
+.. code-block:: yaml
+
+    modalities:
+      - model_type: moe_meditron_clip_pep
+        image_processor: /path/to/clip-vit-base-patch32
+        hidden_size: 4096
+        expert_clip_names:
+          - /path/to/expert-ct
+          - /path/to/expert-mri
+          - /path/to/expert-ultrasound
+          - /path/to/expert-xray
+          - /path/to/expert-generalist
+        gating_path: /path/to/gating-network
+        fusion_method: cross_attn
+        top_k_experts: 3
+
+

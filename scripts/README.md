@@ -1,102 +1,123 @@
-# How to train the router ?
-The router's goal is to redirect a specific modality to the right expert model.
-## 1. Format the data
-The categorized data should be put in the folders `data/train/{modality}/{category}` and `data/test/{modality}/{category}`.
-## 2. Train the router
-Run the following command:
+# `scripts/` — utilities and training helpers
+
+This directory holds standalone utilities for data prep, gating-network training,
+routing analysis, and evaluation post-processing.
+
+> **Production training/eval** is driven by the `multimeditron` CLI and the SLURM
+> launchers at the repo root (`sbatch_train.sh`, `sbatch_eval.sh`) — see
+> `cookbook/README.md`. The scripts here are supporting tools.
+
+---
+
+## Gating network training
+
+Train the ResNet50 gating network that routes images to the correct expert.
+
 ```bash
-python3 image_router_train.py --data_dir=data/images --resnet_size=50 --batch_size=32 --num_epochs=10 --learning_rate=0.001 --num_runs=1 --output_dir=output
+# Multi-GPU via torchrun (config-driven):
+torchrun --nproc_per_node=4 scripts/train_gating.py --config config/gating_7class.yaml
+
+# Or submit on CSCS (debug partition, ~30 min):
+sbatch sbatch_train_gating.sh
 ```
 
-# How to train the expert model?
-The expert model's goal is to extract features from the data. For images, we use a CLIP model fine-tuned on captionized images.
+`train_gating.py` loads per-class Arrow datasets (via the `dataset_class_map` in
+the YAML config), trains a classification head on a frozen ImageNet ResNet50, and
+saves the result directly as a HuggingFace `GatingNetwork` (`config.json` +
+`model.safetensors` with `class_names`) — ready to use as `gating_path` in the MoE
+configs. Any config value can be overridden from the CLI (e.g. `--lr 3e-4
+--num_epochs 30`). A held-out `test_split` (default 0.1) is carved off before
+training for an unbiased accuracy estimate. See `cookbook/gating/README.md` for the
+full guide.
 
-## 1. Format the data
-Update the ImageTextDataset class to properly format the data into encoded images and text.
+> Replaces the former `image_router_train.py` (ImageFolder-based, manual
+> `.pth`→HF conversion), which has been removed.
 
-## 2. Train the expert model
-Run the following command:
+`test_gating.py` loads a trained checkpoint and prints its routing distribution on
+eye/skin images — a quick sanity check.
+
+---
+
+## Expert (CLIP) training
+
+The canonical CLIP-expert trainer lives in the package and is invoked via the CLI:
+
 ```bash
-python3 expert_model_train.py --data_url=<your huggingface dataset> --batch_size=32 --num_epochs=10
+multimeditron train-expert scripts/config_us.yaml
 ```
 
-# `biomed_train.py`
+(`scripts/train_clip.py`, a duplicate of `src/multimeditron/experts/train_clip.py`,
+has been removed.) The config selects the vision/text models and the dataset
+mixture (`dataset_configs` with per-dataset `weight`s). Keep
+`vision_model_name: openai/clip-vit-base-patch32`; the trainer is specialised for it.
 
-## 1. What is it for?
+Two older domain-specific trainers remain for reference:
 
-Fine-tuning BiomedCLIP with datasets formatted according to the standard we agreed on.
+- `expert_model_train.py` — generic CLIP fine-tuner (HuggingFace dataset URL input).
+- `biomed_train.py` — BiomedCLIP fine-tuner that reads a `.jsonl` of `{text, modalities}`
+  examples (BiomedCLIP has different I/O than CLIP, so it needs its own loader):
+  `python3 biomed_train.py --data_url chexpert/chexpert.jsonl --output_dir chexpert_test --num_epochs 20`
 
-BiomedCLIP is available on HuggingFace Hub, but the code of `expert_model_train.py` does not work for it due to the model inputs and outputs being different with BiomedCLIP. 
+---
 
-`expert_model_train.py` is also not fit for reading a dataset consisting of a `.jsonl` file containing examples with text and modalities. The ImageTextDataset class has been adapted in `biomed_train.py`, so that it can take the `.jsonl` file and, assuming the links to modalities are relative to the `.jsonl` file, the script is able to properly load the data and fine-tune the model with it.
+## Gating / routing analysis
 
-## 2. How to use?
+These three scripts share `gating_utils.py` (Arrow image loading, the ResNet
+preprocessing transform, the expert-label map, and the gating inference loop):
 
-`python3 biomed_train.py --data_url chexpert/chexpert.jsonl --output_dir chexpert_test --num_epochs 20 --save_model True`
+| Script | Purpose |
+|---|---|
+| `gating_routing_analysis.py` | Compare 5-expert vs 7-expert routing on 5 modality-pure held-out datasets (top-1 % + avg softmax weight per expert). Use to verify routing after a retrain or to diagnose CT/US confusion. |
+| `pathvqa_routing_analysis.py` | PathVQA-specific: which expert do histopathology images route to under each gating network? |
+| `test_gating.py` | Quick routing sanity check on eye/skin images. |
 
-Use the command `python3 biomed_train.py -h` for additional help.
-
-# `prep_image_datasets.py`
-
-## 1. What is it for?
-
-This script can be used to easily download datasets from the MultiMediset to the desired folder. 
-
-The script downloads the jsonl file and the corresponding ZIP / parquet archives, and unzips the archives.
-
-## 2. How to use?
-
-First, open the script in a code editor to specify several things:
-- **`dataset_folders` is a dictionary in which you specify which datasets from the MultiMediset you want to download**. The keys are the name of the local folder in which you want to download datasets, and the values are lists of datasets to download in the folder corresponding to the key. This allows you to arrange datasets as you wish. You can write a path instead of a folder name, if you need a more specific hierarcy.
-- **`path_datasets` is a string, the local path in which you want to download the datasets**. Then for instance, if you follow the example of the default configuration of the script, the DDTI dataset will be downloaded at `../datasets/US/DDTI`.
-- **`path_to_dataset_repo` is a dictionary that defines for each of the datasets the path to their parent folder on the repository**. Please do not put a / at the end of the str.
-
-Once you have done it, you can simply run the script and let it download your datasets as you configured it. You may enable `hf_transfer` to accelerate the download by defining the corresponding environment variable.
-
-# `train_clip.py` and `config_us.yaml`
-
-## 1. What is it for?
-
-This script can be used to fine-tune a CLIP-based model with datasets. With a proper configuration file, it can prepare a dataset or a mixture of datasets, train a CLIP-based model and save the result at a given local path.
-
-The configuration file looks like this:
-
-```yaml
-output_dir: "../training_clip/clip-splade-US-train"
-vision_model_name: "openai/clip-vit-base-patch32"
-text_model_name: "naver/splade-v3"
-dataset_configs:
-  - BUSI:
-      dataset_name: "/mloscratch/homes/nemo/training/US/BUSI/BUSI-train.jsonl"
-      image_column: "modalities"
-      caption_column: "text"
-      weight: 78
-  - CAMUS:
-      dataset_name: "/mloscratch/homes/nemo/training/US/CAMUS/CAMUS-train.jsonl"
-      image_column: "modalities"
-      caption_column: "text"
-      weight: 2118
-
-remove_unused_columns: false
-do_train: true
-per_device_train_batch_size: 64
-learning_rate: 5.0e-4
-warmup_steps: 2000
-weight_decay: 0.2
-save_steps: 0.1
-num_train_epochs: 3
-dataloader_drop_last: true
-overwrite_output_dir: true
+```bash
+# No GPU required (ResNet50 runs on CPU); or submit via:
+sbatch sbatch_gating_analysis.sh
+python3 scripts/gating_routing_analysis.py
 ```
 
-`output_dir` is a relative or absolute path to which the fine-tuned model has to be saved. `vision_model_name` is strongly recommended to be kept at `openai/clip-vit-base-patch32`, as differing models may have different inputs. This script is made specifically for this model. The same applies to `text_model_name`.
+---
 
-For `dataset_configs`, write the details of each dataset you want to include in the training. The `weight` parameter has to be defined relative to other datasets, so that each dataset has a total weight of `weight/(sum of the weights of all datasets)` in the mixture. Consider that this parameter does not care about the number of examples in each dataset. The mixture is made of randomly drawn examples, according to the distribution defined by the weights and the draw is stopped whenever one of the dataset runs out of examples.
+## Evaluation post-processing
 
-`do_train: true` can be replaced by `do_eval: true` to switch to the evaluation mode.
+`compare_modality_results.py` — side-by-side per-modality GMAI accuracy table for two
+lmms-eval result directories (e.g. 5-expert ckpt-3063 vs 7-expert ckpt-800), including
+ophthalmology/dermatology subtasks and sample counts.
 
-The remaining parameters are standard parameters for ML.
+```bash
+python3 scripts/compare_modality_results.py        # auto-discovers result dirs
+# Flags: --results-root, --model-a, --model-b
+```
 
-## 2. How to use?
+---
 
-Define the configuration in the configuration file, then run it with `python3 train_clip.py config_us.yaml` (you may replace `config_us.yaml` with another configuration file that has the same parameters).
+## Data preparation
+
+| Script | Purpose |
+|---|---|
+| `prep_image_datasets.py` | Download datasets from the MultiMediset HF repo (jsonl + parquet/zip archives) into a local folder layout. Edit the `dataset_folders` / `path_datasets` dicts at the top before running. |
+| `convert_image_datasets.py` | Reformat raw datasets (e.g. eye/skin) into the MultiMeditron training schema (`conversations` + `modalities` with image bytes). |
+
+Pipeline: `prep_image_datasets.py` (download) → `convert_image_datasets.py` (reformat).
+
+---
+
+## Profiling / debugging
+
+| Script | Purpose |
+|---|---|
+| `bench_dataloader.py` | Benchmark DataLoader throughput (samples/s, p50/p95/p99 latency) to check for I/O bottlenecks. |
+| `check_packing_attention.py` | Verify the FA2 sequence-packing patch produces the same attention output as an unpacked reference. |
+| `parse_smoketest_results.py` | Parse SLURM logs from smoketest/sanitycheck runs into a summary table. |
+| `debug_mcq_context.py` | Inspect MCQ prompt construction and compare model generations (modes: text / generate / compare). |
+
+---
+
+## Ultrasound dataset enrichment
+
+| Script | Purpose |
+|---|---|
+| `generate_us_descriptions.py` | Run Qwen3-VL to generate 7-section clinical descriptions for ultrasound datasets (BUSI, ct2, DDTI, CovidUS). |
+| `pdf_gen.py` | Render a review PDF (source image + generated description) for human review, splittable across reviewers. |
+| `review_training_datasets.py` | Render a review PDF of the original 7-expert training datasets (baseline reference). |

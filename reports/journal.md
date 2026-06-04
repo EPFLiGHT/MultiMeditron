@@ -1,0 +1,51 @@
+# Journal
+
+## 2026-04-15
+
+- Read `.github/instructions_agent.md` and noted the constraints: use only `cookbook/README.md`, `scripts/README.md`, and source code; dry runs only; all submitted jobs must use `--partition=debug`, `--nodes=1`, and `--time=00:01:00`.
+- Read `cookbook/README.md` and confirmed the documented evaluation pipeline, including the standard 3-benchmark eval command and the benchmark names.
+- Read `scripts/README.md` and confirmed the task-specific scripts for gating routing analysis and modality comparison.
+- Read `src/multimeditron/cli/train.py` and confirmed the training entrypoint is `python -m multimeditron train --config <yaml>`.
+- Read `cookbook/sft/moe/attn/pep/stage1_alignment.yaml` and `cookbook/sft/moe/attn/pep/stage2_end2end.yaml` to confirm the 7-expert ophthalmology/skin configuration.
+- Identified the standard evaluation tasks for this branch: `gmai`, `slake`, and `path_vqa`, plus the new per-modality GMAI subtasks `gmai_ophthalmology` and `gmai_dermatology`.
+- Submitted the first round of dry-run jobs with bare host Python:
+	- Stage 1: job `1860657` (`mm-stage1-dryrun`)
+	- Stage 2: job `1860658` (`mm-stage2-dryrun`)
+	- Eval: job `1860659` (`mm-eval-dryrun`)
+- Checked Slurm accounting after 70 seconds. All three failed quickly with `ExitCode=1:0`.
+- Read the stderr logs for those jobs and found the bare host environment was missing Python packages:
+	- Stage 1 and Stage 2 failed with `ModuleNotFoundError: No module named 'click'`.
+	- Eval failed with `ModuleNotFoundError: No module named 'accelerate'`.
+- Resubmitted Stage 1, Stage 2, and eval through `srun --environment /users/surech/.edf/multimeditron.toml` inside the Slurm allocation:
+	- Stage 1: job `1860661` (`mm-stage1-env`)
+	- Stage 2: job `1860662` (`mm-stage2-env`)
+	- Eval resubmission: failed immediately at submit time with `sbatch: error: QOSMaxSubmitJobPerUserLimit`.
+- Checked the containerized Stage 1 and Stage 2 jobs after 70 seconds:
+	- Stage 1 (`1860661`) failed in `TrainingArguments` because the DeepSpeed config path was still the literal `$WORKING_DIR/config/deepspeed.json`.
+	- Stage 2 (`1860662`) failed the same way.
+- Confirmed the checked-in `cookbook/sft/moe/attn/pep/stage1_alignment.yaml` and `stage2_end2end.yaml` actually point at `/users/surech/meditron/MultiMeditron/config/deepspeed_fast.json`, so the runtime mismatch came from the job environment / path resolution, not from the file contents I inspected.
+- Resubmitted Stage 1 and Stage 2 with absolute config paths:
+	- Stage 1: job `1860664` (`mm-stage1-abs`)
+	- Stage 2: job `1860665` (`mm-stage2-abs`)
+- Checked those jobs after 70 seconds:
+	- Both failed in `deepspeed.zero.Init` because `mpi4py` is not installed in the runtime container.
+- Created a temporary helper script, `.tmp_dryrun_runner.sh`, to avoid shell-quoting problems and to centralize the dry-run launch logic.
+- Patched the helper to use the shared workspace filesystem for temporary YAML files and to route commands through `srun` with the EDF environment.
+- Submitted Stage 1 again through the helper with DeepSpeed stripped from a temp copy of the config:
+	- Job `1860755` (`mm-stage1-nods3`)
+- Verified Stage 1 reached model loading in the containerized runtime, then hit the one-minute timeout after loading 4 checkpoint shards. This is a valid dry-run outcome.
+- Submitted Stage 2 through the same helper:
+	- Job `1860756` (`mm-stage2-nods3`)
+- Slurm reported `JobState=FAILED` with `ExitCode=0:53` / `Reason=RaisedSignal:53(Real-time_signal_19)` after 6 seconds. No stdout/stderr files were written for that job.
+- Submitted the eval dry run through the helper against the expected stage-2 output path:
+	- Job `1860760` (`mm-eval-nods`)
+- Slurm reported the same fast failure pattern for eval: `JobState=FAILED`, `ExitCode=0:53`, `Reason=RaisedSignal:53(Real-time_signal_19)`, and no stdout/stderr files were created.
+- Ran a direct debug `srun` smoke test for `gmai` with `--limit 1` and captured the real traceback:
+	- The eval command failed because I pointed `pretrained=` at the parent directory `/iopsstor/scratch/cscs/surech/multimeditron/checkpoints/unfreeze/attn_pep/MultiMeditron-8B-attn-pep-end2end-7exp`, which does not contain `pytorch_model.bin` / `model.safetensors`.
+	- Retried against the actual checkpoint path `/iopsstor/scratch/cscs/surech/multimeditron/checkpoints/unfreeze/attn_pep/MultiMeditron-8B-attn-pep-end2end-7exp/checkpoint-800`.
+	- The rerun succeeded in loading the model and the benchmark requests, then reached generation for `gmai`, `slake`, and `path_vqa` before the one-minute Slurm wall time canceled the step.
+	- Setting `HF_HOME=/iopsstor/scratch/cscs/surech/hf` was required to avoid the home-directory Hugging Face cache quota error during expert-weight downloads.
+- Submitted the corrected eval command as a Slurm batch dry run too:
+	- Job `1860771` (`mm-eval-final`)
+	- That batch job still failed immediately with `ExitCode=0:53` / `Reason=RaisedSignal:53(Real-time_signal_19)`.
+	- The direct `srun` smoke test above is the validated path for this environment; the batch wrapper is still flaky here.
