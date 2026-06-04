@@ -1,6 +1,7 @@
 from multimeditron.model.constants import NUM_EMBEDDINGS_KEY, MODALITY_VALUE_KEY, POSITION_IDS_KEY
 from multimeditron.model.modalities import BaseModality, BaseModalityConfig, AutoModality, BaseModalityProcessor
 from multimeditron.model.projectors.mlp import MLPProjector
+from multimeditron.model.projectors.pixel_shuffle import PixelShuffleProjector
 import torch
 from transformers import AutoImageProcessor, AutoModel, AutoConfig
 
@@ -28,6 +29,7 @@ class ImageConfig(BaseModalityConfig):
         hidden_size: int = 4096,
         clip_name: str = "openai/clip-vit-large-patch14",
         projection_type: str = "mlp",
+        pixel_shuffle_factor: int = 1,
         use_2d_position_ids: bool = False,
         **kwargs
     ):
@@ -37,7 +39,9 @@ class ImageConfig(BaseModalityConfig):
         Args:
             hidden_size (int): Dimension of the hidden layer for the projection network.
             clip_name (str): Name of the CLIP model to use as the feature extractor.
-            projection_type (str): Type of projection network (e.g., "mlp").
+            projection_type (str): Type of projection network ("mlp" or "pixel_shuffle").
+            pixel_shuffle_factor (int): Spatial downscale factor used with "pixel_shuffle" projection.
+                Token count is reduced by ``pixel_shuffle_factor ** 2``. Ignored for "mlp".
             use_2d_position_ids (bool): Whether to use the 2D positional embeddings adaptation for 1D llm without retraining.
             **kwargs: Additional keyword arguments.
         """
@@ -49,6 +53,7 @@ class ImageConfig(BaseModalityConfig):
 
         self.clip_name = clip_name
         self.projection_type = projection_type
+        self.pixel_shuffle_factor = pixel_shuffle_factor
         self.use_2d_position_ids = use_2d_position_ids
 
 
@@ -78,7 +83,9 @@ class ImageProcessor(BaseModalityProcessor):
 
         feature_extractor_config = AutoConfig.from_pretrained(config.clip_name, trust_remote_code=True)
         self._image_size = (feature_extractor_config.vision_config.image_size // feature_extractor_config.vision_config.patch_size)
-        self._num_patches_per_entry = self._image_size ** 2
+        factor = getattr(config, "pixel_shuffle_factor", 1)
+        self._spatial_size = self._image_size // factor  # side length after pixel-unshuffle
+        self._num_patches_per_entry = self._spatial_size ** 2
 
     def process(self, modality: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -97,11 +104,12 @@ class ImageProcessor(BaseModalityProcessor):
         processed_modality[NUM_EMBEDDINGS_KEY] = self._num_patches_per_entry
 
         if self.config.use_2d_position_ids:
-            # Create a position ids tensor for 2D adaptation starting at 0 to image_size - 1 on both axis
+            # Create a position ids tensor for the post-projection spatial grid.
+            # When pixel_shuffle_factor > 1, the grid is (image_size/f) x (image_size/f).
             processed_modality[POSITION_IDS_KEY] = torch.stack(
                 torch.meshgrid(
-                    torch.arange(self._image_size, dtype=torch.long),
-                    torch.arange(self._image_size, dtype=torch.long),
+                    torch.arange(self._spatial_size, dtype=torch.long),
+                    torch.arange(self._spatial_size, dtype=torch.long),
                     indexing="ij"
                 ),
                 dim=-1
@@ -112,25 +120,63 @@ class ImageProcessor(BaseModalityProcessor):
 
 @AutoModality.register("meditron_clip")
 class ImageModality(BaseModality):
+    """Single-CLIP image modality with an MLP projection to the LLM hidden space."""
+
     config_class = ImageConfig
     preprocessor_class = ImageProcessor
 
     def __init__(self, config: ImageConfig):
+        """Initialize the ImageModality with a pretrained CLIP vision tower and projector.
+
+        Args:
+            config (ImageConfig): Configuration specifying the CLIP model name,
+                hidden size, and projection type.
+        """
         super().__init__(config)
 
         self.vision_tower_name = config.clip_name
         assert self.vision_tower_name is not None, "vision_tower_name must be specified in the config"
 
         self.feature_extractor = AutoModel.from_pretrained(self.vision_tower_name, trust_remote_code=True)
-        self.embedding_size = self.feature_extractor.vision_embed_dim
+        if hasattr(self.feature_extractor, "vision_embed_dim"):
+            self.embedding_size = self.feature_extractor.vision_embed_dim
+        else:
+            self.embedding_size = self.feature_extractor.vision_model.config.hidden_size
         self._num_patches_per_entry = (self.feature_extractor.vision_model.config.image_size // self.feature_extractor.vision_model.config.patch_size) ** 2
 
-        self.projector = MLPProjector(self.embedding_size, config.hidden_size, dtype=self.dtype)
+        if config.projection_type == "mlp":
+            self.projector = MLPProjector(self.embedding_size, config.hidden_size, dtype=self.dtype)
+        elif config.projection_type == "pixel_shuffle":
+            self.projector = PixelShuffleProjector(
+                self.embedding_size,
+                config.hidden_size,
+                factor=config.pixel_shuffle_factor,
+                dtype=self.dtype,
+            )
+        else:
+            raise ValueError(f"Unsupported projection_type: {config.projection_type!r}. Expected 'mlp' or 'pixel_shuffle'.")
 
     def forward(self, inputs) -> torch.FloatTensor:
+        """Extract CLIP vision features from a batch of images and project to LLM hidden size.
+
+        Args:
+            inputs (List[torch.Tensor]): List of preprocessed image tensors, one per sample.
+
+        Returns:
+            torch.FloatTensor: Projected patch embeddings of shape (batch, num_patches, hidden_size).
+        """
         inputs = torch.stack(inputs, dim=0)
         inputs = inputs.to(self.feature_extractor.device)
-        image_features = self.feature_extractor.vision_model(inputs).last_hidden_state[:, 1:, :]
+        features = self.feature_extractor.vision_model(inputs).last_hidden_state
+        # SigLIP/SigLIP2 have no CLS token — all N tokens are patch tokens.
+        # CLIP-style models prepend a CLS token at position 0 that must be dropped.
+        # Detect by checking whether N is already a perfect square.
+        N = features.shape[1]
+        H = int(N ** 0.5)
+        if H * H == N:
+            image_features = features  # no CLS token
+        else:
+            image_features = features[:, 1:, :]  # skip CLS
 
         projected = self.projector(image_features)
 

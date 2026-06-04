@@ -7,6 +7,8 @@ from typing import Dict, List, Any
 
 # Define Pydantic models for validation
 class Datamix(BaseModel):
+    """Configuration for a dataset mixture used in CLIP expert training."""
+
     dataset_configs: List[Dict[str, Any]] = Field(
         default=[
             {
@@ -21,6 +23,8 @@ class Datamix(BaseModel):
     )
 
 class BaseConfig(BaseModel):
+    """Base hyperparameter configuration for a single training run."""
+
     learning_rate: float = 5.0e-4
     warmup_steps: int = 2000
     lr_scheduler_type: str = "cosine"
@@ -31,6 +35,8 @@ class BaseConfig(BaseModel):
     num_train_epochs: int = 32
 
 class CommonConfig(BaseModel):
+    """Shared training configuration fields applied across all grid-search runs."""
+
     output_dir: str = "./models/"
     vision_model_name: str = "openai/clip-vit-base-patch32"
     text_model_name: str = "naver/splade-v3"
@@ -44,6 +50,8 @@ class CommonConfig(BaseModel):
     bf16: bool = True
 
 class Configurations(BaseModel):
+    """Master configuration aggregating datamixes, base configs, and parameter ranges for grid search."""
+
     datamixes: Dict[str, Datamix] = Field(
         default={
             "combined_dataset_MRI": Datamix()
@@ -87,11 +95,24 @@ class Configurations(BaseModel):
 
 # Load configurations from external YAML file
 def load_configurations(config_path: str) -> Configurations:
+    """Load and validate a grid-search configuration from a YAML file.
+
+    Args:
+        config_path (str): Path to the YAML configuration file.
+
+    Returns:
+        Configurations: The validated configuration object.
+    """
     with open(config_path, "r") as f:
         config_data = yaml.safe_load(f)
     return Configurations(**config_data)
 
 def main(config_path: str):
+    """Generate CLIP expert training configs via grid search over datamixes and hyperparameters.
+
+    Args:
+        config_path (str): Path to the master grid-search YAML configuration.
+    """
     # Load configurations
     configs = load_configurations(config_path)
 

@@ -28,6 +28,16 @@ class BioMedCLIPImageConfig(BaseModalityConfig):
         projection_type: str = "mlp",
         **kwargs,
     ):
+        """Initialize the BioMedCLIP image configuration.
+
+        Args:
+            hidden_size (int): Output dimension of the projection layer. Defaults to 4096.
+            clip_name (str): HuggingFace model identifier for the OpenCLIP model. Defaults to ''.
+            trust_remote_code (bool): Whether to trust remote code when loading the model.
+                Defaults to False.
+            projection_type (str): Type of projection layer. Defaults to 'mlp'.
+            **kwargs: Additional keyword arguments.
+        """
         super().__init__(
             modality_type="image",
             hidden_size=hidden_size,
@@ -45,6 +55,12 @@ class BioMedCLIPImageProcessor(BaseModalityProcessor):
     """
 
     def __init__(self, config: BioMedCLIPImageConfig):
+        """Initialize the BioMedCLIP image processor.
+
+        Args:
+            config (BioMedCLIPImageConfig): Configuration specifying the OpenCLIP model
+                and trust settings.
+        """
         super().__init__(config)
         assert config.clip_name is not None
 
@@ -61,6 +77,16 @@ class BioMedCLIPImageProcessor(BaseModalityProcessor):
         self._num_patches_per_entry = (vision_cfg["image_size"] // vision_cfg["patch_size"]) ** 2
 
     def process(self, modality: Dict[str, Any]) -> Dict[str, Any]:
+        """Preprocess a raw image into pixel values using the OpenCLIP image processor.
+
+        Args:
+            modality (Dict[str, Any]): Modality dict containing the raw PIL image
+                under the MODALITY_VALUE_KEY.
+
+        Returns:
+            Dict[str, Any]: Updated modality dict with processed pixel values
+                and the number of patch embeddings.
+        """
         processed = modality.copy()
         image: Image.Image = modality[MODALITY_VALUE_KEY]
 
@@ -81,6 +107,12 @@ class BioMedCLIPImageModality(BaseModality):
     preprocessor_class = BioMedCLIPImageProcessor
 
     def __init__(self, config: BioMedCLIPImageConfig):
+        """Initialize the BioMedCLIP image modality with a pretrained OpenCLIP backbone.
+
+        Args:
+            config (BioMedCLIPImageConfig): Configuration specifying the OpenCLIP model
+                name, hidden size, and trust settings.
+        """
         super().__init__(config)
 
         assert config.clip_name is not None
@@ -104,8 +136,14 @@ class BioMedCLIPImageModality(BaseModality):
 
 
     def forward(self, inputs) -> torch.FloatTensor:
-        """
-        inputs: list[Tensor] each (3, 224, 224)
+        """Extract intermediate vision features from BioMedCLIP and project to LLM hidden size.
+
+        Args:
+            inputs (List[torch.Tensor]): List of preprocessed image tensors,
+                each of shape (3, 224, 224).
+
+        Returns:
+            torch.FloatTensor: Projected patch embeddings of shape (batch, num_patches, hidden_size).
         """
         x = torch.stack(inputs, dim=0).to(self.device)
 

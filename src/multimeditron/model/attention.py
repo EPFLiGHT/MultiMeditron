@@ -47,18 +47,24 @@ class CrossAttention(nn.Module):
 
     def forward(
         self,
-        x: torch.Tensor,                        # [B, N_q, C] (queries)
-        experts: List[torch.Tensor],           # list of [B, N_i, C] (contexts)
-        attention_mask: Optional[torch.Tensor] = None,  # [B, 1, N_q, N_kv] or broadcastable
+        x: torch.Tensor,
+        experts: List[torch.Tensor],
+        attention_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
-        ### Args
-        * x:        query states [B, N_q, C]
-        * experts:  list of context tensors; each is [B, N_i, C]
-                    we concat them along the sequence dimension -> [B, sum_i N_i, C]
-        * attention_mask: standard additive or bool mask over KV positions.
-        ### Returns
-        * attended output [B, N_q, C]
+        Apply cross-attention from query tokens to concatenated expert context tokens.
+
+        Args:
+            x (torch.Tensor): Query states of shape (B, N_q, C).
+            experts (List[torch.Tensor]): List of context tensors, each of shape
+                (B, N_i, C). They are concatenated along the sequence dimension
+                into a single (B, sum_i N_i, C) key/value tensor.
+            attention_mask (torch.Tensor, optional): Additive float mask or boolean
+                mask of shape (B, 1, N_q, N_kv) or broadcastable. Boolean masks
+                are converted to additive masks internally. Defaults to None.
+
+        Returns:
+            torch.Tensor: Attended output of shape (B, N_q, C).
         """
         B, N_q, C = x.shape
 

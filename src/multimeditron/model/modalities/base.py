@@ -178,6 +178,22 @@ class AutoModality:
     
     @classmethod
     def register(c, name: str):
+        """Return a class decorator that registers a BaseModality subclass under the given name.
+
+        The decorator validates that the class inherits from BaseModality, defines a
+        ``preprocessor_class``, and is not a duplicate.  It also registers the class
+        with HuggingFace AutoConfig, AutoModel, and AutoProcessor.
+
+        Args:
+            name (str): Unique identifier for the modality (e.g. 'meditron_clip').
+
+        Returns:
+            Callable: A class decorator.
+
+        Raises:
+            ValueError: If the class does not inherit from BaseModality, the name is
+                already registered, or ``preprocessor_class`` is not defined.
+        """
         def decorator(cls):
             if not issubclass(cls, BaseModality):
                 raise ValueError(f"Class {cls.__name__} must inherit from BaseModality to be registered.")
@@ -197,6 +213,18 @@ class AutoModality:
 
     @classmethod
     def from_pretrained(c, *args, **kwargs) -> BaseModality:
+        """Load a pretrained modality model via HuggingFace AutoModel.
+
+        Args:
+            *args: Positional arguments forwarded to ``AutoModel.from_pretrained``.
+            **kwargs: Keyword arguments forwarded to ``AutoModel.from_pretrained``.
+
+        Returns:
+            BaseModality: The loaded modality model.
+
+        Raises:
+            ValueError: If the loaded model is not a BaseModality subclass.
+        """
         model = AutoModel.from_pretrained(*args, **kwargs)
         if not isinstance(model, BaseModality):
             raise ValueError(f"Model loaded is not an instance of BaseModality. Got {type(model)}. Available values are {list(c._registry.keys())}")
@@ -204,6 +232,19 @@ class AutoModality:
     
     @classmethod
     def preprocessor_from_name(c, name: str, *args, **kwargs) -> BaseModalityProcessor:
+        """Instantiate a modality preprocessor by registered name.
+
+        Args:
+            name (str): Registered modality name.
+            *args: Positional arguments forwarded to the preprocessor constructor.
+            **kwargs: Keyword arguments forwarded to the preprocessor constructor.
+
+        Returns:
+            BaseModalityProcessor: The instantiated preprocessor.
+
+        Raises:
+            ValueError: If the name is not registered.
+        """
         if name not in c._registry:
             raise ValueError(f"Modality name '{name}' is not registered. Available values are {list(c._registry.keys())}")
         preprocessor_class = c._registry[name].preprocessor_class
@@ -212,6 +253,20 @@ class AutoModality:
 
     @classmethod
     def config_from_dict(c, config: dict, **kwargs) -> BaseModalityConfig:
+        """Reconstruct a modality config object from a plain dictionary.
+
+        Args:
+            config (dict): Dictionary that must contain a 'model_type' key
+                matching a registered modality name.
+            **kwargs: Additional keyword arguments forwarded to the config class.
+
+        Returns:
+            BaseModalityConfig: The reconstructed config instance.
+
+        Raises:
+            ValueError: If the model_type is not registered.
+            AssertionError: If the dictionary lacks a 'model_type' key.
+        """
         assert "model_type" in config, "Config dictionary must contain a 'model_type' key."
         if config["model_type"] not in c._registry:
             raise ValueError(f"Modality name '{config['model_type']}' is not registered. Available values are {list(c._registry.keys())}")
