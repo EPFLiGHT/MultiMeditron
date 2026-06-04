@@ -22,6 +22,8 @@ class SamplePreprocessor:
         chat_template: ChatTemplate,
         modality_processors: Dict[str, BaseModalityProcessor],
         attachment_token: str,
+        max_length: Optional[int] = None,
+        truncation: bool = False,
     ):
         """
         Initialize the SamplePreprocessor.
@@ -39,6 +41,8 @@ class SamplePreprocessor:
             chat_template=chat_template,
             modalities_num_embeddings=self.modalities_num_embeddings,
             attachment_token=attachment_token,
+            max_length=max_length,
+            truncation=truncation,
         )
         self.modality_processors = modality_processors
 

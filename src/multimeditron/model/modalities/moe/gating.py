@@ -8,24 +8,32 @@ from transformers import AutoImageProcessor
 
 class GatingNetworkConfig(PretrainedConfig):
     """
-    Configuration class for the Gating Network model.
-    Attributes:
-        num_classes (int): Number of output classes for the gating network (number of experts).
-        top_k (int): Number of top predictions to consider for gating.
+    Configuration class for the ResNet50-based gating network used in MoE routing.
     """
+
     model_type = "gating_network"
 
-    def __init__(self, num_classes: int = 2, 
-                 top_k: int = 1, 
+    def __init__(self, num_classes: int = 2,
+                 top_k: int = 1,
                  image_processor_path: str = "openai/clip-vit-base-patch32",
-                 class_names : List[str] = [],
+                 class_names: List[str] = [],
                  **kwargs):
         """
-        Initializes the GatingNetworkConfig.
+        Initialize the GatingNetworkConfig.
+
         Args:
-            num_classes (int): Number of output classes for the gating network (number of experts).
-            top_k (int): Number of top predictions to consider for gating.
-            **kwargs: Additional keyword arguments.
+            num_classes (int, optional): Number of output classes, i.e. number of
+                expert slots. Defaults to 2.
+            top_k (int, optional): Number of top experts selected per image during
+                inference. Defaults to 1.
+            image_processor_path (str, optional): HuggingFace model identifier (or
+                local path) used to load the image preprocessor. Defaults to
+                "openai/clip-vit-base-patch32".
+            class_names (List[str], optional): Ordered list of expert class names
+                corresponding to the output logits (e.g. ["CT", "MRI", ...]).
+                Used to align gating indices with expert module indices. Defaults
+                to an empty list.
+            **kwargs: Additional arguments forwarded to PretrainedConfig.
         """
         super().__init__(**kwargs)
         self.num_classes = num_classes
@@ -36,22 +44,25 @@ class GatingNetworkConfig(PretrainedConfig):
 
 class GatingNetwork(PreTrainedModel):
     """
-    A Gating Network model that uses a pretrained ResNet50 as the backbone.
-    This model outputs logits for each expert, selects the top-k experts, and computes softmax weights.
-    Attributes:
-        config_class (GatingNetworkConfig): The configuration class for the model.
-        resnet (nn.Module): The ResNet50 model used as the backbone.
-        processor (AutoImageProcessor): The image processor for preprocessing input images.
-        top_k (int): Number of top predictions to consider for gating.
+    ResNet50-based gating network that routes images to the appropriate expert(s).
+
+    Given an input image, the network produces per-expert logits, derives softmax
+    weights over all experts, and returns the top-k expert indices.  Used inside
+    MOEImageModalityPEP to weight or select specialist CLIP encoders.
     """
 
     config_class = GatingNetworkConfig
 
     def __init__(self, config: GatingNetworkConfig, resnet_path: Optional[str] = None):
         """
-        Initializes the GatingNetwork model.
+        Initialize the GatingNetwork.
+
         Args:
-            config (GatingNetworkConfig): The configuration for the model.
+            config (GatingNetworkConfig): Model configuration specifying number of
+                classes, top-k, and image processor path.
+            resnet_path (str, optional): Path to a raw ResNet50 state-dict file
+                (.pt). When provided the weights are loaded directly instead of
+                using HuggingFace's from_pretrained mechanism. Defaults to None.
         """
         super().__init__(config)
         

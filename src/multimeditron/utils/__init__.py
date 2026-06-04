@@ -5,6 +5,18 @@ import torch
 # import logging
 
 def get_torch_dtype(dtype: Union[torch.dtype, str]) -> torch.dtype:
+    """Convert a string or torch.dtype to a validated torch.dtype.
+
+    Args:
+        dtype (Union[torch.dtype, str]): A dtype string (e.g. ``"bfloat16"``) or
+            an existing ``torch.dtype``.
+
+    Returns:
+        torch.dtype: The resolved dtype.
+
+    Raises:
+        AssertionError: If the resolved attribute is not a valid ``torch.dtype``.
+    """
     if not isinstance(dtype, torch.dtype):
         dtype = getattr(torch, dtype)
         assert isinstance(dtype, torch.dtype)

@@ -136,6 +136,8 @@ class ModelArguments:
 
 @dataclass
 class DatasetConfig:
+    """Configuration for a single dataset source used in CLIP expert training."""
+
     dataset_path: Optional[str] = field(
         default=None,
         metadata={"help": "The name of the dataset to use (via the datasets library)."},
@@ -209,6 +211,11 @@ class DataTrainingArguments:
 # We use torchvision for faster image pre-processing. The transforms are implemented as nn.Module,
 # so we jit it to be faster.
 class Transform(torch.nn.Module):
+    """JIT-compilable image preprocessing transform for CLIP training.
+
+    Applies Resize, CenterCrop, ConvertImageDtype, and Normalize sequentially.
+    """
+
     def __init__(self, image_size, mean, std):
         super().__init__()
         self.transforms = torch.nn.Sequential(
@@ -324,6 +331,15 @@ def get_combined_dataset(
 
 
 def main(config_path: str):
+    """Run the full CLIP dual-encoder training pipeline from a YAML config.
+
+    Parses arguments, loads datasets, initializes the VisionTextDualEncoderModel,
+    and trains/evaluates using the HuggingFace Trainer.
+
+    Args:
+        config_path (str): Path to the YAML configuration file containing
+            ModelArguments, DataTrainingArguments, and TrainingArguments.
+    """
     # 1. Parse input arguments
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.

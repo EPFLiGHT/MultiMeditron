@@ -2,6 +2,8 @@ from multimeditron.dataset.preprocessor import BaseDatasetPreprocessor, AutoData
 
 @AutoDatasetPreprocessor.register("python")
 class PythonProcessor(BaseDatasetPreprocessor):
+    """Preprocessor that applies a user-defined Python expression to each sample via ``Dataset.map``."""
+
     def _process(self, ds, num_processes, func=None, imports=[], remove_columns=[]):
         _exec_imports(imports)
 
@@ -19,6 +21,8 @@ class PythonProcessor(BaseDatasetPreprocessor):
 
 @AutoDatasetPreprocessor.register("python-filter")
 class PythonFilterProcessor(BaseDatasetPreprocessor):
+    """Preprocessor that filters samples using a user-defined Python predicate via ``Dataset.filter``."""
+
     def _process(self, ds, num_processes, func=None, imports=[]):
         _exec_imports(imports)
 
