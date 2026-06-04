@@ -1,0 +1,79 @@
+# config/gating_sanitycheck.yaml — Gating network sanity check (4 nodes, ~10 min)
+#
+# Uses the full 7-class dataset with 5000 samples/class cap and 5 epochs.
+# Verifies the gating training pipeline end-to-end with WandB logging.
+#
+# Launch:
+#   sbatch sbatch_sanitycheck_gating.sh
+
+# ── Model ──
+num_classes: 7
+top_k: 1
+image_processor_path: "openai/clip-vit-base-patch32"
+
+class_names:
+  - "/users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-CT"
+  - "/capstor/store/cscs/swissai/a127/meditron/models/openai/clip-vit-base-patch32"
+  - "/users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-MRI"
+  - "/capstor/store/cscs/swissai/a127/meditron/models/CLIP/UltraSoundCLIP/checkpoint-4350"
+  - "/users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-Xray"
+  - "/capstor/store/cscs/swissai/a127/meditron/models/CLIP/OphthalmologyExpert"
+  - "/capstor/store/cscs/swissai/a127/meditron/models/CLIP/SkinExpert"
+
+class_labels:
+  - "CT"
+  - "General"
+  - "MRI"
+  - "Ultrasound"
+  - "Xray"
+  - "Ophthalmology"
+  - "Skin"
+
+# ── Dataset mapping ──
+dataset_class_map:
+  0:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_ct2"
+  1:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_llava_pretrain"
+  2:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_PMC_VQA"
+  3:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_BUSI"
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_COVID_US"
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_DDTI"
+  4:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_iu_xray"
+  5:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/eye_dataset"
+  6:
+    - "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/skin_dataset"
+
+# ── Training ──
+output_dir: "/iopsstor/scratch/cscs/surech/multimeditron/checkpoints/sanitycheck/gating"
+num_epochs: 5
+lr: 1e-4
+weight_decay: 1e-4
+batch_size: 64
+num_workers: 8
+val_split: 0.1
+test_split: 0.1
+seed: 42
+label_smoothing: 0.05
+gradient_accumulation_steps: 1
+max_samples_per_class: 5000
+
+# ── Backbone ──
+pretrained_backbone: true
+freeze_backbone: true
+unfreeze_after_epoch: 2
+
+# ── Scheduler ──
+scheduler: "cosine"
+warmup_epochs: 1
+
+# ── Checkpointing ──
+save_every_n_epochs: 5
+
+# ── Logging ──
+use_wandb: true
+wandb_project: "multimeditron-gating"

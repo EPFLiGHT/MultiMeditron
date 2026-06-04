@@ -60,7 +60,9 @@ training_args:
   save_strategy: steps
   save_steps: 0.25
   max_grad_norm: 1.0
-  deepspeed: $WORKING_DIR/config/deepspeed.json
+  # ZeRO-2: recommended for ≤8 nodes. For ≥32 nodes use config/deepspeed.json (ZeRO-3)
+  deepspeed: $WORKING_DIR/config/deepspeed_zero2.json
+  torch_empty_cache_steps: 1
   accelerator_config:
     dispatch_batches: false
   lr_scheduler_type: cosine_with_min_lr

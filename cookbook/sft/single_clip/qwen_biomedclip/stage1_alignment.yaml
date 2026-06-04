@@ -42,7 +42,8 @@ training_args:
   save_strategy: epoch
   max_grad_norm: 1.0
   run_name: MultiMeditron-Qwen-4B-Alignment-Generalist-Delimiter     # Set the name for the run
-  deepspeed: $WORKING_DIR/config/deepspeed.json
+  # ZeRO-2: recommended for ≤8 nodes. For ≥32 nodes use config/deepspeed.json (ZeRO-3)
+  deepspeed: $WORKING_DIR/config/deepspeed_zero2.json
   accelerator_config:
     dispatch_batches: false
   lr_scheduler_type: "cosine_with_min_lr"

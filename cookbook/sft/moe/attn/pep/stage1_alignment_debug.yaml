@@ -18,11 +18,10 @@ modalities:
       - ClosedMeditron/MedExpert-CT
       - ClosedMeditron/MedExpert-MRI
       - ClosedMeditron/MedExpert-Ultrasound
-      -
-       ClosedMeditron/MedExpert-Xray
-      - ClosedMeditron/clip-vit-base-patch32 
-      - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/OphthalmologyExpert # Path to Ophtho
-      - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/SkinExpert # Path to Skin
+      - ClosedMeditron/MedExpert-Xray
+      - ClosedMeditron/clip-vit-base-patch32
+      - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/OphthalmologyExpert
+      - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/SkinExpert
     generalist_idx : -1
     gating_path: ClosedMeditron/MultiMeditron-Gating
     fusion_method: cross_attn
@@ -39,31 +38,29 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/skin_dataset_converted
 
 training_args:
-  output_dir: /iopsstor/scratch/cscs/surech/multimeditron/checkpoints/freeze/attn_pep/MultiMeditron-8B-attn-pep-alignment-7exp
-  run_name:   MultiMeditron-8B-attn-pep-alignment-7exp
+  output_dir: /iopsstor/scratch/cscs/surech/multimeditron/checkpoints/freeze/attn_pep/MultiMeditron-8B-attn-pep-alignment-debug
+  run_name:   MultiMeditron-8B-attn-pep-alignment-debug
   dataloader_num_workers: 16
   dataloader_prefetch_factor: 4
   remove_unused_columns: false
   ddp_find_unused_parameters: false
   learning_rate: 1.0e-5
   bf16: true
-  per_device_train_batch_size: 8
-  gradient_accumulation_steps: 4
-  num_train_epochs: 3
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 8
+  max_steps: 20                   # smoke test only — stop after 20 steps
   gradient_checkpointing: true
-  gradient_checkpointing_kwargs: 
+  gradient_checkpointing_kwargs:
     use_reentrant: true
-  save_strategy: steps
-  save_steps: 712
-  save_total_limit: 5
+  dataloader_pin_memory: true
+  save_strategy: "no"             # no checkpoints during debug
   max_grad_norm: 1.0
   deepspeed: /users/surech/meditron/MultiMeditron/config/deepspeed_fast.json
-  dataloader_pin_memory: true
-  accelerator_config: 
+  accelerator_config:
     dispatch_batches: false
   lr_scheduler_type: cosine_with_min_lr
-  lr_scheduler_kwargs: 
+  lr_scheduler_kwargs:
     min_lr: 1.0e-6
-  report_to: wandb
+  report_to: none                 # no wandb during debug
   logging_steps: 1
   weight_decay: 0.01

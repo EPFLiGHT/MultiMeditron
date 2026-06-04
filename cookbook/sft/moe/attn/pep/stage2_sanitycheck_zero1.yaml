@@ -1,7 +1,10 @@
+# Sanity check: Stage 2 END2END, ZeRO-1, 4 nodes (16 GPUs), ~10 min
+# 7-expert MultiMeditron-8B with full production modality config and full datasets
+# Submit: sbatch --nodes 4 --time 00:30:00 sbatch_train.sh cookbook/sft/moe/attn/pep/stage2_sanitycheck_zero1.yaml
+
 base_llm: /capstor/store/cscs/swissai/a127/meditron/hf_cache/hub/models--OpenMeditron--Meditron3-8B/snapshots/15914bcb040cd1a4f263afcd85b84f09ad2efd95
-base_model: /iopsstor/scratch/cscs/surech/multimeditron/checkpoints/freeze/attn_pep/MultiMeditron-8B-attn-pep-alignment-7exp/checkpoint-2139
+base_model: null
 resume_from_checkpoint: false
-wandb_run_id: null
 attachment_token: <|reserved_special_token_0|>
 tokenizer_type: llama
 token_size: 4096
@@ -43,28 +46,26 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_mammoth
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/eye_dataset_converted
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/skin_dataset_converted
+
 training_args:
-  output_dir: /iopsstor/scratch/cscs/surech/multimeditron/checkpoints/unfreeze/attn_pep/MultiMeditron-8B-attn-pep-end2end-7exp
-  run_name: MultiMeditron-8B-attn-pep-end2end-7exp
+  output_dir: /iopsstor/scratch/cscs/surech/multimeditron/checkpoints/sanitycheck/stage2-zero1
+  run_name: sanity-7exp-stage2-zero1
   dataloader_num_workers: 16
   dataloader_prefetch_factor: 16
   remove_unused_columns: false
   ddp_find_unused_parameters: false
   learning_rate: 1.0e-5
   bf16: true
-  per_device_train_batch_size: 8
-  gradient_accumulation_steps: 2
-  num_train_epochs: 1
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 4
+  max_steps: 30
   gradient_checkpointing: true
   gradient_checkpointing_kwargs:
     use_reentrant: true
-  save_strategy: steps
-  save_steps: 50
-  save_total_limit: 5
+  save_strategy: "no"
   max_grad_norm: 1.0
-  deepspeed: /users/surech/meditron/MultiMeditron/config/deepspeed_fast.json
+  deepspeed: /users/surech/meditron/MultiMeditron/config/deepspeed_zero1.json
   dataloader_pin_memory: true
-  dataloader_persistent_workers: true
   accelerator_config:
     dispatch_batches: false
   lr_scheduler_type: cosine_with_min_lr

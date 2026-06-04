@@ -1,0 +1,62 @@
+# Smoke test: single-node, NO DeepSpeed, SigLIP2-512 + PixelShuffle + SmolLM2-360M, 100 steps.
+# Faithful replication of haaissa's nanovlm_v2.yaml — FULL end-to-end training with per-component LRs.
+# Goal: baseline throughput with native DDP (no ZeRO sharding).
+# All paths are absolute so no env var substitution is needed.
+
+base_llm: /iopsstor/scratch/cscs/haaissa/hf/hub/models--HuggingFaceTB--SmolLM2-360M-Instruct/snapshots/a10cc1512eabd3dde888204e902eca88bddb4951
+base_model: null
+attachment_token: "<|image|>"
+tokenizer_type: qwen3
+token_size: 960
+seed: 42
+
+truncation: true
+max_sequence_length: 4096
+
+loaders:
+  - loader_type: fs-image
+    modality_type: image
+    base_path: /iopsstor/scratch/cscs/haaissa/cauldron_data/images/
+
+modalities:
+  - model_type: meditron_clip
+    clip_name: /iopsstor/scratch/cscs/haaissa/hf/hub/models--google--siglip2-base-patch16-512/snapshots/a89f5c5093f902bf39d3cd4d81d2c09867f0724b
+    projection_type: pixel_shuffle
+    pixel_shuffle_factor: 4
+    hidden_size: 960
+
+# FULL = train all components end-to-end from step 0 (same as nanoVLM)
+training_mode: FULL
+
+# Per-component learning rates matching nanoVLM exactly (from models/config.py)
+custom_lr:
+  vision: 5.0e-5       # lr_vision_backbone
+  projector: 0.00512   # lr_mp (5x higher to escape static noise)
+
+datasets:
+  - packed_path: /iopsstor/scratch/cscs/haaissa/cauldron_data/expert_cauldron_formatted.jsonl
+
+training_args:
+  output_dir: /iopsstor/scratch/cscs/surech/multimeditron/checkpoints/freeze/single_clip/smoketest-nodeepspeed/
+  dataloader_num_workers: 16
+  dataloader_prefetch_factor: 4
+  remove_unused_columns: false
+  ddp_find_unused_parameters: true
+  learning_rate: 5.0e-5        # lr_language_backbone
+  weight_decay: 0.0
+  warmup_ratio: 0.03
+  lr_scheduler_type: "cosine"
+  bf16: true
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  max_steps: 100
+  max_grad_norm: 1.0
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs:
+    use_reentrant: false
+  save_strategy: "no"
+  run_name: smoketest-nanovlm-nodeepspeed-smollm360m-siglip2-512
+  accelerator_config:
+    dispatch_batches: false
+  report_to: "wandb"
+  logging_steps: 1

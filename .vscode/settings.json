@@ -7,5 +7,6 @@
         "**/Thumbs.db": true,
         "**/__pycache__": true,
         "**/*.egg-info": true,
-    }
+    },
+    "github.copilot.chat.responsesApiReasoningEffort": "medium"
 }
