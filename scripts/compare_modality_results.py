@@ -20,7 +20,9 @@ import os
 import sys
 from pathlib import Path
 
-RESULTS_ROOT = "/users/surech/meditron/reports/lmms_eval_results"
+RESULTS_ROOT = os.environ.get(
+    "MM_RESULTS_ROOT", "/users/surech/meditron/reports/lmms_eval_results"
+)
 MODEL_A_DIR = "MultiMeditron-8B-attn-pep-end2end__checkpoint-3063"
 MODEL_B_DIR = "MultiMeditron-8B-attn-pep-end2end-7exp__checkpoint-800"
 

@@ -8,21 +8,19 @@ Usage (inside container):
     python3 scripts/test_gating.py
 """
 
+import os
 import random
-import sys
 
 import torch
 
-# Make the multimeditron package importable for gating_utils.load_gating.
-sys.path.insert(0, "/users/surech/meditron/MultiMeditron/src")
-sys.path.insert(0, "/users/surech/meditron/MultiMeditron/third-party/lmms-eval")
-
-from gating_utils import load_gating, load_images_from_arrow, print_routing, run_gating
+# gating_utils resolves the repo root, sets up sys.path, and exposes the
+# (env-overridable) GATING_7EXP / ARROW_ROOT path constants.
+from gating_utils import ARROW_ROOT, GATING_7EXP, load_gating, load_images_from_arrow, print_routing, run_gating
 
 # ── paths ──────────────────────────────────────────────────────────────────────
-GATING_MODEL_PATH = "/users/surech/meditron/MultiMeditron/models/CLIP/MultiMeditron-Gating"
-EYE_DATASET_PATH  = "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/eye_dataset/train"
-SKIN_DATASET_PATH = "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/skin_dataset/train"
+GATING_MODEL_PATH = GATING_7EXP
+EYE_DATASET_PATH  = os.path.join(ARROW_ROOT, "eye_dataset", "train")
+SKIN_DATASET_PATH = os.path.join(ARROW_ROOT, "skin_dataset", "train")
 
 N_SAMPLES = 100   # images to sample per dataset
 SEED      = 42

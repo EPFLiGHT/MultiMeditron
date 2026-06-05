@@ -29,7 +29,9 @@ DATASETS = {
     "skin_dataset": "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/skin_dataset",
 }
 
-OUT_BASE = "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow"
+OUT_BASE = os.environ.get(
+    "MM_ARROW_ROOT", "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow"
+)
 
 
 def convert_row(row):

@@ -10,27 +10,16 @@ Usage (via sbatch inside container — see sbatch_gating_analysis.sh):
 """
 
 import random
-import sys
 
 import torch
 from datasets import load_dataset
 from PIL import Image
 
-# Make the multimeditron package importable for gating_utils.load_gating.
-sys.path.insert(0, "/users/surech/meditron/MultiMeditron/src")
-
-from gating_utils import load_gating, print_routing, run_gating, short_name
+# gating_utils resolves the repo root, sets up sys.path, and exposes the
+# (env-overridable) GATING_5EXP / GATING_7EXP path constants.
+from gating_utils import GATING_5EXP, GATING_7EXP, load_gating, print_routing, run_gating, short_name
 
 # ── config ────────────────────────────────────────────────────────────────────
-
-GATING_5EXP = (
-    "/capstor/store/cscs/swissai/a127/meditron/hf_cache/hub/"
-    "models--ClosedMeditron--MultiMeditron-Gating/snapshots/"
-    "e1d1310b6e1962857b61b0009b9a4d7e196e84fa"
-)
-GATING_7EXP = (
-    "/users/surech/meditron/MultiMeditron/models/CLIP/MultiMeditron-Gating"
-)
 
 N_SAMPLES = 500   # 0 = use all test images
 SEED = 42

@@ -33,27 +33,17 @@ Usage (on the login node — no GPU required for ResNet50):
 
 import os
 import random
-import sys
 
 import torch
 
-# Make the multimeditron package importable for gating_utils.load_gating.
-sys.path.insert(0, "/users/surech/meditron/MultiMeditron/src")
-
-from gating_utils import load_gating, load_images_from_arrow, print_routing, run_gating, short_name
+# gating_utils resolves the repo root, sets up sys.path, and exposes the
+# (env-overridable) ARROW_ROOT / GATING_5EXP / GATING_7EXP path constants.
+from gating_utils import (
+    ARROW_ROOT, GATING_5EXP, GATING_7EXP,
+    load_gating, load_images_from_arrow, print_routing, run_gating, short_name,
+)
 
 # ── config ────────────────────────────────────────────────────────────────────
-
-GATING_5EXP = (
-    "/capstor/store/cscs/swissai/a127/meditron/hf_cache/hub/"
-    "models--ClosedMeditron--MultiMeditron-Gating/snapshots/"
-    "e1d1310b6e1962857b61b0009b9a4d7e196e84fa"
-)
-GATING_7EXP = (
-    "/users/surech/meditron/MultiMeditron/models/CLIP/MultiMeditron-Gating"
-)
-
-ARROW_ROOT = "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow"
 
 # All paths point to held-out splits (test or val) that were never used
 # during 7-expert gating training (training used: image_ct2, image_iu_xray,
