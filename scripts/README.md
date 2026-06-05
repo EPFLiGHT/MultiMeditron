@@ -7,6 +7,21 @@ routing analysis, and evaluation post-processing.
 > launchers at the repo root (`sbatch_train.sh`, `sbatch_eval.sh`) — see
 > `cookbook/README.md`. The scripts here are supporting tools.
 
+## Environment variables
+
+Paths default to the current CSCS locations but can be overridden so the scripts
+run on another account or machine (the scripts resolve the repo root relative to
+their own location, so no `sys.path` editing is needed):
+
+| Variable | Default | Used by |
+|---|---|---|
+| `MM_ARROW_ROOT` | `…/swissai/a127/meditron/multimediset/arrow` | gating routing analysis, `test_gating`, `convert_image_datasets` |
+| `MM_GATING_MODEL` | `<repo>/models/CLIP/MultiMeditron-Gating` | gating analysis / test (7-expert checkpoint) |
+| `MM_GATING_5EXP` | HF-cache snapshot of the 5-expert gating | gating routing analysis, `pathvqa_routing_analysis` |
+| `MM_RESULTS_ROOT` | `…/reports/lmms_eval_results` | `compare_modality_results` |
+| `MM_LLM_PATH` | Meditron3-8B snapshot | `debug_mcq_context` (tokenizer fallback) |
+| `STORAGE_ROOT` | `…/multimediset/arrow` | `generate_us_descriptions` |
+
 ---
 
 ## Gating network training

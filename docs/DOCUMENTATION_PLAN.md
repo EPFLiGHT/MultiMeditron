@@ -196,10 +196,15 @@ Docstrings feed into the auto-generated API reference. Without them, `ref/*.rst`
 
 ## 6. Success Metrics
 
-| Metric | Current | Target |
-|---|---|---|
-| Docstring coverage | 41% | 75%+ |
-| Sphinx guide pages | 7 | 11 |
-| Zero-coverage modules | 2 (`preprocessor`, `utils`) | 0 |
-| Unfilled model cards | 6 | 0 |
-| Stale/stub markdown files | 2 | 0 |
+> **Status (2026-06-05):** docstring coverage now measures **~75%** across
+> `src/multimeditron` (the "41%" below was the original baseline) — target met;
+> remaining gaps are mostly trivial dunders / `forward` overrides. New Sphinx
+> guides added: `moe`, `evaluation`, `add_expert`, `deployment`, `troubleshooting`.
+
+| Metric | Baseline | Target | Now |
+|---|---|---|---|
+| Docstring coverage | 41% | 75%+ | ~75% ✅ |
+| Sphinx guide pages | 7 | 11 | 12 ✅ |
+| Zero-coverage modules | 2 (`preprocessor`, `utils`) | 0 | 0 ✅ |
+| Unfilled model cards | 6 | 0 | 6 (deferred) |
+| Stale/stub markdown files | 2 | 0 | 1 |
