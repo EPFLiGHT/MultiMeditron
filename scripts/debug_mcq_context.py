@@ -226,7 +226,10 @@ def run_generate_mode(checkpoint: str, tokenizer_type: str):
     try:
         tokenizer = AutoTokenizer.from_pretrained(checkpoint, use_fast=True, padding_side="left")
     except Exception:
-        llm_path = "/capstor/store/cscs/swissai/a127/meditron/hf_cache/hub/models--OpenMeditron--Meditron3-8B/snapshots/15914bcb040cd1a4f263afcd85b84f09ad2efd95"
+        llm_path = os.environ.get(
+            "MM_LLM_PATH",
+            "/capstor/store/cscs/swissai/a127/meditron/hf_cache/hub/models--OpenMeditron--Meditron3-8B/snapshots/15914bcb040cd1a4f263afcd85b84f09ad2efd95",
+        )
         print(f"Tokenizer not in checkpoint, falling back to: {llm_path}")
         tokenizer = AutoTokenizer.from_pretrained(llm_path, use_fast=True, padding_side="left")
     tokenizer.pad_token = tokenizer.eos_token

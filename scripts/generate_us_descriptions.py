@@ -40,6 +40,9 @@ from datasets import load_from_disk
 
 
 ATTACHMENT_TOKEN = "<|reserved_special_token_0|>"
+
+# Project constraint: generated descriptions must not exceed this many tokens.
+MAX_DESCRIPTION_TOKENS = 500
 STORAGE_ROOT = os.environ.get(
     "STORAGE_ROOT",
     "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow",
@@ -66,8 +69,12 @@ SYSTEM_PROMPT = (
 )
 
 DESCRIPTION_TEMPLATE = """\
-Analyze this ultrasound image and provide a detailed structured clinical description \
-with the following seven sections. Be concise but clinically precise.
+Analyze this ultrasound image and provide a structured clinical description \
+with the following seven sections.
+
+LENGTH LIMIT: the entire description must stay under 500 tokens (about 350 words). \
+Write tersely — short clauses and phrases, not full paragraphs; omit filler words \
+and hedging. Cover all seven sections within the limit; do not exceed it.
 
 1. **Visible organs and structures** — List all anatomical structures visible.
 2. **Features of each organ/structure** — Size, shape, echogenicity, texture for each structure.
@@ -169,12 +176,44 @@ def get_pil_image(sample: dict) -> Image.Image | None:
 # Single-sample inference
 # --------------------------------------------------------------------------- #
 
+def enforce_token_limit(text: str, processor, max_tokens: int = MAX_DESCRIPTION_TOKENS) -> str:
+    """Trim `text` to at most `max_tokens` tokens, cutting at a sentence boundary.
+
+    The prompt already asks the model to stay under the limit; this is a hard
+    guarantee for the rare overflow. When trimming is needed we cut back to the
+    last sentence terminator (. ! ? or newline) so the output never ends
+    mid-word/mid-sentence. Prints a notice when a trim happens.
+
+    Args:
+        text: The (already <think>-stripped) description.
+        processor: The VL processor; its `.tokenizer` is used to count/slice tokens.
+        max_tokens: Hard ceiling on the number of tokens.
+
+    Returns:
+        The description, unchanged if within the limit, otherwise trimmed.
+    """
+    tokenizer = processor.tokenizer
+    token_ids = tokenizer(text, add_special_tokens=False)["input_ids"]
+    if len(token_ids) <= max_tokens:
+        return text
+
+    truncated = tokenizer.decode(token_ids[:max_tokens], skip_special_tokens=True)
+    # Cut back to the last complete sentence so we never end mid-sentence.
+    cut = max(truncated.rfind(". "), truncated.rfind("! "),
+              truncated.rfind("? "), truncated.rfind("\n"))
+    trimmed = truncated[: cut + 1].strip() if cut > 0 else truncated.strip()
+    print(f"  [trim] description {len(token_ids)} -> "
+          f"{len(tokenizer(trimmed, add_special_tokens=False)['input_ids'])} tokens "
+          f"(limit {max_tokens})", flush=True)
+    return trimmed
+
+
 def generate_description(
     model,
     processor,
     image: Image.Image,
     existing_text: str,
-    max_new_tokens: int = 512,
+    max_new_tokens: int = 600,
 ) -> str:
     prompt_text = build_prompt(existing_text)
 
@@ -218,6 +257,9 @@ def generate_description(
     # Strip them so only the final structured description is kept.
     import re
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+
+    # Hard-enforce the 500-token project constraint (prompt asks for it; this guarantees it).
+    text = enforce_token_limit(text, processor, MAX_DESCRIPTION_TOKENS)
     return text
 
 
@@ -332,7 +374,9 @@ def parse_args():
     parser.add_argument(
         "--max_new_tokens",
         type=int,
-        default=512,
+        default=600,
+        help="Generation budget (headroom above the 500-token description limit, "
+             "which is enforced separately via enforce_token_limit).",
     )
     parser.add_argument(
         "--seed",

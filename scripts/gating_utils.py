@@ -13,13 +13,39 @@ preprocessed with the standard ImageNet resize/crop/normalize pipeline.
 import io
 import os
 import random
+import sys
 from collections import Counter, defaultdict
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import pyarrow.ipc as ipc
 import torch
 from PIL import Image
 from torchvision import transforms
+
+# Resolve the repository root relative to this file (scripts/ -> repo root) so the
+# scripts work from any checkout / account, not just the original one. Make the
+# multimeditron package and the lmms-eval submodule importable.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+for _p in (REPO_ROOT / "src", REPO_ROOT / "third-party" / "lmms-eval"):
+    if _p.is_dir() and str(_p) not in sys.path:
+        sys.path.insert(0, str(_p))
+
+# Cluster paths default to the current CSCS locations but can be overridden via
+# environment variables for use on another account or machine.
+ARROW_ROOT = os.environ.get(
+    "MM_ARROW_ROOT",
+    "/capstor/store/cscs/swissai/a127/meditron/multimediset/arrow",
+)
+# 7-expert gating checkpoint (defaults to the in-repo copy).
+GATING_7EXP = os.environ.get("MM_GATING_MODEL", str(REPO_ROOT / "models/CLIP/MultiMeditron-Gating"))
+# Original 5-expert gating checkpoint (HF cache snapshot).
+GATING_5EXP = os.environ.get(
+    "MM_GATING_5EXP",
+    "/capstor/store/cscs/swissai/a127/meditron/hf_cache/hub/"
+    "models--ClosedMeditron--MultiMeditron-Gating/snapshots/"
+    "e1d1310b6e1962857b61b0009b9a4d7e196e84fa",
+)
 
 # ResNet50 / ImageNet preprocessing.
 PREPROCESS = transforms.Compose([
