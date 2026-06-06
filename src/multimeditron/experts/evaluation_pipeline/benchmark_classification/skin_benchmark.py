@@ -1,14 +1,13 @@
-from __future__ import annotations
-
 import json
 from pathlib import Path
 
 from .base import ClassificationBenchmark
 from .datasets import load_or_build_dataset
+from .multimediset_manifest import DEFAULT_MANIFEST_ROOT, load_or_build_manifest_dataset
 from load_from_clip import encode_img
 
 
-class SkinIntegratedBenchmark(ClassificationBenchmark):
+class SkinBenchmark(ClassificationBenchmark):
     """Integrated skin disease benchmark built from coherent source manifests.
 
     This benchmark avoids the broken aggregate SKIN_data manifests whose `text`
@@ -17,7 +16,8 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
     taxonomy compatible with the current single-label evaluation pipeline.
     """
 
-    name = 'skin_integrated'
+    name = 'skin'
+    default_manifest_root = DEFAULT_MANIFEST_ROOT / 'skin'
 
     default_train_jsonls = (
         Path('/lightscratch/users/turan/datasets/skin_expert_datasets/skin_diseases_10/skin10_train.jsonl'),
@@ -49,13 +49,15 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
 
     def __init__(
         self,
-        train_jsonls: tuple[str | Path, ...] | None = None,
-        test_jsonls: tuple[str | Path, ...] | None = None,
-        image_roots: tuple[str | Path, ...] | None = None,
-        cache_root: Path | None = None,
-        max_train_examples: int | None = None,
-        max_test_examples: int | None = None,
-    ) -> None:
+        train_jsonls=None,
+        test_jsonls=None,
+        image_roots=None,
+        cache_root=None,
+        max_train_examples=None,
+        max_test_examples=None,
+        manifest_root=None,
+        use_manifest=True,
+    ):
         super().__init__(
             cache_root=cache_root,
             max_train_examples=max_train_examples,
@@ -68,9 +70,11 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
         self.test_jsonls = tuple(Path(path) for path in chosen_test)
         self.image_roots = tuple(Path(path) for path in chosen_roots)
         self.dataset_root = self.image_roots[0] if self.image_roots else Path('/')
+        self.manifest_root = Path(manifest_root) if manifest_root is not None else self.default_manifest_root
+        self.use_manifest = use_manifest
 
-    def _read_examples(self, jsonl_paths: tuple[Path, ...], split_name: str) -> list[dict]:
-        examples: list[dict] = []
+    def _read_examples(self, jsonl_paths, split_name):
+        examples = []
         dropped_unlabeled = 0
         dropped_missing_images = 0
 
@@ -100,7 +104,7 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
         )
         return examples
 
-    def resolve_example_image_path(self, example: dict, source_root: Path) -> Path | None:
+    def resolve_example_image_path(self, example, source_root):
         image_value = example['modalities'][0]['value']
         image_path = Path(image_value)
 
@@ -112,7 +116,7 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
             candidates.append(root / image_value)
             candidates.append(root / Path(image_value).name)
 
-        seen: set[Path] = set()
+        seen = set()
         for candidate in candidates:
             if candidate in seen:
                 continue
@@ -122,7 +126,7 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
 
         return None
 
-    def _extract_skin10_label(self, image_value: str) -> str | None:
+    def _extract_skin10_label(self, image_value):
         parts = Path(image_value).parts
         if len(parts) >= 2 and parts[0] == 'rebuilt':
             label = parts[1]
@@ -130,7 +134,7 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
                 return label
         return None
 
-    def _extract_isic_label(self, text: str) -> str | None:
+    def _extract_isic_label(self, text):
         text = text.lower()
         if 'basal cell carcinoma' in text:
             return 'basal-cell-carcinoma'
@@ -142,7 +146,7 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
             return 'melanoma'
         return None
 
-    def find_label(self, example: dict, source_jsonl: Path) -> str | None:
+    def find_label(self, example, source_jsonl):
         image_value = example['modalities'][0]['value']
         if 'skin_diseases_10' in str(source_jsonl):
             return self._extract_skin10_label(image_value)
@@ -150,22 +154,35 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
             return self._extract_isic_label(str(example.get('text', '')))
         return None
 
-    def load_train_examples(self) -> list[dict]:
+    def load_train_examples(self):
         return self._read_examples(self.train_jsonls, 'skin-integrated-train')
 
-    def load_test_examples(self) -> list[dict]:
+    def load_test_examples(self):
         return self._read_examples(self.test_jsonls, 'skin-integrated-test')
 
-    def examples_to_labels(self, examples: list[dict]) -> list[int]:
+    def examples_to_labels(self, examples):
         return [self.label_to_idx[str(example['label'])] for example in examples]
 
-    def embed_example(self, example: dict, _label: int, model, _dataset_root: Path):
+    def embed_example(self, example, _label, model, _dataset_root):
         image_path = example.get('__image_path__')
         if image_path is None:
             return None
         return encode_img(model, str(image_path))
 
-    def build_train_dataset(self, model, model_name: str, use_cache: bool = True):
+    def build_train_dataset(self, model, model_name, use_cache=True):
+        manifest_path = self.manifest_root / 'mlp_train.jsonl'
+        if self.use_manifest and manifest_path.exists():
+            return load_or_build_manifest_dataset(
+                manifest_path=manifest_path,
+                cache_prefix=f'{model_name}_{self.name}_multimediset_mlp_train',
+                model=model,
+                cache_root=self.cache_root,
+                use_cache=use_cache,
+                desc='skin-manifest-mlp-train',
+                max_examples=self.max_train_examples,
+                seed=42,
+            )
+
         train_examples = self.load_train_examples()
         train_examples = self._sample_examples_random(train_examples, self.max_train_examples, seed=42)
         train_labels = self.examples_to_labels(train_examples)
@@ -181,7 +198,20 @@ class SkinIntegratedBenchmark(ClassificationBenchmark):
             embed_example=self.embed_example,
         )
 
-    def build_test_dataset(self, model, model_name: str, use_cache: bool = True):
+    def build_test_dataset(self, model, model_name, use_cache=True):
+        manifest_path = self.manifest_root / 'benchmark_eval.jsonl'
+        if self.use_manifest and manifest_path.exists():
+            return load_or_build_manifest_dataset(
+                manifest_path=manifest_path,
+                cache_prefix=f'{model_name}_{self.name}_multimediset_benchmark_eval',
+                model=model,
+                cache_root=self.cache_root,
+                use_cache=use_cache,
+                desc='skin-manifest-benchmark-eval',
+                max_examples=self.max_test_examples,
+                seed=43,
+            )
+
         test_examples = self.load_test_examples()
         test_examples = self._sample_examples_random(test_examples, self.max_test_examples, seed=43)
         test_labels = self.examples_to_labels(test_examples)

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import random
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -21,26 +19,32 @@ class ClassificationBenchmark(ABC):
     """
 
     name = "benchmark_classification"
-    num_classes: int | None = None
+    num_classes = None
 
     def __init__(
         self,
-        cache_root: Path | None = None,
-        max_train_examples: int | None = None,
-        max_test_examples: int | None = None,
-    ) -> None:
+        cache_root=None,
+        max_train_examples=None,
+        max_test_examples=None,
+    ):
         self.cache_root = cache_root
-        if max_train_examples is not None:
-            self.max_train_examples = max_train_examples
-        if max_test_examples is not None:
-            self.max_test_examples = max_test_examples
+        self.max_train_examples = (
+            max_train_examples
+            if max_train_examples is not None
+            else getattr(self, "max_train_examples", None)
+        )
+        self.max_test_examples = (
+            max_test_examples
+            if max_test_examples is not None
+            else getattr(self, "max_test_examples", None)
+        )
 
     @staticmethod
     def _sample_examples_random(
-        examples: list,
-        max_n: int | None,
-        seed: int = 42,
-    ) -> list:
+        examples,
+        max_n,
+        seed=42,
+    ):
         """Randomly subsample *examples* to at most *max_n* entries.
 
         Returns the original list unchanged when *max_n* is None or already
@@ -57,26 +61,26 @@ class ClassificationBenchmark(ABC):
     @abstractmethod
     def build_train_dataset(
         self,
-        model: VisionTextDualEncoderModel,
-        model_name: str,
-        use_cache: bool = True,
+        model,
+        model_name,
+        use_cache=True,
     ):
         """Return the training dataset for this benchmark."""
 
     @abstractmethod
     def build_test_dataset(
         self,
-        model: VisionTextDualEncoderModel,
-        model_name: str,
-        use_cache: bool = True,
+        model,
+        model_name,
+        use_cache=True,
     ):
         """Return the test dataset for this benchmark."""
 
     def evaluate(
         self,
-        model_path: str,
-        use_cache: bool = True,
-        mlp_kwargs: dict | None = None,
+        model_path,
+        use_cache=True,
+        mlp_kwargs=None,
     ):
         model = VisionTextDualEncoderModel.from_pretrained(model_path)
         model_name = Path(model_path).name
@@ -87,21 +91,21 @@ class ClassificationBenchmark(ABC):
             mlp_kwargs=mlp_kwargs,
         )
 
-    def build_loss(self, train_dataset) -> nn.Module:
+    def build_loss(self, train_dataset):
         """Return the loss function for MLP training. Override for non-standard losses."""
         class_weights = build_class_weights(train_dataset.labels, num_classes=self.get_num_classes())
         return nn.CrossEntropyLoss(weight=class_weights)
 
-    def build_mlp_kwargs(self) -> dict:
+    def build_mlp_kwargs(self):
         """Return extra kwargs forwarded to MLP_eval. Override to change accuracy function etc."""
         return {}
 
     def evaluate_model(
         self,
-        model: VisionTextDualEncoderModel,
-        model_name: str,
-        use_cache: bool = True,
-        mlp_kwargs: dict | None = None,
+        model,
+        model_name,
+        use_cache=True,
+        mlp_kwargs=None,
     ):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = model.to(device)
@@ -121,7 +125,7 @@ class ClassificationBenchmark(ABC):
         )
         return benchmark.evaluate()
 
-    def get_num_classes(self) -> int:
+    def get_num_classes(self):
         if self.num_classes is None:
             raise ValueError(f"{self.__class__.__name__} must define num_classes")
         return self.num_classes

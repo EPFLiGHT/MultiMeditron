@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import json
 import sys
 from pathlib import Path
@@ -7,9 +5,9 @@ from pathlib import Path
 import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
-from transformers import VisionTextDualEncoderModel
 
 from .base import ClassificationBenchmark
+from .multimediset_manifest import DEFAULT_MANIFEST_ROOT, load_or_build_manifest_dataset
 from load_from_clip import encode_img
 
 
@@ -19,6 +17,7 @@ ABDOMEN = 2
 THYROID = 3
 
 NUM_CLASSES = 4
+MANIFEST_NUM_CLASSES = 13
 
 DATASET_ROOT = Path("/lightscratch/users/deschryv/clipFineTune/ultrasound_evaluation")
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
@@ -47,7 +46,7 @@ _FILENAME_FALLBACKS = {
 }
 
 
-def _resolve_dataset_file(dataset_root: Path, filename: str) -> Path:
+def _resolve_dataset_file(dataset_root, filename):
     path = dataset_root / filename
     if path.exists():
         return path
@@ -59,7 +58,7 @@ def _resolve_dataset_file(dataset_root: Path, filename: str) -> Path:
     return path
 
 
-def _resolve_image_path(raw_path: str, dataset_root: Path) -> Path:
+def _resolve_image_path(raw_path, dataset_root):
     if raw_path.startswith("/mloscratch/"):
         raw_path = raw_path.replace("/mloscratch/", "/lightscratch/", 1)
     path = Path(raw_path)
@@ -68,7 +67,7 @@ def _resolve_image_path(raw_path: str, dataset_root: Path) -> Path:
     return dataset_root / path
 
 
-def _extract_image_path(example: dict, dataset_root: Path) -> Path:
+def _extract_image_path(example, dataset_root):
     modalities = example.get("modalities")
     if not modalities:
         raise ValueError("Missing or empty 'modalities' field")
@@ -78,14 +77,9 @@ def _extract_image_path(example: dict, dataset_root: Path) -> Path:
     return _resolve_image_path(image_value, dataset_root)
 
 
-def _load_jsonl_embeddings(
-    jsonl_path: Path,
-    label: int,
-    model: VisionTextDualEncoderModel,
-    dataset_root: Path,
-) -> tuple[torch.Tensor, torch.Tensor]:
-    embeddings: list[torch.Tensor] = []
-    labels: list[int] = []
+def _load_jsonl_embeddings(jsonl_path, label, model, dataset_root):
+    embeddings = []
+    labels = []
     with jsonl_path.open("r", encoding="utf-8") as f:
         for line in tqdm(f, desc=jsonl_path.name):
             example = json.loads(line)
@@ -100,13 +94,13 @@ def _load_jsonl_embeddings(
 class BodyPartsDataset(Dataset):
     def __init__(
         self,
-        model: VisionTextDualEncoderModel,
-        model_name: str,
-        split: str,
-        dataset_root: Path = DATASET_ROOT,
-        cache_root: Path = CACHE_ROOT,
-        use_cache: bool = True,
-    ) -> None:
+        model,
+        model_name,
+        split,
+        dataset_root=DATASET_ROOT,
+        cache_root=CACHE_ROOT,
+        use_cache=True,
+    ):
         if split not in DATASET_FILES:
             raise ValueError(f"Unknown split: {split}")
 
@@ -139,31 +133,58 @@ class BodyPartsDataset(Dataset):
         torch.save(self.data, data_cache)
         torch.save(self.labels, labels_cache)
 
-    def __len__(self) -> int:
+    def __len__(self):
         return len(self.labels)
 
-    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
+    def __getitem__(self, idx):
         return self.data[idx], self.labels[idx]
 
 
 class UltrasoundBenchmark(ClassificationBenchmark):
     num_classes = NUM_CLASSES
+    default_manifest_root = DEFAULT_MANIFEST_ROOT / "ultrasound"
 
     def __init__(
         self,
-        max_train_examples: int | None = None,
-        max_test_examples: int | None = None,
-        cache_root: Path | None = None,
-        dataset_root: Path | None = None,
-    ) -> None:
+        max_train_examples=None,
+        max_test_examples=None,
+        cache_root=None,
+        dataset_root=None,
+        manifest_root=None,
+        use_manifest=True,
+    ):
         super().__init__(
             cache_root=cache_root,
             max_train_examples=max_train_examples,
             max_test_examples=max_test_examples,
         )
         self._dataset_root = Path(dataset_root) if dataset_root else DATASET_ROOT
+        self.manifest_root = Path(manifest_root) if manifest_root is not None else self.default_manifest_root
+        self.use_manifest = use_manifest
+        if self._manifest_available():
+            self.num_classes = MANIFEST_NUM_CLASSES
 
-    def build_train_dataset(self, model, model_name: str, use_cache: bool = True):
+    def _manifest_available(self):
+        return (
+            self.use_manifest
+            and (self.manifest_root / "mlp_train.jsonl").exists()
+            and (self.manifest_root / "benchmark_eval.jsonl").exists()
+        )
+
+    def build_train_dataset(self, model, model_name, use_cache=True):
+        manifest_path = self.manifest_root / "mlp_train.jsonl"
+        if self.use_manifest and manifest_path.exists():
+            return load_or_build_manifest_dataset(
+                manifest_path=manifest_path,
+                cache_prefix=f"{model_name}_ultrasound_multimediset_mlp_train",
+                model=model,
+                cache_root=self.cache_root or CACHE_ROOT,
+                use_cache=use_cache,
+                desc="ultrasound-manifest-mlp-train",
+                max_examples=self.max_train_examples,
+                seed=42,
+            )
+
         ds = BodyPartsDataset(
             model=model,
             model_name=model_name,
@@ -177,7 +198,20 @@ class UltrasoundBenchmark(ClassificationBenchmark):
             ds.labels = ds.labels[:self.max_train_examples]
         return ds
 
-    def build_test_dataset(self, model, model_name: str, use_cache: bool = True):
+    def build_test_dataset(self, model, model_name, use_cache=True):
+        manifest_path = self.manifest_root / "benchmark_eval.jsonl"
+        if self.use_manifest and manifest_path.exists():
+            return load_or_build_manifest_dataset(
+                manifest_path=manifest_path,
+                cache_prefix=f"{model_name}_ultrasound_multimediset_benchmark_eval",
+                model=model,
+                cache_root=self.cache_root or CACHE_ROOT,
+                use_cache=use_cache,
+                desc="ultrasound-manifest-benchmark-eval",
+                max_examples=self.max_test_examples,
+                seed=43,
+            )
+
         ds = BodyPartsDataset(
             model=model,
             model_name=model_name,

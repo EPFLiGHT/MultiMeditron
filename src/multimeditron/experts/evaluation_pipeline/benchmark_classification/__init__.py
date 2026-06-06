@@ -5,5 +5,6 @@ image -> embedding -> MLP -> metric.
 """
 
 from .base import ClassificationBenchmark
+from .ct3d_benchmark import CT3DBenchmark
 
-__all__ = ["ClassificationBenchmark"]
+__all__ = ["ClassificationBenchmark", "CT3DBenchmark"]

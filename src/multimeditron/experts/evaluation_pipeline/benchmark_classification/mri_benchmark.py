@@ -1,11 +1,10 @@
-from __future__ import annotations
-
 from collections import defaultdict
 from pathlib import Path
 from random import Random
 
 from .base import ClassificationBenchmark
 from .datasets import load_or_build_dataset, read_jsonl, resolve_image_path
+from .multimediset_manifest import DEFAULT_MANIFEST_ROOT, load_or_build_manifest_dataset
 from load_from_clip import encode_img, encode_img_bytes
 
 
@@ -27,6 +26,7 @@ class MRIBenchmark(ClassificationBenchmark):
         Path("/lightscratch/users/nemo/datasets/MRI_data/MRI-glob/ignoreme/images-1.parquet"),
         Path("/lightscratch/users/nemo/datasets/MRI_data/MRI-glob/ignoreme/images-2.parquet"),
     )
+    default_manifest_root = DEFAULT_MANIFEST_ROOT / "mri"
 
     labels = ["brain tumor", "crohn", "healthy", "Bone infection"]
     label_to_idx = {label: idx for idx, label in enumerate(labels)}
@@ -37,28 +37,49 @@ class MRIBenchmark(ClassificationBenchmark):
     sep_by_patient = False
     max_train_examples = 50_000
     max_test_examples = 10_000
+    manifest_max_train_examples = 5_000
+    manifest_max_test_examples = 3_000
     balanced_sampling = True
 
     def __init__(
         self,
-        dataset_root: str | Path | None = None,
-        dataset_jsonl: str | Path | None = None,
-        cache_root: Path | None = None,
-        parquet_paths: tuple[str | Path, ...] | None = None,
-        subset_fraction: float | None = None,
-        max_train_examples: int | None = None,
-        max_test_examples: int | None = None,
-        balanced_sampling: bool | None = None,
-    ) -> None:
+        dataset_root=None,
+        dataset_jsonl=None,
+        cache_root=None,
+        parquet_paths=None,
+        subset_fraction=None,
+        max_train_examples=None,
+        max_test_examples=None,
+        balanced_sampling=None,
+        manifest_root=None,
+        use_manifest=True,
+    ):
         super().__init__(cache_root=cache_root)
         self.dataset_root = Path(dataset_root) if dataset_root is not None else self.default_dataset_root
         self.dataset_jsonl = Path(dataset_jsonl) if dataset_jsonl is not None else self.default_dataset_jsonl
         chosen_parquet_paths = parquet_paths if parquet_paths is not None else self.default_parquet_paths
         self.parquet_paths = tuple(Path(path) for path in chosen_parquet_paths)
         self.subset_fraction = self.subset_fraction if subset_fraction is None else subset_fraction
-        self.max_train_examples = self.max_train_examples if max_train_examples is None else max_train_examples
-        self.max_test_examples = self.max_test_examples if max_test_examples is None else max_test_examples
         self.balanced_sampling = self.balanced_sampling if balanced_sampling is None else balanced_sampling
+        self.manifest_root = Path(manifest_root) if manifest_root is not None else self.default_manifest_root
+        self.use_manifest = use_manifest
+        manifest_available = (
+            self.use_manifest
+            and (self.manifest_root / "mlp_train.jsonl").exists()
+            and (self.manifest_root / "benchmark_eval.jsonl").exists()
+        )
+        default_max_train_examples = (
+            self.manifest_max_train_examples if manifest_available else self.max_train_examples
+        )
+        default_max_test_examples = (
+            self.manifest_max_test_examples if manifest_available else self.max_test_examples
+        )
+        self.max_train_examples = (
+            default_max_train_examples if max_train_examples is None else max_train_examples
+        )
+        self.max_test_examples = (
+            default_max_test_examples if max_test_examples is None else max_test_examples
+        )
         self.source_image_roots = (
             self.dataset_root / "images",
             self.dataset_root / "ignoreme" / "images",
@@ -67,9 +88,9 @@ class MRIBenchmark(ClassificationBenchmark):
             self.dataset_root / "old" / "images",
             self.dataset_root / "old" / "images-old",
         )
-        self._prepared_image_bytes: dict[str, bytes] = {}
+        self._prepared_image_bytes = {}
 
-    def find_label(self, example: dict) -> str:
+    def find_label(self, example):
         text = example.get("text", "")
         text_lower = text.lower()
 
@@ -81,10 +102,10 @@ class MRIBenchmark(ClassificationBenchmark):
             return "Bone infection"
         return "healthy"
 
-    def get_patient_id(self, example: dict) -> str:
+    def get_patient_id(self, example):
         return example["modalities"][0]["value"].split("_")[0].split("/")[-1]
 
-    def load_examples(self) -> list[dict]:
+    def load_examples(self):
         examples = read_jsonl(self.dataset_jsonl)
         valid_examples = []
 
@@ -100,7 +121,7 @@ class MRIBenchmark(ClassificationBenchmark):
 
         return valid_examples
 
-    def subset_examples(self, examples: list[dict]) -> list[dict]:
+    def subset_examples(self, examples):
         if self.subset_fraction is None or self.subset_fraction >= 1.0:
             return examples
 
@@ -111,7 +132,7 @@ class MRIBenchmark(ClassificationBenchmark):
         subset_size = int(self.subset_fraction * len(shuffled))
         return shuffled[:subset_size]
 
-    def _sample_examples(self, examples: list[dict], max_examples: int | None, seed_offset: int) -> list[dict]:
+    def _sample_examples(self, examples, max_examples, seed_offset):
         if max_examples is None or len(examples) <= max_examples:
             return examples
 
@@ -122,7 +143,7 @@ class MRIBenchmark(ClassificationBenchmark):
         if not self.balanced_sampling:
             return shuffled[:max_examples]
 
-        grouped_examples: dict[str, list[dict]] = defaultdict(list)
+        grouped_examples = defaultdict(list)
         for example in shuffled:
             grouped_examples[self.find_label(example)].append(example)
 
@@ -131,7 +152,7 @@ class MRIBenchmark(ClassificationBenchmark):
             return []
 
         selected_counts = {class_name: 0 for class_name in class_names}
-        selected_examples: list[dict] = []
+        selected_examples = []
 
         # Round-robin over classes to keep the reduced benchmark roughly balanced.
         while len(selected_examples) < max_examples:
@@ -151,12 +172,12 @@ class MRIBenchmark(ClassificationBenchmark):
 
         return selected_examples
 
-    def split_examples(self, examples: list[dict]) -> tuple[list[dict], list[dict]]:
+    def split_examples(self, examples):
         rng = Random(self.split_seed)
         examples = self.subset_examples(examples)
 
         if self.sep_by_patient:
-            patient_to_examples: dict[str, list[dict]] = {}
+            patient_to_examples = {}
             for example in examples:
                 patient_id = self.get_patient_id(example)
                 patient_to_examples.setdefault(patient_id, []).append(example)
@@ -189,13 +210,13 @@ class MRIBenchmark(ClassificationBenchmark):
         test_examples = self._sample_examples(test_examples, self.max_test_examples, seed_offset=202)
         return train_examples, test_examples
 
-    def examples_to_labels(self, examples: list[dict]) -> list[int]:
+    def examples_to_labels(self, examples):
         return [self.label_to_idx[self.find_label(example)] for example in examples]
 
-    def _is_usable_image_path(self, image_path: Path) -> bool:
+    def _is_usable_image_path(self, image_path):
         return image_path.is_file() and image_path.stat().st_size > 0
 
-    def _find_image_path(self, image_value: str, dataset_root: Path) -> Path | None:
+    def _find_image_path(self, image_value, dataset_root):
         image_path = resolve_image_path(image_value, dataset_root)
         if self._is_usable_image_path(image_path):
             return image_path
@@ -212,8 +233,8 @@ class MRIBenchmark(ClassificationBenchmark):
 
         return None
 
-    def prepare_images(self, examples: list[dict], dataset_root: Path, desc: str) -> None:
-        missing_targets: dict[str, Path] = {}
+    def prepare_images(self, examples, dataset_root, desc):
+        missing_targets = {}
         self._prepared_image_bytes = {}
 
         for example in examples:
@@ -231,7 +252,7 @@ class MRIBenchmark(ClassificationBenchmark):
         if unresolved:
             print(f"[{desc}] could not find {len(unresolved)} image(s) in MRI parquet files")
 
-    def _restore_missing_images(self, missing_targets: dict[str, Path]) -> dict[str, Path]:
+    def _restore_missing_images(self, missing_targets):
         import pyarrow.parquet as pq
 
         remaining = dict(missing_targets)
@@ -255,7 +276,7 @@ class MRIBenchmark(ClassificationBenchmark):
 
         return remaining
 
-    def embed_example(self, example: dict, _label: int, model, dataset_root: Path):
+    def embed_example(self, example, _label, model, dataset_root):
         image_value = example["modalities"][0]["value"]
         image_path = self._find_image_path(image_value, dataset_root)
         if image_path is not None:
@@ -268,7 +289,20 @@ class MRIBenchmark(ClassificationBenchmark):
 
         return encode_img_bytes(model, image_bytes)
 
-    def build_train_dataset(self, model, model_name: str, use_cache: bool = True):
+    def build_train_dataset(self, model, model_name, use_cache=True):
+        manifest_path = self.manifest_root / "mlp_train.jsonl"
+        if self.use_manifest and manifest_path.exists():
+            return load_or_build_manifest_dataset(
+                manifest_path=manifest_path,
+                cache_prefix=f"{model_name}_{self.name}_multimediset_mlp_train",
+                model=model,
+                cache_root=self.cache_root,
+                use_cache=use_cache,
+                desc="mri-manifest-mlp-train",
+                max_examples=self.max_train_examples,
+                seed=self.split_seed + 101,
+            )
+
         examples = self.load_examples()
         train_examples, _ = self.split_examples(examples)
         train_labels = self.examples_to_labels(train_examples)
@@ -286,7 +320,20 @@ class MRIBenchmark(ClassificationBenchmark):
             embed_example=self.embed_example,
         )
 
-    def build_test_dataset(self, model, model_name: str, use_cache: bool = True):
+    def build_test_dataset(self, model, model_name, use_cache=True):
+        manifest_path = self.manifest_root / "benchmark_eval.jsonl"
+        if self.use_manifest and manifest_path.exists():
+            return load_or_build_manifest_dataset(
+                manifest_path=manifest_path,
+                cache_prefix=f"{model_name}_{self.name}_multimediset_benchmark_eval",
+                model=model,
+                cache_root=self.cache_root,
+                use_cache=use_cache,
+                desc="mri-manifest-benchmark-eval",
+                max_examples=self.max_test_examples,
+                seed=self.split_seed + 202,
+            )
+
         examples = self.load_examples()
         _, test_examples = self.split_examples(examples)
         test_labels = self.examples_to_labels(test_examples)

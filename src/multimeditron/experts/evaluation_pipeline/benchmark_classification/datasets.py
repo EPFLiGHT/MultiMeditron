@@ -78,7 +78,7 @@ def load_embeddings_from_examples(
             image_value = example["modalities"][0]["value"]
             image_path = resolve_image_path(image_value, dataset_root)
 
-            if not image_path.exists():
+            if not image_path.exists() or image_path.stat().st_size == 0:
                 missing_images += 1
                 continue
 
