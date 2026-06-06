@@ -1,9 +1,6 @@
-from __future__ import annotations
-
 import os
 import sys
 from pathlib import Path
-from typing import List
 
 
 # Some older benchmark modules still rely on script-style imports such as
@@ -29,15 +26,6 @@ OPHTH_ENV_VARS = {
     "test_jsonl": "OPHTH_TEST_JSONL",
     "max_train_examples": "OPHTH_MAX_TRAIN_EXAMPLES",
     "max_test_examples": "OPHTH_MAX_TEST_EXAMPLES",
-}
-
-MRI_ENV_VARS = {
-    "dataset_root": "MRI_DATASET_ROOT",
-    "dataset_jsonl": "MRI_DATASET_JSONL",
-    "subset_fraction": "MRI_SUBSET_FRACTION",
-    "max_train_examples": "MRI_MAX_TRAIN_EXAMPLES",
-    "max_test_examples": "MRI_MAX_TEST_EXAMPLES",
-    "balanced_sampling": "MRI_BALANCED_SAMPLING",
 }
 
 CT_ENV_VARS = {
@@ -67,12 +55,19 @@ XRAY_ENV_VARS = {
     "max_test_examples": "XRAY_MAX_TEST_EXAMPLES",
 }
 
+BRAIN_TUMOR_ENV_VARS = {
+    "train_jsonl": "BRAIN_TUMOR_TRAIN_JSONL",
+    "test_jsonl": "BRAIN_TUMOR_TEST_JSONL",
+    "max_train_examples": "BRAIN_TUMOR_MAX_TRAIN_EXAMPLES",
+    "max_test_examples": "BRAIN_TUMOR_MAX_TEST_EXAMPLES",
+}
 
-def _parse_optional_int(raw_value: str | None) -> int | None:
+
+def _parse_optional_int(raw_value):
     return None if raw_value in (None, "") else int(raw_value)
 
 
-def _validate_optional_env_block(name: str, values: dict[str, str | None], env_names: dict[str, str]):
+def _validate_optional_env_block(name, values, env_names):
     provided_count = sum(value is not None for value in values.values())
     if provided_count == 0:
         return False
@@ -92,15 +87,22 @@ def _validate_optional_env_block(name: str, values: dict[str, str | None], env_n
     return True
 
 
+def _manifest_pair_exists(manifest_root):
+    return (
+        (manifest_root / "mlp_train.jsonl").exists()
+        and (manifest_root / "benchmark_eval.jsonl").exists()
+    )
 
-def _maybe_build_skin_integrated_benchmark():
+
+
+def _maybe_build_skin_benchmark():
     train_jsonls = _split_env_paths(os.environ.get(SKIN_INTEGRATED_ENV_VARS["train_jsonls"]))
     test_jsonls = _split_env_paths(os.environ.get(SKIN_INTEGRATED_ENV_VARS["test_jsonls"]))
     image_roots = _split_env_paths(os.environ.get(SKIN_INTEGRATED_ENV_VARS["image_roots"]))
     max_train_examples = _parse_optional_int(os.environ.get(SKIN_INTEGRATED_ENV_VARS["max_train_examples"]))
     max_test_examples = _parse_optional_int(os.environ.get(SKIN_INTEGRATED_ENV_VARS["max_test_examples"]))
 
-    from evaluation_pipeline.benchmark_classification.skin_integrated_benchmark import SkinIntegratedBenchmark
+    from evaluation_pipeline.benchmark_classification.skin_benchmark import SkinBenchmark
 
     provided = {
         "train_jsonls": bool(train_jsonls),
@@ -109,12 +111,17 @@ def _maybe_build_skin_integrated_benchmark():
     }
     provided_count = sum(provided.values())
     if provided_count == 0:
-        default_train_exists = all(path.exists() for path in SkinIntegratedBenchmark.default_train_jsonls)
-        default_test_exists = all(path.exists() for path in SkinIntegratedBenchmark.default_test_jsonls)
-        default_roots_exist = all(path.exists() for path in SkinIntegratedBenchmark.default_image_roots)
+        if _manifest_pair_exists(SkinBenchmark.default_manifest_root):
+            return SkinBenchmark(
+                max_train_examples=max_train_examples,
+                max_test_examples=max_test_examples,
+            )
+        default_train_exists = all(path.exists() for path in SkinBenchmark.default_train_jsonls)
+        default_test_exists = all(path.exists() for path in SkinBenchmark.default_test_jsonls)
+        default_roots_exist = all(path.exists() for path in SkinBenchmark.default_image_roots)
         if not (default_train_exists and default_test_exists and default_roots_exist):
             return None
-        return SkinIntegratedBenchmark(
+        return SkinBenchmark(
             max_train_examples=max_train_examples,
             max_test_examples=max_test_examples,
         )
@@ -134,7 +141,7 @@ def _maybe_build_skin_integrated_benchmark():
     if missing_paths:
         raise FileNotFoundError("Integrated skin benchmark paths do not exist: " + ", ".join(missing_paths))
 
-    return SkinIntegratedBenchmark(
+    return SkinBenchmark(
         train_jsonls=tuple(train_jsonls),
         test_jsonls=tuple(test_jsonls),
         image_roots=tuple(image_roots),
@@ -156,10 +163,16 @@ def _maybe_build_ophthalmology_benchmark():
     max_train_examples = _parse_optional_int(os.environ.get(OPHTH_ENV_VARS["max_train_examples"]))
     max_test_examples = _parse_optional_int(os.environ.get(OPHTH_ENV_VARS["max_test_examples"]))
 
+    from evaluation_pipeline.benchmark_classification.ophthalmology_benchmark import OphthalmologyBenchmark
+
+    if not any(config.values()) and _manifest_pair_exists(OphthalmologyBenchmark.default_manifest_root):
+        return OphthalmologyBenchmark(
+            max_train_examples=max_train_examples,
+            max_test_examples=max_test_examples,
+        )
+
     if not _validate_optional_env_block("Ophthalmology", config, OPHTH_ENV_VARS):
         return None
-
-    from evaluation_pipeline.benchmark_classification.ophthalmology_benchmark import OphthalmologyBenchmark
 
     return OphthalmologyBenchmark(
         dataset_root=config["dataset_root"],
@@ -170,26 +183,18 @@ def _maybe_build_ophthalmology_benchmark():
     )
 
 
-def _maybe_build_ophthalmology_dr_benchmark():
-    config = _ophthalmology_config_from_env()
 
-    if not _validate_optional_env_block("Ophthalmology", config, OPHTH_ENV_VARS):
-        return None
 
-    from evaluation_pipeline.benchmark_classification.ophthalmology_dr_benchmark import OphthalmologyDRBenchmark
+def _build_ct3d_benchmark():
+    from evaluation_pipeline.benchmark_classification.ct3d_benchmark import CT3DBenchmark
 
-    return OphthalmologyDRBenchmark(
-        train_jsonls=(config["train_jsonl"],),
-        test_jsonls=(config["test_jsonl"],),
-        image_roots=(config["dataset_root"],),
-    )
-
+    return CT3DBenchmark()
 
 
 def _build_ct_benchmark():
     from evaluation_pipeline.benchmark_classification.ct_benchmark import CTBenchmark
 
-    def _parse_optional_bool(raw_value: str | None) -> bool | None:
+    def _parse_optional_bool(raw_value):
         if raw_value in (None, ""):
             return None
         normalized = raw_value.strip().lower()
@@ -215,41 +220,7 @@ def _build_ct_benchmark():
     )
 
 
-def _build_mri_benchmark():
-    from evaluation_pipeline.benchmark_classification.mri_benchmark import MRIBenchmark
-
-    def _parse_optional_float(raw_value: str | None) -> float | None:
-        return None if raw_value in (None, "") else float(raw_value)
-
-    def _parse_optional_bool(raw_value: str | None) -> bool | None:
-        if raw_value in (None, ""):
-            return None
-        normalized = raw_value.strip().lower()
-        if normalized in {"1", "true", "yes", "y", "on"}:
-            return True
-        if normalized in {"0", "false", "no", "n", "off"}:
-            return False
-        raise ValueError(
-            f"Invalid boolean value for {MRI_ENV_VARS['balanced_sampling']}: {raw_value!r}"
-        )
-
-    dataset_root = os.environ.get(MRI_ENV_VARS["dataset_root"])
-    dataset_jsonl = os.environ.get(MRI_ENV_VARS["dataset_jsonl"])
-    subset_fraction = _parse_optional_float(os.environ.get(MRI_ENV_VARS["subset_fraction"]))
-    max_train_examples = _parse_optional_int(os.environ.get(MRI_ENV_VARS["max_train_examples"]))
-    max_test_examples = _parse_optional_int(os.environ.get(MRI_ENV_VARS["max_test_examples"]))
-    balanced_sampling = _parse_optional_bool(os.environ.get(MRI_ENV_VARS["balanced_sampling"]))
-    return MRIBenchmark(
-        dataset_root=dataset_root,
-        dataset_jsonl=dataset_jsonl,
-        subset_fraction=subset_fraction,
-        max_train_examples=max_train_examples,
-        max_test_examples=max_test_examples,
-        balanced_sampling=balanced_sampling,
-    )
-
-
-def _split_env_paths(raw_value: str | None) -> list[str]:
+def _split_env_paths(raw_value):
     if raw_value is None:
         return []
     return [part for part in raw_value.split(os.pathsep) if part]
@@ -306,7 +277,7 @@ def _maybe_build_ultrasound_benchmark():
 
     dataset_root_env = os.environ.get(ULTRASOUND_ENV_VARS["dataset_root"])
     dataset_root = Path(dataset_root_env) if dataset_root_env else DATASET_ROOT
-    if not dataset_root.exists():
+    if not dataset_root.exists() and not _manifest_pair_exists(UltrasoundBenchmark.default_manifest_root):
         return None
     max_train_examples = _parse_optional_int(os.environ.get(ULTRASOUND_ENV_VARS["max_train_examples"]))
     max_test_examples = _parse_optional_int(os.environ.get(ULTRASOUND_ENV_VARS["max_test_examples"]))
@@ -317,8 +288,30 @@ def _maybe_build_ultrasound_benchmark():
     )
 
 
+def _maybe_build_brain_tumor_benchmark():
+    from evaluation_pipeline.benchmark_classification.brain_tumor_benchmark import BrainTumorBenchmark
+
+    train_jsonl = os.environ.get(BRAIN_TUMOR_ENV_VARS["train_jsonl"])
+    test_jsonl = os.environ.get(BRAIN_TUMOR_ENV_VARS["test_jsonl"])
+    max_train_examples = _parse_optional_int(os.environ.get(BRAIN_TUMOR_ENV_VARS["max_train_examples"]))
+    max_test_examples = _parse_optional_int(os.environ.get(BRAIN_TUMOR_ENV_VARS["max_test_examples"]))
+
+    resolved_train = Path(train_jsonl) if train_jsonl else BrainTumorBenchmark.default_train_jsonl
+    resolved_test = Path(test_jsonl) if test_jsonl else BrainTumorBenchmark.default_test_jsonl
+
+    if not resolved_train.exists() or not resolved_test.exists():
+        return None
+
+    return BrainTumorBenchmark(
+        train_jsonl=resolved_train,
+        test_jsonl=resolved_test,
+        max_train_examples=max_train_examples,
+        max_test_examples=max_test_examples,
+    )
+
+
 def _maybe_build_xray_benchmark():
-    from evaluation_pipeline.xray_eval import XRay_benchmark, _resolve_xray_paths
+    from evaluation_pipeline.benchmark_classification.xray_benchmark import XRay_benchmark, _resolve_xray_paths
 
     _, csv_path, _, _ = _resolve_xray_paths()
     if not csv_path.exists():
@@ -329,10 +322,11 @@ def _maybe_build_xray_benchmark():
         is_lion_model=False,
         max_train_examples=max_train_examples,
         max_test_examples=max_test_examples,
+        use_manifest=False,
     )
 
 
-def build_benchmarks_from_names(names: list[str] | tuple[str, ...] | None) -> List[object]:
+def build_benchmarks_from_names(names):
     """Build only the requested benchmarks by stable benchmark name.
 
     If ``names`` is empty or None, this falls back to the default benchmark suite.
@@ -345,11 +339,11 @@ def build_benchmarks_from_names(names: list[str] | tuple[str, ...] | None) -> Li
     normalized = {name.lower(): name for name in requested}
 
     available_builders = {
+        'brain_tumor_mri': _maybe_build_brain_tumor_benchmark,
         'ct': _build_ct_benchmark,
-        'mri': _build_mri_benchmark,
-        'skin_integrated': _maybe_build_skin_integrated_benchmark,
+        'ct3d': _build_ct3d_benchmark,
+        'skin': _maybe_build_skin_benchmark,
         'ophthalmology': _maybe_build_ophthalmology_benchmark,
-        'ophthalmology_dr': _maybe_build_ophthalmology_dr_benchmark,
         'scin': _maybe_build_scin_benchmark,
         'ultrasound': _maybe_build_ultrasound_benchmark,
         'xray': _maybe_build_xray_benchmark,
@@ -376,19 +370,22 @@ def build_benchmarks_from_names(names: list[str] | tuple[str, ...] | None) -> Li
 
     return built
 
-def build_default_benchmarks() -> List[object]:
-    """Return the default benchmark suite used by train_new_pipeline.
+def build_default_benchmarks():
+    """Return the default benchmark suite used by train_multidomain_clip.
 
-    This integration step keeps the existing ultrasound and XRay benchmarks,
-    extends the suite with MRI and CT2D classification, and optionally adds
-    the skin and ophthalmology benchmarks when their dataset paths are
-    configured via environment variables.
+    Includes CT3D, brain tumor MRI, ultrasound, X-ray, skin, and ophthalmology
+    benchmarks. MRI-glob (``mri``) is excluded — its labels are ~99% brain tumor
+    with no crohn/bone-infection samples, making it unsuitable for classification.
+    Use ``brain_tumor_mri`` for MRI evaluation instead.
     """
 
-    benchmarks: List[object] = [
-        _build_mri_benchmark(),
-        _build_ct_benchmark(),
+    benchmarks = [
+        _build_ct3d_benchmark(),
     ]
+
+    brain_tumor_benchmark = _maybe_build_brain_tumor_benchmark()
+    if brain_tumor_benchmark is not None:
+        benchmarks.append(brain_tumor_benchmark)
 
     ultrasound_benchmark = _maybe_build_ultrasound_benchmark()
     if ultrasound_benchmark is not None:
@@ -401,10 +398,6 @@ def build_default_benchmarks() -> List[object]:
     skin_benchmark = _maybe_build_skin_benchmark()
     if skin_benchmark is not None:
         benchmarks.append(skin_benchmark)
-
-    skin_integrated_benchmark = _maybe_build_skin_integrated_benchmark()
-    if skin_integrated_benchmark is not None:
-        benchmarks.append(skin_integrated_benchmark)
 
     ophthalmology_benchmark = _maybe_build_ophthalmology_benchmark()
     if ophthalmology_benchmark is not None:
