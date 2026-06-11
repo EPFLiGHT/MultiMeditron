@@ -17,18 +17,18 @@ loaders:
 
 modalities:
   - model_type: moe_meditron_clip_pep
-    image_processor: /users/surech/meditron/MultiMeditron/models/CLIP/clip-vit-base-patch32
+    image_processor: ${REPO_DIR}/models/CLIP/clip-vit-base-patch32
     hidden_size: 4096
     expert_clip_names:
-      - /users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-CT
-      - /users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-MRI
+      - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-CT
+      - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-MRI
       - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/UltraSoundCLIP/checkpoint-4350
-      - /users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-Xray
+      - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-Xray
       - /capstor/store/cscs/swissai/a127/meditron/models/openai/clip-vit-base-patch32
       - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/OphthalmologyExpert
       - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/SkinExpert
     generalist_idx: -1
-    gating_path: /users/surech/meditron/MultiMeditron/models/CLIP/MultiMeditron-Gating
+    gating_path: ${REPO_DIR}/models/CLIP/MultiMeditron-Gating
     fusion_method: cross_attn
     top_k_experts: 3
 
@@ -48,7 +48,7 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/skin_dataset_converted
 
 training_args:
-  output_dir: /iopsstor/scratch/cscs/surech/multimeditron/checkpoints/smoketest/stage2-zero2
+  output_dir: /iopsstor/scratch/cscs/${USER}/multimeditron/checkpoints/smoketest/stage2-zero2
   run_name: smoke-7exp-stage2-zero2
   dataloader_num_workers: 16
   dataloader_prefetch_factor: 16
@@ -64,7 +64,7 @@ training_args:
     use_reentrant: true
   save_strategy: "no"
   max_grad_norm: 1.0
-  deepspeed: /users/surech/meditron/MultiMeditron/config/deepspeed_zero2.json
+  deepspeed: ${REPO_DIR}/config/deepspeed_zero2.json
   dataloader_pin_memory: true
   accelerator_config:
     dispatch_batches: false

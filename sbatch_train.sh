@@ -21,8 +21,10 @@ CONFIG=${1:?"Usage: sbatch [--partition=debug --nodes=N --time=HH:MM:SS] sbatch_
 CONFIG=$(realpath "$CONFIG")
 
 # Source secrets (.env) before any variable checks
-# Note: BASH_SOURCE[0] points to a SLURM temp copy, so use the repo path directly
-REPO_DIR=/users/surech/meditron/MultiMeditron
+# Note: BASH_SOURCE[0] points to a SLURM temp copy, so use the repo path directly.
+# Exported so configs can reference ${REPO_DIR} (the train CLI also defaults it to
+# the repo root if unset). Override for your own checkout.
+export REPO_DIR=${REPO_DIR:-/users/surech/meditron/MultiMeditron}
 if [ -f "$REPO_DIR/.env" ]; then
   set -a; source "$REPO_DIR/.env"; set +a
 fi

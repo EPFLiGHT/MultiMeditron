@@ -19,18 +19,18 @@ loaders:
 
 modalities:
   - model_type: moe_meditron_clip_pep
-    image_processor: /users/surech/meditron/MultiMeditron/models/CLIP/clip-vit-base-patch32
+    image_processor: ${REPO_DIR}/models/CLIP/clip-vit-base-patch32
     hidden_size: 4096
     expert_clip_names:
-      - /users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-CT
-      - /users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-MRI
+      - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-CT
+      - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-MRI
       - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/UltraSoundCLIP/checkpoint-4350
-      - /users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-Xray
+      - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-Xray
       - /capstor/store/cscs/swissai/a127/meditron/models/openai/clip-vit-base-patch32
       - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/OphthalmologyExpert
       - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/SkinExpert
     generalist_idx: -1
-    gating_path: /users/surech/meditron/MultiMeditron/models/CLIP/MultiMeditron-Gating
+    gating_path: ${REPO_DIR}/models/CLIP/MultiMeditron-Gating
     fusion_method: cross_attn
     top_k_experts: 5
 
@@ -45,7 +45,7 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/skin_dataset_converted
 
 training_args:
-  output_dir: /iopsstor/scratch/cscs/surech/multimeditron/checkpoints/sanitycheck/stage1-ddp
+  output_dir: /iopsstor/scratch/cscs/${USER}/multimeditron/checkpoints/sanitycheck/stage1-ddp
   run_name: sanity-7exp-stage1-ddp
   dataloader_num_workers: 16
   dataloader_prefetch_factor: 16

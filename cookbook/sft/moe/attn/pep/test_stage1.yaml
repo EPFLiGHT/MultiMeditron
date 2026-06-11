@@ -12,16 +12,16 @@ loaders:
 
 modalities:
   - model_type: moe_meditron_clip_pep
-    image_processor: /users/surech/meditron/MultiMeditron/models/CLIP/clip-vit-base-patch32
+    image_processor: ${REPO_DIR}/models/CLIP/clip-vit-base-patch32
     hidden_size: 4096
     expert_clip_names:
       - /capstor/store/cscs/swissai/a127/meditron/models/openai/clip-vit-base-patch32
       - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/OphthalmologyExpert
       - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/SkinExpert
       - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/UltraSoundCLIP/checkpoint-4350
-      - /users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-CT
-      - /users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-MRI
-      - /users/surech/meditron/MultiMeditron/models/CLIP/ClosedMeditron/MedExpert-Xray
+      - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-CT
+      - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-MRI
+      - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-Xray
     generalist_idx: 0
     gating_path: ""
     fusion_method: cross_attn
@@ -33,7 +33,7 @@ datasets:
   - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_pretrain_cleaned
 
 training_args:
-  output_dir: /users/surech/meditron/MultiMeditron/models/freeze/attn_pep/test-7experts-alignment
+  output_dir: ${REPO_DIR}/models/freeze/attn_pep/test-7experts-alignment
   run_name: test-7experts-alignment
   dataloader_num_workers: 4
   remove_unused_columns: false
