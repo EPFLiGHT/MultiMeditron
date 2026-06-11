@@ -743,19 +743,26 @@ def bootstrap(config, tokenizer, modalities_config):
     return model
 
 
-try:
-    AutoConfig.register(MultimodalConfig.model_type, MultimodalConfig)
-except ValueError:
-    pass
+def register_multimodal_architectures() -> None:
+    """Register the ``multimodal`` config/model with HuggingFace Auto* classes.
 
-try:
-    AutoModel.register(MultimodalConfig, MultiModalModelForCausalLM)
-except ValueError:
-    pass
+    Idempotent: a ``ValueError`` from a repeat registration is expected (the type
+    is already registered) and logged at debug level. This must run before any
+    ``AutoConfig``/``AutoModel.from_pretrained`` call resolves the ``multimodal``
+    model type, so it is invoked at import time below. The evaluation pipeline
+    (lmms-eval) relies on that import-time registration.
+    """
+    for register, args in (
+        (AutoConfig.register, (MultimodalConfig.model_type, MultimodalConfig)),
+        (AutoModel.register, (MultimodalConfig, MultiModalModelForCausalLM)),
+        (AutoModelForCausalLM.register, (MultimodalConfig, MultiModalModelForCausalLM)),
+    ):
+        try:
+            register(*args)
+        except ValueError as e:
+            logger.debug("multimodal arch already registered (%s): %s", register.__qualname__, e)
 
-try:
-    AutoModelForCausalLM.register(MultimodalConfig, MultiModalModelForCausalLM)
-except ValueError:
-    pass
+
+register_multimodal_architectures()
 
 
