@@ -26,7 +26,22 @@ import json
 
 logger = logging.getLogger(__name__)
 
-PngImagePlugin.MAX_TEXT_CHUNK = 2 ** 30
+
+def _expand_env(obj):
+    """Recursively expand ``$VAR`` / ``${VAR}`` in all string values of a config.
+
+    Unknown variables are left untouched (``os.path.expandvars`` semantics), so
+    plain absolute paths are unaffected — this only resolves variables that are
+    actually set in the environment (e.g. ``REPO_DIR``, ``USER``).
+    """
+    if isinstance(obj, str):
+        return os.path.expandvars(obj)
+    if isinstance(obj, dict):
+        return {k: _expand_env(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_expand_env(v) for v in obj]
+    return obj
+
 
 def is_dataset_folder(folder: str) -> bool:
     """Check if a folder is a valid HuggingFace dataset saved with ``save_to_disk``."""
@@ -108,10 +123,18 @@ def train(config: str,
           trust_remote_code: bool = False,
           seed: int = 0,
           verbose: bool = False):
-    
+
+    # Allow very large text chunks in PNGs (some medical images carry big metadata).
+    PngImagePlugin.MAX_TEXT_CHUNK = 2 ** 30
+
+    # Default REPO_DIR to the repository root so configs can use ${REPO_DIR}
+    # (and ${USER}) for portable paths even when the launcher doesn't export it.
+    os.environ.setdefault("REPO_DIR", str(Path(__file__).resolve().parents[3]))
+
     with open(config) as f:
         config_dict = yaml.safe_load(f)
-    
+    config_dict = _expand_env(config_dict)
+
     # Disable randomness
     torch.manual_seed(seed)
     torch.backends.cudnn.deterministic = True

@@ -135,8 +135,18 @@ def init_packing_patch() -> List[str]:
 init_packing_patch()
 
 
-if os.environ.get('ENABLE_BENCHY', None) == '1':
-    from benchy.torch import BenchmarkGenericIteratorWrapper
+def setup_benchy():
+    """Import benchy's iterator wrapper, only when ``ENABLE_BENCHY=1``.
+
+    Keeps the optional ``benchy`` dependency out of module import.
+
+    Returns:
+        The ``BenchmarkGenericIteratorWrapper`` class, or None if disabled.
+    """
+    if os.environ.get('ENABLE_BENCHY') == '1':
+        from benchy.torch import BenchmarkGenericIteratorWrapper
+        return BenchmarkGenericIteratorWrapper
+    return None
 
 
 class TrainingMode(IntEnum):
@@ -263,8 +273,9 @@ class MultimodalTrainer(Trainer):
         """
         train_dataloader = super().get_train_dataloader()
 
-        if os.environ.get('ENABLE_BENCHY', None) == '1':
-            train_dataloader = BenchmarkGenericIteratorWrapper(
+        benchy_wrapper = setup_benchy()
+        if benchy_wrapper is not None:
+            train_dataloader = benchy_wrapper(
                 train_dataloader, self.args.per_device_train_batch_size)
 
         return train_dataloader
