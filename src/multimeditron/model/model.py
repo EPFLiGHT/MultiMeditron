@@ -261,6 +261,11 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         """
         super().__init__(config)
 
+        # Register the multimodal arch with HF Auto* on first instantiation (idempotent),
+        # rather than at import — keeps `import multimeditron.model.model` side-effect-free
+        # while still covering training (bootstrap) and eval (from_pretrained) paths.
+        register_multimodal_architectures()
+
         dtype = get_torch_dtype(config.dtype)
 
         if bootstrap:
@@ -747,10 +752,11 @@ def register_multimodal_architectures() -> None:
     """Register the ``multimodal`` config/model with HuggingFace Auto* classes.
 
     Idempotent: a ``ValueError`` from a repeat registration is expected (the type
-    is already registered) and logged at debug level. This must run before any
-    ``AutoConfig``/``AutoModel.from_pretrained`` call resolves the ``multimodal``
-    model type, so it is invoked at import time below. The evaluation pipeline
-    (lmms-eval) relies on that import-time registration.
+    is already registered) and logged at debug level. Called from
+    ``MultiModalModelForCausalLM.__init__`` so it runs on first model
+    instantiation (training and eval) without firing on a bare module import.
+    Only needed for ``AutoConfig``/``AutoModel.from_pretrained``; the concrete
+    ``MultiModalModelForCausalLM.from_pretrained`` path used by eval works regardless.
     """
     for register, args in (
         (AutoConfig.register, (MultimodalConfig.model_type, MultimodalConfig)),
@@ -761,8 +767,5 @@ def register_multimodal_architectures() -> None:
             register(*args)
         except ValueError as e:
             logger.debug("multimodal arch already registered (%s): %s", register.__qualname__, e)
-
-
-register_multimodal_architectures()
 
 

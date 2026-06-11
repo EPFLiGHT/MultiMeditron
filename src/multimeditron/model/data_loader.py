@@ -1,4 +1,4 @@
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional, Union, Tuple, TypedDict
 from transformers import PreTrainedTokenizerBase
 from transformers.data.data_collator import DataCollatorMixin
 from dataclasses import dataclass
@@ -9,6 +9,43 @@ from multimeditron.dataset.sample_preprocessor import SamplePreprocessor
 from multimeditron.model.model import ChatTemplate
 import torch
 from multimeditron.model.constants import MODALITIES_KEY, MODALITY_TYPE_KEY, MODALITY_VALUE_KEY, IGNORE_TOKEN_INDEX, POSITION_IDS_KEY
+
+
+class ProcessedMultimodalInputs(TypedDict):
+    """Per-modality indexing tensors used to scatter modality embeddings into the text stream.
+
+    Each field is keyed by modality type (e.g. ``"image"``):
+      - ``batch_idx``:   1-D LongTensor of the batch row each modality token belongs to.
+      - ``token_range``: 1-D LongTensor of the flat token positions to write into.
+      - ``stacked``:     list of the raw per-entry modality values to embed.
+    """
+    batch_idx: Dict[str, torch.Tensor]
+    token_range: Dict[str, torch.Tensor]
+    stacked: Dict[str, List[Any]]
+
+
+class PackedText(TypedDict):
+    """Stacked text tensors produced by sequence packing (one row per bin)."""
+    input_ids: torch.Tensor
+    labels: torch.Tensor
+    attention_mask: torch.Tensor
+    position_ids: torch.Tensor
+    cu_seqlens: List[torch.Tensor]   # one int32 tensor of sub-sequence boundaries per bin
+
+
+class MultimodalBatch(TypedDict, total=False):
+    """Collated batch consumed by the model forward pass.
+
+    ``total=False`` because the exact key set depends on the path (packed vs.
+    unpacked, 1-D vs. 2-D position ids).
+    """
+    input_ids: torch.Tensor
+    labels: torch.Tensor
+    attention_mask: torch.Tensor
+    position_ids: torch.Tensor
+    modalities: List[List[Any]]
+    processed_multimodal_inputs: ProcessedMultimodalInputs
+    cu_seqlens: List[torch.Tensor]
 
 @dataclass
 class DataCollatorForMultimodal(DataCollatorMixin):
@@ -34,7 +71,7 @@ class DataCollatorForMultimodal(DataCollatorMixin):
     def _pack_sequences(
         self,
         features: List[Dict[str, Any]],
-    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    ) -> Tuple[PackedText, ProcessedMultimodalInputs]:
         """
         Pack multiple short tokenized samples into fixed-length bins using first-fit-decreasing.
 
@@ -191,7 +228,7 @@ class DataCollatorForMultimodal(DataCollatorMixin):
         return packed_text, packed_mm
 
     @torch.no_grad()
-    def torch_call(self, raw_features: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def torch_call(self, raw_features: List[Dict[str, Any]]) -> MultimodalBatch:
         """
         Collate a batch of multimodal data.
 

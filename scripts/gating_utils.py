@@ -11,6 +11,7 @@ preprocessed with the standard ImageNet resize/crop/normalize pipeline.
 """
 
 import io
+import logging
 import os
 import random
 import sys
@@ -22,6 +23,8 @@ import pyarrow.ipc as ipc
 import torch
 from PIL import Image
 from torchvision import transforms
+
+logger = logging.getLogger(__name__)
 
 # Resolve the repository root relative to this file (scripts/ -> repo root) so the
 # scripts work from any checkout / account, not just the original one. Make the
@@ -152,7 +155,9 @@ def load_images_from_arrow(
                     pil = _decode_image(b)
                     if pil is not None:
                         images.append(pil)
-                except Exception:
+                except Exception as e:
+                    logger.debug("skipping unreadable row %d in %s: %s",
+                                 i, os.path.basename(arrow_file), e)
                     continue
 
         elif "modalities_images" in cols:
@@ -167,7 +172,9 @@ def load_images_from_arrow(
                     pil = _decode_image(img_list[0].get("bytes"))
                     if pil is not None:
                         images.append(pil)
-                except Exception:
+                except Exception as e:
+                    logger.debug("skipping unreadable row %d in %s: %s",
+                                 i, os.path.basename(arrow_file), e)
                     continue
 
         elif "modalities" in cols:
@@ -186,7 +193,9 @@ def load_images_from_arrow(
                         if pil is not None:
                             images.append(pil)
                         break  # one image per row
-                except Exception:
+                except Exception as e:
+                    logger.debug("skipping unreadable row %d in %s: %s",
+                                 i, os.path.basename(arrow_file), e)
                     continue
 
         else:
