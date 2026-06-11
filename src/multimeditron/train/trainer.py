@@ -107,8 +107,9 @@ def init_packing_patch() -> List[str]:
     """Apply the packed-sequence FA2 attention patch (idempotent).
 
     Safe to call any number of times — the underlying monkey-patch is applied at
-    most once. Called at import (so training paths that only import the trainer
-    still get the patch), and may also be called explicitly at training startup.
+    most once. Called explicitly at training startup (see ``cli/train.py``) rather
+    than at import, so importing the trainer has no side effect. Eval does not use
+    packing and therefore never needs the patch.
 
     Returns:
         The list of transformers module names that were patched.
@@ -117,22 +118,21 @@ def init_packing_patch() -> List[str]:
     if _packing_patch_initialized:
         return _PACKING_PATCH_LOCATIONS
 
+    import transformers
     _PACKING_PATCH_LOCATIONS = _apply_packing_patch()
     _packing_patch_initialized = True
     if _PACKING_PATCH_LOCATIONS:
-        logger.info("Packed-sequence attention patch applied in: %s",
-                    ", ".join(_PACKING_PATCH_LOCATIONS))
+        logger.info("Packed-sequence attention patch applied (transformers %s) in: %s",
+                    transformers.__version__, ", ".join(_PACKING_PATCH_LOCATIONS))
     else:
         logger.warning(
-            "Could not apply packed-sequence attention patch: "
-            "_get_unpad_data not found in known transformers modules. "
-            "Cross-sample attention leakage may occur with pack_sequences=True."
+            "Could not apply packed-sequence attention patch on transformers %s: "
+            "_get_unpad_data not found in known modules. Cross-sample attention "
+            "leakage may occur with pack_sequences=True — verify the transformers "
+            "version exposes _get_unpad_data and update _apply_packing_patch() if not.",
+            transformers.__version__,
         )
     return _PACKING_PATCH_LOCATIONS
-
-
-# Apply at import for backward compatibility (training relies on importing the trainer).
-init_packing_patch()
 
 
 def setup_benchy():

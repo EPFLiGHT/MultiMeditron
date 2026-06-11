@@ -1,7 +1,7 @@
 from multimeditron.cli import EPILOG, main_cli
 from multimeditron.model.model import MultimodalConfig, MultiModalModelForCausalLM, bootstrap
 from multimeditron.model.data_loader import DataCollatorForMultimodal
-from multimeditron.train.trainer import MultimodalTrainer, TRAINING_MAPPING
+from multimeditron.train.trainer import MultimodalTrainer, TRAINING_MAPPING, init_packing_patch
 from multimeditron.profiling import NvtxAnnotationCallback
 from transformers import AutoTokenizer, TrainingArguments
 from datasets import concatenate_datasets, load_dataset, load_from_disk
@@ -126,6 +126,9 @@ def train(config: str,
 
     # Allow very large text chunks in PNGs (some medical images carry big metadata).
     PngImagePlugin.MAX_TEXT_CHUNK = 2 ** 30
+
+    # Apply the packed-sequence FA2 attention fix at startup (no-op for unpacked runs).
+    init_packing_patch()
 
     # Default REPO_DIR to the repository root so configs can use ${REPO_DIR}
     # (and ${USER}) for portable paths even when the launcher doesn't export it.
