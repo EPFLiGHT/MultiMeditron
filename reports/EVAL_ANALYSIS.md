@@ -12,13 +12,41 @@
 
 ## 1 — Top-Level Benchmarks
 
-| Benchmark | 5-expert (ckpt-3063) | 7-expert (ckpt-800) | Δ |
+| Benchmark | 5-expert (ckpt-3063) | 7-expert (ckpt-800) | Δ | Significant? |
+|---|---|---|---|---|
+| **GMAI** | 29.6% | 31.1% | **+1.5** | ⚠️ no (CIs overlap) |
+| **SLAKE overall** | 29.6% | 30.6% | **+1.0** | ⚠️ no (CIs overlap) |
+| SLAKE yes/no | 51.1% | 51.1% | 0.0 | — |
+| **PathVQA overall** | 30.1% | 24.4% | **−5.7** | ✅ yes (CIs separated) |
+| PathVQA yes/no | 58.6% | 47.1% | **−11.5** | ✅ yes (CIs separated) |
+
+---
+
+## 1.1 — Statistical Significance
+
+Confidence intervals are **Wilson 95%** intervals computed from each benchmark's
+sample size; non-overlapping intervals indicate a real difference (a conservative
+test). Reproduce any value with `scripts/eval_significance.py ci --acc <p> --n <n>`.
+
+| Metric | 5-exp 95% CI | 7-exp 95% CI | Verdict |
 |---|---|---|---|
-| **GMAI** | 29.6% | 31.1% | **+1.5** ✅ |
-| **SLAKE overall** | 29.6% | 30.6% | **+1.0** ✅ |
-| SLAKE yes/no | 51.1% | 51.1% | 0.0 |
-| **PathVQA overall** | 30.1% | 24.4% | **−5.7** ❌ |
-| PathVQA yes/no | 58.6% | 47.1% | **−11.5** ❌ |
+| GMAI (n=4550) | 29.6% [28.3, 30.9] | 31.1% [29.8, 32.5] | **overlap → not significant** |
+| SLAKE overall (n=642) | 29.6% [26.2, 33.2] | 30.6% [27.2, 34.3] | **overlap → not significant** |
+| PathVQA overall (n=6719) | 30.1% [29.0, 31.2] | 24.4% [23.4, 25.4] | separated → significant |
+| PathVQA yes/no (n=3362) | 58.6% [56.9, 60.3] | 47.1% [45.4, 48.8] | separated → significant |
+
+**Interpretation:** the headline GMAI (+1.5) and SLAKE (+1.0) gains are **within
+noise** — they should not be reported as improvements without more data. The
+PathVQA regressions are well outside the intervals and are real.
+
+**Correct paired test.** Wilson CIs treat the two runs as independent; because both
+models answer the *same* questions, the proper test is **McNemar's** on the paired
+per-item correctness. The exact test is implemented in
+`scripts/eval_significance.py mcnemar --preds-a <5exp samples.jsonl> --preds-b <7exp samples.jsonl>`
+(reads lmms-eval's per-sample JSONL). It is **not run here** because the paired
+per-item outputs were not retained for both checkpoints — re-running eval with
+`--log_samples` and feeding the two files to the script will give the definitive
+p-values, especially for the borderline GMAI/SLAKE deltas.
 
 ---
 
