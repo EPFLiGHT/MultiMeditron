@@ -23,7 +23,7 @@ modalities:
       - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-MRI
       - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-Xray
     generalist_idx: 0
-    gating_path: ""
+    gating_path: ${REPO_DIR}/models/CLIP/MultiMeditron-Gating
     fusion_method: cross_attn
     top_k_experts: 3
 
