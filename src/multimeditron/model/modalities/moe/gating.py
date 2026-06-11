@@ -16,7 +16,7 @@ class GatingNetworkConfig(PretrainedConfig):
     def __init__(self, num_classes: int = 2,
                  top_k: int = 1,
                  image_processor_path: str = "openai/clip-vit-base-patch32",
-                 class_names: List[str] = [],
+                 class_names: Optional[List[str]] = None,
                  **kwargs):
         """
         Initialize the GatingNetworkConfig.
@@ -32,14 +32,15 @@ class GatingNetworkConfig(PretrainedConfig):
             class_names (List[str], optional): Ordered list of expert class names
                 corresponding to the output logits (e.g. ["CT", "MRI", ...]).
                 Used to align gating indices with expert module indices. Defaults
-                to an empty list.
+                to None (treated as an empty list).
             **kwargs: Additional arguments forwarded to PretrainedConfig.
         """
         super().__init__(**kwargs)
         self.num_classes = num_classes
         self.top_k = top_k
         self.image_processor_path = image_processor_path
-        self.class_names = class_names
+        # Avoid a shared mutable default; None -> fresh empty list per instance.
+        self.class_names = class_names if class_names is not None else []
 
 
 class GatingNetwork(PreTrainedModel):
