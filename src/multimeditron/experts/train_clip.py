@@ -33,7 +33,12 @@ import numpy as np
 import torch
 import transformers
 import wandb
-from datasets import concatenate_datasets, interleave_datasets, load_dataset, load_from_disk
+from datasets import (
+    concatenate_datasets,
+    interleave_datasets,
+    load_dataset,
+    load_from_disk,
+)
 from PIL import Image
 from torchvision.io import ImageReadMode, read_image
 from torchvision.transforms import CenterCrop, ConvertImageDtype, Normalize, Resize
@@ -170,7 +175,9 @@ class DatasetConfig:
     )
     domain: Optional[str] = field(
         default=None,
-        metadata={"help": "Semantic training domain used for balanced sampling (e.g. ct, xray, ultrasound)."},
+        metadata={
+            "help": "Semantic training domain used for balanced sampling (e.g. ct, xray, ultrasound)."
+        },
     )
 
 
@@ -227,7 +234,7 @@ class Transform(torch.nn.Module):
             Normalize(mean, std),
         )
 
-    def forward(self, x) -> torch.Tensor:
+    def forward(self, x):
         """`x` should be an instance of `PIL.Image.Image`"""
         with torch.no_grad():
             x = self.transforms(x)
@@ -254,9 +261,7 @@ def collate_fn(examples):
     }
 
 
-def get_combined_dataset(
-    dataset_configs: List[DatasetConfig], model_args: ModelArguments
-):
+def get_combined_dataset(dataset_configs, model_args):
     """Build a domain-balanced training mixture with early subsetting."""
 
     def _normalize_config(config):
@@ -273,10 +278,10 @@ def get_combined_dataset(
             )
         return parsed
 
-    def _load_dataset(config: DatasetConfig):
+    def _load_dataset(config):
         if config.dataset_path is not None and os.path.isdir(config.dataset_path):
             return load_from_disk(config.dataset_path, keep_in_memory=True)
-        if config.dataset_path.endswith(".jsonl"):
+        if config.dataset_path and config.dataset_path.endswith(".jsonl"):
             return load_dataset(
                 "json",
                 config.dataset_config_name,
@@ -300,7 +305,7 @@ def get_combined_dataset(
     def _get_train_split(dataset):
         return dataset["train"] if "train" in dataset else dataset
 
-    def _allocate_counts(sizes: list[int], total_budget: int) -> list[int]:
+    def _allocate_counts(sizes, total_budget):
         if not sizes:
             return []
         total_size = sum(sizes)
@@ -330,13 +335,14 @@ def get_combined_dataset(
                     break
         return counts
 
-    def _subset_before_mapping(train_split, count: int):
+    def _subset_before_mapping(train_split, count):
         if count >= len(train_split):
             return train_split
         return train_split.shuffle(seed=42).select(range(count))
 
-    def _standardize_split(train_split, config: DatasetConfig):
-        if config.dataset_path.endswith(".jsonl"):
+    def _standardize_split(train_split, config):
+        if config.dataset_path and config.dataset_path.endswith(".jsonl"):
+
             def find_img_path(row):
                 return {
                     config.caption_column: row[config.caption_column],
@@ -345,6 +351,7 @@ def get_combined_dataset(
                         row[config.image_column][0]["value"],
                     ),
                 }
+
             train_split = train_split.map(find_img_path)
 
         def standardize_sample(row):
@@ -362,30 +369,44 @@ def get_combined_dataset(
 
             if isinstance(image_value, str):
                 image_value = [{"bytes": b"", "path": image_value}]
-            elif isinstance(image_value, dict) and set(image_value.keys()) >= {"bytes", "path"}:
-                image_value = [{
-                    "bytes": image_value.get("bytes") or b"",
-                    "path": image_value.get("path") or "",
-                }]
+            elif isinstance(image_value, dict) and set(image_value.keys()) >= {
+                "bytes",
+                "path",
+            }:
+                image_value = [
+                    {
+                        "bytes": image_value.get("bytes") or b"",
+                        "path": image_value.get("path") or "",
+                    }
+                ]
             elif isinstance(image_value, list):
                 normalized_images = []
                 for image_entry in image_value:
                     if isinstance(image_entry, str):
                         normalized_images.append({"bytes": b"", "path": image_entry})
-                    elif isinstance(image_entry, dict) and set(image_entry.keys()) >= {"bytes", "path"}:
-                        normalized_images.append({
-                            "bytes": image_entry.get("bytes") or b"",
-                            "path": image_entry.get("path") or "",
-                        })
+                    elif isinstance(image_entry, dict) and set(image_entry.keys()) >= {
+                        "bytes",
+                        "path",
+                    }:
+                        normalized_images.append(
+                            {
+                                "bytes": image_entry.get("bytes") or b"",
+                                "path": image_entry.get("path") or "",
+                            }
+                        )
                     elif (
                         isinstance(image_entry, dict)
                         and "type" in image_entry
                         and "value" in image_entry
                         and set(image_entry.keys()) == {"type", "value"}
                     ):
-                        normalized_images.append({"bytes": b"", "path": image_entry["value"]})
+                        normalized_images.append(
+                            {"bytes": b"", "path": image_entry["value"]}
+                        )
                     else:
-                        raise TypeError(f"Unsupported image list entry type: {type(image_entry)}")
+                        raise TypeError(
+                            f"Unsupported image list entry type: {type(image_entry)}"
+                        )
                 image_value = normalized_images
             else:
                 raise TypeError(f"Unsupported image payload type: {type(image_value)}")
@@ -410,11 +431,13 @@ def get_combined_dataset(
         dataset = _load_dataset(config)
         train_split = _get_train_split(dataset)
         split_length = len(train_split)
-        per_dataset_entries.append({
-            "config": config,
-            "train_split": train_split,
-            "length": split_length,
-        })
+        per_dataset_entries.append(
+            {
+                "config": config,
+                "train_split": train_split,
+                "length": split_length,
+            }
+        )
         domain_sizes[config.domain] += split_length
 
     if not domain_sizes:
@@ -430,7 +453,9 @@ def get_combined_dataset(
 
     balanced_domain_splits = []
     for domain, entries in domain_entries.items():
-        allocations = _allocate_counts([entry["length"] for entry in entries], target_per_domain)
+        allocations = _allocate_counts(
+            [entry["length"] for entry in entries], target_per_domain
+        )
         logger.info(
             "Domain %s allocation: %s",
             domain,
@@ -448,7 +473,9 @@ def get_combined_dataset(
             if kept_count <= 0:
                 continue
             sampled_split = _subset_before_mapping(entry["train_split"], kept_count)
-            standardized_splits.append(_standardize_split(sampled_split, entry["config"]))
+            standardized_splits.append(
+                _standardize_split(sampled_split, entry["config"])
+            )
         if not standardized_splits:
             continue
         domain_dataset = concatenate_datasets(standardized_splits).shuffle(seed=42)
@@ -468,7 +495,7 @@ def get_combined_dataset(
     return combined_dataset.train_test_split(test_size=0.1, seed=42)
 
 
-def main(config_path: str):
+def main(config_path):
     # 1. Parse input arguments
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
@@ -627,7 +654,6 @@ def main(config_path: str):
         examples["attention_mask"] = text_inputs.attention_mask
         return examples
 
-
     def transform_images(examples):
         images = []
         for image_file in examples[image_column]:
@@ -641,12 +667,16 @@ def main(config_path: str):
             elif isinstance(image_file, dict):
                 if image_file.get("bytes") is not None:
                     image = torch.from_numpy(
-                        np.array(Image.open(BytesIO(image_file["bytes"])).convert("RGB"))
+                        np.array(
+                            Image.open(BytesIO(image_file["bytes"])).convert("RGB")
+                        )
                     ).permute(2, 0, 1)
                 elif image_file.get("path"):
                     image = read_image(image_file["path"], mode=ImageReadMode.RGB)
                 else:
-                    raise TypeError(f"Unsupported dict image format: {image_file.keys()}")
+                    raise TypeError(
+                        f"Unsupported dict image format: {image_file.keys()}"
+                    )
             else:
                 image = torch.from_numpy(np.array(image_file)).permute(2, 0, 1)
 
@@ -654,8 +684,6 @@ def main(config_path: str):
 
         examples["pixel_values"] = [image_transformations(image) for image in images]
         return examples
-
-
 
     def filter_corrupt_images(examples):
         valid_images = []
@@ -676,7 +704,9 @@ def main(config_path: str):
                     elif image_file.get("path"):
                         Image.open(image_file["path"]).verify()
                     else:
-                        raise TypeError(f"Unsupported dict image format: {image_file.keys()}")
+                        raise TypeError(
+                            f"Unsupported dict image format: {image_file.keys()}"
+                        )
 
                 else:
                     Image.fromarray(np.array(image_file)).verify()
@@ -688,7 +718,6 @@ def main(config_path: str):
                 valid_images.append(False)
 
         return valid_images
-
 
     if training_args.do_train:
         if "train" not in dataset:

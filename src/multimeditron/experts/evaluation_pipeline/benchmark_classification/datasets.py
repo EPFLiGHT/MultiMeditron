@@ -1,15 +1,11 @@
-from __future__ import annotations
-
 import json
 from pathlib import Path
-from typing import Callable
 
 import numpy as np
 import torch
 from sklearn.utils.class_weight import compute_class_weight
 from torch.utils.data import Dataset
 from tqdm import tqdm
-from transformers import VisionTextDualEncoderModel
 
 from load_from_clip import encode_img
 
@@ -20,18 +16,18 @@ DEFAULT_CACHE_ROOT = Path(__file__).resolve().parents[1] / "embeddings"
 class BenchmarkDataset(Dataset):
     """Simple dataset wrapper around precomputed embeddings and labels."""
 
-    def __init__(self, data: torch.Tensor, labels: torch.Tensor) -> None:
+    def __init__(self, data, labels):
         self.data = data
         self.labels = labels
 
-    def __len__(self) -> int:
+    def __len__(self):
         return len(self.labels)
 
-    def __getitem__(self, idx: int):
+    def __getitem__(self, idx):
         return self.data[idx], self.labels[idx]
 
 
-def resolve_image_path(raw_path: str, dataset_root: Path) -> Path:
+def resolve_image_path(raw_path, dataset_root):
     if raw_path.startswith("/mloscratch/"):
         raw_path = raw_path.replace("/mloscratch/", "/lightscratch/", 1)
 
@@ -41,19 +37,19 @@ def resolve_image_path(raw_path: str, dataset_root: Path) -> Path:
     return dataset_root / path
 
 
-def read_jsonl(jsonl_path: Path) -> list[dict]:
+def read_jsonl(jsonl_path):
     with jsonl_path.open("r", encoding="utf-8") as f:
         return [json.loads(line) for line in f]
 
 
 def load_embeddings_from_examples(
-    examples: list[dict],
-    labels: list[int],
-    model: VisionTextDualEncoderModel,
-    dataset_root: Path,
-    desc: str,
-    embed_example: Callable[[dict, int, VisionTextDualEncoderModel, Path], torch.Tensor | None] | None = None,
-) -> tuple[torch.Tensor, torch.Tensor]:
+    examples,
+    labels,
+    model,
+    dataset_root,
+    desc,
+    embed_example=None,
+):
     """Compute image embeddings for a list of examples using the vision encoder.
 
     If embed_example is provided, it is called per example (useful for benchmarks
@@ -66,9 +62,13 @@ def load_embeddings_from_examples(
     missing_images = 0
 
     if len(examples) != len(labels):
-        raise ValueError(f"Examples/labels length mismatch for {desc}: {len(examples)} != {len(labels)}")
+        raise ValueError(
+            f"Examples/labels length mismatch for {desc}: {len(examples)} != {len(labels)}"
+        )
 
-    for example, label in tqdm(zip(examples, labels, strict=True), total=len(examples), desc=desc):
+    for example, label in tqdm(
+        zip(examples, labels, strict=True), total=len(examples), desc=desc
+    ):
         if embed_example is not None:
             embedding = embed_example(example, label, model, dataset_root)
             if embedding is None:
@@ -97,17 +97,17 @@ def load_embeddings_from_examples(
 
 def load_or_build_dataset(
     *,
-    cache_prefix: str,
-    examples: list[dict],
-    labels: list[int],
-    model: VisionTextDualEncoderModel,
-    dataset_root: Path,
-    cache_root: Path | None = None,
-    use_cache: bool = True,
-    desc: str,
-    prepare_images: Callable[[list[dict], Path, str], None] | None = None,
-    embed_example: Callable[[dict, int, VisionTextDualEncoderModel, Path], torch.Tensor | None] | None = None,
-) -> BenchmarkDataset:
+    cache_prefix,
+    examples,
+    labels,
+    model,
+    dataset_root,
+    cache_root=None,
+    use_cache=True,
+    desc,
+    prepare_images=None,
+    embed_example=None,
+):
     """Load a cached embedding dataset or build it from scratch.
 
     Cache files are stored as two .pt files: {cache_root}/{cache_prefix}_embeddings.pt
@@ -123,8 +123,8 @@ def load_or_build_dataset(
     labels_cache = cache_root / f"{cache_prefix}_labels.pt"
 
     if use_cache and data_cache.exists() and labels_cache.exists():
-        data = torch.load(data_cache, map_location="cpu")
-        labels_tensor = torch.load(labels_cache, map_location="cpu")
+        data = torch.load(data_cache, map_location="cpu", weights_only=True)
+        labels_tensor = torch.load(labels_cache, map_location="cpu", weights_only=True)
         return BenchmarkDataset(data=data, labels=labels_tensor)
 
     if prepare_images is not None:
@@ -143,15 +143,18 @@ def load_or_build_dataset(
     return BenchmarkDataset(data=data, labels=labels_tensor)
 
 
-def build_class_weights(labels: torch.Tensor, num_classes: int | None = None) -> torch.Tensor:
+def build_class_weights(labels, num_classes=None):
     labels_np = labels.cpu().numpy().astype(int)
-    classes = np.arange(num_classes) if num_classes is not None else np.unique(labels_np)
+    classes = (
+        np.arange(num_classes) if num_classes is not None else np.unique(labels_np)
+    )
     # For classes absent from the subset, assign weight 1.0
     present = np.unique(labels_np)
     weights = np.ones(len(classes), dtype=np.float64)
     if len(present) > 1:
-        present_weights = compute_class_weight(class_weight="balanced", classes=present, y=labels_np)
-        for i, c in enumerate(classes):
-            if c in present:
-                weights[i] = present_weights[np.where(present == c)[0][0]]
+        present_weights = compute_class_weight(
+            class_weight="balanced", classes=present, y=labels_np
+        )
+        weight_map = dict(zip(present, present_weights))
+        weights = np.array([weight_map.get(c, 1.0) for c in classes])
     return torch.tensor(weights, dtype=torch.float32)

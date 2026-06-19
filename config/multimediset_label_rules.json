@@ -1,0 +1,188 @@
+{
+  "datasets": {
+    "BUSI": {
+      "benchmark": "ultrasound",
+      "group_key": null,
+      "label_source": "modalities[0].value path parent",
+      "labels": [
+        "benign",
+        "malignant",
+        "normal"
+      ],
+      "needs_review": false,
+      "notes": "",
+      "root": "/lightscratch/datasets/MultiMediset/general_purpose/BUSI",
+      "splits": [
+        "train",
+        "test"
+      ]
+    },
+    "COVID-US-2026": {
+      "benchmark": "ultrasound",
+      "group_key": "patient",
+      "label_source": "class, then disease",
+      "labels": [
+        "COVID",
+        "Normal",
+        "Other",
+        "Pneumonia"
+      ],
+      "needs_review": false,
+      "notes": "",
+      "root": "/lightscratch/datasets/MultiMediset/general_purpose/COVID-US-2026",
+      "splits": [
+        "train",
+        "test"
+      ]
+    },
+    "CT2D-glob-mini": {
+      "benchmark": "ct",
+      "group_key": null,
+      "label_source": "text keyword heuristic matching current CTBenchmark",
+      "labels": [
+        "Covid",
+        "atherosoma",
+        "glioblastoma",
+        "healthy",
+        "tumor"
+      ],
+      "needs_review": false,
+      "notes": "",
+      "root": "/lightscratch/datasets/MultiMediset/general_purpose/CT2D-glob-mini",
+      "splits": [
+        "train",
+        "test"
+      ]
+    },
+    "DDTI": {
+      "benchmark": "ultrasound",
+      "group_key": null,
+      "label_source": "tirads pattern in text",
+      "labels": [
+        "tirads_2",
+        "tirads_3",
+        "tirads_4a",
+        "tirads_4b",
+        "tirads_4c",
+        "tirads_5"
+      ],
+      "needs_review": true,
+      "notes": "",
+      "root": "/lightscratch/datasets/MultiMediset/general_purpose/DDTI",
+      "splits": [
+        "train",
+        "test"
+      ]
+    },
+    "EyeDataset": {
+      "benchmark": "eye",
+      "group_key": null,
+      "label_source": "path/text diabetic retinopathy heuristic",
+      "labels": [
+        "diabetic_retinopathy",
+        "normal"
+      ],
+      "needs_review": false,
+      "notes": "",
+      "root": "/lightscratch/datasets/MultiMediset/general_purpose/EyeDataset",
+      "splits": [
+        "train",
+        "val"
+      ]
+    },
+    "MRI-glob": {
+      "benchmark": "mri",
+      "group_key": null,
+      "label_source": "text keyword heuristic matching current MRIBenchmark",
+      "labels": [
+        "Bone infection",
+        "brain tumor",
+        "crohn",
+        "healthy"
+      ],
+      "needs_review": false,
+      "notes": "",
+      "root": "/lightscratch/users/nemo/datasets/MRI_data/MRI-glob",
+      "splits": [
+        "train",
+        "test"
+      ]
+    },
+    "SkinDataset": {
+      "benchmark": "skin",
+      "group_key": null,
+      "label_source": "path/text dermatology keyword heuristic",
+      "labels": [
+        "atopic-dermatitis",
+        "basal-cell-carcinoma",
+        "benign-keratosis-like-lesions",
+        "eczema",
+        "melanocytic-nevi",
+        "melanoma",
+        "psoriasis",
+        "seborrheic-keratoses",
+        "tinea-ringworm-candidiasis",
+        "warts-molluscum-viral"
+      ],
+      "needs_review": true,
+      "notes": "",
+      "root": "/lightscratch/datasets/MultiMediset/general_purpose/SkinDataset",
+      "splits": [
+        "train",
+        "val"
+      ]
+    },
+    "XR-glob-mini": {
+      "benchmark": "xray",
+      "group_key": null,
+      "label_source": "single chest finding keyword in free text",
+      "labels": [
+        "atelectasis",
+        "cardiomegaly",
+        "consolidation",
+        "edema",
+        "effusion",
+        "emphysema",
+        "fibrosis",
+        "hernia",
+        "mass",
+        "multi_keyword",
+        "no_finding_candidate",
+        "nodule",
+        "pneumonia",
+        "pneumothorax"
+      ],
+      "needs_review": true,
+      "notes": "Free-text X-ray reports are likely multi-label. This heuristic is only for audit, not final splitting.",
+      "root": "/lightscratch/datasets/MultiMediset/general_purpose/XR-glob-mini",
+      "splits": [
+        "train",
+        "test"
+      ]
+    }
+  },
+  "description": "First-pass label/group rules for generating MultiMediset benchmark splits.",
+  "target_benchmarks": {
+    "ct": [
+      "CT2D-glob-mini"
+    ],
+    "eye": [
+      "EyeDataset"
+    ],
+    "mri": [
+      "MRI-glob"
+    ],
+    "skin": [
+      "SkinDataset"
+    ],
+    "ultrasound": [
+      "COVID-US-2026",
+      "BUSI",
+      "DDTI"
+    ],
+    "xray": [
+      "XR-glob-mini"
+    ]
+  },
+  "version": 1
+}

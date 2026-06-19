@@ -19,7 +19,7 @@ Training a CLIP like dual encoder models using text and vision encoders in the l
 The script can be used to train CLIP like models for languages other than English by using
 a text encoder pre-trained in the desired language.
 """
-import math
+import copy
 import logging
 import os
 import json
@@ -29,26 +29,22 @@ import sys
 from io import BytesIO
 
 # Add evaluation_pipeline to Python path so modules can import each other
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'evaluation_pipeline'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "evaluation_pipeline"))
 
 from dataclasses import dataclass, field
+from typing import Optional, List
 from collections import defaultdict
 from pathlib import Path
-from typing import List, Optional
-from evaluation_pipeline.Benchmark import Benchmark
 import optuna
 import torch
-from datasets import Dataset, concatenate_datasets, interleave_datasets, load_dataset, load_from_disk, Value
+from datasets import Dataset, interleave_datasets, load_dataset, load_from_disk
 from PIL import Image
-from torchvision.io import ImageReadMode, read_image
 from torchvision.transforms import CenterCrop, ConvertImageDtype, Normalize, Resize
 from torchvision.transforms.functional import InterpolationMode
-from multiprocessing import Pool
 
 import transformers
 from transformers import (
     AutoImageProcessor,
-    AutoModel,
     AutoTokenizer,
     HfArgumentParser,
     VisionTextDualEncoderModel,
@@ -60,22 +56,28 @@ from transformers import (
 
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils.versions import require_version
-from lion.modeling_clip import OpenCLIPVisionTextDualEncoderModel, VisionTextDualEncoderConfig
+from lion.modeling_clip import (
+    OpenCLIPVisionTextDualEncoderModel,
+    VisionTextDualEncoderConfig,
+)
 
 import wandb
 import yaml
 
 
-
-#Disable WANDB if needed
-#os.environ["WANDB_DISABLED"] = "true"
+# Disable WANDB if needed
+# os.environ["WANDB_DISABLED"] = "true"
 
 logger = logging.getLogger(__name__)
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
-#from transformers.utils import check_min_version
-#check_min_version("4.47.0.dev0")
-require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/contrastive-image-text/requirements.txt")
+# from transformers.utils import check_min_version
+# check_min_version("4.47.0.dev0")
+require_version(
+    "datasets>=1.8.0",
+    "To fix: pip install -r examples/pytorch/contrastive-image-text/requirements.txt",
+)
+
 
 # Definition of config arguments
 @dataclass
@@ -85,24 +87,39 @@ class ModelArguments:
     """
 
     model_name_or_path: Optional[str] = field(
-        default=None, metadata={"help": "Path to pretrained model or model identifier from huggingface.co/models"},
+        default=None,
+        metadata={
+            "help": "Path to pretrained model or model identifier from huggingface.co/models"
+        },
     )
     tokenizer_name: Optional[str] = field(
-        default=None, metadata={"help": "Pretrained tokenizer name or path if not the same as model_name"}
+        default=None,
+        metadata={
+            "help": "Pretrained tokenizer name or path if not the same as model_name"
+        },
     )
-    image_processor_name: str = field(default=None, metadata={"help": "Name or path of preprocessor config."})
+    image_processor_name: Optional[str] = field(
+        default=None, metadata={"help": "Name or path of preprocessor config."}
+    )
     cache_dir: Optional[str] = field(
-        default=None, metadata={"help": "Where do you want to store the pretrained models downloaded from s3"}
+        default=None,
+        metadata={
+            "help": "Where do you want to store the pretrained models downloaded from s3"
+        },
     )
     model_revision: str = field(
         default="main",
-        metadata={"help": "The specific model version to use (can be a branch name, tag name or commit id)."},
+        metadata={
+            "help": "The specific model version to use (can be a branch name, tag name or commit id)."
+        },
     )
     use_fast_tokenizer: bool = field(
         default=True,
-        metadata={"help": "Whether to use one of the fast tokenizer (backed by the tokenizers library) or not."},
+        metadata={
+            "help": "Whether to use one of the fast tokenizer (backed by the tokenizers library) or not."
+        },
     )
-    token: str = field(
+    token: Optional[str] = field(
         default=None,
         metadata={
             "help": (
@@ -123,35 +140,54 @@ class ModelArguments:
     )
     vision_model_name: Optional[str] = field(
         default=None,
-        metadata={"help": "Vision encoder model name/path (e.g. openai/clip-vit-base-patch32)"}
+        metadata={
+            "help": "Vision encoder model name/path (e.g. openai/clip-vit-base-patch32)"
+        },
     )
     text_model_name: Optional[str] = field(
-        default=None, 
-        metadata={"help": "Text encoder model name/path (e.g. FacebookAI/roberta-base)"}
+        default=None,
+        metadata={
+            "help": "Text encoder model name/path (e.g. FacebookAI/roberta-base)"
+        },
     )
+
 
 @dataclass
 class DatasetConfig:
     dataset_name: Optional[str] = field(
-        default=None, metadata={"help": "The name of the dataset to use (via the datasets library)."}
+        default=None,
+        metadata={"help": "The name of the dataset to use (via the datasets library)."},
     )
     dataset_config_name: Optional[str] = field(
-        default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
+        default=None,
+        metadata={
+            "help": "The configuration name of the dataset to use (via the datasets library)."
+        },
     )
-    data_dir: Optional[str] = field(default=None, metadata={"help": "The data directory containing input files."})
-    image_column: Optional[str] = field(
+    data_dir: Optional[str] = field(
+        default=None, metadata={"help": "The data directory containing input files."}
+    )
+    image_column: str = field(
         default="modalities",
-        metadata={"help": "The name of the column in the datasets containing the full image file paths."},
+        metadata={
+            "help": "The name of the column in the datasets containing the full image file paths."
+        },
     )
-    caption_column: Optional[str] = field(
+    caption_column: str = field(
         default="text",
-        metadata={"help": "The name of the column in the datasets containing the image captions."},
+        metadata={
+            "help": "The name of the column in the datasets containing the image captions."
+        },
     )
-    weight: Optional[float] = field(
-        default=1.0, metadata={"help": "The weight to assign to this dataset during training."}
-        )
+    weight: float = field(
+        default=1.0,
+        metadata={"help": "The weight to assign to this dataset during training."},
+    )
     domain: Optional[str] = field(
-        default=None, metadata={"help": "Semantic training domain used for balanced sampling (e.g. ct, xray, ultrasound)."}
+        default=None,
+        metadata={
+            "help": "Semantic training domain used for balanced sampling (e.g. ct, xray, ultrasound)."
+        },
     )
     manifest_path: Optional[str] = field(
         default=None,
@@ -159,22 +195,29 @@ class DatasetConfig:
     )
     max_examples: Optional[int] = field(
         default=None,
-        metadata={"help": "Optional per-dataset cap applied while loading this dataset config."},
+        metadata={
+            "help": "Optional per-dataset cap applied while loading this dataset config."
+        },
     )
-    
+
+
 @dataclass
 class DataTrainingArguments:
     """
     Arguments pertaining to what data we are going to input our model for training and eval.
     """
-    
-    dataset_configs: Optional[List[DatasetConfig]] = field(
-        default=None, metadata={"help": "Dataset configuration for training and evaluation."}
+
+    dataset_configs: Optional[List[str]] = field(
+        default=None,
+        metadata={"help": "Dataset configuration for training and evaluation."},
     )
     freeze: bool = field(
-        default=False, metadata={"help": "Whether to freeze the text encoder and image encoder weights during training."}
+        default=False,
+        metadata={
+            "help": "Whether to freeze the text encoder and image encoder weights during training."
+        },
     )
-    max_seq_length: Optional[int] = field(
+    max_seq_length: int = field(
         default=512,
         metadata={
             "help": (
@@ -192,13 +235,33 @@ class DataTrainingArguments:
             )
         },
     )
+    max_examples_per_domain: Optional[int] = field(
+        default=None,
+        metadata={
+            "help": (
+                "Global cap on the number of examples loaded per dataset config. "
+                "Used as a fallback when a dataset config does not set its own max_examples."
+            )
+        },
+    )
+    target_per_domain: Optional[int] = field(
+        default=None,
+        metadata={
+            "help": (
+                "Fixed per-domain example budget used for domain balancing. "
+                "When set, overrides the default behaviour of using the smallest domain size."
+            )
+        },
+    )
     overwrite_cache: bool = field(
-        default=False, metadata={"help": "Overwrite the cached training and evaluation sets"}
+        default=False,
+        metadata={"help": "Overwrite the cached training and evaluation sets"},
     )
     preprocessing_num_workers: Optional[int] = field(
         default=None,
         metadata={"help": "The number of processes to use for the preprocessing."},
     )
+
 
 # We use torchvision for faster image pre-processing. The transforms are implemented as nn.Module,
 # so we jit it to be faster.
@@ -206,24 +269,28 @@ class Transform(torch.nn.Module):
     def __init__(self, image_size, mean, std):
         super().__init__()
         self.transforms = torch.nn.Sequential(
-            Resize([image_size], interpolation=InterpolationMode.BICUBIC, antialias=True),
+            Resize(
+                [image_size], interpolation=InterpolationMode.BICUBIC, antialias=True
+            ),
             CenterCrop(image_size),
             ConvertImageDtype(torch.float),
             Normalize(mean, std),
         )
 
-    def forward(self, x) -> torch.Tensor:
+    def forward(self, x):
         """`x` should be an instance of `PIL.Image.Image`"""
         with torch.no_grad():
             x = self.transforms(x)
         return x
+
 
 def collate_fn(examples):
     """
     Stack the examples into a format fit for training.
     """
     examples = [
-        example for example in examples
+        example
+        for example in examples
         if example.get("pixel_values") is not None
         and example.get("input_ids") is not None
         and example.get("attention_mask") is not None
@@ -232,8 +299,12 @@ def collate_fn(examples):
         raise ValueError("All samples in the batch were invalid")
 
     pixel_values = torch.stack([example["pixel_values"] for example in examples])
-    input_ids = torch.tensor([example["input_ids"] for example in examples], dtype=torch.long)
-    attention_mask = torch.tensor([example["attention_mask"] for example in examples], dtype=torch.long)
+    input_ids = torch.tensor(
+        [example["input_ids"] for example in examples], dtype=torch.long
+    )
+    attention_mask = torch.tensor(
+        [example["attention_mask"] for example in examples], dtype=torch.long
+    )
     return {
         "pixel_values": pixel_values,
         "input_ids": input_ids,
@@ -241,7 +312,8 @@ def collate_fn(examples):
         "return_loss": True,
     }
 
-def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: ModelArguments):
+
+def get_combined_dataset(dataset_configs, model_args, max_examples_per_domain=None, target_per_domain=None):
     """
     Build a domain-balanced training mixture.
 
@@ -257,7 +329,10 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
         if isinstance(config, DatasetConfig):
             parsed = config
         else:
-            if config.get("dataset_name", None) is None and "manifest_path" not in config:
+            if (
+                config.get("dataset_name", None) is None
+                and "manifest_path" not in config
+            ):
                 assert len(config) == 1
                 config = config[list(config.keys())[0]]
             parsed = DatasetConfig(**config)
@@ -267,11 +342,11 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
             )
         return parsed
 
-    def _read_jsonl(path: str | os.PathLike) -> list[dict]:
+    def _read_jsonl(path):
         with open(path, "r", encoding="utf-8") as f:
             return [json.loads(line) for line in f if line.strip()]
 
-    def _load_manifest_source_dataset(source_root: str):
+    def _load_manifest_source_dataset(source_root):
         if (
             os.path.exists(os.path.join(source_root, "state.json"))
             or os.path.exists(os.path.join(source_root, "dataset_dict.json"))
@@ -294,9 +369,11 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
         if os.path.exists(jsonl):
             return {"all": _read_jsonl(jsonl)}
 
-        raise FileNotFoundError(f"Could not load source dataset from manifest root: {source_root}")
+        raise FileNotFoundError(
+            f"Could not load source dataset from manifest root: {source_root}"
+        )
 
-    def _first_image_payload(row: dict, source_root: str):
+    def _first_image_payload(row, source_root):
         image = row.get("image")
         if isinstance(image, dict) and image.get("bytes") is not None:
             return {"bytes": image["bytes"]}
@@ -329,12 +406,15 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
 
         return None
 
-    def _load_manifest_dataset(config: DatasetConfig):
+    def _load_manifest_dataset(config):
         manifest_path = os.path.abspath(config.manifest_path)
         records = _read_jsonl(manifest_path)
-        if config.max_examples is not None and len(records) > config.max_examples:
+        effective_max = config.max_examples if config.max_examples is not None else max_examples_per_domain
+        if effective_max is not None and len(records) > effective_max:
             rng = np.random.default_rng(42)
-            selected_indices = rng.choice(len(records), size=config.max_examples, replace=False)
+            selected_indices = rng.choice(
+                len(records), size=effective_max, replace=False
+            )
             records = [records[int(idx)] for idx in selected_indices]
         source_cache = {}
         standardized = []
@@ -353,32 +433,42 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
                 skipped += 1
                 continue
             row = dict(source_dataset[source_split][source_index])
-            caption = str(row.get("text") or row.get("caption") or "").replace("<attachment>", "").strip()
+            caption = (
+                str(row.get("text") or row.get("caption") or "")
+                .replace("<attachment>", "")
+                .strip()
+            )
             if not caption and record.get("label"):
                 caption = f"A {record.get('benchmark', config.domain)} medical image showing {record['label']}."
             if not caption:
                 skipped += 1
                 continue
-            standardized.append({
-                "image_path": {
-                    "__manifest_source__": True,
-                    "source_root": source_root,
-                    "source_split": source_split,
-                    "source_index": source_index,
-                },
-                "caption": caption,
-                "domain": config.domain,
-                "benchmark": record.get("benchmark", config.domain),
-                "dataset": record.get("dataset"),
-            })
+            standardized.append(
+                {
+                    "image_path": {
+                        "__manifest_source__": True,
+                        "source_root": source_root,
+                        "source_split": source_split,
+                        "source_index": source_index,
+                    },
+                    "caption": caption,
+                    "domain": config.domain,
+                    "benchmark": record.get("benchmark", config.domain),
+                    "dataset": record.get("dataset"),
+                }
+            )
 
         if skipped:
-            logger.warning("Skipped %s manifest record(s) from %s", skipped, manifest_path)
+            logger.warning(
+                "Skipped %s manifest record(s) from %s", skipped, manifest_path
+            )
         if not standardized:
-            raise ValueError(f"No usable training examples were loaded from manifest {manifest_path}")
+            raise ValueError(
+                f"No usable training examples were loaded from manifest {manifest_path}"
+            )
         return Dataset.from_list(standardized)
 
-    def _load_dataset(config: DatasetConfig):
+    def _load_dataset(config):
         if config.manifest_path:
             return _load_manifest_dataset(config)
         if config.data_dir and (
@@ -411,7 +501,7 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
     def _get_train_split(dataset):
         return dataset["train"] if "train" in dataset else dataset
 
-    def _allocate_counts(sizes: list[int], total_budget: int) -> list[int]:
+    def _allocate_counts(sizes, total_budget):
         if not sizes:
             return []
         total_size = sum(sizes)
@@ -441,24 +531,27 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
                     break
         return counts
 
-    def _subset_before_mapping(train_split, count: int):
+    def _subset_before_mapping(train_split, count):
         if count >= len(train_split):
             return train_split
         return train_split.shuffle(seed=42).select(range(count))
 
-    def _standardize_split(train_split, config: DatasetConfig):
+    def _standardize_split(train_split, config):
         if config.manifest_path:
             return train_split.select_columns(["image_path", "caption"])
 
         if config.dataset_name.endswith(".jsonl"):
+
             def find_img_path(row):
                 return {
                     config.caption_column: row[config.caption_column],
                     config.image_column: os.path.join(
-                        os.path.dirname(config.dataset_name), row[config.image_column][0]["value"]
+                        os.path.dirname(config.dataset_name),
+                        row[config.image_column][0]["value"],
                     ),
                 }
-            train_split = train_split.map(find_img_path, load_from_cache_file=not False)
+
+            train_split = train_split.map(find_img_path, load_from_cache_file=True)
 
         def standardize_sample(row):
             image_value = row[config.image_column]
@@ -476,7 +569,9 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
                 "caption": str(row[config.caption_column]).replace("<attachment>", ""),
             }
 
-        train_split = train_split.map(standardize_sample, load_from_cache_file=not False)
+        train_split = train_split.map(
+            standardize_sample, load_from_cache_file=True
+        )
         return train_split.select_columns(["image_path", "caption"])
 
     logger.info(f"Loading datasets: {dataset_configs}")
@@ -488,11 +583,13 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
         dataset = _load_dataset(config)
         train_split = _get_train_split(dataset)
         split_length = len(train_split)
-        per_dataset_entries.append({
-            "config": config,
-            "train_split": train_split,
-            "length": split_length,
-        })
+        per_dataset_entries.append(
+            {
+                "config": config,
+                "train_split": train_split,
+                "length": split_length,
+            }
+        )
         domain_sizes[config.domain] += split_length
 
     if not domain_sizes:
@@ -500,7 +597,10 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
 
     logger.info("Domain sizes before balancing: %s", dict(domain_sizes))
 
-    target_per_domain = min(domain_sizes.values())
+    if target_per_domain is None:
+        target_per_domain = min(domain_sizes.values())
+    else:
+        target_per_domain = min(target_per_domain, min(domain_sizes.values()))
 
     domain_entries = defaultdict(list)
     for entry in per_dataset_entries:
@@ -512,7 +612,11 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
         counts = _allocate_counts(sizes, target_per_domain)
 
         allocation_log = [
-            {"dataset": entry["config"].dataset_name, "kept": count, "available": entry["length"]}
+            {
+                "dataset": entry["config"].dataset_name,
+                "kept": count,
+                "available": entry["length"],
+            }
             for entry, count in zip(entries, counts)
         ]
         logger.info("Domain %s allocation: %s", domain, allocation_log)
@@ -524,8 +628,11 @@ def get_combined_dataset(dataset_configs: List[DatasetConfig], model_args: Model
     if not all_splits:
         raise ValueError("No domain datasets could be built.")
 
-    combined_dataset = interleave_datasets(all_splits, stopping_strategy="all_exhausted")
+    combined_dataset = interleave_datasets(
+        all_splits, stopping_strategy="all_exhausted"
+    )
     return combined_dataset.train_test_split(test_size=0.1, seed=42)
+
 
 def data_processing(config_path):
     # 1. Parse input arguments
@@ -533,7 +640,9 @@ def data_processing(config_path):
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
+    parser = HfArgumentParser(
+        (ModelArguments, DataTrainingArguments, TrainingArguments)
+    )
     model_args, data_args, training_args = parser.parse_yaml_file(
         yaml_file=os.path.abspath(config_path),
         allow_extra_keys=True,
@@ -561,7 +670,7 @@ def data_processing(config_path):
         f"Process rank: {training_args.local_rank}, device: {training_args.device}, n_gpu: {training_args.n_gpu}, "
         + f"distributed training: {training_args.parallel_mode.value == 'distributed'}, 16-bits training: {training_args.fp16}"
     )
-    
+
     logger.info(f"Training/evaluation parameters {training_args}")
 
     # Training args
@@ -571,7 +680,7 @@ def data_processing(config_path):
     training_args.fp16 = True
     training_args.bf16 = False
     training_args.gradient_accumulation_steps = 2
-    
+
     # 3. Detecting last checkpoint and eventually continue from last checkpoint
     last_checkpoint = None
     with open(config_path, "r", encoding="utf-8") as f:
@@ -581,14 +690,20 @@ def data_processing(config_path):
         "overwrite_output_dir",
         bool(raw_config.get("overwrite_output_dir", False)),
     )
-    if os.path.isdir(training_args.output_dir) and training_args.do_train and not overwrite_output_dir:
+    if (
+        os.path.isdir(training_args.output_dir)
+        and training_args.do_train
+        and not overwrite_output_dir
+    ):
         last_checkpoint = get_last_checkpoint(training_args.output_dir)
         if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
             raise ValueError(
                 f"Output directory ({training_args.output_dir}) already exists and is not empty. "
                 "Use --overwrite_output_dir to overcome."
             )
-        elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
+        elif (
+            last_checkpoint is not None and training_args.resume_from_checkpoint is None
+        ):
             logger.info(
                 f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
                 "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
@@ -596,19 +711,25 @@ def data_processing(config_path):
 
     # 4. Load dataset
     if data_args.dataset_configs is not None:
-        dataset = get_combined_dataset(data_args.dataset_configs, model_args)
+        dataset = get_combined_dataset(
+            data_args.dataset_configs,
+            model_args,
+            max_examples_per_domain=data_args.max_examples_per_domain,
+            target_per_domain=data_args.target_per_domain,
+        )
     else:
         raise ValueError("Please provide dataset configs")
-        
+
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.
-    
+
     return model_args, data_args, training_args, dataset, last_checkpoint
+
 
 class OptunaPruningCallback(TrainerCallback):
     """Reports -loss to Optuna at each logging step so MedianPruner can kill bad trials early."""
 
-    def __init__(self, trial: optuna.Trial) -> None:
+    def __init__(self, trial):
         self.trial = trial
 
     def on_log(self, args, state, control, logs=None, **kwargs):
@@ -618,23 +739,36 @@ class OptunaPruningCallback(TrainerCallback):
                 raise optuna.exceptions.TrialPruned()
 
 
-def training(model_args, data_args, training_args, dataset, n_freeze, last_checkpoint, trial=None):
+def training(
+    model_args, data_args, training_args, dataset, n_freeze, last_checkpoint, trial=None
+):
     # 5. Load pretrained model, tokenizer, and image processor
     if model_args.vision_model_name and model_args.text_model_name:
-        
-        if model_args.vision_model_name == "CLIP-ViT-B-32-xlm-roberta-base-laion5B-s13B-b90k":
-            logger.info(f"Loading dual encoder with vision model {model_args.vision_model_name} ")
+
+        if (
+            model_args.vision_model_name
+            == "CLIP-ViT-B-32-xlm-roberta-base-laion5B-s13B-b90k"
+        ):
+            logger.info(
+                f"Loading dual encoder with vision model {model_args.vision_model_name} "
+            )
             model_id = "calpt/CLIP-ViT-B-32-xlm-roberta-base-laion5B-s13B-b90k"
             config = VisionTextDualEncoderConfig.from_pretrained(model_id)
             config.vision_config.hidden_act = "gelu"
-            model = OpenCLIPVisionTextDualEncoderModel.from_pretrained(model_id, config=config)
+            model = OpenCLIPVisionTextDualEncoderModel.from_pretrained(
+                model_id, config=config
+            )
             tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
-            image_processor = AutoImageProcessor.from_pretrained("openai/clip-vit-base-patch32")
+            image_processor = AutoImageProcessor.from_pretrained(
+                "openai/clip-vit-base-patch32"
+            )
 
         else:
-        # Dual encoder path
-            logger.info(f"Loading dual encoder with vision model {model_args.vision_model_name} "
-                    f"and text model {model_args.text_model_name}")
+            # Dual encoder path
+            logger.info(
+                f"Loading dual encoder with vision model {model_args.vision_model_name} "
+                f"and text model {model_args.text_model_name}"
+            )
 
             # Force use_safetensors to avoid PyTorch security issue (CVE-2025-32434)
             model = VisionTextDualEncoderModel.from_vision_text_pretrained(
@@ -643,14 +777,14 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
                 cache_dir=model_args.cache_dir,
                 token=model_args.token,
             )
-                    
+
             tokenizer = AutoTokenizer.from_pretrained(
                 model_args.text_model_name,
                 cache_dir=model_args.cache_dir,
                 use_fast=model_args.use_fast_tokenizer,
                 token=model_args.token,
             )
-            
+
             image_processor = AutoImageProcessor.from_pretrained(
                 model_args.vision_model_name,
                 cache_dir=model_args.cache_dir,
@@ -668,7 +802,6 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
                 for param in encoder.layer[i].parameters():
                     param.requires_grad = False
 
-
         config = model.config
 
     # set seed for torch dataloaders
@@ -676,25 +809,31 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
 
     # Preprocessing the datasets.
     # We need to tokenize inputs and targets.
-    if training_args.do_train or training_args.do_eval:
-        column_names = dataset["train"].column_names
-    else:
-        logger.info("There is nothing to do. Please pass `do_train`, `do_eval` and/or `do_predict`.")
+    if not (training_args.do_train or training_args.do_eval):
+        logger.info(
+            "There is nothing to do. Please pass `do_train`, `do_eval` and/or `do_predict`."
+        )
         return
 
     # 6. Get the column names for input/target.
-    
+
     image_column = "image_path"
     caption_column = "caption"
 
     # 7. Preprocessing the datasets.
     # Initialize torchvision transforms and jit it for faster processing.
     image_transformations = Transform(
-        config.vision_config.image_size, image_processor.image_mean, image_processor.image_std
+        config.vision_config.image_size,
+        image_processor.image_mean,
+        image_processor.image_std,
     )
-    print("vision_config.image_size : " + str(config.vision_config.image_size) + " image_processor.image_mean : " + str(image_processor.image_mean) + " image_processor.image_std : " + str(image_processor.image_std))
+    logger.info(
+        "vision_config.image_size=%s image_processor.image_mean=%s image_processor.image_std=%s",
+        config.vision_config.image_size,
+        image_processor.image_mean,
+        image_processor.image_std,
+    )
     image_transformations = torch.jit.script(image_transformations)
-    
 
     def load_image_any(image_obj):
         """Load an image from a file path, bytes payload, or in-memory image object."""
@@ -706,11 +845,11 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
             manifest_source_cache = {}
             setattr(load_image_any, "_manifest_source_cache", manifest_source_cache)
 
-        def read_jsonl(path: str | os.PathLike) -> list[dict]:
+        def read_jsonl(path):
             with open(path, "r", encoding="utf-8") as f:
                 return [json.loads(line) for line in f if line.strip()]
 
-        def load_manifest_source_dataset(source_root: str):
+        def load_manifest_source_dataset(source_root):
             cached = manifest_source_cache.get(source_root)
             if cached is not None:
                 return cached
@@ -721,22 +860,31 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
                 or os.path.exists(os.path.join(source_root, "train", "state.json"))
             ):
                 loaded = load_from_disk(source_root, keep_in_memory=False)
-                dataset = {split: loaded[split] for split in loaded.keys()} if hasattr(loaded, "keys") else {"train": loaded}
+                dataset = (
+                    {split: loaded[split] for split in loaded.keys()}
+                    if hasattr(loaded, "keys")
+                    else {"train": loaded}
+                )
             else:
                 train_jsonl = os.path.join(source_root, "MRI-glob-train.jsonl")
                 test_jsonl = os.path.join(source_root, "MRI-glob-test.jsonl")
                 if os.path.exists(train_jsonl) and os.path.exists(test_jsonl):
-                    dataset = {"train": read_jsonl(train_jsonl), "test": read_jsonl(test_jsonl)}
+                    dataset = {
+                        "train": read_jsonl(train_jsonl),
+                        "test": read_jsonl(test_jsonl),
+                    }
                 else:
                     jsonl = os.path.join(source_root, "MRI-glob.jsonl")
                     if not os.path.exists(jsonl):
-                        raise FileNotFoundError(f"Could not load source dataset from manifest root: {source_root}")
+                        raise FileNotFoundError(
+                            f"Could not load source dataset from manifest root: {source_root}"
+                        )
                     dataset = {"all": read_jsonl(jsonl)}
 
             manifest_source_cache[source_root] = dataset
             return dataset
 
-        def first_image_payload(row: dict, source_root: str):
+        def first_image_payload(row, source_root):
             image = row.get("image")
             if isinstance(image, dict) and image.get("bytes") is not None:
                 return {"bytes": image["bytes"]}
@@ -777,7 +925,11 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
             if image_obj.get("__manifest_source__"):
                 source_root = image_obj["source_root"]
                 source_dataset = load_manifest_source_dataset(source_root)
-                row = dict(source_dataset[image_obj["source_split"]][int(image_obj["source_index"])])
+                row = dict(
+                    source_dataset[image_obj["source_split"]][
+                        int(image_obj["source_index"])
+                    ]
+                )
                 payload = first_image_payload(row, source_root)
                 if payload is None:
                     raise ValueError("manifest source row has no usable image payload")
@@ -811,7 +963,9 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
                 image = torch.from_numpy(np.array(pil_image)).permute(2, 0, 1)
                 pixel_values.append(image_transformations(image))
             except Exception as e:
-                logger.warning(f"Skipping invalid image sample: {str(image_obj)[:300]}, Error: {str(e)}")
+                logger.warning(
+                    f"Skipping invalid image sample: {str(image_obj)[:300]}, Error: {str(e)}"
+                )
                 pixel_values.append(None)
 
         examples["input_ids"] = text_inputs.input_ids
@@ -852,13 +1006,13 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
             checkpoint = training_args.resume_from_checkpoint
         elif last_checkpoint is not None:
             checkpoint = last_checkpoint
-        
+
         try:
             train_result = trainer.train(resume_from_checkpoint=checkpoint)
-        except RuntimeError as e:
+        except RuntimeError:
             logger.exception("Training failed")
             raise
-        
+
         trainer.save_model()
         tokenizer.save_pretrained(training_args.output_dir)
         image_processor.save_pretrained(training_args.output_dir)
@@ -885,10 +1039,13 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
 
     if finetuned_from is None or os.path.isdir(finetuned_from):
         finetuned_from = None
-    kwargs = {"finetuned_from": finetuned_from, "tasks": "contrastive-image-text-modeling"}
+    kwargs = {
+        "finetuned_from": finetuned_from,
+        "tasks": "contrastive-image-text-modeling",
+    }
     for dataset in data_args.dataset_configs:
         if dataset.get("dataset_name", None) is None and "manifest_path" not in dataset:
-            assert(len(dataset) == 1)
+            assert len(dataset) == 1
             dataset = dataset[list(dataset.keys())[0]]
         dataset = DatasetConfig(**dataset)
         if dataset.dataset_name is not None:
@@ -897,34 +1054,49 @@ def training(model_args, data_args, training_args, dataset, n_freeze, last_check
             kwargs["dataset_tags"].append(dataset.dataset_name)
 
     trainer.create_model_card(**kwargs)
-    #returns the training value
-    if train_result is None:
-        raise RuntimeError("Training failed before producing metrics")
     return train_result.metrics["train_loss"], model
 
-def objective(trial, bench_list, config_path):
-    #bench_list is a list containing the list of benchmarks
-    model_args, data_args, training_args, dataset, last_checkpoint = data_processing(config_path)
+
+def objective(trial, bench_list, config_path, model_args, data_args, training_args_base, dataset, last_checkpoint):
+    training_args = copy.deepcopy(training_args_base)
     lr = trial.suggest_float("learning_rate", 5.0e-6, 5.0e-4, log=True)
     wd = trial.suggest_float("weight_decay", 1.0e-4, 0.1, log=True)
     warmup_ratio = trial.suggest_float("warmup_ratio", 0.0, 0.1)
     if data_args.freeze:
         n_frz = trial.suggest_int("freezed_layers", 0, 8)
-        print("nombre de layers freeze : " + str(n_frz))
+        logger.info("Freezing %d encoder layers", n_frz)
     else:
         n_frz = 0
     training_args.learning_rate = lr
     training_args.weight_decay = wd
     training_args.warmup_ratio = warmup_ratio
-    training_args.output_dir = training_args.output_dir + "_lr" + str(lr) + "_wd" + str(wd) + "_nfrz" + str(n_frz)
-    print(f"lr: {lr}, wd: {wd}, warmup_ratio: {warmup_ratio}, nfrz: {n_frz}")
-    if not os.environ.get("WANDB_DISABLED", False): #setup wandb
+    training_args.output_dir = (
+        training_args.output_dir
+        + "_lr"
+        + str(lr)
+        + "_wd"
+        + str(wd)
+        + "_nfrz"
+        + str(n_frz)
+    )
+    logger.info("Trial: lr=%s, wd=%s, warmup_ratio=%s, n_freeze=%s", lr, wd, warmup_ratio, n_frz)
+    if not os.environ.get("WANDB_DISABLED", False):  # setup wandb
         training_args.report_to = ["wandb"]
         run_name = f"Training CLIP {os.path.basename(config_path)}_lr:{lr}_wd:{wd}_wr:{warmup_ratio}_nfrz:{n_frz}"
         training_args.run_name = run_name
-        wandb.init(project="Training CLIP", name=run_name, config=training_args.to_dict())
-    loss_value, model = training(model_args, data_args, training_args, dataset, n_frz, last_checkpoint, trial=trial)
-    
+        wandb.init(
+            project="Training CLIP", name=run_name, config=training_args.to_dict()
+        )
+    loss_value, model = training(
+        model_args,
+        data_args,
+        training_args,
+        dataset,
+        n_frz,
+        last_checkpoint,
+        trial=trial,
+    )
+
     model.eval()
     benchmark_results = []
     benchmark_names = []
@@ -936,8 +1108,7 @@ def objective(trial, bench_list, config_path):
         benchmark_results.append(score)
         benchmark_names.append(name)
         benchmark_metrics.append(result)
-        print(f"Benchmark {name} score: {score}")
-        logger.info(f"Benchmark {name} score: {score}")
+        logger.info("Benchmark %s score: %s", name, score)
 
     with open(os.path.join(training_args.output_dir, "benchmark_scores.txt"), "w") as f:
         f.write(f"Run name: {training_args.run_name}\n")
@@ -954,8 +1125,10 @@ def objective(trial, bench_list, config_path):
 
     res = float(sum(benchmark_results) / len(benchmark_results))
 
-    wandb.finish()
+    if wandb.run is not None:
+        wandb.finish()
     return res
+
 
 def merge_studies(study_list):
     merged_study = []
@@ -964,20 +1137,22 @@ def merge_studies(study_list):
         for trial in study.trials:
             if trial.state == optuna.trial.TrialState.COMPLETE:
                 merged_study.append(trial)
-    final_study =  optuna.create_study(direction="maximize")
+    final_study = optuna.create_study(direction="maximize")
     final_study.add_trials(merged_study)
     return final_study
 
-#should be used in another script with the list of benchmarks imported
-def train(bench_list: List[Benchmark], config_path):
-    #bench_list: List[Benchmark], config_path
+
+def train(bench_list, config_path):
+    with open(config_path, "r", encoding="utf-8") as f:
+        config_dict = yaml.safe_load(f) or {}
+
+    model_args, data_args, training_args, dataset, last_checkpoint = data_processing(config_path)
 
     def objective_wrapper(trial):
-        return objective(trial, bench_list, config_path)
+        return objective(trial, bench_list, config_path, model_args, data_args, training_args, dataset, last_checkpoint)
 
-    with open(config_path, 'r', encoding='utf-8') as f:
-        config_dict = yaml.safe_load(f) or {}
     output_dir = config_dict.get("output_dir", ".")
+    n_trials = config_dict.get("n_trials", 25)
     study_slug = re.sub(r"[^A-Za-z0-9_.-]+", "_", Path(config_path).stem)
     storage_path = Path(output_dir) / f"{study_slug}_optuna.db"
     storage_path.parent.mkdir(parents=True, exist_ok=True)
@@ -990,32 +1165,56 @@ def train(bench_list: List[Benchmark], config_path):
         load_if_exists=False,
         direction="maximize",
     )
-    study.optimize(objective_wrapper, n_trials=25)
-    
+    logger.info("Starting Optuna study with %d trials", n_trials)
+    study.optimize(objective_wrapper, n_trials=n_trials)
+
     return study
 
-def plot_study(study):
-    print("Best Hyperparameters: ", study.best_params)
-    
-    fig = optuna.visualization.plot_parallel_coordinate(study)
-    fig.write_html("parallel_coordinate.html")
-    fig = optuna.visualization.plot_param_importances(study)
-    fig.write_html("plot_param_importance.html")
-    print("studes ploted")
+
+def plot_study(study, output_dir="."):
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    logger.info("Best hyperparameters: %s", study.best_params)
+
+    best_params_path = output_dir / "best_params.json"
+    with best_params_path.open("w", encoding="utf-8") as f:
+        json.dump({"best_params": study.best_params, "best_value": study.best_value}, f, indent=2)
+    logger.info("Best params saved to %s", best_params_path)
+
+    try:
+        fig = optuna.visualization.plot_parallel_coordinate(study)
+        fig.write_html(str(output_dir / "parallel_coordinate.html"))
+        fig = optuna.visualization.plot_param_importances(study)
+        fig.write_html(str(output_dir / "param_importances.html"))
+        logger.info("Optuna plots saved to %s", output_dir)
+    except Exception as exc:
+        logger.warning("Could not generate Optuna plots (plotly installed?): %s", exc)
+
+
+def main(config_path):
+    eval_dir = Path(__file__).resolve().parent / "evaluation_pipeline"
+    if str(eval_dir) not in sys.path:
+        sys.path.insert(0, str(eval_dir))
+
+    from evaluation_pipeline.build_benchmarks import build_benchmarks_from_names
+
+    with open(config_path, "r", encoding="utf-8") as f:
+        config_dict = yaml.safe_load(f) or {}
+
+    benchmark_selection = config_dict.get("benchmark_selection")
+    bench_list = build_benchmarks_from_names(benchmark_selection)
+
+    study = train(bench_list, config_path)
+    plot_study(study, output_dir=config_dict.get("output_dir", "."))
+    return study
+
 
 if __name__ == "__main__":
     import argparse
-    from evaluation_pipeline.build_benchmarks import build_benchmarks_from_names
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--config_file", type=str, required=True)
     args = parser.parse_args()
 
-    with open(args.config_file, 'r', encoding='utf-8') as f:
-        config_dict = yaml.safe_load(f) or {}
-
-    benchmark_selection = config_dict.get('benchmark_selection')
-    bench_list = build_benchmarks_from_names(benchmark_selection)
-
-    study = train(bench_list, args.config_file)
-    plot_study(study)
+    main(args.config_file)

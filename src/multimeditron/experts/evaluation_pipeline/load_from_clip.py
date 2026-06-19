@@ -1,15 +1,13 @@
 from io import BytesIO
-from typing import Dict, List, Tuple, Union
 
 from PIL import Image
 from tqdm import tqdm
 
-from transformers import VisionTextDualEncoderModel, AutoImageProcessor, AutoTokenizer
+from transformers import VisionTextDualEncoderModel, AutoImageProcessor
 from torchvision.io import ImageReadMode, read_image
 from torchvision.transforms import CenterCrop, ConvertImageDtype, Normalize, Resize
 from torchvision.transforms.functional import InterpolationMode
 
-import json
 import os
 import torch
 
@@ -31,29 +29,37 @@ def _ensure_open_clip():
     CustomTextCLIP = _CustomTextCLIP
     return create_model_from_pretrained, _CustomTextCLIP
 
-DataRow = Dict[str, Union[str, List[Dict[str, str]]]]
 
-image_processor = AutoImageProcessor.from_pretrained("openai/clip-vit-base-patch32") #image processor for CLIP-based models
-biomed_processor = [None] #will be filled when loading BiomedCLIP, has its own processor
+image_processor = AutoImageProcessor.from_pretrained(
+    "openai/clip-vit-base-patch32"
+)  # image processor for CLIP-based models
+biomed_processor = [
+    None
+]  # will be filled when loading BiomedCLIP, has its own processor
 
-def load_model(model_path: str) -> VisionTextDualEncoderModel:
+
+def load_model(model_path):
     """
     Load the VisionTextDualEncoderModel from the provided path.
 
     Args:
       model_path: the path to the model
-    
+
     Returns the corresponding VisionTextDualEncoderModel instance.
     """
-    
+
     if model_path == "biomedclip":
         create_model_from_pretrained, _ = _ensure_open_clip()
-        model, preprocess = create_model_from_pretrained('hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224')
+        model, preprocess = create_model_from_pretrained(
+            "hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224"
+        )
         biomed_processor[0] = preprocess
 
         return model
-    elif model_path == "openai/clip-vit-base-patch32": #base CLIP
-        return VisionTextDualEncoderModel.from_vision_text_pretrained(model_path, "FacebookAI/roberta-base")
+    elif model_path == "openai/clip-vit-base-patch32":  # base CLIP
+        return VisionTextDualEncoderModel.from_vision_text_pretrained(
+            model_path, "FacebookAI/roberta-base"
+        )
     else:
         # Find the latest checkpoint when a training output directory contains
         # checkpoint-* subdirectories. If none exist, treat model_path itself as
@@ -68,35 +74,44 @@ def load_model(model_path: str) -> VisionTextDualEncoderModel:
                         continue
             if epochs:
                 epoch = max(epochs)
-                return VisionTextDualEncoderModel.from_pretrained(os.path.join(model_path, f"checkpoint-{epoch}/"))
+                return VisionTextDualEncoderModel.from_pretrained(
+                    os.path.join(model_path, f"checkpoint-{epoch}/")
+                )
             return VisionTextDualEncoderModel.from_pretrained(model_path)
         else:
             return VisionTextDualEncoderModel.from_pretrained(model_path)
+
 
 # Preprocessing pipeline for images
 class Transform(torch.nn.Module):
     def __init__(self, image_size, mean, std):
         super().__init__()
         self.transforms = torch.nn.Sequential(
-            Resize([image_size], interpolation=InterpolationMode.BICUBIC, antialias=True),
+            Resize(
+                [image_size], interpolation=InterpolationMode.BICUBIC, antialias=True
+            ),
             CenterCrop(image_size),
             ConvertImageDtype(torch.float),
             Normalize(mean, std),
         )
 
-    def forward(self, x) -> torch.Tensor:
+    def forward(self, x):
         "`x` should be an instance of `PIL.Image.Image`"
         with torch.no_grad():
             x = self.transforms(x)
         return x
-            
+
+
 image_transformations = Transform(
     224, image_processor.image_mean, image_processor.image_std
 )
 image_transformations = torch.jit.script(image_transformations)
-img_transform = lambda img_path: image_transformations(read_image(img_path, mode=ImageReadMode.RGB))
+img_transform = lambda img_path: image_transformations(
+    read_image(img_path, mode=ImageReadMode.RGB)
+)
 
-def encode_img(model: VisionTextDualEncoderModel, img_path: str) -> torch.Tensor:
+
+def encode_img(model, img_path):
     """
     Encode an image given a model.
 
@@ -106,7 +121,10 @@ def encode_img(model: VisionTextDualEncoderModel, img_path: str) -> torch.Tensor
 
     Returns the tensor of the embedding of the image.
     """
-    
+
+    if hasattr(model, "encode_image_path"):
+        return model.encode_image_path(img_path)
+
     device = next(model.parameters()).device
     is_biomed_clip = CustomTextCLIP is not None and isinstance(model, CustomTextCLIP)
 
@@ -114,12 +132,16 @@ def encode_img(model: VisionTextDualEncoderModel, img_path: str) -> torch.Tensor
         if is_biomed_clip:
             preprocess = biomed_processor[0]
             if preprocess is None:
-                raise RuntimeError("Did not load the preprocessor of biomedclip. Please run first `load_model('biomedclip')`")
+                raise RuntimeError(
+                    "Did not load the preprocessor of biomedclip. Please run first `load_model('biomedclip')`"
+                )
             images = torch.stack([preprocess(Image.open(img_path))]).to(device)
             image_embed = model.encode_image(images)
         elif isinstance(model, VisionTextDualEncoderModel):
             pixel_values = torch.stack([img_transform(img_path)]).to(device)
-            vision_outputs = model.vision_model(pixel_values=pixel_values, return_dict=True)
+            vision_outputs = model.vision_model(
+                pixel_values=pixel_values, return_dict=True
+            )
             pooled = vision_outputs.pooler_output
             if pooled is None:
                 raise RuntimeError("vision_model returned no pooler_output")
@@ -131,7 +153,7 @@ def encode_img(model: VisionTextDualEncoderModel, img_path: str) -> torch.Tensor
     return image_embed[0]
 
 
-def encode_img_bytes(model: VisionTextDualEncoderModel, img_bytes: bytes) -> torch.Tensor:
+def encode_img_bytes(model, img_bytes):
     """
     Encode an image from raw bytes.
 
@@ -142,6 +164,9 @@ def encode_img_bytes(model: VisionTextDualEncoderModel, img_bytes: bytes) -> tor
     Returns the tensor of the embedding of the image.
     """
 
+    if hasattr(model, "encode_image_bytes"):
+        return model.encode_image_bytes(img_bytes)
+
     device = next(model.parameters()).device
     is_biomed_clip = CustomTextCLIP is not None and isinstance(model, CustomTextCLIP)
     image = Image.open(BytesIO(img_bytes)).convert("RGB")
@@ -150,23 +175,32 @@ def encode_img_bytes(model: VisionTextDualEncoderModel, img_bytes: bytes) -> tor
         if is_biomed_clip:
             preprocess = biomed_processor[0]
             if preprocess is None:
-                raise RuntimeError("Did not load the preprocessor of biomedclip. Please run first `load_model('biomedclip')`")
+                raise RuntimeError(
+                    "Did not load the preprocessor of biomedclip. Please run first `load_model('biomedclip')`"
+                )
             images = torch.stack([preprocess(image)]).to(device)
             image_embed = model.encode_image(images)
         elif isinstance(model, VisionTextDualEncoderModel):
-            pixel_values = image_processor(images=image, return_tensors="pt")["pixel_values"].to(device)
-            vision_outputs = model.vision_model(pixel_values=pixel_values, return_dict=True)
+            pixel_values = image_processor(images=image, return_tensors="pt")[
+                "pixel_values"
+            ].to(device)
+            vision_outputs = model.vision_model(
+                pixel_values=pixel_values, return_dict=True
+            )
             pooled = vision_outputs.pooler_output
             if pooled is None:
                 raise RuntimeError("vision_model returned no pooler_output")
             image_embed = model.visual_projection(pooled)
         else:
-            raise TypeError(f"Unsupported model type for encode_img_bytes: {type(model)}")
+            raise TypeError(
+                f"Unsupported model type for encode_img_bytes: {type(model)}"
+            )
 
     image_embed = image_embed / image_embed.norm(dim=-1, keepdim=True).clamp_min(1e-12)
     return image_embed[0]
 
-def preprocess_dataset(data_lines: List[Dict], dataset_path: str) -> List[torch.Tensor]:
+
+def preprocess_dataset(data_lines, dataset_path):
     """
     Preprocess a dataset (find the image and apply the image processor on it).
 
@@ -176,14 +210,15 @@ def preprocess_dataset(data_lines: List[Dict], dataset_path: str) -> List[torch.
 
     Returns the list of tensors representing each image of the dataset.
     """
-    
-    def adapt_line(line: DataRow):
+
+    def adapt_line(line):
         img_path = os.path.join(dataset_path, line["modalities"][0]["value"])
         return img_transform(img_path)
 
     return [adapt_line(line) for line in tqdm(data_lines)]
 
-def preprocess_dataset_biomed(data_lines: List[Dict], dataset_path: str) -> List[torch.Tensor]:
+
+def preprocess_dataset_biomed(data_lines, dataset_path):
     """
     Preprocess a dataset for BiomedCLIP (find the image and apply the image processor on it).
 
@@ -195,17 +230,20 @@ def preprocess_dataset_biomed(data_lines: List[Dict], dataset_path: str) -> List
     """
 
     preprocess = biomed_processor[0]
-    if preprocess is None: #in case biomedclip (and its image processor) had not already been loaded
+    if (
+        preprocess is None
+    ):  # in case biomedclip (and its image processor) had not already been loaded
         load_model("biomedclip")
         preprocess = biomed_processor[0]
-    
-    def adapt_line(line: DataRow):
+
+    def adapt_line(line):
         img_path = os.path.join(dataset_path, line["modalities"][0]["value"])
         return preprocess(Image.open(img_path))
 
     return [adapt_line(line) for line in tqdm(data_lines)]
 
-def make(model: VisionTextDualEncoderModel, dataset: Union[torch.Tensor, List[torch.Tensor]]) -> Tuple[torch.Tensor, torch.Tensor]:
+
+def make(model, dataset):
     """
     Make the embeddings for a whole dataset, by a given model.
 
@@ -213,7 +251,7 @@ def make(model: VisionTextDualEncoderModel, dataset: Union[torch.Tensor, List[to
       model, the instance of VisionTextDualEncoderModel to use
       dataset, the list of tensors of pre-processed images (or one tensor stacking all)
     """
-    
+
     if not isinstance(dataset, list):
         dataset = [dataset]
 

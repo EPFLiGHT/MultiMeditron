@@ -16,12 +16,15 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from sklearn.utils.class_weight import compute_class_weight
-from Benchmark import Benchmark          
-from load_from_clip import load_model, encode_img 
-from sklearn.metrics import confusion_matrix 
+from Benchmark import Benchmark
+from load_from_clip import load_model, encode_img
+from sklearn.metrics import confusion_matrix
+
 
 class SkinClassifier(torch.nn.Module):
-    def __init__(self, input_dim=512, hidden_dim=50, num_classes=20, init_mode="xavier"):
+    def __init__(
+        self, input_dim=512, hidden_dim=50, num_classes=20, init_mode="xavier"
+    ):
         super().__init__()
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
@@ -35,9 +38,15 @@ class SkinClassifier(torch.nn.Module):
             torch.nn.init.xavier_uniform_(self.lin2.weight)
             torch.nn.init.xavier_uniform_(self.lin3.weight)
         elif init_mode == "kaiming":
-            torch.nn.init.kaiming_normal_(self.lin1.weight, mode="fan_in", nonlinearity="sigmoid")
-            torch.nn.init.kaiming_normal_(self.lin2.weight, mode="fan_in", nonlinearity="sigmoid")
-            torch.nn.init.kaiming_normal_(self.lin3.weight, mode="fan_in", nonlinearity="sigmoid")
+            torch.nn.init.kaiming_normal_(
+                self.lin1.weight, mode="fan_in", nonlinearity="sigmoid"
+            )
+            torch.nn.init.kaiming_normal_(
+                self.lin2.weight, mode="fan_in", nonlinearity="sigmoid"
+            )
+            torch.nn.init.kaiming_normal_(
+                self.lin3.weight, mode="fan_in", nonlinearity="sigmoid"
+            )
         elif init_mode == "orthogonal":
             torch.nn.init.orthogonal_(self.lin1.weight)
             torch.nn.init.orthogonal_(self.lin2.weight)
@@ -49,7 +58,8 @@ class SkinClassifier(torch.nn.Module):
         x = self.lin3(x)  # logits
         return x
 
-def load_skin_dataset(jsonl_path: str, clip_model, image_root: str, label2id: dict):
+
+def load_skin_dataset(jsonl_path, clip_model, image_root, label2id):
     """
     Reads JSONL with:
         - "text": disease category (string)
@@ -71,22 +81,31 @@ def load_skin_dataset(jsonl_path: str, clip_model, image_root: str, label2id: di
                 continue
             label_id = label2id[label_text]
 
-            rel_path = ex["modalities"][0]["value"]  # e.g. "images/eczema-subacute-68.jpg"
+            rel_path = ex["modalities"][0][
+                "value"
+            ]  # e.g. "images/eczema-subacute-68.jpg"
             img_path = os.path.join(image_root, rel_path)
 
-            emb = encode_img(clip_model, img_path)   # 1D tensor
+            emb = encode_img(clip_model, img_path)  # 1D tensor
             X.append(emb)
             Y.append(label_id)
 
-    X = torch.stack(X)                             # [N, D]
-    Y = torch.tensor(Y, dtype=torch.long)          # [N]
+    X = torch.stack(X)  # [N, D]
+    Y = torch.tensor(Y, dtype=torch.long)  # [N]
     return X, Y
 
 
 class SkinDiseaseTrainDataset(Dataset):
-    def __init__(self, clip_model, model_name: str, jsonl_path: str,
-                 image_root: str, label2id: dict,
-                 cache_dir: str = "", load_cached: bool = False):
+    def __init__(
+        self,
+        clip_model,
+        model_name,
+        jsonl_path,
+        image_root,
+        label2id,
+        cache_dir="",
+        load_cached=False,
+    ):
         emb_file = os.path.join(cache_dir, f"skin_train_emb_{model_name}.pt")
         lab_file = os.path.join(cache_dir, f"skin_train_lab_{model_name}.pt")
 
@@ -109,9 +128,16 @@ class SkinDiseaseTrainDataset(Dataset):
 
 
 class SkinDiseaseTestDataset(Dataset):
-    def __init__(self, clip_model, model_name: str, jsonl_path: str,
-                 image_root: str, label2id: dict,
-                 cache_dir: str = "", load_cached: bool = False):
+    def __init__(
+        self,
+        clip_model,
+        model_name,
+        jsonl_path,
+        image_root,
+        label2id,
+        cache_dir="",
+        load_cached=False,
+    ):
         emb_file = os.path.join(cache_dir, f"skin_test_emb_{model_name}.pt")
         lab_file = os.path.join(cache_dir, f"skin_test_lab_{model_name}.pt")
 
@@ -199,7 +225,7 @@ def evaluate_skin_classifier(model, test_loader, num_classes, return_preds=False
 
     with torch.no_grad():
         for batch_idx, (inputs, labels) in enumerate(test_loader):
-            outputs = model(inputs)            # logits
+            outputs = model(inputs)  # logits
             preds = outputs.argmax(dim=1)
 
             total += labels.size(0)
@@ -220,7 +246,9 @@ def evaluate_skin_classifier(model, test_loader, num_classes, return_preds=False
                 print("[Eval] first batch labels     :", labels[:10].tolist())
 
     acc = correct / total if total > 0 else 0.0
-    print(f"Skin classifier accuracy: {acc * 100:.2f}% (correct={correct}, total={total})")
+    print(
+        f"Skin classifier accuracy: {acc * 100:.2f}% (correct={correct}, total={total})"
+    )
 
     per_class_acc = np.zeros(num_classes)
     for c in range(num_classes):
@@ -228,9 +256,16 @@ def evaluate_skin_classifier(model, test_loader, num_classes, return_preds=False
             per_class_acc[c] = per_class_correct[c] / per_class_total[c]
 
     if return_preds:
-        return acc, per_class_acc, per_class_total, np.array(all_labels), np.array(all_preds)
+        return (
+            acc,
+            per_class_acc,
+            per_class_total,
+            np.array(all_labels),
+            np.array(all_preds),
+        )
     else:
         return acc, per_class_acc, per_class_total
+
 
 class SkinDiseaseBenchmark(Benchmark):
     """
@@ -243,12 +278,10 @@ class SkinDiseaseBenchmark(Benchmark):
       - evaluate accuracy on test embeddings
       - return accuracy to be maximized by Optuna
     """
-    def __init__(self,
-                 train_jsonl: str,
-                 test_jsonl: str,
-                 image_root: str,
-                 cache_dir: str = "",
-                 batch_size: int = 64):
+
+    def __init__(
+        self, train_jsonl, test_jsonl, image_root, cache_dir="", batch_size=64
+    ):
         self.train_jsonl = train_jsonl
         self.test_jsonl = test_jsonl
         self.image_root = image_root
@@ -260,7 +293,7 @@ class SkinDiseaseBenchmark(Benchmark):
         self.num_classes = len(self.label2id)
         print(f"SkinDiseaseBenchmark: {len(self.label2id)} unique labels")
 
-    def _build_label_map(self, jsonl_path: str):
+    def _build_label_map(self, jsonl_path):
         label2id = {}
         with open(jsonl_path, "r", encoding="utf-8") as f:
             for line in f:
@@ -273,7 +306,7 @@ class SkinDiseaseBenchmark(Benchmark):
                     label2id[label_text] = len(label2id)
         return label2id
 
-    def evaluate(self, model_path: str) -> float:
+    def evaluate(self, model_path):
         # model_path is training_args.output_dir for this Optuna trial
         model_name = os.path.basename(model_path.rstrip("/"))
         print(f"[SkinBenchmark] model_path = {model_path}")
@@ -288,7 +321,7 @@ class SkinDiseaseBenchmark(Benchmark):
             jsonl_path=self.train_jsonl,
             image_root=self.image_root,
             label2id=self.label2id,
-            cache_dir="",      # no cross-model caching
+            cache_dir="",  # no cross-model caching
             load_cached=False,
         )
         test_dataset = SkinDiseaseTestDataset(
@@ -300,10 +333,16 @@ class SkinDiseaseBenchmark(Benchmark):
             cache_dir="",
             load_cached=False,
         )
-        print(f"[SkinBenchmark] train size = {len(train_dataset)}, test size = {len(test_dataset)}")
+        print(
+            f"[SkinBenchmark] train size = {len(train_dataset)}, test size = {len(test_dataset)}"
+        )
 
-        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
-        test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
+        train_loader = DataLoader(
+            train_dataset, batch_size=self.batch_size, shuffle=True
+        )
+        test_loader = DataLoader(
+            test_dataset, batch_size=self.batch_size, shuffle=False
+        )
 
         # 3) Train classifier on embeddings
         classifier = multiple_train_skin(train_loader, train_dataset, self.num_classes)
@@ -331,7 +370,7 @@ class SkinDiseaseBenchmark(Benchmark):
 
         return float(acc)
 
-    def evaluate_with_confusion(self, model_path: str):
+    def evaluate_with_confusion(self, model_path):
         model_name = os.path.basename(model_path.rstrip("/"))
         print(f"[SkinBenchmark] model_path = {model_path}")
 
@@ -356,8 +395,12 @@ class SkinDiseaseBenchmark(Benchmark):
             load_cached=False,
         )
 
-        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
-        test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
+        train_loader = DataLoader(
+            train_dataset, batch_size=self.batch_size, shuffle=True
+        )
+        test_loader = DataLoader(
+            test_dataset, batch_size=self.batch_size, shuffle=False
+        )
 
         classifier = multiple_train_skin(train_loader, train_dataset, self.num_classes)
 

@@ -61,11 +61,8 @@ Arguments
     Enable/disable mapping long clinical labels to short aliases for readability.
 """
 
-from __future__ import annotations
-
 import argparse
 from pathlib import Path
-from typing import Dict, Tuple, List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -78,22 +75,34 @@ DEFAULT_MODEL_DIR = (
     "combined_dataset_skin_aggressive_training_config_1_"
     "lr5.418484333396616e-05_wd0.20568011432383415_nfrz2"
 )
-DEFAULT_TRAIN_JSONL = "/mloscratch/users/turan/datasets/skin_diseases_10/train_raw.jsonl"
-DEFAULT_TEST_JSONL = "/mloscratch/users/turan/datasets/skin_diseases_10/skin10_val_raw.jsonl"
+DEFAULT_TRAIN_JSONL = (
+    "/mloscratch/users/turan/datasets/skin_diseases_10/train_raw.jsonl"
+)
+DEFAULT_TEST_JSONL = (
+    "/mloscratch/users/turan/datasets/skin_diseases_10/skin10_val_raw.jsonl"
+)
 DEFAULT_IMAGE_ROOT = "/mloscratch/users/turan/datasets/skin_diseases_10"
 DEFAULT_OUT = "confusion_matrix_10_diseases_short_labels.png"
 DEFAULT_FIGSIZE = (6.0, 6.0)
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args():
     p = argparse.ArgumentParser(
         description="Evaluate SkinDiseaseBenchmark and save a row-normalized confusion matrix PNG."
     )
 
-    p.add_argument("--model-dir", default=DEFAULT_MODEL_DIR, help="Model directory or repo id.")
-    p.add_argument("--train-jsonl", default=DEFAULT_TRAIN_JSONL, help="Train JSONL manifest.")
-    p.add_argument("--test-jsonl", default=DEFAULT_TEST_JSONL, help="Test/val JSONL manifest.")
-    p.add_argument("--image-root", default=DEFAULT_IMAGE_ROOT, help="Root directory for images.")
+    p.add_argument(
+        "--model-dir", default=DEFAULT_MODEL_DIR, help="Model directory or repo id."
+    )
+    p.add_argument(
+        "--train-jsonl", default=DEFAULT_TRAIN_JSONL, help="Train JSONL manifest."
+    )
+    p.add_argument(
+        "--test-jsonl", default=DEFAULT_TEST_JSONL, help="Test/val JSONL manifest."
+    )
+    p.add_argument(
+        "--image-root", default=DEFAULT_IMAGE_ROOT, help="Root directory for images."
+    )
 
     p.add_argument("--out", default=DEFAULT_OUT, help="Output PNG path.")
     p.add_argument(
@@ -122,7 +131,7 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def get_short_label_map() -> Dict[str, str]:
+def get_short_label_map():
     # Map long labels -> short labels (edit names if your strings differ)
     return {
         "Eczema": "Eczema",
@@ -138,7 +147,7 @@ def get_short_label_map() -> Dict[str, str]:
     }
 
 
-def row_normalize(cm: np.ndarray) -> np.ndarray:
+def row_normalize(cm):
     cm = cm.astype(float)
     row_sums = cm.sum(axis=1, keepdims=True)
     # avoid divide-by-zero if a class has 0 samples
@@ -146,7 +155,7 @@ def row_normalize(cm: np.ndarray) -> np.ndarray:
     return cm / row_sums
 
 
-def main() -> None:
+def main():
     args = parse_args()
 
     model_dir = args.model_dir
@@ -158,9 +167,11 @@ def main() -> None:
         image_root=args.image_root,
     )
 
-    acc, per_class_acc, per_class_total, cm, id2label = skin_bench.evaluate_with_confusion(model_dir)
+    acc, per_class_acc, per_class_total, cm, id2label = (
+        skin_bench.evaluate_with_confusion(model_dir)
+    )
 
-    labels: List[str] = [id2label[i] for i in range(len(id2label))]
+    labels = [id2label[i] for i in range(len(id2label))]
 
     if args.short_labels:
         short_map = get_short_label_map()

@@ -93,7 +93,9 @@ class ClassificationBenchmark(ABC):
 
     def build_loss(self, train_dataset):
         """Return the loss function for MLP training. Override for non-standard losses."""
-        class_weights = build_class_weights(train_dataset.labels, num_classes=self.get_num_classes())
+        class_weights = build_class_weights(
+            train_dataset.labels, num_classes=self.get_num_classes()
+        )
         return nn.CrossEntropyLoss(weight=class_weights)
 
     def build_mlp_kwargs(self):
@@ -111,8 +113,12 @@ class ClassificationBenchmark(ABC):
         model = model.to(device)
         model.eval()
 
-        train_dataset = self.build_train_dataset(model=model, model_name=model_name, use_cache=use_cache)
-        test_dataset = self.build_test_dataset(model=model, model_name=model_name, use_cache=use_cache)
+        train_dataset = self.build_train_dataset(
+            model=model, model_name=model_name, use_cache=use_cache
+        )
+        test_dataset = self.build_test_dataset(
+            model=model, model_name=model_name, use_cache=use_cache
+        )
 
         loss = self.build_loss(train_dataset)
 
