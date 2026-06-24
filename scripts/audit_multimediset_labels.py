@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import re
 from collections import Counter
 from dataclasses import dataclass
@@ -10,8 +11,12 @@ from pathlib import Path
 from datasets import DatasetDict, load_from_disk
 
 
-DEFAULT_BASE_ROOT = Path("/lightscratch/datasets/MultiMediset/general_purpose")
-DEFAULT_MRI_ROOT = Path("/lightscratch/users/nemo/datasets/MRI_data/MRI-glob")
+DEFAULT_BASE_ROOT = Path(
+    os.environ.get("MULTIMEDISET_BASE_ROOT", "/lightscratch/datasets/MultiMediset/general_purpose")
+)
+DEFAULT_MRI_ROOT = Path(
+    os.environ.get("MULTIMEDISET_MRI_ROOT", "/lightscratch/users/nemo/datasets/MRI_data/MRI-glob")
+)
 DEFAULT_DOC_PATH = Path("docs/source/multimediset_split_audit.md")
 DEFAULT_RULES_PATH = Path("config/multimediset_label_rules.json")
 
@@ -34,6 +39,7 @@ class DatasetSpec:
     extractor: object
     expected_labels: tuple = ()
     group_key: object = None
+    subdataset_extractor: object = None
     notes: str = ""
     needs_review: bool = False
 
@@ -108,6 +114,16 @@ def ddti_label(row):
     if match:
         return "tirads_" + match.group(1).replace(" ", "")
     return None
+
+
+def skin_subdataset(row):
+    """Subdataset name from the image path, relative to the skin_expert_datasets anchor."""
+    parts = first_modality_value(row).replace("\\", "/").split("/")
+    try:
+        idx = parts.index("skin_expert_datasets")
+        return parts[idx + 1] if idx + 1 < len(parts) else None
+    except ValueError:
+        return None
 
 
 def skin_label(row):
@@ -417,6 +433,7 @@ def make_specs(base_root, mri_root):
                 "tinea-ringworm-candidiasis",
                 "warts-molluscum-viral",
             ),
+            subdataset_extractor=skin_subdataset,
             needs_review=True,
         ),
         DatasetSpec(

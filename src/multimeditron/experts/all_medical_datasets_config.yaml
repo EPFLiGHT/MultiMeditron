@@ -12,25 +12,25 @@ models_dir: src/multimeditron/experts/models
 datamixes:
   all_domains:
     dataset_configs:
-      - manifest_path: /lightscratch/users/cljordan/multimeditron/benchmark_splits/multimediset/ultrasound/train_model.jsonl
+      - manifest_path: benchmark_splits/multimediset/ultrasound/train_model.jsonl
         domain: ultrasound
         weight: 1.0
-      - manifest_path: /lightscratch/users/cljordan/multimeditron/benchmark_splits/multimediset/ct/train_model.jsonl
+      - manifest_path: benchmark_splits/multimediset/ct/train_model.jsonl
         domain: ct
         weight: 1.0
-      - manifest_path: /lightscratch/users/cljordan/multimeditron/benchmark_splits/multimediset/xray/train_model.jsonl
+      - manifest_path: benchmark_splits/multimediset/xray/train_model.jsonl
         domain: xray
         weight: 1.0
-      - manifest_path: /lightscratch/users/cljordan/multimeditron/benchmark_splits/multimediset/skin/train_model.jsonl
+      - manifest_path: benchmark_splits/multimediset/skin/train_model.jsonl
         domain: skin
         weight: 1.0
-      - manifest_path: /lightscratch/users/cljordan/multimeditron/benchmark_splits/multimediset/eye/train_model.jsonl
+      - manifest_path: benchmark_splits/multimediset/eye/train_model.jsonl
         domain: eye
         weight: 1.0
-      - manifest_path: /lightscratch/users/cljordan/multimeditron/benchmark_splits/multimediset/mri/train_model.jsonl
+      - manifest_path: benchmark_splits/multimediset/mri/train_model.jsonl
         domain: mri
         weight: 1.0
-      - manifest_path: /lightscratch/users/cljordan/multimeditron/benchmark_splits/multimediset/histopathology/train_model.jsonl
+      - manifest_path: benchmark_splits/multimediset/histopathology/train_model.jsonl
         domain: histopathology
         weight: 1.0
 
@@ -58,7 +58,7 @@ param_ranges:
 common_config:
   vision_model_name: openai/clip-vit-base-patch32
   text_model_name: FacebookAI/roberta-base
-  cache_dir: /lightscratch/users/cljordan/multimeditron/cache
+  cache_dir: cache
   fp16: true
   bf16: false
   do_train: true
@@ -68,6 +68,8 @@ common_config:
   adam_epsilon: 1.0e-06
   per_device_eval_batch_size: 64
   dataloader_drop_last: true
+  gradient_accumulation_steps: 2
+  logging_steps: 50
   remove_unused_columns: false
   overwrite_output_dir: true
   save_steps: 150
@@ -77,9 +79,10 @@ common_config:
 # --- Benchmarks run after each Optuna trial ---
 
 benchmark_selection:
-  - ct3d
-  - mri
-  - skin
-  - ophthalmology
-  - ultrasound
-  - xray
+- ct
+- histopathology
+- mri
+- skin
+- ophthalmology
+- ultrasound
+- xray

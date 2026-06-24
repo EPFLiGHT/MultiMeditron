@@ -15,7 +15,6 @@ from audit_multimediset_labels import (  # noqa: E402
     DEFAULT_BASE_ROOT,
     DEFAULT_MRI_ROOT,
     TARGET_BENCHMARKS,
-    first_modality_value,
     load_dataset_like,
     make_specs,
     row_at,
@@ -46,8 +45,19 @@ def benchmark_label_maps(rules):
     }
 
 
-def source_split_plan(source_splits):
+def source_split_plan(source_splits, holdout=False):
     if {"train", "test"}.issubset(source_splits):
+        if holdout:
+            # test becomes holdout; benchmark_eval carved from train
+            return {
+                "train": (
+                    ("train_model", 0.8),
+                    ("mlp_train", 0.1),
+                    ("benchmark_eval", 0.1),
+                ),
+                "test": (("holdout_test", 1.0),),
+            }
+        # Original behaviour: test goes entirely to benchmark_eval
         return {
             "train": (
                 ("train_model", 0.8),
@@ -57,26 +67,36 @@ def source_split_plan(source_splits):
             "test": (("benchmark_eval", 1.0),),
         }
     if {"train", "val"}.issubset(source_splits):
+        if holdout:
+            # val becomes the held-out set; carve benchmark_eval from train
+            return {
+                "train": (
+                    ("train_model", 0.8),
+                    ("mlp_train", 0.1),
+                    ("benchmark_eval", 0.1),
+                ),
+                "val": (("holdout_test", 1.0),),
+            }
         return {
             "train": (("train_model", 0.9), ("mlp_train", 0.1)),
             "val": (("benchmark_eval", 1.0),),
         }
-    if "train" in source_splits:
-        return {
-            "train": (
-                ("train_model", 0.7),
-                ("mlp_train", 0.15),
-                ("benchmark_eval", 0.15),
-            )
-        }
-    return {
-        split: (
+    if holdout:
+        base_ratios = (
+            ("train_model", 0.7),
+            ("mlp_train", 0.1),
+            ("benchmark_eval", 0.1),
+            ("holdout_test", 0.1),
+        )
+    else:
+        base_ratios = (
             ("train_model", 0.7),
             ("mlp_train", 0.15),
             ("benchmark_eval", 0.15),
         )
-        for split in sorted(source_splits)
-    }
+    if "train" in source_splits:
+        return {"train": base_ratios}
+    return {split: base_ratios for split in sorted(source_splits)}
 
 
 def ratio_counts(total, plan):
@@ -192,8 +212,7 @@ def write_jsonl(path, records):
 
 def summarize_records(records_by_split):
     summary = {}
-    for split_name in SPLIT_NAMES:
-        records = records_by_split.get(split_name, [])
+    for split_name, records in records_by_split.items():
         label_counts = Counter(record["label"] for record in records)
         dataset_counts = Counter(record["dataset"] for record in records)
         benchmark_counts = Counter(record["benchmark"] for record in records)
@@ -215,8 +234,9 @@ def build_splits(args):
     output_dir = args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    split_names = SPLIT_NAMES + ("holdout_test",) if args.holdout else SPLIT_NAMES
     benchmark_records = {
-        benchmark: {split: [] for split in SPLIT_NAMES}
+        benchmark: {split: [] for split in split_names}
         for benchmark in TARGET_BENCHMARKS
     }
     skipped_summary = {}
@@ -232,7 +252,7 @@ def build_splits(args):
         label_to_id = label_maps[benchmark]
         print(f"Loading {dataset_name} for benchmark {benchmark}...")
         dataset = load_dataset_like(spec.root)
-        plan_by_source_split = source_split_plan(set(dataset.keys()))
+        plan_by_source_split = source_split_plan(set(dataset.keys()), holdout=args.holdout)
 
         skipped_by_split = {}
         total_by_source_split = {}
@@ -263,9 +283,11 @@ def build_splits(args):
                             group_id = str(gid)
                     elif row.get(spec.group_key) is not None:
                         group_id = str(row.get(spec.group_key))
-                image_path = first_modality_value(row)
-                path_parts = image_path.replace("\\", "/").split("/")
-                subdataset = path_parts[7] if len(path_parts) > 7 else None
+                subdataset = (
+                    spec.subdataset_extractor(row)
+                    if spec.subdataset_extractor is not None
+                    else None
+                )
                 records.append(
                     make_record(
                         benchmark=benchmark,
@@ -324,14 +346,10 @@ def build_splits(args):
             continue
         benchmark_dir = output_dir / benchmark
         benchmark_dir.mkdir(parents=True, exist_ok=True)
-        for split_name in SPLIT_NAMES:
+        for split_name in split_names:
             write_jsonl(
                 benchmark_dir / f"{split_name}.jsonl", records_by_split[split_name]
             )
-        holdout_path = benchmark_dir / "holdout_test.jsonl"
-        if holdout_path.exists():
-            holdout_path.unlink()
-            print(f"  removed legacy {holdout_path}")
 
     split_summary = {
         "seed": args.seed,
@@ -373,6 +391,16 @@ def parse_args():
         type=int,
         default=None,
         help="Limit scanned source examples per dataset split. Intended for smoke tests.",
+    )
+    parser.add_argument(
+        "--holdout",
+        action="store_true",
+        default=False,
+        help=(
+            "Generate a holdout_test.jsonl split in addition to the standard three. "
+            "When the source dataset has a dedicated test split it is used as-is; "
+            "otherwise 10 %% is carved from train."
+        ),
     )
     return parser.parse_args()
 

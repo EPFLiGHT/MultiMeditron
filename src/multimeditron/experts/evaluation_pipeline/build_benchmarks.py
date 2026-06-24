@@ -2,14 +2,7 @@ import os
 import sys
 from pathlib import Path
 
-# Keep this directory on sys.path for older modules that still use script-style
-# imports such as `from Benchmark import Benchmark`. benchmark_classification's
-# __init__.py also sets this up, but build_benchmarks.py may be imported first.
-EVAL_DIR = os.path.dirname(__file__)
-if EVAL_DIR not in sys.path:
-    sys.path.insert(0, EVAL_DIR)
-
-from benchmark_classification import (
+from .benchmark_classification import (
     MRIBenchmark,
     CTBenchmark,
     HistopathologyBenchmark,
@@ -18,7 +11,7 @@ from benchmark_classification import (
     UltrasoundBenchmark,
     XRay_benchmark,
 )
-from benchmark_classification.xray_benchmark import _resolve_xray_paths
+from .benchmark_classification.xray_benchmark import _resolve_xray_paths
 
 
 SKIN_INTEGRATED_ENV_VARS = {
@@ -48,8 +41,7 @@ XRAY_ENV_VARS = {
 }
 
 MRI_ENV_VARS = {
-    "train_jsonl": "MRI_TRAIN_JSONL",
-    "test_jsonl": "MRI_TEST_JSONL",
+    "dataset_root": "MRI_DATASET_ROOT",
     "max_train_examples": "MRI_MAX_TRAIN_EXAMPLES",
     "max_test_examples": "MRI_MAX_TEST_EXAMPLES",
 }
@@ -137,30 +129,16 @@ def _maybe_build_ultrasound_benchmark():
 
 
 def _maybe_build_mri_benchmark():
-    train_jsonl = os.environ.get(MRI_ENV_VARS["train_jsonl"])
-    test_jsonl = os.environ.get(MRI_ENV_VARS["test_jsonl"])
-    max_train_examples = _parse_optional_int(
-        os.environ.get(MRI_ENV_VARS["max_train_examples"])
-    )
-    max_test_examples = _parse_optional_int(
-        os.environ.get(MRI_ENV_VARS["max_test_examples"])
-    )
-
-    resolved_train = (
-        Path(train_jsonl) if train_jsonl else MRIBenchmark.default_train_jsonl
-    )
-    resolved_test = (
-        Path(test_jsonl) if test_jsonl else MRIBenchmark.default_test_jsonl
-    )
-
-    if not resolved_train.exists() or not resolved_test.exists():
+    dataset_root = os.environ.get(MRI_ENV_VARS["dataset_root"])
+    if not dataset_root:
         return None
-
+    root = Path(dataset_root)
+    if not (root / "train").is_dir() or not (root / "test").is_dir():
+        return None
     return MRIBenchmark(
-        train_jsonl=resolved_train,
-        test_jsonl=resolved_test,
-        max_train_examples=max_train_examples,
-        max_test_examples=max_test_examples,
+        dataset_root=root,
+        max_train_examples=_parse_optional_int(os.environ.get(MRI_ENV_VARS["max_train_examples"])),
+        max_test_examples=_parse_optional_int(os.environ.get(MRI_ENV_VARS["max_test_examples"])),
     )
 
 

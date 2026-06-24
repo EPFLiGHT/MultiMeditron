@@ -15,7 +15,7 @@ except ModuleNotFoundError:
     kagglehub = None
 
 from .base import ClassificationBenchmark
-from load_from_clip import encode_img
+from ..load_from_clip import encode_img
 
 
 XRAY_LABELS = [

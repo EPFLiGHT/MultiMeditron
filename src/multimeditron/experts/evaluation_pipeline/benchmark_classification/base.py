@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 from transformers import VisionTextDualEncoderModel
 
-from mlp_eval import MLP_eval
+from ..mlp_eval import MLP_eval
 
 from .datasets import build_class_weights
 

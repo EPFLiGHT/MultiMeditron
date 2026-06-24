@@ -5,23 +5,20 @@
 import argparse
 import csv
 import os
-import sys
 from io import BytesIO
 from pathlib import Path
 
-import numpy as np
+from multimeditron.experts.evaluation_pipeline.build_benchmarks import build_benchmarks_from_names
+
 import torch
 import torch.nn as nn
 from PIL import Image
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
 from tqdm import tqdm
 from transformers import VisionTextDualEncoderModel
 
 
-EXPERT_ROOT = Path("/lightscratch/users/nemo/models")
+EXPERT_ROOT = None
 DEFAULT_RESULTS_PATH = Path("src/multimeditron/experts/logs/expert_mixture_results.csv")
-DEFAULT_MANIFEST_ROOT = Path("benchmark_splits/multimediset")
 
 DOMAIN_TO_EXPERT = {
     "ct": "CT_expert",
@@ -30,24 +27,6 @@ DOMAIN_TO_EXPERT = {
     "ophthalmology": "Ophthalmology_expert",
     "ultrasound": "US_expert",
     "xray": "XR_expert",
-}
-
-ROUTER_DOMAIN_TO_EXPERT = {
-    "ct": "CT_expert",
-    "mri": "MRI_expert",
-    "skin": "Skin_expert",
-    "eye": "Ophthalmology_expert",
-    "ultrasound": "US_expert",
-    "xray": "XR_expert",
-}
-
-ROUTER_DOMAIN_TO_MANIFEST = {
-    "ct": "ct",
-    "mri": "mri",
-    "skin": "skin",
-    "eye": "eye",
-    "ultrasound": "ultrasound",
-    "xray": "xray",
 }
 
 SMOKE_LIMIT_ENV = {
@@ -60,27 +39,16 @@ SMOKE_LIMIT_ENV = {
 }
 
 
-def _add_eval_pipeline_to_path():
-    eval_dir = Path(__file__).resolve().parent / "evaluation_pipeline"
-    if str(eval_dir) not in sys.path:
-        sys.path.insert(0, str(eval_dir))
-    src_dir = Path(__file__).resolve().parents[2]
-    if str(src_dir) not in sys.path:
-        sys.path.insert(0, str(src_dir))
-
-
 class FrozenExpertMixture(nn.Module):
     """Image encoder that fuses normalized embeddings from several CLIP experts."""
 
     def __init__(self, expert_paths, fusion):
         super().__init__()
-        if fusion not in {"concat", "mean", "routed_concat", "routed_mean"}:
+        if fusion not in {"concat", "mean"}:
             raise ValueError(f"Unsupported fusion: {fusion}")
 
         self.fusion = fusion
         self.expert_names = [path.name for path in expert_paths]
-        self.router = None
-        self.router_classes_ = None
         self.experts = nn.ModuleList(
             VisionTextDualEncoderModel.from_pretrained(str(path))
             for path in expert_paths
@@ -101,57 +69,16 @@ class FrozenExpertMixture(nn.Module):
         embedding = expert.visual_projection(pooled)
         return embedding / embedding.norm(dim=-1, keepdim=True).clamp_min(1e-12)
 
-    def _router_features(self, embeddings):
-        return torch.cat(embeddings, dim=-1).detach().cpu().numpy()
-
-    def _router_weights(self, embeddings):
-        if self.router is None or self.router_classes_ is None:
-            raise RuntimeError(f"{self.fusion} requires a trained router")
-
-        probabilities = self.router.predict_proba(self._router_features(embeddings))[0]
-        weights = torch.zeros(
-            len(self.expert_names),
-            device=embeddings[0].device,
-            dtype=embeddings[0].dtype,
-        )
-        for router_class, probability in zip(self.router_classes_, probabilities):
-            expert_name = ROUTER_DOMAIN_TO_EXPERT[str(router_class)]
-            if expert_name in self.expert_names:
-                weights[self.expert_names.index(expert_name)] = float(probability)
-        if weights.sum() <= 0:
-            weights.fill_(1.0 / len(weights))
-        else:
-            weights = weights / weights.sum()
-        return weights
-
     def _fuse(self, embeddings):
         if self.fusion == "concat":
             fused = torch.cat(embeddings, dim=-1)
-        elif self.fusion == "mean":
-            fused = torch.stack(embeddings, dim=0).mean(dim=0)
         else:
-            weights = self._router_weights(embeddings)
-            if self.fusion == "routed_concat":
-                fused = torch.cat(
-                    [
-                        weight * embedding
-                        for weight, embedding in zip(weights, embeddings)
-                    ],
-                    dim=-1,
-                )
-            else:
-                fused = torch.stack(
-                    [
-                        weight * embedding
-                        for weight, embedding in zip(weights, embeddings)
-                    ],
-                    dim=0,
-                ).sum(dim=0)
+            fused = torch.stack(embeddings, dim=0).mean(dim=0)
         return fused / fused.norm(dim=-1, keepdim=True).clamp_min(1e-12)
 
     @torch.no_grad()
     def encode_image_path_embeddings(self, img_path):
-        from load_from_clip import img_transform
+        from multimeditron.experts.evaluation_pipeline.load_from_clip import img_transform
 
         device = next(self.parameters()).device
         pixel_values = torch.stack([img_transform(img_path)]).to(device)
@@ -164,7 +91,7 @@ class FrozenExpertMixture(nn.Module):
 
     @torch.no_grad()
     def encode_image_bytes_embeddings(self, img_bytes):
-        from load_from_clip import image_processor
+        from multimeditron.experts.evaluation_pipeline.load_from_clip import image_processor
 
         device = next(self.parameters()).device
         image = Image.open(BytesIO(img_bytes)).convert("RGB")
@@ -177,60 +104,6 @@ class FrozenExpertMixture(nn.Module):
     def encode_image_bytes(self, img_bytes):
         embeddings = self.encode_image_bytes_embeddings(img_bytes)
         return self._fuse(embeddings)[0].cpu()
-
-    def fit_router(
-        self,
-        manifest_root,
-        examples_per_domain,
-    ):
-        from evaluation_pipeline.benchmark_classification.multimediset_manifest import (
-            _first_image_bytes,
-            _first_image_path,
-            _get_source_row,
-            read_manifest,
-            sample_records,
-        )
-
-        features = []
-        labels = []
-        for domain, manifest_domain in ROUTER_DOMAIN_TO_MANIFEST.items():
-            manifest_path = manifest_root / manifest_domain / "train_model.jsonl"
-            if not manifest_path.exists():
-                raise FileNotFoundError(f"Missing router manifest: {manifest_path}")
-
-            records = sample_records(
-                read_manifest(manifest_path), examples_per_domain, seed=42
-            )
-            for record in tqdm(records, desc=f"router-{domain}"):
-                row = _get_source_row(record)
-                image_bytes = _first_image_bytes(row)
-                if image_bytes is not None:
-                    embeddings = self.encode_image_bytes_embeddings(image_bytes)
-                else:
-                    image_path = _first_image_path(row, Path(record["source_root"]))
-                    if image_path is None:
-                        continue
-                    embeddings = self.encode_image_path_embeddings(str(image_path))
-                features.append(self._router_features(embeddings)[0])
-                labels.append(domain)
-
-        if len(set(labels)) < 2:
-            raise ValueError("Router training needs at least two domains")
-
-        X = np.stack(features)
-        y = np.array(labels)
-        router = LogisticRegression(
-            C=1.0,
-            class_weight="balanced",
-            max_iter=1000,
-            random_state=42,
-        )
-        router.fit(X, y)
-        train_accuracy = accuracy_score(y, router.predict(X))
-        print(f"Router train accuracy: {train_accuracy:.4f} on {len(y)} examples")
-        self.router = router
-        self.router_classes_ = router.classes_
-
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -252,26 +125,15 @@ def parse_args():
     parser.add_argument(
         "--expert_root",
         type=Path,
-        default=EXPERT_ROOT,
+        default=None,
+        required=True,
         help="Directory containing *_expert checkpoint folders.",
     )
     parser.add_argument(
         "--fusion",
-        choices=["concat", "mean", "routed_concat", "routed_mean"],
+        choices=["concat", "mean"],
         default="concat",
         help="How to fuse normalized expert embeddings.",
-    )
-    parser.add_argument(
-        "--router_manifest_root",
-        type=Path,
-        default=DEFAULT_MANIFEST_ROOT,
-        help="MultiMediset manifest root used to train the domain router.",
-    )
-    parser.add_argument(
-        "--router_train_examples_per_domain",
-        type=int,
-        default=500,
-        help="Number of train_model manifest records sampled per domain to train the router.",
     )
     parser.add_argument(
         "--output_csv",
@@ -322,8 +184,6 @@ def build_model_name(args, expert_paths):
         cap_parts.append(f"test{args.max_test_examples}")
     if args.mlp_folds is not None:
         cap_parts.append(f"k{args.mlp_folds}")
-    if args.fusion.startswith("routed_"):
-        cap_parts.append(f"router{args.router_train_examples_per_domain}")
     cap_suffix = "_".join(cap_parts) if cap_parts else "full"
     expert_suffix = "_".join(path.name for path in expert_paths)
     return f"expert_mixture_{args.fusion}_{cap_suffix}_{expert_suffix}"
@@ -331,10 +191,7 @@ def build_model_name(args, expert_paths):
 
 def main():
     args = parse_args()
-    _add_eval_pipeline_to_path()
     apply_example_caps(args.domains, args.max_train_examples, args.max_test_examples)
-
-    from evaluation_pipeline.build_benchmarks import build_benchmarks_from_names
 
     expert_paths = [args.expert_root / expert_name for expert_name in args.experts]
     missing = [str(path) for path in expert_paths if not path.exists()]
@@ -343,11 +200,6 @@ def main():
 
     model_name = build_model_name(args, expert_paths)
     mixture = FrozenExpertMixture(expert_paths=expert_paths, fusion=args.fusion)
-    if args.fusion.startswith("routed_"):
-        mixture.fit_router(
-            manifest_root=args.router_manifest_root,
-            examples_per_domain=args.router_train_examples_per_domain,
-        )
     benchmarks = build_benchmarks_from_names(args.domains)
     args.output_csv.parent.mkdir(parents=True, exist_ok=True)
 

@@ -20,8 +20,9 @@ Usage:
 import argparse
 import csv
 import os
-import sys
 from pathlib import Path
+
+from multimeditron.experts.evaluation_pipeline.build_benchmarks import build_benchmarks_from_names
 
 import torch
 import torch.nn.functional as F
@@ -31,20 +32,6 @@ from sklearn.metrics import (
     f1_score,
 )
 from transformers import AutoTokenizer, VisionTextDualEncoderModel
-
-
-# ---------------------------------------------------------------------------
-# Path setup (mirrors evaluate_expert_baselines.py)
-# ---------------------------------------------------------------------------
-
-
-def _add_eval_pipeline_to_path():
-    eval_dir = Path(__file__).resolve().parent / "evaluation_pipeline"
-    if str(eval_dir) not in sys.path:
-        sys.path.insert(0, str(eval_dir))
-    src_dir = Path(__file__).resolve().parents[2]
-    if str(src_dir) not in sys.path:
-        sys.path.insert(0, str(src_dir))
 
 
 # ---------------------------------------------------------------------------
@@ -399,15 +386,11 @@ def parse_args():
 
 def main():
     args = parse_args()
-    _add_eval_pipeline_to_path()
 
-    # Apply test size caps via env vars (same mechanism as the MLP eval)
     if args.max_test_examples is not None:
         for domain in args.domains:
             _, test_env = SMOKE_LIMIT_ENV[domain]
             os.environ[test_env] = str(args.max_test_examples)
-
-    from evaluation_pipeline.build_benchmarks import build_benchmarks_from_names
 
     benchmarks = build_benchmarks_from_names(args.domains)
 

@@ -250,7 +250,6 @@ CLAUDE.md
 testing_scripts/
 testing_logs/
 old_files/
-.claude/
 docs/
 src/multimeditron/experts/evaluation_pipeline/run_test.sh
 src/multimeditron/experts/evaluation_pipeline/run_xray_benchmark.py
@@ -264,3 +263,6 @@ src/multimeditron/experts/models/
 
 # Large derived data — not in git
 benchmark_splits/
+
+# Personal analysis/review notes
+analysis/

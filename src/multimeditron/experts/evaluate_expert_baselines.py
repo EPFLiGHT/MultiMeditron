@@ -5,11 +5,12 @@
 import argparse
 import csv
 import os
-import sys
 from pathlib import Path
 
+from multimeditron.experts.evaluation_pipeline.build_benchmarks import build_benchmarks_from_names
 
-EXPERT_ROOT = Path("/lightscratch/users/nemo/models")
+
+EXPERT_ROOT = None
 DEFAULT_RESULTS_PATH = Path(
     "src/multimeditron/experts/logs/expert_baseline_results.csv"
 )
@@ -31,15 +32,6 @@ SMOKE_LIMIT_ENV = {
     "ultrasound": ("ULTRASOUND_MAX_TRAIN_EXAMPLES", "ULTRASOUND_MAX_TEST_EXAMPLES"),
     "xray": ("XRAY_MAX_TRAIN_EXAMPLES", "XRAY_MAX_TEST_EXAMPLES"),
 }
-
-
-def _add_eval_pipeline_to_path():
-    eval_dir = Path(__file__).resolve().parent / "evaluation_pipeline"
-    if str(eval_dir) not in sys.path:
-        sys.path.insert(0, str(eval_dir))
-    src_dir = Path(__file__).resolve().parents[2]
-    if str(src_dir) not in sys.path:
-        sys.path.insert(0, str(src_dir))
 
 
 def parse_args():
@@ -102,11 +94,7 @@ def apply_example_caps(domains, max_train, max_test):
 
 def main():
     args = parse_args()
-    _add_eval_pipeline_to_path()
     apply_example_caps(args.domains, args.max_train_examples, args.max_test_examples)
-
-    from evaluation_pipeline.build_benchmarks import build_benchmarks_from_names
-
     benchmarks = build_benchmarks_from_names(args.domains)
     args.output_csv.parent.mkdir(parents=True, exist_ok=True)
 

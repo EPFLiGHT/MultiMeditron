@@ -1,4 +1,5 @@
 import json
+import os
 import random
 from functools import lru_cache
 from pathlib import Path
@@ -7,13 +8,21 @@ import torch
 from datasets import DatasetDict, load_from_disk
 from tqdm import tqdm
 
-from load_from_clip import encode_img, encode_img_bytes
+from ..load_from_clip import encode_img, encode_img_bytes
 
 from .datasets import BenchmarkDataset, DEFAULT_CACHE_ROOT
 
 
 REPO_ROOT = Path(__file__).resolve().parents[5]
 DEFAULT_MANIFEST_ROOT = REPO_ROOT / "benchmark_splits" / "multimediset"
+
+
+def _resolve_source_root(source_root: str) -> str:
+    """Re-prefix source_root with MULTIMEDISET_ROOT if set, keeping only the dataset name."""
+    multimediset_root = os.environ.get("MULTIMEDISET_ROOT")
+    if multimediset_root:
+        return str(Path(multimediset_root) / Path(source_root).name)
+    return source_root
 
 
 def read_manifest(manifest_path):
@@ -84,7 +93,7 @@ def _read_jsonl(path):
 
 
 def _get_source_row(record):
-    source_dataset = _load_source_dataset(record["source_root"])
+    source_dataset = _load_source_dataset(_resolve_source_root(record["source_root"]))
     split = record["source_split"]
     if split not in source_dataset:
         raise KeyError(f"Split {split!r} not found in {record['source_root']}")
@@ -138,7 +147,7 @@ def encode_manifest_record(model, record, row=None):
     if image_bytes is not None:
         return encode_img_bytes(model, image_bytes)
 
-    image_path = _first_image_path(row, Path(record["source_root"]))
+    image_path = _first_image_path(row, Path(_resolve_source_root(record["source_root"])))
     if image_path is None:
         raise FileNotFoundError(
             "Could not resolve image for manifest record "

@@ -7,7 +7,7 @@ from sklearn.utils.class_weight import compute_class_weight
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
-from load_from_clip import encode_img
+from ..load_from_clip import encode_img
 
 
 DEFAULT_CACHE_ROOT = Path(__file__).resolve().parents[1] / "embeddings"
@@ -28,9 +28,6 @@ class BenchmarkDataset(Dataset):
 
 
 def resolve_image_path(raw_path, dataset_root):
-    if raw_path.startswith("/mloscratch/"):
-        raw_path = raw_path.replace("/mloscratch/", "/lightscratch/", 1)
-
     path = Path(raw_path)
     if path.is_absolute():
         return path

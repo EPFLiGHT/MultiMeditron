@@ -24,7 +24,7 @@ Input YAML format (see all_medical_datasets_config.yaml for an example):
     common_config:
       vision_model_name: openai/clip-vit-base-patch32
       text_model_name: FacebookAI/roberta-base
-      cache_dir: /lightscratch/users/cljordan/multimeditron/cache
+      cache_dir: ""  # set to your local cache directory
       fp16: true
       bf16: false
       ...
@@ -75,7 +75,7 @@ class BaseConfig(BaseModel):
 class CommonConfig(BaseModel):
     vision_model_name: str = "openai/clip-vit-base-patch32"
     text_model_name: str = "FacebookAI/roberta-base"
-    cache_dir: str = "/lightscratch/users/cljordan/multimeditron/cache"
+    cache_dir: str = ""
     fp16: bool = True
     bf16: bool = False
     do_train: bool = True

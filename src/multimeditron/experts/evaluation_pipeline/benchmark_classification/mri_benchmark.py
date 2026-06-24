@@ -1,9 +1,9 @@
-import json
+import os
 from pathlib import Path
 
 from .base import ClassificationBenchmark
 from .datasets import load_or_build_dataset
-from load_from_clip import encode_img
+from ..load_from_clip import encode_img
 
 
 class MRIBenchmark(ClassificationBenchmark):
@@ -12,12 +12,16 @@ class MRIBenchmark(ClassificationBenchmark):
     Source: Brain Tumor MRI Dataset (Masoud Nickparvar)
     https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset
 
-    Uses the pre-defined train/test split from the original dataset
-    (5712 train / 1311 test). No random split is applied.
+    Reads directly from the dataset's folder structure — no preprocessing step needed.
+    Set MRI_DATASET_ROOT to the images/ folder (which must contain train/ and test/
+    subdirectories, each with one subfolder per class), or pass dataset_root explicitly.
 
-    Preprocessing: run
-        python scripts/dataset_processing/mri_expert/process_brain_tumor.py
-            --output_dir /lightscratch/users/cljordan/datasets/brain_tumor_mri
+    Expected layout:
+        <root>/
+            train/
+                glioma/      meningioma/      no_tumor/      pituitary/
+            test/
+                glioma/      meningioma/      no_tumor/      pituitary/
     """
 
     name = "mri"
@@ -26,17 +30,11 @@ class MRIBenchmark(ClassificationBenchmark):
     labels = ["glioma", "meningioma", "no_tumor", "pituitary"]
     label_to_idx = {label: idx for idx, label in enumerate(labels)}
 
-    default_train_jsonl = Path(
-        "/lightscratch/users/cljordan/datasets/brain_tumor_mri/brain_tumor_train.jsonl"
-    )
-    default_test_jsonl = Path(
-        "/lightscratch/users/cljordan/datasets/brain_tumor_mri/brain_tumor_test.jsonl"
-    )
+    _IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png"}
 
     def __init__(
         self,
-        train_jsonl=None,
-        test_jsonl=None,
+        dataset_root=None,
         cache_root=None,
         max_train_examples=None,
         max_test_examples=None,
@@ -46,56 +44,53 @@ class MRIBenchmark(ClassificationBenchmark):
             max_train_examples=max_train_examples,
             max_test_examples=max_test_examples,
         )
-        self.train_jsonl = (
-            Path(train_jsonl) if train_jsonl is not None else self.default_train_jsonl
-        )
-        self.test_jsonl = (
-            Path(test_jsonl) if test_jsonl is not None else self.default_test_jsonl
-        )
+        env_root = os.environ.get("MRI_DATASET_ROOT")
+        if dataset_root is not None:
+            self.dataset_root = Path(dataset_root)
+        elif env_root is not None:
+            self.dataset_root = Path(env_root)
+        else:
+            raise ValueError(
+                "MRIBenchmark requires a dataset root. "
+                "Set the MRI_DATASET_ROOT environment variable or pass dataset_root explicitly.\n"
+                "Expected layout: <root>/train/{glioma,meningioma,no_tumor,pituitary}/*.jpg"
+            )
 
-    def _read_jsonl(self, path, split_name):
-        examples = []
-        dropped_label = 0
-        dropped_image = 0
-
-        with path.open("r", encoding="utf-8") as f:
-            for line in f:
-                record = json.loads(line)
-                label = record.get("label") or record.get("text", "").strip()
-                if label not in self.label_to_idx:
-                    dropped_label += 1
-                    continue
-                image_path = Path(record["modalities"][0]["value"])
-                if not image_path.exists():
-                    dropped_image += 1
-                    continue
-                record["label"] = label
-                examples.append(record)
-
-        print(
-            f"[{split_name}] kept {len(examples)}, "
-            f"dropped {dropped_label} unknown-label, {dropped_image} missing-image"
-        )
-        return examples
+    def _scan_split(self, split_name):
+        """Return (examples, int_labels) by scanning <dataset_root>/<split_name>/<label>/."""
+        split_dir = self.dataset_root / split_name
+        examples, int_labels = [], []
+        for label in self.labels:
+            class_dir = split_dir / label
+            if not class_dir.is_dir():
+                continue
+            for img_path in sorted(class_dir.glob("*")):
+                if img_path.suffix.lower() in self._IMAGE_SUFFIXES:
+                    examples.append({"image_path": str(img_path), "label_idx": self.label_to_idx[label]})
+                    int_labels.append(self.label_to_idx[label])
+        if not examples:
+            raise FileNotFoundError(
+                f"No images found under {split_dir}. "
+                "Check that MRI_DATASET_ROOT points to the folder containing train/ and test/."
+            )
+        return examples, int_labels
 
     def examples_to_labels(self, examples):
-        return [self.label_to_idx[ex["label"]] for ex in examples]
+        return [ex["label_idx"] for ex in examples]
 
     def embed_example(self, example, _label, model, _dataset_root):
-        return encode_img(model, str(example["modalities"][0]["value"]))
+        return encode_img(model, example["image_path"])
 
     def build_train_dataset(self, model, model_name, use_cache=True):
-        examples = self._read_jsonl(self.train_jsonl, "mri-train")
-        examples = self._sample_examples_random(
-            examples, self.max_train_examples, seed=42
-        )
+        examples, labels = self._scan_split("train")
+        examples = self._sample_examples_random(examples, self.max_train_examples, seed=42)
         labels = self.examples_to_labels(examples)
         return load_or_build_dataset(
             cache_prefix=f"{model_name}_{self.name}_train",
             examples=examples,
             labels=labels,
             model=model,
-            dataset_root=self.train_jsonl.parent,
+            dataset_root=self.dataset_root,
             cache_root=self.cache_root,
             use_cache=use_cache,
             desc="mri-train",
@@ -103,17 +98,15 @@ class MRIBenchmark(ClassificationBenchmark):
         )
 
     def build_test_dataset(self, model, model_name, use_cache=True):
-        examples = self._read_jsonl(self.test_jsonl, "mri-test")
-        examples = self._sample_examples_random(
-            examples, self.max_test_examples, seed=43
-        )
+        examples, labels = self._scan_split("test")
+        examples = self._sample_examples_random(examples, self.max_test_examples, seed=43)
         labels = self.examples_to_labels(examples)
         return load_or_build_dataset(
             cache_prefix=f"{model_name}_{self.name}_test",
             examples=examples,
             labels=labels,
             model=model,
-            dataset_root=self.test_jsonl.parent,
+            dataset_root=self.dataset_root,
             cache_root=self.cache_root,
             use_cache=use_cache,
             desc="mri-test",

@@ -1,9 +1,11 @@
 #!/usr/bin/env python
-"""Merge compatible expert checkpoints by averaging their weights."""
+"""Merge compatible expert checkpoints by averaging their weights, then evaluate the merged model on classification benchmarks."""
 
 
 import argparse
+import csv
 import json
+import os
 import shutil
 from contextlib import ExitStack
 from pathlib import Path
@@ -12,8 +14,10 @@ import torch
 from safetensors import safe_open
 from safetensors.torch import save_file
 
+from multimeditron.experts.evaluation_pipeline.build_benchmarks import build_benchmarks_from_names
 
-EXPERT_ROOT = Path("/lightscratch/users/nemo/models")
+
+EXPERT_ROOT = None
 DEFAULT_EXPERTS = (
     "CT_expert",
     "MRI_expert",
@@ -22,17 +26,28 @@ DEFAULT_EXPERTS = (
     "US_expert",
     "XR_expert",
 )
+DEFAULT_DOMAINS = ["ct", "mri", "ophthalmology", "skin", "ultrasound", "xray"]
+DEFAULT_RESULTS_PATH = Path("src/multimeditron/experts/logs/expert_soup_results.csv")
 HF_WEIGHT_FILENAMES = {"model.safetensors", "pytorch_model.bin"}
+
+SMOKE_LIMIT_ENV = {
+    "ct": ("CT_MAX_TRAIN_EXAMPLES", "CT_MAX_TEST_EXAMPLES"),
+    "mri": ("MRI_MAX_TRAIN_EXAMPLES", "MRI_MAX_TEST_EXAMPLES"),
+    "skin": ("SKIN_INTEGRATED_MAX_TRAIN_EXAMPLES", "SKIN_INTEGRATED_MAX_TEST_EXAMPLES"),
+    "ophthalmology": ("OPHTH_MAX_TRAIN_EXAMPLES", "OPHTH_MAX_TEST_EXAMPLES"),
+    "ultrasound": ("ULTRASOUND_MAX_TRAIN_EXAMPLES", "ULTRASOUND_MAX_TEST_EXAMPLES"),
+    "xray": ("XRAY_MAX_TRAIN_EXAMPLES", "XRAY_MAX_TEST_EXAMPLES"),
+}
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Average weights from compatible expert checkpoints."
+        description="Average weights from compatible expert checkpoints, then evaluate on classification benchmarks."
     )
     parser.add_argument(
         "--expert_root",
         type=Path,
-        default=EXPERT_ROOT,
+        required=True,
         help="Directory containing expert checkpoint folders.",
     )
     parser.add_argument(
@@ -63,6 +78,36 @@ def parse_args():
         "--overwrite",
         action="store_true",
         help="Allow writing into an existing non-empty output directory.",
+    )
+    parser.add_argument(
+        "--domains",
+        nargs="+",
+        default=DEFAULT_DOMAINS,
+        choices=DEFAULT_DOMAINS,
+        help="Benchmarks to evaluate the merged model on.",
+    )
+    parser.add_argument(
+        "--output_csv",
+        type=Path,
+        default=DEFAULT_RESULTS_PATH,
+        help="Where to write benchmark scores.",
+    )
+    parser.add_argument(
+        "--no_cache",
+        action="store_true",
+        help="Recompute embeddings instead of reusing benchmark cache files.",
+    )
+    parser.add_argument(
+        "--max_train_examples",
+        type=int,
+        default=None,
+        help="Optional per-domain train cap for a quick smoke test (caps the MLP probe training set).",
+    )
+    parser.add_argument(
+        "--max_test_examples",
+        type=int,
+        default=None,
+        help="Optional per-domain test cap for a quick smoke test.",
     )
     return parser.parse_args()
 
@@ -216,6 +261,39 @@ def main():
     for expert, weight in zip(args.experts, merge_weights.tolist(), strict=True):
         print(f"  {expert}: {weight:.6f}")
     print(f"Wrote merged checkpoint to {output_dir}")
+
+    for domain in args.domains:
+        train_env, test_env = SMOKE_LIMIT_ENV[domain]
+        if args.max_train_examples is not None:
+            os.environ[train_env] = str(args.max_train_examples)
+        if args.max_test_examples is not None:
+            os.environ[test_env] = str(args.max_test_examples)
+
+    benchmarks = build_benchmarks_from_names(args.domains)
+    rows = []
+    for domain, benchmark in zip(args.domains, benchmarks):
+        print(f"Evaluating merged model on {domain} ({benchmark.__class__.__name__})")
+        result = benchmark.evaluate(str(output_dir), use_cache=not args.no_cache)
+        print(f"{domain}: {result}")
+        rows.append(
+            {
+                "domain": domain,
+                "benchmark": benchmark.__class__.__name__,
+                "model": str(output_dir),
+                **result,
+            }
+        )
+
+    args.output_csv.parent.mkdir(parents=True, exist_ok=True)
+    fixed_fields = ["domain", "benchmark", "model"]
+    seen = dict.fromkeys(k for row in rows for k in row if k not in fixed_fields)
+    with args.output_csv.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(
+            f, fieldnames=fixed_fields + list(seen), extrasaction="ignore", restval=""
+        )
+        writer.writeheader()
+        writer.writerows(rows)
+    print(f"Wrote results to {args.output_csv}")
 
 
 if __name__ == "__main__":

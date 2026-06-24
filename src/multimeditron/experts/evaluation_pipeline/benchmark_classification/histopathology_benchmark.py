@@ -10,7 +10,7 @@ from .multimediset_manifest import DEFAULT_MANIFEST_ROOT, load_or_build_manifest
 # benchmark_splits/multimediset/histopathology/split_summary.json.
 # The num_classes here is a safe upper bound; actual count depends on the
 # manifest (run build_histopathology_splits.py to generate it).
-_EXPECTED_NUM_CLASSES = 33
+_EXPECTED_NUM_CLASSES = 31
 
 
 class HistopathologyBenchmark(ClassificationBenchmark):

@@ -26,6 +26,7 @@ Each benchmark produces four JSONL split files:
 
 import argparse
 import json
+import os
 import random
 import sys
 from collections import Counter, defaultdict
@@ -35,13 +36,22 @@ from datasets import load_from_disk
 from tqdm import tqdm
 
 RAWPATH_JSONL = Path(
-    "/lightscratch/users/nemo/datasets/CT_data/CT2D-glob/old/CT2D-glob-rawpath2905.jsonl"
+    os.environ.get(
+        "CT2D_RAWPATH_JSONL",
+        "/lightscratch/users/nemo/datasets/CT_data/CT2D-glob/old/CT2D-glob-rawpath2905.jsonl",
+    )
 )
-HF_DATASET_ROOT = Path("/lightscratch/datasets/MultiMediset/general_purpose/CT2D-glob")
+HF_DATASET_ROOT = Path(
+    os.environ.get(
+        "CT2D_HF_DATASET_ROOT",
+        "/lightscratch/datasets/MultiMediset/general_purpose/CT2D-glob",
+    )
+)
 DEFAULT_HISTO_OUTPUT_DIR = Path("benchmark_splits/multimediset/histopathology")
 DEFAULT_CT_OUTPUT_DIR = Path("benchmark_splits/multimediset/ct")
 
-SPLIT_NAMES = ("train_model", "mlp_train", "benchmark_eval", "holdout_test")
+SPLIT_NAMES = ("train_model", "mlp_train", "benchmark_eval")
+SPLIT_NAMES_WITH_HOLDOUT = SPLIT_NAMES + ("holdout_test",)
 
 
 # ---------------------------------------------------------------------------
@@ -275,6 +285,7 @@ def build_splits(
     seed,
     max_per_class,
     patient_index=None,
+    holdout=False,
 ):
     all_labels = sorted(set(text_to_label.values()))
     label_to_id = {label: idx for idx, label in enumerate(all_labels)}
@@ -282,30 +293,39 @@ def build_splits(
     for label, idx in label_to_id.items():
         print(f"    [{idx:02d}] {label}")
 
+    split_names = SPLIT_NAMES_WITH_HOLDOUT if holdout else SPLIT_NAMES
+
     ds = load_from_disk(str(hf_root))
 
     source_keys = set(ds.keys())
     if {"train", "test"}.issubset(source_keys):
-        plan_by_source = {
-            "train": [
-                ("train_model", 0.8),
-                ("mlp_train", 0.1),
-                ("benchmark_eval", 0.1),
-            ],
-            "test": [("holdout_test", 1.0)],
-        }
+        if holdout:
+            plan_by_source = {
+                "train": [("train_model", 0.8), ("mlp_train", 0.1), ("benchmark_eval", 0.1)],
+                "test": [("holdout_test", 1.0)],
+            }
+        else:
+            plan_by_source = {
+                "train": [("train_model", 0.8), ("mlp_train", 0.1)],
+                "test": [("benchmark_eval", 1.0)],
+            }
     else:
-        plan_by_source = {
-            s: [
+        if holdout:
+            source_plan = [
                 ("train_model", 0.7),
                 ("mlp_train", 0.1),
                 ("benchmark_eval", 0.1),
                 ("holdout_test", 0.1),
             ]
-            for s in sorted(source_keys)
-        }
+        else:
+            source_plan = [
+                ("train_model", 0.7),
+                ("mlp_train", 0.15),
+                ("benchmark_eval", 0.15),
+            ]
+        plan_by_source = {s: source_plan for s in sorted(source_keys)}
 
-    target_records = {split: [] for split in SPLIT_NAMES}
+    target_records = {split: [] for split in split_names}
 
     for source_split in sorted(ds.keys()):
         split_data = ds[source_split].select_columns(["text", "modalities"])
@@ -371,7 +391,7 @@ def build_splits(
             target_records[target_split].extend(split_records)
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    for split_name in SPLIT_NAMES:
+    for split_name in split_names:
         path = output_dir / f"{split_name}.jsonl"
         write_jsonl(path, target_records[split_name])
         print(
@@ -424,6 +444,16 @@ def parse_args():
         default="all",
         help="Which benchmark(s) to build (default: all).",
     )
+    parser.add_argument(
+        "--holdout",
+        action="store_true",
+        default=False,
+        help=(
+            "Generate a holdout_test.jsonl split in addition to the standard three. "
+            "When the source dataset has a dedicated test split it is used as-is; "
+            "otherwise 10 %% is carved from train."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -457,6 +487,7 @@ def main():
             seed=args.seed,
             max_per_class=args.max_per_class,
             patient_index=histo_patient_index,
+            holdout=args.holdout,
         )
         del histo_index, histo_patient_index
 
@@ -478,6 +509,7 @@ def main():
             seed=args.seed,
             max_per_class=args.max_per_class,
             patient_index=ct_volume_index,
+            holdout=args.holdout,
         )
         del ct_index, ct_volume_index
 

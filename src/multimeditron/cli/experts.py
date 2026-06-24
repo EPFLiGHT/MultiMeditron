@@ -11,8 +11,8 @@ def train_expert(config_file):
     Arguments:
         config_file: Path to the YAML configuration file.
     """
-    from multimeditron.experts.train_clip import main as train_clip_main
-    train_clip_main(config_file)
+    from multimeditron.experts.train_multidomain_clip import main as train_multidomain_main
+    train_multidomain_main(config_file)
 
 
 @main_cli.command(epilog=EPILOG)
@@ -47,9 +47,12 @@ def batch_train_expert(config_files):
             processes.append(process)
             print(f"Started training for {config_file}, logging to {log_file}")
 
-    for process in processes:
-        process.wait()
-        print(f"Process {process.pid} finished.")
+    exit_codes = [p.wait() for p in processes]
+    for process, code in zip(processes, exit_codes):
+        if code != 0:
+            print(f"Process {process.pid} FAILED (exit code {code}).")
+        else:
+            print(f"Process {process.pid} finished.")
 
 
 @main_cli.command(epilog=EPILOG)
@@ -99,9 +102,12 @@ def batch_train_multidomain_optuna(config_files):
             processes.append(process)
             print(f"Started training for {config_file}, logging to {log_file}")
 
-    for process in processes:
-        process.wait()
-        print(f"Process {process.pid} finished.")
+    exit_codes = [p.wait() for p in processes]
+    for process, code in zip(processes, exit_codes):
+        if code != 0:
+            print(f"Process {process.pid} FAILED (exit code {code}).")
+        else:
+            print(f"Process {process.pid} finished.")
 
 
 @main_cli.command(epilog=EPILOG)
@@ -112,8 +118,8 @@ def batch_train_multidomain_optuna(config_files):
     multiple=True,
     help=(
         "Benchmark names to run (repeatable). Default: all available. "
-        "Known names: brain_tumor_mri, ct, histopathology, "
-        "ophthalmology, scin, skin, ultrasound, xray."
+        "Known names: ct, histopathology, mri, "
+        "ophthalmology, skin, ultrasound, xray."
     ),
 )
 @click.option(
