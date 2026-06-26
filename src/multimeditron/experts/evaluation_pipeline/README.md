@@ -126,10 +126,7 @@ images_*/images/*.png     # sharded structure created by kagglehub
 ### 4. Run a full evaluation
 
 ```python
-import sys
-sys.path.insert(0, "src/multimeditron/experts/evaluation_pipeline")
-
-from build_benchmarks import build_benchmarks_from_names
+from multimeditron.experts.evaluation_pipeline.build_benchmarks import build_benchmarks_from_names
 
 # bench.evaluate() takes a path (it loads the model internally)
 for bench in build_benchmarks_from_names(["ct", "mri", "skin", "ophthalmology", "ultrasound", "xray", "histopathology"]):
@@ -155,7 +152,7 @@ These are the benchmarks integrated into `train_multidomain_clip.py` via Optuna.
 ### Entry point: `build_benchmarks.py`
 
 ```python
-from evaluation_pipeline.build_benchmarks import build_benchmarks_from_names
+from multimeditron.experts.evaluation_pipeline.build_benchmarks import build_benchmarks_from_names
 
 benchmarks = build_benchmarks_from_names(["ct", "mri", "skin", "ophthalmology", "ultrasound", "xray"])
 for bench in benchmarks:
@@ -311,6 +308,8 @@ benchmark_selection:
 
 Standalone scripts, not integrated into the training loop.
 
+> Run these from inside `src/multimeditron/experts/evaluation_pipeline/`.
+
 ### 4-way forced-choice retrieval
 
 ```bash
@@ -361,7 +360,7 @@ Reports Recall@1 broken down by Fitzpatrick skin type: light (FST 1–2), medium
 ## Model loading (`load_from_clip.py`)
 
 ```python
-from load_from_clip import load_model
+from multimeditron.experts.evaluation_pipeline.load_from_clip import load_model
 
 model = load_model("openai/clip-vit-base-patch32")   # vanilla CLIP
 model = load_model("biomedclip")                      # BiomedCLIP
