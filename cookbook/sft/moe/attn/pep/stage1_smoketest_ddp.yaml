@@ -1,0 +1,69 @@
+# Smoke test: Stage 1 ALIGNMENT, plain DDP (no DeepSpeed), 1 node (4 GPUs), 100 steps
+# Stage 1 only trains projectors + CrossAttn (~213M params, ~23 GB total memory) — DDP fits.
+# Use this to measure ZeRO communication overhead: compare samples/sec here vs zero1/zero2.
+
+base_llm: /capstor/store/cscs/swissai/a127/meditron/hf_cache/hub/models--OpenMeditron--Meditron3-8B/snapshots/15914bcb040cd1a4f263afcd85b84f09ad2efd95
+base_model: null
+resume_from_checkpoint: false
+attachment_token: <|reserved_special_token_0|>
+tokenizer_type: llama
+token_size: 4096
+
+loaders:
+  - loader_type: raw-image
+    modality_type: image
+
+modalities:
+  - model_type: moe_meditron_clip_pep
+    image_processor: ${REPO_DIR}/models/CLIP/clip-vit-base-patch32
+    hidden_size: 4096
+    expert_clip_names:
+      - ClosedMeditron/MedExpert-CT
+      - ClosedMeditron/MedExpert-MRI
+      - ClosedMeditron/MedExpert-Ultrasound
+      - ClosedMeditron/MedExpert-Xray
+      - ClosedMeditron/clip-vit-base-patch32
+      - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/OphthalmologyExpert
+      - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/SkinExpert
+    generalist_idx: -1
+    gating_path: ClosedMeditron/MultiMeditron-Gating
+    fusion_method: cross_attn
+    top_k_experts: 5
+
+training_mode: ALIGNMENT
+
+datasets:
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_pretrain_cleaned
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/pixmo_anything
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/pixmo_cap
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted_alignment
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/eye_dataset_converted
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/skin_dataset_converted
+
+training_args:
+  output_dir: /iopsstor/scratch/cscs/${USER}/multimeditron/checkpoints/smoketest/stage1-ddp
+  run_name: smoke-7exp-stage1-ddp
+  dataloader_num_workers: 16
+  dataloader_prefetch_factor: 4
+  remove_unused_columns: false
+  ddp_find_unused_parameters: false
+  learning_rate: 1.0e-5
+  bf16: true
+  per_device_train_batch_size: 8
+  gradient_accumulation_steps: 4
+  max_steps: 100
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs:
+    use_reentrant: true
+  save_strategy: "no"
+  max_grad_norm: 1.0
+  dataloader_pin_memory: true
+  accelerator_config:
+    dispatch_batches: false
+  lr_scheduler_type: cosine_with_min_lr
+  lr_scheduler_kwargs:
+    min_lr: 1.0e-6
+  report_to: wandb
+  logging_steps: 1
+  weight_decay: 0.01
+  # No deepspeed key — plain DDP

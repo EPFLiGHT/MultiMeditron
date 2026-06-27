@@ -219,3 +219,10 @@ __marimo__/
 
 # Hide template files
 **/gitignored-*
+
+# Core dumps
+core_*
+
+# Editor / assistant chat-log exports accidentally written to the repo
+*.json.json
+subagentlogs.md

@@ -1,0 +1,52 @@
+# Smoke test: END2END, no DeepSpeed, SigLIP2-224 + MLP + SmolLM2-360M, 100 steps.
+# MultiMeditron variant of haaissa phase2 — no-DS / native DDP, workers=16.
+
+base_llm: /iopsstor/scratch/cscs/haaissa/hf/hub/models--HuggingFaceTB--SmolLM2-360M-Instruct/snapshots/a10cc1512eabd3dde888204e902eca88bddb4951
+base_model: null
+attachment_token: "<|image|>"
+tokenizer_type: qwen3
+token_size: 960
+seed: 42
+
+truncation: true
+max_sequence_length: 2048
+
+loaders:
+  - loader_type: fs-image
+    modality_type: image
+    base_path: /iopsstor/scratch/cscs/haaissa/cauldron_data/images/
+
+modalities:
+  - model_type: meditron_clip
+    clip_name: /iopsstor/scratch/cscs/haaissa/hf/hub/models--google--siglip2-base-patch16-512/snapshots/a89f5c5093f902bf39d3cd4d81d2c09867f0724b
+    hidden_size: 960
+
+training_mode: END2END
+
+datasets:
+  - packed_path: /iopsstor/scratch/cscs/haaissa/cauldron_data/expert_cauldron_formatted.jsonl
+
+training_args:
+  output_dir: /iopsstor/scratch/cscs/surech/multimeditron/checkpoints/freeze/single_clip/smoketest-e2e-nodeepspeed/
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  max_steps: 100
+  learning_rate: 5.0e-5
+  max_grad_norm: 1.0
+  weight_decay: 0.0
+  warmup_ratio: 0.03
+  lr_scheduler_type: "cosine"
+  bf16: true
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs:
+    use_reentrant: false
+  ddp_find_unused_parameters: true
+  remove_unused_columns: false
+  dataloader_num_workers: 16
+  dataloader_prefetch_factor: 4
+  save_strategy: "no"
+  run_name: smoketest-e2e-nodeepspeed-smollm360m-siglip2-224
+  accelerator_config:
+    dispatch_batches: false
+  report_to: "wandb"
+  logging_steps: 1

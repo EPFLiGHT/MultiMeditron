@@ -1,0 +1,76 @@
+# Smoke test: Stage 2 END2END, ZeRO-2, 2 nodes (8 GPUs), 100 steps
+# base_model: null — for throughput/memory benchmarking only, not a real trained model
+# NOTE: dataloader_num_workers=16 intentionally elevated (production=2) to isolate GPU bottleneck
+
+base_llm: /capstor/store/cscs/swissai/a127/meditron/hf_cache/hub/models--OpenMeditron--Meditron3-8B/snapshots/15914bcb040cd1a4f263afcd85b84f09ad2efd95
+base_model: null
+resume_from_checkpoint: false
+attachment_token: <|reserved_special_token_0|>
+tokenizer_type: llama
+token_size: 4096
+truncation: true
+max_sequence_length: 4096
+
+loaders:
+  - loader_type: raw-image
+    modality_type: image
+
+modalities:
+  - model_type: moe_meditron_clip_pep
+    image_processor: ${REPO_DIR}/models/CLIP/clip-vit-base-patch32
+    hidden_size: 4096
+    expert_clip_names:
+      - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-CT
+      - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-MRI
+      - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/UltraSoundCLIP/checkpoint-4350
+      - ${REPO_DIR}/models/CLIP/ClosedMeditron/MedExpert-Xray
+      - /capstor/store/cscs/swissai/a127/meditron/models/openai/clip-vit-base-patch32
+      - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/OphthalmologyExpert
+      - /capstor/store/cscs/swissai/a127/meditron/models/CLIP/SkinExpert
+    generalist_idx: -1
+    gating_path: ${REPO_DIR}/models/CLIP/MultiMeditron-Gating
+    fusion_method: cross_attn
+    top_k_experts: 3
+
+training_mode: END2END
+
+datasets:
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/BUSI
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/COVID_US
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/ct2
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/iu_xray
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/PMC_VQA_FULL
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/llava_instruct
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_1_formatted
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/medtrinity_conversations_2_formatted
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/image_mammoth
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/eye_dataset_converted
+  - packed_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/skin_dataset_converted
+
+training_args:
+  output_dir: /iopsstor/scratch/cscs/${USER}/multimeditron/checkpoints/smoketest/stage2-zero2
+  run_name: smoke-7exp-stage2-zero2
+  dataloader_num_workers: 16
+  dataloader_prefetch_factor: 16
+  remove_unused_columns: false
+  ddp_find_unused_parameters: false
+  learning_rate: 1.0e-5
+  bf16: true
+  per_device_train_batch_size: 8
+  gradient_accumulation_steps: 2
+  max_steps: 100
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs:
+    use_reentrant: true
+  save_strategy: "no"
+  max_grad_norm: 1.0
+  deepspeed: ${REPO_DIR}/config/deepspeed_zero2.json
+  dataloader_pin_memory: true
+  accelerator_config:
+    dispatch_batches: false
+  lr_scheduler_type: cosine_with_min_lr
+  lr_scheduler_kwargs:
+    min_lr: 1.0e-6
+  report_to: wandb
+  logging_steps: 1
+  weight_decay: 0.01
