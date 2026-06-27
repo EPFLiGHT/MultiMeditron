@@ -211,3 +211,17 @@ Finally launch the training by running this command:
 .. code-block:: bash
 
    sbatch training.sh
+
+
+Resuming from checkpoint
+------------------------
+
+To resume a training run from an existing checkpoint, update the YAML configuration with the following fields:
+
+.. code-block:: yaml
+
+    resume_from_checkpoint: /path/to/checkpoint-N
+    base_model: /path/to/checkpoint-N
+    wandb_run_id: <previous-run-id>  # optional, continues logging to the same WandB run
+
+Set ``resume_from_checkpoint`` to the full path of the checkpoint directory. Set ``base_model`` to the same checkpoint path so the model weights are loaded correctly. Optionally set ``wandb_run_id`` to the run ID of the previous WandB run to continue logging to the same dashboard.

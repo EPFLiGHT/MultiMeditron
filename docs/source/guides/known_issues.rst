@@ -41,3 +41,15 @@ You can get your `$UID` or `$GID` by connecting on the login node and running:
     id -u
     id -g
 
+
+envsubst breaks SLURM variables
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+On some HPC systems, ``envsubst`` substitutes all ``$VARIABLE`` references — including SLURM variables such as ``$SLURM_PROCID`` and ``$SLURM_JOB_NODELIST`` — to empty strings. This silently breaks launcher scripts and causes the training to hang.
+
+**Workaround**: use the training scripts directly with ``sbatch`` CLI overrides instead of piping through ``envsubst``. For example:
+
+.. code-block:: bash
+
+    sbatch --nodes 4 --time 06:00:00 sbatch_train.sh config.yaml
+

@@ -54,12 +54,70 @@ Each MoE configuration contains both alignment and end-to-end training stages.
 | MultiMeditron Apertus-8B BiomedCLIP         | 34.2 | 57.4        | 1.2              | 29.9            | 51.3      | 21.0          | 23.6          |
 | MultiMeditron LLaMA3.1-8B BiomedCLIP        | 36.6 | 55.7        | 3.4              | 29.5            | 48.1      | 22.4          | 24.5          |
 | MultiMeditron LLaMA3.1-8B CLIP              | 34.0 | 60.6        | 5.6              | 33.1            | 50.5      | 28.5          | 30.3          |
-| MultiMeditron LLaMA3.1-8B ATTN-PEP          | 29.6 | 59.1        | 1.5              | 30.3            | 51.1      | 27.6          | 29.6          |
-| MultiMeditron LLaMA3.1-8B ATTN-SHARED       | 28.6 | 56.9        | 2.0              | 29.5            | 46.0      | 25.8          | 27.5          |
+| MultiMeditron LLaMA3.1-8B ATTN-PEP          | 29.6 | 59.1        | 1.5              | 30.3            | 51.1      | 27.6          | 29.6          || **MultiMeditron LLaMA3.1-8B ATTN-PEP (7-exp)** | **31.1** | **47.1** | –        | **24.4**¹       | **51.1**  | –             | **30.6**      || MultiMeditron LLaMA3.1-8B ATTN-SHARED       | 28.6 | 56.9        | 2.0              | 29.5            | 46.0      | 25.8          | 27.5          |
 | MultiMeditron LLaMA3.1-8B AVG-PEP           | 30.7 | 46.5        | 2.5              | 24.5            | 47.6      | 25.8          | 27.6          |
 | MultiMeditron LLaMA3.1-8B AVG-SHARED        | 29.7 | 46.8        | 2.6              | 24.2            | 49.5      | 23.7          | 25.8          |
 | Random                                      | 25.7 | 50.0        | –                | –               | 50.0      | –             | –             |
 
+> **Note:** The cookbook numbers above were produced from the **final checkpoint** of each model's Stage 2 training run (see path registry below).
+>
+> ¹ PathVQA overall for 7-expert regressed vs. the 5-expert. The yes/no regression (59.1 → 47.1%) is under investigation. GMAI and SLAKE improved with the addition of Ophthalmology and Skin experts.
+
+## 📍 Model Path Registry (CSCS Capstor)
+
+All published model checkpoints live on **capstor** at:
+```
+/capstor/store/cscs/swissai/a127/homes/meditron/models/multimeditron/
+```
+
+### End-to-end trained models (`unfreeze/`)
+
+| Cookbook Name | Capstor Path (relative to root) | Final Ckpt | Last Trained | Author |
+|---|---|---|---|---|
+| ATTN-PEP (5-expert) | `unfreeze/attn_pep/MultiMeditron-8B-attn-pep-end2end/` | **3063** | 2026-01-01 | mzhang |
+| ATTN-SHARED | `unfreeze/attn_shared/MultiMeditron-8B-attn-shared-end2end/` | **1532** | 2025-12-22 | theoschiff |
+| AVG-PEP | `unfreeze/avg_pep/MultiMeditron-8B-avg-pep-end2end/` | **1532** | 2025-12-22 | theoschiff |
+| AVG-SHARED | `unfreeze/avg_shared/MultiMeditron-8B-avg-shared-end2end/` | **1532** | 2025-12-22 | theoschiff |
+| CAT-PEP | `unfreeze/cat_pep/MultiMeditron-8B-cat-pep-end2end/` | **1532** | 2026-01-07 | theoschiff |
+| CAT-SHARED | `unfreeze/cat_shared/MultiMeditron-8B-cat-shared-end2end/` | **1532** | 2026-01-07 | theoschiff |
+| Qwen3-4B BiomedCLIP | `unfreeze/single_clip/MultiMeditron-Qwen-4B-End2End-BiomedCLIP/` | **3063** | 2026-01-27 | mzhang |
+| Apertus-8B BiomedCLIP | `unfreeze/single_clip/MultiMeditron-Apertus-8B-End2End-BiomedCLIP/` | **3063** | 2025-12-30 | mzhang |
+| LLaMA3.1-8B BiomedCLIP | `unfreeze/single_clip/MultiMeditron-Llama-8B-End2End-BiomedCLIP/` | **3063** | 2026-01-03 | mzhang |
+| LLaMA3.1-8B CLIP | `unfreeze/single_clip/MultiMeditron-Llama-8B-End2End-CLIP/` | **3063** | 2026-01-26 | mzhang |
+
+> `unfreeze/avg_pep/MultiMeditron-8B-avg-pep-full/` exists but is empty.
+>
+> None of these models have been published to HuggingFace Hub yet. The HF dataset is at [OpenMeditron/MultiMediset](https://huggingface.co/datasets/OpenMeditron/MultiMediset).
+
+### 7-expert ATTN-PEP (in-progress, iopsstor)
+
+| Model | Path | Latest Ckpt | Last Trained | Author |
+|---|---|---|---|---|
+| ATTN-PEP 7-expert | `/iopsstor/scratch/cscs/surech/multimeditron/checkpoints/unfreeze/attn_pep/MultiMeditron-8B-attn-pep-end2end-7exp/` | **800** | 2026-03-24 | surech |
+
+### Alignment models (`freeze/`)
+
+Alignment-stage (Stage 1) checkpoints are stored under `freeze/` with the same variant naming:
+`attn_pep`, `attn_shared`, `avg_pep`, `avg_shared`, `cat_pep`, `cat_shared`, `single_clip`,
+plus MoE-specific variants: `moe_avg_pep`, `moe_avg_shared`, `moe_cat_pep`, `moe_cat_shared`.
+
+For the full dataset and model reference (including paths, descriptions, and data formats), see [cookbook/REGISTRY.md](REGISTRY.md).
+
+## 📈 7-Expert vs 5-Expert Comparison
+
+Comparison of the new 7-expert ATTN-PEP model (checkpoint-800) against the published 5-expert cookbook baseline:
+
+| Benchmark | 5-expert ATTN-PEP (cookbook) | 7-expert checkpoint-800 | Δ |
+|---|---|---|---|
+| **GMAI** | 29.6% | 31.1% | **+1.5** |
+| **SLAKE overall** | 29.6% | 30.6% | **+1.0** |
+| SLAKE yes/no | 51.1% | 51.1% | 0.0 |
+| **PathVQA overall** | 30.3% | 24.4% | **−5.9** |
+| PathVQA yes/no | 59.1% | 47.1% | **−12.0** |
+| GMAI Dermatology | – | 39.5% | *new* |
+| GMAI Ophthalmology | – | 31.8% | *new* |
+
+> **Key finding:** GMAI and SLAKE improved, but PathVQA (especially binary yes/no) regressed significantly. See `reports/EVAL_ANALYSIS.md` for the full per-modality breakdown and PathVQA failure investigation.
 
 ## 🚀 Usage
 
@@ -142,23 +200,23 @@ In your terminal, run:
 source .env
 ```
 
-### Download data (optional if you are part of the LiGHT organization in the CSCS)
+### Download data
 
 The data is available on huggingface at [OpenMeditron/MultiMediset](https://huggingface.co/datasets/OpenMeditron/MultiMediset). You can download the data by running:
 
 ```py
-from datasets import load_dataset, get_dataset_config_names
+from datasets import load_dataset
 import os
 
 STORAGE_ROOT = os.environ["STORAGE_ROOT"]
-DS_NUM_PROC = int(os.environ["DS_NUM_PROC"])
+DS_NUM_PROC = os.environ["DS_NUM_PROC"]
 
 dataset_name = "OpenMeditron/MultiMediset"
-configs = get_dataset_config_names(dataset_name)
 
-for split_name in configs:
+ds_dict = load_dataset(dataset_name, num_proc=DS_NUM_PROC)
+
+for split_name, split_dataset in ds_dict.items():
     split_dir = os.path.join(STORAGE_ROOT, split_name)
-    split_dataset = load_dataset(dataset_name, split_name, num_proc=DS_NUM_PROC)
     split_dataset.save_to_disk(split_dir)
 ```
 
@@ -173,9 +231,11 @@ Download the configurations:
 ```bash
 mkdir config
 curl https://raw.githubusercontent.com/EPFLiGHT/MultiMeditron/refs/heads/master/cookbook/deepspeed.json -o config/deepspeed.json
-envsubst <<< "$(curl https://raw.githubusercontent.com/EPFLiGHT/MultiMeditron/refs/heads/master/cookbook/sft/single_clip/qwen_biomedclip/stage1_alignment.yaml)" > config/config_alignment.yaml
-envsubst <<< "$(curl https://raw.githubusercontent.com/EPFLiGHT/MultiMeditron/refs/heads/master/cookbook/sft/single_clip/qwen_biomedclip/stage2_end2end.yaml)" > config/config_end2end.yaml
+curl https://raw.githubusercontent.com/EPFLiGHT/MultiMeditron/refs/heads/master/cookbook/sft/single_clip/qwen_biomedclip/stage1_alignment.yaml -o config/config_alignment.yaml
+curl https://raw.githubusercontent.com/EPFLiGHT/MultiMeditron/refs/heads/master/cookbook/sft/single_clip/qwen_biomedclip/stage2_end2end.yaml -o config/config_end2end.yaml
 ```
+
+> **Note:** Do **not** pipe YAML configs through `envsubst` on this cluster — it will replace all `$SLURM_…` variables with empty strings.
 
 Each configuration file can be used to train the corresponding model. The training process consists of two stages:
 
@@ -208,70 +268,132 @@ If necessary create and to the `source .env` again.
 curl https://raw.githubusercontent.com/EPFLiGHT/MultiMeditron/refs/heads/master/cookbook/training_template.sh -o training_template.sh
 ```
 
-3. Substitute the environment variable. Make sure that you have created the environment as described [here](#setup_environment)
+3. Run the training with `sbatch_train.sh`, passing the config YAML as the first argument:
 
 ```bash
-envsubst < training_template.sh > training.sh
+# Stage 1 — alignment (freeze vision encoders)
+sbatch sbatch_train.sh cookbook/sft/moe/attn/pep/stage1_alignment.yaml
+
+# Stage 2 — end-to-end (unfreeze everything)
+sbatch sbatch_train.sh cookbook/sft/moe/attn/pep/stage2_end2end.yaml
 ```
 
-4. Run the script
+> **Note:** Do **not** pipe the config through `envsubst` on this cluster — the shell escaping for SLURM `$$` variables is not supported and will silently replace all SLURM variables with empty strings.
+
+4. To check the logs of the run:
 
 ```bash
-# For alignment
-sbatch training.sh config/config_alignment.yaml
-
-# For end2end
-sbatch training.sh config/config_end2end.yaml
+cd ~/meditron/reports/
+tail -f R-multimeditron-train.<jobid>.out
 ```
 
+Replace `<jobid>` with the SLURM job ID printed by `sbatch`. You can list all logs with `ls -lt ~/meditron/reports/`.
 
-5. To check the logs of the run:
+
+### Training the gating network
+
+The gating network is a ResNet50 classifier that routes each input image to the most appropriate CLIP expert.  On CSCS it is trained separately (no container needed) using image datasets organised as `ImageFolder`-compatible directory trees.
+
+#### 1. Prepare data
+
+Create one sub-folder per expert class **inside** `train/` and `test/`:
+
+```
+data/
+  train/
+    CT/           ← CT scan images
+    MRI/
+    Ultrasound/
+    X-ray/
+    Ophthalmology/
+    Skin/
+    Generalist/
+  test/
+    CT/
+    ...           ← same structure
+```
+
+Image sources used for the 7-class model (see `config/gating_7class.yaml`):
+- CT → `image_ct2` (training split)  
+- X-ray → `image_iu_xray`  
+- Ultrasound → `image_BUSI`, `image_COVID_US`, `image_DDTI`  
+- Ophthalmology → `eye_dataset/train`  
+- Skin → `skin_dataset/train`
+
+#### 2. Train
 
 ```bash
-cd ~reports/multimeditron/
-tail -f R-xxxxx.err
+torchrun --nproc_per_node=4 scripts/train_gating.py --config config/gating_7class.yaml
+# or, on CSCS:  sbatch sbatch_train_gating.sh
 ```
 
-Replace the `xxxxx` by the job ID and the name of the run (you can do a `ls` to see the name of the report)
+`train_gating.py` reads the per-class Arrow datasets from `dataset_class_map` in the
+config and saves the trained model directly as a HuggingFace `GatingNetwork`
+(`config.json` + `model.safetensors`) at `output_dir` — loadable with
+`GatingNetwork.from_pretrained()`. No manual `.pt`→HF conversion step is needed.
+See `cookbook/gating/README.md` for the full guide.
+
+#### 3. Verify routing
+
+```bash
+sbatch sbatch_gating_analysis.sh
+```
+
+Expected: each modality dataset is routed to its dedicated expert with ≥ 94% top-1 accuracy (see `scripts/gating_routing_analysis.py` for held-out evaluation sets).
 
 
 ### Evaluation
 
 To evaluate MultiMeditron, we use the [EPFLiGHT/lmms-eval](https://github.com/EPFLiGHT/lmms-eval) pipeline.
 
-If you don't use the MultiMeditron Docker image, you need to install the `lmms-eval` pipeline using the following command. If you use, the MultiMeditron Docker image, you can skip this step
+The recommended way to run evaluation on the CSCS cluster is via the `sbatch_eval.sh` launcher, which handles multi-node accelerate setup, container environment, and output paths automatically:
 
 ```bash
-git clone https://github.com/EPFLiGHT/lmms-eval.git
-cd lmms-eval
-pip install -e .
+export HF_TOKEN=<your_hf_token>
+
+# Standard 3-benchmark eval (16 nodes, ~50 min)
+sbatch --time 03:00:00 --nodes 16 sbatch_eval.sh \
+  <checkpoint_path> llama gmai,slake,path_vqa
+
+# Per-modality GMAI breakdown (10 subtasks)
+sbatch --time 03:00:00 --nodes 4 sbatch_eval.sh \
+  <checkpoint_path> llama \
+  gmai_ct,gmai_mri,gmai_xray,gmai_ultrasound,gmai_endoscopy,gmai_histopathology,gmai_fundus,gmai_microscopy,gmai_dermoscopy,gmai_oct
+
+# New expert subtasks (ophthalmology + dermatology)
+sbatch --time 03:00:00 --nodes 4 sbatch_eval.sh \
+  <checkpoint_path> llama gmai_ophthalmology,gmai_dermatology
+
+# Per-modality SLAKE breakdown
+sbatch --time 03:00:00 --nodes 4 sbatch_eval.sh \
+  <checkpoint_path> llama slake_ct,slake_mri,slake_xray
+
+# Save per-sample predictions (for error analysis)
+sbatch --time 03:00:00 --nodes 16 sbatch_eval.sh \
+  <checkpoint_path> llama path_vqa "" true
 ```
 
-To evaluate a trained model, run:
+Results are saved to `~/meditron/reports/lmms_eval_results/<checkpoint_name>/`.
+
+> **Tokenizer type:** Use `llama` for all LLaMA3.1-8B models on this branch.
+> For Qwen3 or Apertus models use `qwen3` / `apertus` respectively.
+
+> **Note:** `sbatch_eval_vllm.sh` is **not supported** — vLLM cannot load our custom `multimodal` model type. Always use `sbatch_eval.sh`.
+
+#### Timing reference
+
+| Nodes | Wall time (3 benchmarks) |
+|---|---|
+| 4 | ~3.5 h |
+| 16 | ~50 min |
+
+#### Gating network analysis
+
+To verify that the gating network routes each modality to the correct expert (uses held-out splits, no GPU required):
 
 ```bash
-python3 -m accelerate.commands.launch \
-    --num_processes ${NUM_PROC:-4} \
-    -m lmms_eval \
-    --model multimeditron \
-    --model_args pretrained="$CHECKPOINT",tokenizer_type="$TOKENIZER_TYPE",device_map="auto" \
-    --tasks gmai,slake,path_vqa \
-    --batch_size 1
+sbatch sbatch_gating_analysis.sh
 ```
 
-Replace the `$NUM_PROC` by the the number of GPUs on your node (can check it via `nvidia-smi`), the `$CHECKPOINT` variable by your model checkpoint path, and the `$TOKENIZER_TYPE` by the tokenizer you used for training the multimodal model.
-
-You can get the `$TOKENIZER_TYPE` by looking at the configuration file:
-
-```bash
-cat config/config_alignment.yaml
-```
-
-And check the line
-
-```
-tokenizer_type: qwen3  # (or apertus, llama depending on your setup)
-```
-
-The available tokenizer types are: `qwen3`, `apertus`, and `llama`.
+See `scripts/gating_routing_analysis.py` for dataset paths and methodology.
 
