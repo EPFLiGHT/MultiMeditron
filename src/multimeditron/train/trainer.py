@@ -14,15 +14,12 @@ import warnings
 
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Packed-sequence attention fix
-# ---------------------------------------------------------------------------
+# Packed-sequence attention fix:
 # HF's FA2 LLaMA derives cu_seqlens from attention_mask.sum(-1), which treats
 # an entire packed bin as one causal sequence → cross-sample attention leakage.
 # We fix this by replacing _get_unpad_data with a version that uses our
 # pre-computed cu_seqlens (one per bin, encoding sub-sequence boundaries).
 # The replacement is activated only when _PACKING_CONTEXT.cu_seqlens is set.
-# ---------------------------------------------------------------------------
 
 _PACKING_CONTEXT = threading.local()
 
