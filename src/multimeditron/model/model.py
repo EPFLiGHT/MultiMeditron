@@ -32,6 +32,17 @@ class ChatTemplate:
 
     @staticmethod
     def from_name(name: str) -> ChatTemplate:
+        """Create a ChatTemplate instance by name.
+
+        Args:
+            name (str): Template name, one of 'llama', 'apertus', or 'qwen3'.
+
+        Returns:
+            ChatTemplate: The corresponding chat template.
+
+        Raises:
+            ValueError: If the name is not a recognized template.
+        """
         templates = {
             "llama": ChatTemplate.llama,
             "apertus": ChatTemplate.apertus,
@@ -46,6 +57,7 @@ class ChatTemplate:
     # -------------------------------
     @staticmethod
     def llama() -> ChatTemplate:
+        """Return a ChatTemplate configured for the LLaMA / Mistral header-id format."""
         delimiters = {
             "system": {"start": "<|start_header_id|>system<|end_header_id|>", "end": "<|eot_id|>"},
             "user": {"start": "<|start_header_id|>user<|end_header_id|>", "end": "<|eot_id|>"},
@@ -64,6 +76,7 @@ class ChatTemplate:
     # -------------------------------
     @staticmethod
     def apertus() -> ChatTemplate:
+        """Return a ChatTemplate configured for the Apertus start/end format."""
         delimiters = {
             "system": {"start": "<|system_start|>", "end": "<|system_end|>"},
             "developer": {"start": "<|developer_start|>", "end": "<|developer_end|>"},
@@ -83,6 +96,7 @@ class ChatTemplate:
     # -------------------------------
     @staticmethod
     def qwen3() -> ChatTemplate:
+        """Return a ChatTemplate configured for the Qwen-3 / ChatML im_start/im_end format."""
         delimiters = {
             "system": {"start": "<|im_start|>system", "end": "<|im_end|>"},
             "user": {"start": "<|im_start|>user", "end": "<|im_end|>"},
@@ -192,12 +206,12 @@ class MultimodalConfig(PretrainedConfig):
         for modality_dict in modalities_dict_list:
             modalities.append(AutoModality.config_from_dict(modality_dict))
 
-        if kwargs["return_unused_kwargs"]:
+        if kwargs.get("return_unused_kwargs", False):
             config, kwargs = super().from_dict(config_dict, **kwargs)
             config.modalities = modalities
             return config, kwargs
 
-        config = super().from_dict(config_dict, kwargs)
+        config = super().from_dict(config_dict, **kwargs)
         config.modalities = modalities
         return config
 
@@ -247,17 +261,22 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         """
         super().__init__(config)
 
+        # Register the multimodal arch with HF Auto* on first instantiation (idempotent),
+        # rather than at import — keeps `import multimeditron.model.model` side-effect-free
+        # while still covering training (bootstrap) and eval (from_pretrained) paths.
+        register_multimodal_architectures()
+
         dtype = get_torch_dtype(config.dtype)
 
         if bootstrap:
-            self.model = AutoModelForCausalLM.from_pretrained(config.llm_path, attn_implementation="flash_attention_2")
+            self.model = AutoModelForCausalLM.from_pretrained(config.llm_path, attn_implementation="flash_attention_2", low_cpu_mem_usage=True)
         else:
             llm_config = AutoConfig.from_pretrained(
                     config.llm_path,
-                    torch_dtype=dtype
+                    dtype=dtype
                 )
             self.model = AutoModelForCausalLM.from_config(
-                config=llm_config, attn_implementation="eager")
+                config=llm_config, attn_implementation="flash_attention_2")
 
         self.model.resize_token_embeddings(config.vocab_size, mean_resizing=False)
 
@@ -383,6 +402,18 @@ class MultiModalModelForCausalLM(PreTrainedModel):
         return self.model
 
     def _get_modality_by_name(self, name: str) -> BaseModality:
+        """Look up a registered modality by its type name.
+
+        Args:
+            name (str): The modality type identifier (e.g. 'image').
+
+        Returns:
+            BaseModality: The registered modality instance.
+
+        Raises:
+            KeyError: If no modality with the given name is registered.
+            TypeError: If the registered object is not a BaseModality subclass.
+        """
         if name not in self.modalities_by_type:
             raise KeyError(
                 f"No modality registered in the model that can handle modality named: {name}"
@@ -715,5 +746,26 @@ def bootstrap(config, tokenizer, modalities_config):
     model = MultiModalModelForCausalLM(
         multimodal_config, bootstrap=True)
     return model
+
+
+def register_multimodal_architectures() -> None:
+    """Register the ``multimodal`` config/model with HuggingFace Auto* classes.
+
+    Idempotent: a ``ValueError`` from a repeat registration is expected (the type
+    is already registered) and logged at debug level. Called from
+    ``MultiModalModelForCausalLM.__init__`` so it runs on first model
+    instantiation (training and eval) without firing on a bare module import.
+    Only needed for ``AutoConfig``/``AutoModel.from_pretrained``; the concrete
+    ``MultiModalModelForCausalLM.from_pretrained`` path used by eval works regardless.
+    """
+    for register, args in (
+        (AutoConfig.register, (MultimodalConfig.model_type, MultimodalConfig)),
+        (AutoModel.register, (MultimodalConfig, MultiModalModelForCausalLM)),
+        (AutoModelForCausalLM.register, (MultimodalConfig, MultiModalModelForCausalLM)),
+    ):
+        try:
+            register(*args)
+        except ValueError as e:
+            logger.debug("multimodal arch already registered (%s): %s", register.__qualname__, e)
 
 

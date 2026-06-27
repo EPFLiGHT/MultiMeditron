@@ -1,6 +1,20 @@
 from typing import Optional, Tuple
 
 def split_host_port(hostport: str, default_port: Optional[int] = None) -> Tuple[str, int]:
+    """Parse a ``host:port`` string into its components.
+
+    Args:
+        hostport (str): Address string in ``host:port`` format.
+        default_port (Optional[int]): Port to use when none is specified
+            in the string.
+
+    Returns:
+        Tuple[str, int]: The parsed (host, port) pair.
+
+    Raises:
+        ValueError: If the port portion is not a valid integer.
+        AssertionError: If the port is out of the 1–65535 range.
+    """
     if ':' in hostport:
         host, port_str = hostport.rsplit(':', 1)
         try:

@@ -1,4 +1,4 @@
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional, Union, Tuple, TypedDict
 from transformers import PreTrainedTokenizerBase
 from transformers.data.data_collator import DataCollatorMixin
 from dataclasses import dataclass
@@ -9,6 +9,43 @@ from multimeditron.dataset.sample_preprocessor import SamplePreprocessor
 from multimeditron.model.model import ChatTemplate
 import torch
 from multimeditron.model.constants import MODALITIES_KEY, MODALITY_TYPE_KEY, MODALITY_VALUE_KEY, IGNORE_TOKEN_INDEX, POSITION_IDS_KEY
+
+
+class ProcessedMultimodalInputs(TypedDict):
+    """Per-modality indexing tensors used to scatter modality embeddings into the text stream.
+
+    Each field is keyed by modality type (e.g. ``"image"``):
+      - ``batch_idx``:   1-D LongTensor of the batch row each modality token belongs to.
+      - ``token_range``: 1-D LongTensor of the flat token positions to write into.
+      - ``stacked``:     list of the raw per-entry modality values to embed.
+    """
+    batch_idx: Dict[str, torch.Tensor]
+    token_range: Dict[str, torch.Tensor]
+    stacked: Dict[str, List[Any]]
+
+
+class PackedText(TypedDict):
+    """Stacked text tensors produced by sequence packing (one row per bin)."""
+    input_ids: torch.Tensor
+    labels: torch.Tensor
+    attention_mask: torch.Tensor
+    position_ids: torch.Tensor
+    cu_seqlens: List[torch.Tensor]   # one int32 tensor of sub-sequence boundaries per bin
+
+
+class MultimodalBatch(TypedDict, total=False):
+    """Collated batch consumed by the model forward pass.
+
+    ``total=False`` because the exact key set depends on the path (packed vs.
+    unpacked, 1-D vs. 2-D position ids).
+    """
+    input_ids: torch.Tensor
+    labels: torch.Tensor
+    attention_mask: torch.Tensor
+    position_ids: torch.Tensor
+    modalities: List[List[Any]]
+    processed_multimodal_inputs: ProcessedMultimodalInputs
+    cu_seqlens: List[torch.Tensor]
 
 @dataclass
 class DataCollatorForMultimodal(DataCollatorMixin):
@@ -27,9 +64,171 @@ class DataCollatorForMultimodal(DataCollatorMixin):
     add_generation_prompt: bool = False
     use_2d_position_ids: bool = False
     return_tensors: str = "pt"
+    max_length: Optional[int] = None
+    truncation: bool = False
+    pack_sequences: bool = False
+
+    def _pack_sequences(
+        self,
+        features: List[Dict[str, Any]],
+    ) -> Tuple[PackedText, ProcessedMultimodalInputs]:
+        """
+        Pack multiple short tokenized samples into fixed-length bins using first-fit-decreasing.
+
+        Each bin is padded to exactly self.max_length tokens. Samples are never split
+        across bins. Image token blocks remain contiguous within their parent sample.
+
+        Args:
+            features: List of tokenized samples (output of SamplePreprocessor.tokenize),
+                      each containing 'input_ids', 'labels', 'attention_mask', 'modalities'.
+
+        Returns:
+            packed_text: Dict with stacked tensors for 'input_ids', 'labels',
+                         'attention_mask', 'position_ids', and 'cu_seqlens' (list of
+                         1-D int32 tensors, one per packed sequence).
+            packed_mm:   Dict with 'batch_idx', 'token_range', 'stacked' for
+                         embed_modalities_with_text — indices adjusted for packing offsets.
+        """
+        max_len = self.max_length
+
+        # Real (unpadded) length of each sample (tokenizer right-pads within the batch)
+        real_lengths = [int(s['attention_mask'].sum().item()) for s in features]
+
+        # First-fit-decreasing: sort by descending length
+        order = sorted(range(len(features)), key=lambda i: real_lengths[i], reverse=True)
+
+        # Greedy bin packing — track (used_tokens, [orig_sample_indices])
+        bins: List[Tuple[int, List[int]]] = []
+        for i in order:
+            slen = real_lengths[i]
+            placed = False
+            for k, (b_used, b_list) in enumerate(bins):
+                if b_used + slen <= max_len:
+                    bins[k] = (b_used + slen, b_list + [i])
+                    placed = True
+                    break
+            if not placed:
+                bins.append((slen, [i]))
+
+        # Collect all modality types present in this batch
+        modality_types = set(
+            pm[MODALITY_TYPE_KEY]
+            for s in features
+            for pm in s[MODALITIES_KEY]
+        )
+
+        pad_tok = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else 0
+
+        # Outputs
+        packed_input_ids: List[torch.Tensor] = []
+        packed_labels: List[torch.Tensor] = []
+        packed_attention_mask: List[torch.Tensor] = []
+        packed_position_ids: List[torch.Tensor] = []
+        packed_cu_seqlens: List[torch.Tensor] = []
+
+        # Modality info accumulated across all bins:
+        #   mm_multi_idx[mt] = list of (packed_batch_idx, adjusted_token_range)
+        mm_multi_idx: Dict[str, List[Tuple[int, Tuple[int, int]]]] = {mt: [] for mt in modality_types}
+        mm_stacks: Dict[str, List[Any]] = {mt: [] for mt in modality_types}
+
+        for bin_idx, (_, bin_sample_indices) in enumerate(bins):
+            input_ids_parts: List[torch.Tensor] = []
+            labels_parts: List[torch.Tensor] = []
+            pos_ids_parts: List[torch.Tensor] = []
+            cu = [0]
+            offset = 0
+
+            for sample_pos, orig_idx in enumerate(bin_sample_indices):
+                sample = features[orig_idx]
+                slen = real_lengths[orig_idx]
+
+                # Strip per-batch padding (tokenizer pads entire batch to same length)
+                iids = sample['input_ids'][:slen]
+                lbs = sample['labels'][:slen].clone()
+
+                # Mask the first token of every non-first sub-sequence to prevent
+                # the last token of the previous sample from predicting across it.
+                if sample_pos > 0:
+                    lbs[0] = IGNORE_TOKEN_INDEX
+
+                input_ids_parts.append(iids)
+                labels_parts.append(lbs)
+                pos_ids_parts.append(torch.arange(slen, dtype=torch.long))
+
+                # Adjust modality token_ranges by the current write offset
+                for pm in sample[MODALITIES_KEY]:
+                    mt = pm[MODALITY_TYPE_KEY]
+                    orig_tr = pm['token_range']
+                    adj_tr = (orig_tr[0] + offset, orig_tr[1] + offset)
+                    mm_multi_idx[mt].append((bin_idx, adj_tr))
+                    mm_stacks[mt].append(pm[MODALITY_VALUE_KEY])
+
+                offset += slen
+                cu.append(offset)
+
+            total_real = offset
+            pad_len = max(0, max_len - total_real)
+
+            iids_cat = torch.cat(input_ids_parts)
+            lbs_cat = torch.cat(labels_parts)
+            pos_cat = torch.cat(pos_ids_parts)
+
+            if pad_len > 0:
+                iids_cat = torch.cat([iids_cat, iids_cat.new_full((pad_len,), pad_tok)])
+                lbs_cat = torch.cat([lbs_cat, lbs_cat.new_full((pad_len,), IGNORE_TOKEN_INDEX)])
+                pos_cat = torch.cat([pos_cat, pos_cat.new_zeros(pad_len)])
+
+            attn = torch.cat([
+                iids_cat.new_ones(total_real),
+                iids_cat.new_zeros(pad_len),
+            ])
+
+            # cu_seqlens: boundaries of each sub-sequence plus max_len as the final sentinel
+            cu_t = torch.tensor(cu + [max_len], dtype=torch.int32)
+
+            packed_input_ids.append(iids_cat)
+            packed_labels.append(lbs_cat)
+            packed_attention_mask.append(attn)
+            packed_position_ids.append(pos_cat)
+            packed_cu_seqlens.append(cu_t)
+
+        packed_text = {
+            'input_ids': torch.stack(packed_input_ids),
+            'labels': torch.stack(packed_labels),
+            'attention_mask': torch.stack(packed_attention_mask),
+            'position_ids': torch.stack(packed_position_ids),
+            'cu_seqlens': packed_cu_seqlens,  # list of 1-D tensors (variable length)
+        }
+
+        # Build multimodal index tensors mirroring the unpacked collator logic
+        mm_batch_idx: Dict[str, torch.Tensor] = {}
+        mm_token_range: Dict[str, torch.Tensor] = {}
+        mm_stacked: Dict[str, List[Any]] = {}
+
+        for mt in modality_types:
+            if mm_multi_idx[mt]:
+                b_idx_list, tr_list = zip(*mm_multi_idx[mt])
+                mm_batch_idx[mt] = torch.tensor(b_idx_list, dtype=torch.long).repeat_interleave(
+                    torch.tensor([tr[1] - tr[0] for tr in tr_list], dtype=torch.long)
+                )
+                mm_token_range[mt] = torch.cat([
+                    torch.arange(tr[0], tr[1], dtype=torch.long) for tr in tr_list
+                ])
+            else:
+                mm_batch_idx[mt] = torch.zeros(0, dtype=torch.long)
+                mm_token_range[mt] = torch.zeros(0, dtype=torch.long)
+            mm_stacked[mt] = mm_stacks[mt]
+
+        packed_mm = {
+            'batch_idx': mm_batch_idx,
+            'token_range': mm_token_range,
+            'stacked': mm_stacked,
+        }
+
+        return packed_text, packed_mm
 
     @torch.no_grad()
-    def torch_call(self, raw_features: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def torch_call(self, raw_features: List[Dict[str, Any]]) -> MultimodalBatch:
         """
         Collate a batch of multimodal data.
 
@@ -102,6 +301,8 @@ class DataCollatorForMultimodal(DataCollatorMixin):
             chat_template=self.chat_template,
             modality_processors=self.modality_processors,
             attachment_token=self.attachment_token,
+            max_length=self.max_length,
+            truncation=self.truncation,
         )
 
         # Load modality values
@@ -109,6 +310,25 @@ class DataCollatorForMultimodal(DataCollatorMixin):
 
         processed_samples = modality_preprocessor.process_modality_to_tensor(raw_features)
         features = modality_preprocessor.tokenize(processed_samples, add_generation_prompt=self.add_generation_prompt)
+
+        # --- Sequence packing branch ---
+        if self.pack_sequences:
+            if self.max_length is None:
+                raise ValueError("pack_sequences=True requires max_length to be set.")
+            if self.use_2d_position_ids:
+                raise NotImplementedError(
+                    "pack_sequences is not compatible with use_2d_position_ids=True."
+                )
+            packed_text, packed_mm = self._pack_sequences(features)
+            batch.update(packed_text)
+            batch['processed_multimodal_inputs'] = {
+                'batch_idx': packed_mm['batch_idx'],
+                'token_range': packed_mm['token_range'],
+                'stacked': packed_mm['stacked'],
+            }
+            batch['modalities'] = [[] for _ in range(len(packed_text['cu_seqlens']))]
+            return batch
+        # --- End sequence packing branch ---
 
         for sample in features:
             for name in text_features.keys():

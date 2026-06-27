@@ -9,6 +9,8 @@ from typing import Dict, Any, List
 
 
 class MOEImageConfig(BaseModalityConfig):
+    """Configuration for the Mixture-of-Experts image modality with shared projection."""
+
     def __init__(
         self,
         hidden_size: int = 1024,
@@ -59,6 +61,12 @@ class MOEImageProcessor(BaseModalityProcessor):
     Prepares processing for the fusion method between experts' outputs.
     """
     def __init__(self, config: MOEImageConfig):
+        """Initialize the MoE image processor with a pretrained image preprocessor.
+
+        Args:
+            config (MOEImageConfig): Configuration specifying the image processor
+                model, top-k experts, and fusion method.
+        """
         super().__init__(config)
         self.image_processor = AutoImageProcessor.from_pretrained(config.image_processor)
 
@@ -68,6 +76,19 @@ class MOEImageProcessor(BaseModalityProcessor):
         self.fusion_method = config.fusion_method
 
     def process(self, modality: Dict[str, Any]):
+        """Preprocess a raw image into pixel values and compute the expected embedding count.
+
+        Args:
+            modality (Dict[str, Any]): Modality dict containing the raw image
+                under the MODALITY_VALUE_KEY.
+
+        Returns:
+            Dict[str, Any]: Updated modality dict with processed pixel values
+                and NUM_EMBEDDINGS_KEY set according to the fusion method.
+
+        Raises:
+            ValueError: If the configured fusion_method is not recognized.
+        """
         processed_modality = modality.copy()
 
         image = modality[MODALITY_VALUE_KEY]
@@ -99,6 +120,16 @@ class MOEImageModality(BaseModality):
     preprocessor_class = MOEImageProcessor
 
     def __init__(self, config: MOEImageConfig):
+        """Initialize the MoE image modality with multiple CLIP experts and a gating network.
+
+        Loads each expert CLIP vision model, the pretrained gating network,
+        builds the gating-to-expert permutation buffer, and creates the shared
+        MLP projector.
+
+        Args:
+            config (MOEImageConfig): Configuration specifying expert model names,
+                gating path, fusion method, and projection settings.
+        """
         super().__init__(config)
 
         self.experts = torch.nn.ModuleList()
@@ -150,6 +181,18 @@ class MOEImageModality(BaseModality):
         self.modality_frozen = not self.training
 
     def forward(self, inputs) -> torch.Tensor:
+        """Run all CLIP experts on the input images, fuse their outputs via the gating network, and project.
+
+        Args:
+            inputs (List[torch.Tensor]): List of preprocessed image tensors.
+
+        Returns:
+            torch.Tensor: Projected fused embeddings of shape (batch, num_patches, hidden_size)
+                or (batch, num_experts * num_patches, hidden_size) for sequence_append.
+
+        Raises:
+            ValueError: If the configured fusion_method is not supported.
+        """
         device = next(self.experts[0].parameters()).device
         inputs = torch.stack(inputs, dim=0).to(device)
 
@@ -211,6 +254,14 @@ class MOEImageModality(BaseModality):
 
 
     def train(self, mode: bool = True):
+        """Set training mode, keeping the gating network in eval mode when the modality is frozen.
+
+        Args:
+            mode (bool): Whether to set training mode. Defaults to True.
+
+        Returns:
+            MOEImageModality: Self.
+        """
         super().train(mode)
 
         if self.modality_frozen:
@@ -220,6 +271,7 @@ class MOEImageModality(BaseModality):
 
 
     def freeze_modality_embedder(self):
+        """Freeze all expert CLIP models and the gating network, setting gating to eval mode."""
         for params in self.gating_network.parameters():
             params.requires_grad = False
         
@@ -231,6 +283,7 @@ class MOEImageModality(BaseModality):
         self.modality_frozen = True
 
     def unfreeze_modality_embedder(self):
+        """Unfreeze all expert CLIP models and the gating network, setting gating to train mode."""
         for params in self.gating_network.parameters():
             params.requires_grad = True
         

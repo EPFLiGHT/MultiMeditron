@@ -9,7 +9,15 @@ import os
 
 @ray.remote
 class NsJailExecutor:
+    """Ray actor that executes untrusted Python code inside an nsjail sandbox."""
+
     def __init__(self, cfg):
+        """Initialize the executor with nsjail and Python paths from an OmegaConf config.
+
+        Args:
+            cfg: OmegaConf configuration object containing ``nsjail.path``,
+                ``python.path``, and optional resource-limit overrides.
+        """
         self.nsjail_path = cfg.nsjail.path
         self.python_path = cfg.python.path
 
@@ -106,6 +114,14 @@ class NsJailExecutor:
 
     @staticmethod
     def _ensure_path_executable(path: str):
+        """Verify that a filesystem path points to an executable file.
+
+        Args:
+            path (str): Absolute path to check.
+
+        Raises:
+            FileNotFoundError: If the path does not exist or is not executable.
+        """
         if not os.path.isfile(path) or not os.access(path, os.X_OK):
             raise FileNotFoundError(f"The path '{path}' is not an executable file or is not accessible. Install it and ensure it is accessable from the worker nodes.")
 

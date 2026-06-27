@@ -8,6 +8,8 @@ from fastapi import Request
 
 @serve.deployment(num_replicas=2)  # scale horizontally if needed
 class PyExecService:
+    """Ray Serve deployment for executing Python code in sandboxed nsjail environments."""
+
     def __init__(self):
         # create a single NsJailExecutor actor for each replica
         # self.executor = NsJailExecutor.remote()
@@ -34,6 +36,7 @@ class PyExecService:
 
 @main_cli.command("serve")
 def _serve():
+    """Start a Ray Serve application hosting the sandboxed code execution service."""
     # Start ray if not already running
     ray.init(address="auto", namespace="serve")
 

@@ -1,7 +1,7 @@
 from multimeditron.cli import EPILOG, main_cli
 from multimeditron.model.model import MultimodalConfig, MultiModalModelForCausalLM, bootstrap
 from multimeditron.model.data_loader import DataCollatorForMultimodal
-from multimeditron.train.trainer import MultimodalTrainer, TRAINING_MAPPING
+from multimeditron.train.trainer import MultimodalTrainer, TRAINING_MAPPING, init_packing_patch
 from multimeditron.profiling import NvtxAnnotationCallback
 from transformers import AutoTokenizer, TrainingArguments
 from datasets import concatenate_datasets, load_dataset, load_from_disk
@@ -15,6 +15,7 @@ from pathlib import Path
 
 import deepspeed
 import torch
+import json
 import os
 import yaml
 import wandb
@@ -25,17 +26,39 @@ import json
 
 logger = logging.getLogger(__name__)
 
-PngImagePlugin.MAX_TEXT_CHUNK = 2 ** 30
+
+def _expand_env(obj):
+    """Recursively expand ``$VAR`` / ``${VAR}`` in all string values of a config.
+
+    Unknown variables are left untouched (``os.path.expandvars`` semantics), so
+    plain absolute paths are unaffected — this only resolves variables that are
+    actually set in the environment (e.g. ``REPO_DIR``, ``USER``).
+    """
+    if isinstance(obj, str):
+        return os.path.expandvars(obj)
+    if isinstance(obj, dict):
+        return {k: _expand_env(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_expand_env(v) for v in obj]
+    return obj
+
 
 def is_dataset_folder(folder: str) -> bool:
+    """Check if a folder is a valid HuggingFace dataset saved with ``save_to_disk``."""
     return os.path.exists(os.path.join(folder, datasets_config.DATASET_INFO_FILENAME)) and \
         os.path.exists(os.path.join(folder, datasets_config.DATASET_STATE_JSON_FILENAME))
 
 def is_jsonl(path: str) -> bool:
+    """Return True if the file path has a ``.jsonl`` extension."""
     filename, extension = os.path.splitext(path)
     return extension == ".jsonl"
 
 def is_main_process() -> bool:
+    """Check if the current process is the main (rank-0) process.
+
+    Handles cases where ``torch.distributed`` is not available or not
+    yet initialized, returning True in both cases.
+    """
     # safe main-process check for DDP/torchrun
     if not torch.distributed.is_available():
         return True
@@ -44,6 +67,18 @@ def is_main_process() -> bool:
     return torch.distributed.get_rank() == 0
 
 def build_datasets(config):
+    """Load, concatenate, and shuffle all datasets specified in the config.
+
+    Automatically determines the optimal number of preprocessing workers
+    based on visible CPUs and GPUs per node.
+
+    Args:
+        config (dict): Training configuration with a ``datasets`` key containing
+            a list of dataset entries, each with a ``packed_path``.
+
+    Returns:
+        Dataset: A single concatenated and shuffled HuggingFace dataset.
+    """
     packed_datasets = []
 
     # use env vars set by torchrun
@@ -57,11 +92,20 @@ def build_datasets(config):
     tqdm = (lambda *a, **k: _tqdm(*a, disable=(rank != 0), **k))
 
     for ds_config in tqdm(config["datasets"], desc="Concatenating datasets"):
-        print(ds_config["packed_path"])
-        if is_dataset_folder(ds_config["packed_path"]):
-            dataset = load_from_disk(ds_config['packed_path'])
+        path = ds_config["packed_path"]
+        print(path)
+        if is_dataset_folder(path):
+            dataset = load_from_disk(path)
         else:
-            dataset = load_dataset(ds_config["packed_path"], num_proc=num_proc)["train"]
+            _, ext = os.path.splitext(path)
+            if ext in (".jsonl", ".json"):
+                dataset = load_dataset("json", data_files=path, num_proc=num_proc)["train"]
+            elif ext == ".parquet":
+                dataset = load_dataset("parquet", data_files=path, num_proc=num_proc)["train"]
+            elif ext == ".arrow":
+                dataset = load_dataset("arrow", data_files=path, num_proc=num_proc)["train"]
+            else:
+                dataset = load_dataset(path, num_proc=num_proc)["train"]
         packed_datasets.append(dataset)
 
     ds = concatenate_datasets(packed_datasets).shuffle(seed=config.get("seed", 0))
@@ -79,10 +123,21 @@ def train(config: str,
           trust_remote_code: bool = False,
           seed: int = 0,
           verbose: bool = False):
-    
+
+    # Allow very large text chunks in PNGs (some medical images carry big metadata).
+    PngImagePlugin.MAX_TEXT_CHUNK = 2 ** 30
+
+    # Apply the packed-sequence FA2 attention fix at startup (no-op for unpacked runs).
+    init_packing_patch()
+
+    # Default REPO_DIR to the repository root so configs can use ${REPO_DIR}
+    # (and ${USER}) for portable paths even when the launcher doesn't export it.
+    os.environ.setdefault("REPO_DIR", str(Path(__file__).resolve().parents[3]))
+
     with open(config) as f:
         config_dict = yaml.safe_load(f)
-    
+    config_dict = _expand_env(config_dict)
+
     # Disable randomness
     torch.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
@@ -117,16 +172,28 @@ def train(config: str,
         modality_type = loader_copy.pop("modality_type")
         modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader_copy)
 
-    with deepspeed.zero.Init(dtype=torch.bfloat16):
+    def _build_model():
         if config_dict.get("base_model", None) is None:
-            model = bootstrap(config_dict, tokenizer, modalities_config)
+            return bootstrap(config_dict, tokenizer, modalities_config)
         else:
             # load starting weights from base_model (hub id or local checkpoint dir).
-            model = MultiModalModelForCausalLM.from_pretrained(
+            return MultiModalModelForCausalLM.from_pretrained(
                 config_dict["base_model"], 
                 truncation=config_dict.get("truncation", False),
                 max_sequence_length=config_dict.get("max_sequence_length", None)
             )
+
+    ds_config_path = config_dict.get("training_args", {}).get("deepspeed", None)
+    _use_zero3 = False
+    if ds_config_path:
+        with open(ds_config_path) as _f:
+            _use_zero3 = json.load(_f).get("zero_optimization", {}).get("stage", 0) == 3
+
+    if _use_zero3:
+        with deepspeed.zero.Init(dtype=torch.bfloat16):
+            model = _build_model()
+    else:
+        model = _build_model()
 
     model.train()
     processors = model.processors()
@@ -149,11 +216,15 @@ def train(config: str,
                 chat_template=chat_template,
                 attachment_token=config_dict["attachment_token"],
                 use_2d_position_ids=config_dict.get("use_2d_position_ids", False),
+                max_length=config_dict.get("max_sequence_length", None),
+                truncation=config_dict.get("truncation", False),
+                pack_sequences=config_dict.get("pack_sequences", False),
             ),
             train_dataset=dataset,
             training_mode=TRAINING_MAPPING[config_dict["training_mode"]],
             pytorch_profiler_config=config_dict.get("pytorch_profiler", None),
             callbacks=trainer_callbacks,
+            custom_lr=config_dict.get("custom_lr", {}),
     )
 
     # === Weights & Biases ===
@@ -164,7 +235,10 @@ def train(config: str,
     wandb_run_id = config_dict.get("wandb_run_id", None)  # string or None
     resume_flag = bool(config_dict.get("resume_from_checkpoint", False))
 
-    if is_main_process():
+    report_to = config_dict.get("training_args", {}).get("report_to", "wandb")
+    use_wandb = report_to != "none" and (report_to == "wandb" or (isinstance(report_to, list) and "wandb" in report_to))
+
+    if is_main_process() and use_wandb:
         wandb_kwargs = dict(
             project="MultiMeditron",
             config=config_dict,
@@ -180,9 +254,11 @@ def train(config: str,
         wandb_run = wandb.init(**wandb_kwargs)
 
         # attach deepspeed config
-        with open(config_dict["training_args"]["deepspeed"], "r") as ds_file:
-            deepspeed_config = json.load(ds_file)
-        wandb_run.config.update({"deepspeed_config": deepspeed_config})
+        ds_path = config_dict.get("training_args", {}).get("deepspeed", None)
+        if ds_path:
+            with open(ds_path, "r") as ds_file:
+                deepspeed_config = json.load(ds_file)
+            wandb_run.config.update({"deepspeed_config": deepspeed_config})
 
     # === Train (resume or fresh) ===
     if resume_flag:

@@ -21,6 +21,8 @@ class PromptTokenizer:
         attachment_token: str,
         modalities_num_embeddings: Dict[str, Optional[int]],
         ignore_index: int = -100,
+        max_length: Optional[int] = None,
+        truncation: bool = False,
     ):
         """
         Args:
@@ -42,6 +44,8 @@ class PromptTokenizer:
         self.attachment_token_idx = self.tokenizer.convert_tokens_to_ids(attachment_token)
 
         self.pad_token_idx = self.convert_tokens_to_ids(self.tokenizer.pad_token)
+        self.max_length = max_length
+        self.truncation = truncation
 
     @property
     def vocab_size(self):
@@ -175,6 +179,10 @@ class PromptTokenizer:
                 attention_mask=outputs["attention_mask"].flatten(),
                 modalities_for_message=mod,
             )
+
+            if self.max_length is not None:
+                input_ids = input_ids[:self.max_length]
+                attention_mask = attention_mask[:self.max_length]
             
             # Don't want to predict pad tokens
             labels = torch.where(attention_mask == 0, IGNORE_TOKEN_INDEX, input_ids)
@@ -377,7 +385,13 @@ class PromptTokenizer:
         if isinstance(text, str):
             text = [text]
 
-        outputs = self.tokenizer(text, return_tensors="pt")
+        outputs = self.tokenizer(
+            text,
+            return_tensors="pt",
+            padding=True,
+            truncation=self.truncation,
+            max_length=self.max_length,
+        )
 
         tokenized_results = []
 
@@ -420,7 +434,10 @@ def replace_between_tags_v2(tensor, left_tag, right_tag, replace_value=-100):
     start_positions = find_tag_pos(tensor, left_tag)
     end_positions = find_tag_pos(tensor, right_tag)
 
-    end_positions = end_positions[torch.searchsorted(end_positions, start_positions)]
+    indices = torch.searchsorted(end_positions, start_positions)
+    valid = indices < len(end_positions)
+    start_positions = start_positions[valid]
+    end_positions = end_positions[indices[valid]]
 
     for start, end in zip(start_positions, end_positions):
         tensor[start : end + len(right_tag)] = replace_value

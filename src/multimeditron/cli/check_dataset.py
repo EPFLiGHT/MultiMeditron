@@ -18,6 +18,7 @@ DEFAULT_ATTACHMENT_TOKEN = "<|reserved_special_token_0|>"
 
 
 def _is_dataset_folder(path: str) -> bool:
+    """Check if a path is a valid HuggingFace dataset folder."""
     try:
         from datasets import config as datasets_config
     except Exception:
@@ -27,6 +28,14 @@ def _is_dataset_folder(path: str) -> bool:
 
 
 def _load_hf_dataset(path: str) -> Tuple[Any, str]:
+    """Load a HuggingFace dataset from disk, parquet, arrow, JSONL, or Hub.
+
+    Args:
+        path (str): Path to the dataset (local or Hub identifier).
+
+    Returns:
+        Tuple[Any, str]: The loaded dataset and the source path.
+    """
     from datasets import load_dataset, load_from_disk
 
     if _is_dataset_folder(path):
@@ -49,11 +58,17 @@ def _load_hf_dataset(path: str) -> Tuple[Any, str]:
 
 
 def _count_attachment_tokens(text: str, attachment_token: str) -> int:
+    """Count occurrences of the attachment token in a text string."""
     return text.count(attachment_token)
 
 
 def _count_tokens_in_conversations(conversations: List[Dict[str, Any]], attachment_token: str,
                                    errors: List[str], sample_id: str) -> int:
+    """Count attachment tokens in conversation-format data.
+
+    Only counts tokens in user messages. Structural validation errors are
+    appended to the ``errors`` list.
+    """
     count = 0
     for msg_idx, msg in enumerate(conversations):
         if not isinstance(msg, dict):
@@ -73,6 +88,7 @@ def _count_tokens_in_conversations(conversations: List[Dict[str, Any]], attachme
 def _validate_modality(modality: Dict[str, Any], sample_id: str, mod_idx: int,
                        verify_load: bool, loader_type: Optional[str],
                        loader_kwargs: Dict[str, Any], errors: List[str]) -> None:
+    """Attempt to load a modality to detect corrupt or unloadable inputs."""
     if not verify_load:
         return
     if loader_type is None:
@@ -90,6 +106,15 @@ def _validate_modality(modality: Dict[str, Any], sample_id: str, mod_idx: int,
 def _validate_sample(sample: Dict[str, Any], sample_id: str, modality_type: str,
                      attachment_token: str, verify_load: bool,
                      loader_type: Optional[str], loader_kwargs: Dict[str, Any]) -> List[str]:
+    """Validate a single dataset sample for structural correctness.
+
+    Checks that the sample has exactly one of ``text`` or ``conversations``,
+    that modalities are well-formed, and that attachment token counts match
+    the number of modalities.
+
+    Returns:
+        List[str]: A list of validation error messages (empty if valid).
+    """
     errors: List[str] = []
     if not isinstance(sample, dict):
         if not (hasattr(sample, "keys") and hasattr(sample, "__getitem__")):
@@ -161,6 +186,7 @@ def _validate_sample(sample: Dict[str, Any], sample_id: str, modality_type: str,
 
 def _validate_row(sample: Dict[str, Any], modality_type: str, attachment_token: str,
                   verify_load: bool, loader_type: Optional[str], loader_kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    """Wrapper for ``Dataset.map`` that validates a row and returns errors."""
     sample_id = f"sample {sample.get('__index__', 'unknown')}"
     errors = _validate_sample(
         sample,
