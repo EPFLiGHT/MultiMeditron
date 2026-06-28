@@ -57,14 +57,15 @@ def source_split_plan(source_splits, holdout=False):
                 ),
                 "test": (("holdout_test", 1.0),),
             }
-        # Original behaviour: test goes entirely to benchmark_eval
+        # test is split evenly between mlp_train and benchmark_eval so that
+        # both sets have comparable sizes when the source test split is large.
         return {
             "train": (
                 ("train_model", 0.8),
                 ("mlp_train", 0.1),
                 ("benchmark_eval", 0.1),
             ),
-            "test": (("benchmark_eval", 1.0),),
+            "test": (("mlp_train", 0.7), ("benchmark_eval", 0.3)),
         }
     if {"train", "val"}.issubset(source_splits):
         if holdout:
