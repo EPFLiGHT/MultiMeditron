@@ -25,3 +25,4 @@ scikit-learn>=1.7.2,<1.8
 wandb>=0.23.0,<0.24
 tqdm>=4.67.1,<4.68
 matplotlib>=3.10.7,<3.11
+numpy>=1.26,<3

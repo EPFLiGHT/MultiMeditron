@@ -27,7 +27,8 @@ from transformers import (
 # Model loading
 # ---------------------------------------------------------------------
 
-def load_clip_like(model_name_or_path: str, device: str):
+
+def load_clip_like(model_name_or_path, device):
     """
     Load a CLIP-like model and processor.
 
@@ -37,21 +38,21 @@ def load_clip_like(model_name_or_path: str, device: str):
     lower = model_name_or_path.lower()
 
     if "biomedclip" in lower:
-        model = AutoModel.from_pretrained(
-            model_name_or_path,
-            trust_remote_code=True,
-        ).to(device).eval()
+        model = (
+            AutoModel.from_pretrained(
+                model_name_or_path,
+                trust_remote_code=True,
+            )
+            .to(device)
+            .eval()
+        )
         processor = AutoProcessor.from_pretrained(
             model_name_or_path,
             trust_remote_code=True,
         )
     else:
-        model = CLIPModel.from_pretrained(
-            model_name_or_path
-        ).to(device).eval()
-        processor = CLIPProcessor.from_pretrained(
-            model_name_or_path
-        )
+        model = CLIPModel.from_pretrained(model_name_or_path).to(device).eval()
+        processor = CLIPProcessor.from_pretrained(model_name_or_path)
 
     # Determine text max length
     if hasattr(model.config, "text_config"):
@@ -61,9 +62,11 @@ def load_clip_like(model_name_or_path: str, device: str):
 
     return model, processor, max_len
 
+
 # ---------------------------------------------------------------------
 # Similarity computation
 # ---------------------------------------------------------------------
+
 
 @torch.no_grad()
 def get_similarity(text, image_path, model, processor, max_len, device):
@@ -94,17 +97,19 @@ def get_similarity(text, image_path, model, processor, max_len, device):
 
     return float(torch.matmul(img_emb, txt_emb.T).item())
 
+
 # ---------------------------------------------------------------------
 # Evaluation
 # ---------------------------------------------------------------------
 
+
 @torch.no_grad()
 def evaluate_model(
     *,
-    model_id: str,
-    dataset_path: Path,
-    num_samples: int,
-    device: str,
+    model_id,
+    dataset_path,
+    num_samples,
+    device,
 ):
     model, processor, max_len = load_clip_like(model_id, device)
 
@@ -214,9 +219,7 @@ def evaluate_model(
         candidates.remove(i)
         neg_ids = random.sample(candidates, 3)
 
-        items = [json.loads(lines[i])] + [
-            json.loads(lines[j]) for j in neg_ids
-        ]
+        items = [json.loads(lines[i])] + [json.loads(lines[j]) for j in neg_ids]
 
         texts = [x["text"] for x in items]
 
@@ -228,8 +231,7 @@ def evaluate_model(
             continue
 
         sims = [
-            get_similarity(t, str(p), model, processor, max_len, device)
-            for t in texts
+            get_similarity(t, str(p), model, processor, max_len, device) for t in texts
         ]
 
         if int(torch.tensor(sims).argmax().item()) == 0:
@@ -241,16 +243,20 @@ def evaluate_model(
 
     return correct / used
 
+
 # ---------------------------------------------------------------------
 # Entrypoint
 # ---------------------------------------------------------------------
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", required=True, type=Path)
     parser.add_argument("--num-samples", type=int, default=300)
     parser.add_argument("--seed", type=int, default=14)
-    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument(
+        "--device", default="cuda" if torch.cuda.is_available() else "cpu"
+    )
 
     args = parser.parse_args()
 
@@ -271,6 +277,7 @@ def main():
             device=args.device,
         )
         print(f"{name} accuracy: {acc:.4f}\n")
+
 
 if __name__ == "__main__":
     main()

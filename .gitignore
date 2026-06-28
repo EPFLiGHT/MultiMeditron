@@ -219,3 +219,46 @@ __marimo__/
 
 # Hide template files
 **/gitignored-*
+
+# Local training artifacts and generated benchmark data
+cache/
+experts/embeddings/
+experts/src/multimeditron/experts/models/*
+parallel_coordinate.html
+plot_param_importance.html
+data_embl_test.pt
+data_lab_test.pt
+batch_download_zips.py
+
+# Generated XRay benchmark assets (large, local only)
+src/multimeditron/experts/evaluation_pipeline/xray_data/
+
+# Local artifacts and generated data
+benchmark_cache/
+src/multimeditron/experts/embeddings/
+src/multimeditron/experts/eval_results/
+src/multimeditron/experts/evaluation_pipeline/embeddings/
+src/multimeditron/experts/wandb/
+src/multimeditron/experts/src/
+src/src/
+testing_scripts/benchmark_overlap_report.csv
+papers/
+testing_scripts/
+testing_logs/
+old_files/
+docs/
+src/multimeditron/experts/evaluation_pipeline/run_test.sh
+src/multimeditron/experts/evaluation_pipeline/run_xray_benchmark.py
+src/multimeditron/experts/evaluation_pipeline/run_all_evals.sh
+src/multimeditron/experts/evaluation_pipeline/run_readme_evals.sh
+src/multimeditron/experts/testing_scripts/
+
+# Local generated expert configs/models
+src/multimeditron/experts/configurations/
+src/multimeditron/experts/models/
+
+# Large derived data — not in git
+benchmark_splits/
+
+# Personal analysis/review notes
+analysis/

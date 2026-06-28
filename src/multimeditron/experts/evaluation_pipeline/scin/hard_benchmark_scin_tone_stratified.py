@@ -1,9 +1,5 @@
-# ============================================================
 # SCIN Hard Benchmark + Skin-Tone Stratified Evaluation
-# (Augmented val split + manifest metadata join)
-# CONSISTENT protocol: build ONCE using vanilla CLIP reference
-# Hard-negative selection logic matches black-skin script
-# ============================================================
+# Protocol is built once using a vanilla CLIP reference model and reused across all evaluated models.
 
 import os
 import json
@@ -24,7 +20,12 @@ from transformers import (
     VisionTextDualEncoderProcessor,
 )
 
-from load_from_clip import load_model
+try:
+    from ..load_from_clip import load_model
+except ImportError:
+    import sys
+    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+    from load_from_clip import load_model
 
 
 # =========================
@@ -32,30 +33,31 @@ from load_from_clip import load_model
 # =========================
 
 EVAL_DATASETS = [
-    "/mloscratch/users/turan/datasets/skin_expert_datasets/SCIN/scin_api_val.jsonl",
+    os.environ.get("SCIN_EVAL_JSONL", ""),
 ]
 
 MANIFEST_DATASETS = [
-    "/mloscratch/users/turan/datasets/skin_expert_datasets/SCIN/scin_manifest.jsonl",
+    os.environ.get("SCIN_MANIFEST_JSONL", ""),
 ]
 
 CLIP_CONFIGS = [
-    ("skin_clip_config_10_before", "/mloscratch/users/turan/training/models_skin/combined_dataset_skin_regularization_focused_config_1"),
-    ("skin_clip_config_10_after",  "/mloscratch/users/turan/training/models/combined_dataset_skin_regularization_focused_config_1"),
+    # ("my_model", "/path/to/model_checkpoint"),
 ]
 
-# Reference model used ONLY to build fixed protocol
 REF_MODEL_NAME = "openai/clip-vit-base-patch32"
 
-RESULTS_TXT = "/mloscratch/users/turan/evaluation_clip/scin_skin_tone_hard_results.txt"
+RESULTS_TXT = os.environ.get(
+    "SCIN_RESULTS_TXT",
+    "scin_skin_tone_hard_results.txt",
+)
 
-SEED        = 14
-IMG_BS      = 32
-TXT_BS      = 64
+SEED = 14
+IMG_BS = 32
+TXT_BS = 64
 TXT_MAX_LEN = 128
 
-HARD_TOPK   = 3   # <-- match black-skin script logic (pool size)
-TIE_EPS     = 1e-7
+HARD_TOPK = 3
+TIE_EPS = 1e-7
 
 logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(message)s",
@@ -74,9 +76,14 @@ FST_RE = re.compile(
 )
 
 ROMAN_TO_FST = {
-    "I": "FST1", "II": "FST2", "III": "FST3",
-    "IV": "FST4", "V": "FST5", "VI": "FST6",
+    "I": "FST1",
+    "II": "FST2",
+    "III": "FST3",
+    "IV": "FST4",
+    "V": "FST5",
+    "VI": "FST6",
 }
+
 
 def extract_fst(text):
     if not text:
@@ -92,6 +99,7 @@ def extract_fst(text):
     if raw in ROMAN_TO_FST:
         return ROMAN_TO_FST[raw]
     return None
+
 
 def fst_to_group(fst):
     if fst in ("FST1", "FST2"):
@@ -112,9 +120,8 @@ DIFF_RE = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 
-DIAG_RE = re.compile(
-    r"([A-Za-z0-9\s\-/]+)\s*\((0?\.\d+|1\.00)\)"
-)
+DIAG_RE = re.compile(r"([A-Za-z0-9\s\-/]+)\s*\((0?\.\d+|1\.00)\)")
+
 
 def extract_top_differential(text):
     if not text:
@@ -134,6 +141,7 @@ def extract_top_differential(text):
 # DATA LOADING
 # =========================
 
+
 def resolve_items(jsonl_path):
     items = []
     base_dir = Path(jsonl_path).parent
@@ -147,6 +155,7 @@ def resolve_items(jsonl_path):
             items.append(it)
     return items
 
+
 def resolve_many(paths):
     out = []
     for p in paths:
@@ -157,6 +166,7 @@ def resolve_many(paths):
 # =========================
 # LOAD MANIFEST LOOKUP
 # =========================
+
 
 def load_manifest_lookup(manifest_paths):
     fst_by_fname = {}
@@ -184,11 +194,14 @@ def load_manifest_lookup(manifest_paths):
 # DATASET
 # =========================
 
+
 class ImageDataset(Dataset):
     def __init__(self, items):
         self.items = items
+
     def __len__(self):
         return len(self.items)
+
     def __getitem__(self, idx):
         img = Image.open(self.items[idx]["modalities"][0]["value"])
         return img.convert("RGB")
@@ -197,6 +210,27 @@ class ImageDataset(Dataset):
 # =========================
 # EMBEDDINGS
 # =========================
+
+
+def _extract_embedding_tensor(output, preferred_attr):
+    if isinstance(output, torch.Tensor):
+        return output
+    if hasattr(output, preferred_attr):
+        value = getattr(output, preferred_attr)
+        if value is not None:
+            return value
+    if hasattr(output, "pooler_output"):
+        value = getattr(output, "pooler_output")
+        if value is not None:
+            return value
+    if hasattr(output, "last_hidden_state"):
+        value = getattr(output, "last_hidden_state")
+        if value is not None:
+            return value[:, 0]
+    raise TypeError(
+        f"Could not extract embedding tensor from output type: {type(output)}"
+    )
+
 
 @torch.no_grad()
 def compute_image_embeds(model, processor, device, items):
@@ -212,14 +246,16 @@ def compute_image_embeds(model, processor, device, items):
         inputs = processor(images=batch, return_tensors="pt")
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
-        if hasattr(model, "get_image_features"):
-            emb = model.get_image_features(**inputs)
-        else:
-            emb = model(**inputs).image_embeds
-
+        output = (
+            model.get_image_features(**inputs)
+            if hasattr(model, "get_image_features")
+            else model(**inputs)
+        )
+        emb = _extract_embedding_tensor(output, "image_embeds")
         outs.append(torch.nn.functional.normalize(emb, dim=1).cpu())
 
     return torch.cat(outs, dim=0)
+
 
 @torch.no_grad()
 def compute_text_embeds(model, processor, device, texts):
@@ -227,19 +263,23 @@ def compute_text_embeds(model, processor, device, texts):
     outs = []
     for i in range(0, len(uniq), TXT_BS):
         toks = processor(
-            text=uniq[i:i+TXT_BS],
+            text=uniq[i : i + TXT_BS],
             padding=True,
             truncation=True,
             max_length=TXT_MAX_LEN,
             return_tensors="pt",
         )
-        toks = {k: v.to(device) for k, v in toks.items()
-                if k in ("input_ids", "attention_mask")}
-        emb = (
+        toks = {
+            k: v.to(device)
+            for k, v in toks.items()
+            if k in ("input_ids", "attention_mask")
+        }
+        output = (
             model.get_text_features(**toks)
             if hasattr(model, "get_text_features")
-            else model(**toks).text_embeds
+            else model(**toks)
         )
+        emb = _extract_embedding_tensor(output, "text_embeds")
         outs.append(torch.nn.functional.normalize(emb, dim=1).cpu())
     embeds = torch.cat(outs)
     return embeds, {t: i for i, t in enumerate(uniq)}
@@ -249,12 +289,12 @@ def compute_text_embeds(model, processor, device, texts):
 # HARD PROTOCOL (FIXED, ONCE) — matches black-skin logic
 # =========================
 
+
 def build_hard_protocol_from_embeds(items, img_embeds, seed=SEED, top_k=HARD_TOPK):
     """
-    Match black-skin script logic exactly:
-      - candidates = top_k nearest neighbors with different proxy label
-      - if <3, fallback to anywhere with different proxy label
-      - if still <3, fallback to any non-self
+    For each query image i, select negatives that are visually closest (by embedding)
+    but have a different proxy disease label. Falls back to any different-label item,
+    then to any non-self item, if not enough candidates exist.
     """
     rng = random.Random(seed)
     n = len(items)
@@ -272,7 +312,7 @@ def build_hard_protocol_from_embeds(items, img_embeds, seed=SEED, top_k=HARD_TOP
         sorted_idx = torch.argsort(sims, descending=True).tolist()
 
         hard_candidates = [j for j in sorted_idx if labels[j] != labels[i]]
-        hard_candidates = hard_candidates[:max(top_k, 3)]
+        hard_candidates = hard_candidates[: max(top_k, 3)]
 
         if len(hard_candidates) < 3:
             hard_candidates = [j for j in range(n) if j != i and labels[j] != labels[i]]
@@ -289,6 +329,7 @@ def build_hard_protocol_from_embeds(items, img_embeds, seed=SEED, top_k=HARD_TOP
 # EVALUATION
 # =========================
 
+
 @torch.no_grad()
 def evaluate(model_dir, items, triples):
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -300,9 +341,9 @@ def evaluate(model_dir, items, triples):
     txt_embeds, txt_map = compute_text_embeds(model, processor, device, texts)
 
     tot = defaultdict(int)
-    ok  = defaultdict(int)
+    ok = defaultdict(int)
 
-    for (i, a, b, c) in tqdm(triples, desc="Evaluating"):
+    for i, a, b, c in tqdm(triples, desc="Evaluating"):
         img = img_embeds[i]
         labs = [items[i]["text"], items[a]["text"], items[b]["text"], items[c]["text"]]
         sims = torch.matmul(txt_embeds[[txt_map[l] for l in labs]], img)
@@ -325,6 +366,7 @@ def evaluate(model_dir, items, triples):
 # MAIN
 # =========================
 
+
 def main():
     random.seed(SEED)
     torch.manual_seed(SEED)
@@ -344,9 +386,14 @@ def main():
         it["_skin_group"] = fst_to_group(fst)
         it["_proxy_disease"] = diff or "unknown"
 
-    logger.info("Skin-tone group counts: %s", Counter(it["_skin_group"] for it in items))
+    logger.info(
+        "Skin-tone group counts: %s", Counter(it["_skin_group"] for it in items)
+    )
     logger.info("Fitzpatrick counts: %s", Counter(it["_fst"] for it in items))
-    logger.info("Proxy disease counts (top 20): %s", Counter(it["_proxy_disease"] for it in items).most_common(20))
+    logger.info(
+        "Proxy disease counts (top 20): %s",
+        Counter(it["_proxy_disease"] for it in items).most_common(20),
+    )
 
     # ------------------------------------------------------------
     # Build ONE fixed hard protocol using vanilla CLIP reference
@@ -355,10 +402,12 @@ def main():
     logger.info(f"Building FIXED hard protocol using reference model: {REF_MODEL_NAME}")
 
     ref_model = CLIPModel.from_pretrained(REF_MODEL_NAME).to(device).eval()
-    ref_proc  = CLIPProcessor.from_pretrained(REF_MODEL_NAME)
+    ref_proc = CLIPProcessor.from_pretrained(REF_MODEL_NAME)
 
     ref_img_embeds = compute_image_embeds(ref_model, ref_proc, device, items)
-    triples = build_hard_protocol_from_embeds(items, ref_img_embeds, seed=SEED, top_k=HARD_TOPK)
+    triples = build_hard_protocol_from_embeds(
+        items, ref_img_embeds, seed=SEED, top_k=HARD_TOPK
+    )
 
     # Save protocol for reproducibility
     protocol_path = RESULTS_TXT.replace(".txt", "_protocol.json")

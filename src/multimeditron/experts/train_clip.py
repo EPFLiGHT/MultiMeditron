@@ -23,14 +23,22 @@ a text encoder pre-trained in the desired language.
 import logging
 import os
 import sys
+from datetime import datetime
+from io import BytesIO
 from dataclasses import dataclass, field
+from collections import defaultdict
 from typing import List, Optional
 
 import numpy as np
 import torch
 import transformers
 import wandb
-from datasets import interleave_datasets, load_dataset
+from datasets import (
+    concatenate_datasets,
+    interleave_datasets,
+    load_dataset,
+    load_from_disk,
+)
 from PIL import Image
 from torchvision.io import ImageReadMode, read_image
 from torchvision.transforms import CenterCrop, ConvertImageDtype, Normalize, Resize
@@ -165,6 +173,12 @@ class DatasetConfig:
         default=1.0,
         metadata={"help": "The weight to assign to this dataset during training."},
     )
+    domain: Optional[str] = field(
+        default=None,
+        metadata={
+            "help": "Semantic training domain used for balanced sampling (e.g. ct, xray, ultrasound)."
+        },
+    )
 
 
 @dataclass
@@ -220,7 +234,7 @@ class Transform(torch.nn.Module):
             Normalize(mean, std),
         )
 
-    def forward(self, x) -> torch.Tensor:
+    def forward(self, x):
         """`x` should be an instance of `PIL.Image.Image`"""
         with torch.no_grad():
             x = self.transforms(x)
@@ -247,25 +261,28 @@ def collate_fn(examples):
     }
 
 
-def get_combined_dataset(
-    dataset_configs: List[DatasetConfig], model_args: ModelArguments
-):
-    """
-    Generate a random mixture of datasets based on the relative weights registered in the configuration.
-    """
+def get_combined_dataset(dataset_configs, model_args):
+    """Build a domain-balanced training mixture with early subsetting."""
 
-    datasets = []
-    probabilities = []
-    logger.info(f"Loading datasets: {dataset_configs}")
-    for config in dataset_configs:
-        # Load individual dataset
-        if config.get("dataset_path", None) is None:
-            assert len(config) == 1
-            config = config[list(config.keys())[0]]
-        config = DatasetConfig(**config)
+    def _normalize_config(config):
+        if isinstance(config, DatasetConfig):
+            parsed = config
+        else:
+            if config.get("dataset_path", None) is None:
+                assert len(config) == 1
+                config = config[list(config.keys())[0]]
+            parsed = DatasetConfig(**config)
+        if not parsed.domain:
+            raise ValueError(
+                f"Dataset {parsed.dataset_path or parsed.data_dir!r} is missing a 'domain' field in the config."
+            )
+        return parsed
 
-        if config.dataset_path.endswith(".jsonl"):  # path to a jsonl
-            dataset = load_dataset(
+    def _load_dataset(config):
+        if config.dataset_path is not None and os.path.isdir(config.dataset_path):
+            return load_from_disk(config.dataset_path, keep_in_memory=True)
+        if config.dataset_path and config.dataset_path.endswith(".jsonl"):
+            return load_dataset(
                 "json",
                 config.dataset_config_name,
                 cache_dir=model_args.cache_dir,
@@ -275,19 +292,56 @@ def get_combined_dataset(
                 trust_remote_code=model_args.trust_remote_code,
                 data_files=config.dataset_path,
             )
-        else:
-            dataset = load_dataset(
-                config.dataset_path,
-                config.dataset_config_name,
-                cache_dir=model_args.cache_dir,
-                keep_in_memory=False,
-                data_dir=config.data_dir,
-                token=model_args.token,
-                trust_remote_code=model_args.trust_remote_code,
-            )
+        return load_dataset(
+            config.dataset_path,
+            config.dataset_config_name,
+            cache_dir=model_args.cache_dir,
+            keep_in_memory=False,
+            data_dir=config.data_dir,
+            token=model_args.token,
+            trust_remote_code=model_args.trust_remote_code,
+        )
 
-        # For each dataset, assign the image column and caption column to standard names
-        if "train" in dataset:
+    def _get_train_split(dataset):
+        return dataset["train"] if "train" in dataset else dataset
+
+    def _allocate_counts(sizes, total_budget):
+        if not sizes:
+            return []
+        total_size = sum(sizes)
+        if total_size <= total_budget:
+            return sizes
+        raw = [size * total_budget / total_size for size in sizes]
+        counts = [int(value) for value in raw]
+        remainder = total_budget - sum(counts)
+        order = sorted(
+            range(len(sizes)),
+            key=lambda idx: (raw[idx] - counts[idx], sizes[idx]),
+            reverse=True,
+        )
+        for idx in order[:remainder]:
+            counts[idx] += 1
+        counts = [min(count, size) for count, size in zip(counts, sizes, strict=True)]
+        shortfall = total_budget - sum(counts)
+        if shortfall > 0:
+            for idx in order:
+                available = sizes[idx] - counts[idx]
+                if available <= 0:
+                    continue
+                take = min(shortfall, available)
+                counts[idx] += take
+                shortfall -= take
+                if shortfall == 0:
+                    break
+        return counts
+
+    def _subset_before_mapping(train_split, count):
+        if count >= len(train_split):
+            return train_split
+        return train_split.shuffle(seed=42).select(range(count))
+
+    def _standardize_split(train_split, config):
+        if config.dataset_path and config.dataset_path.endswith(".jsonl"):
 
             def find_img_path(row):
                 return {
@@ -298,32 +352,150 @@ def get_combined_dataset(
                     ),
                 }
 
-            if config.dataset_path.endswith(".jsonl"):
-                dataset["train"] = dataset["train"].map(find_img_path)
+            train_split = train_split.map(find_img_path)
 
-            dataset["train"] = (
-                dataset["train"]
-                .rename_column(config.image_column, "image_path")
-                .rename_column(config.caption_column, "caption")
+        def standardize_sample(row):
+            image_value = row[config.image_column]
+
+            # Normalize all image payloads to one Arrow-compatible schema so
+            # concatenate/interleave don't have to align mixed image types.
+            if (
+                isinstance(image_value, dict)
+                and "type" in image_value
+                and "value" in image_value
+                and set(image_value.keys()) == {"type", "value"}
+            ):
+                image_value = image_value["value"]
+
+            if isinstance(image_value, str):
+                image_value = [{"bytes": b"", "path": image_value}]
+            elif isinstance(image_value, dict) and set(image_value.keys()) >= {
+                "bytes",
+                "path",
+            }:
+                image_value = [
+                    {
+                        "bytes": image_value.get("bytes") or b"",
+                        "path": image_value.get("path") or "",
+                    }
+                ]
+            elif isinstance(image_value, list):
+                normalized_images = []
+                for image_entry in image_value:
+                    if isinstance(image_entry, str):
+                        normalized_images.append({"bytes": b"", "path": image_entry})
+                    elif isinstance(image_entry, dict) and set(image_entry.keys()) >= {
+                        "bytes",
+                        "path",
+                    }:
+                        normalized_images.append(
+                            {
+                                "bytes": image_entry.get("bytes") or b"",
+                                "path": image_entry.get("path") or "",
+                            }
+                        )
+                    elif (
+                        isinstance(image_entry, dict)
+                        and "type" in image_entry
+                        and "value" in image_entry
+                        and set(image_entry.keys()) == {"type", "value"}
+                    ):
+                        normalized_images.append(
+                            {"bytes": b"", "path": image_entry["value"]}
+                        )
+                    else:
+                        raise TypeError(
+                            f"Unsupported image list entry type: {type(image_entry)}"
+                        )
+                image_value = normalized_images
+            else:
+                raise TypeError(f"Unsupported image payload type: {type(image_value)}")
+
+            return {
+                "image_path": image_value,
+                "caption": str(row[config.caption_column]).replace("<attachment>", ""),
+            }
+
+        train_split = train_split.map(
+            standardize_sample,
+            remove_columns=train_split.column_names,
+        )
+        return train_split.select_columns(["image_path", "caption"])
+
+    logger.info(f"Loading datasets: {dataset_configs}")
+    parsed_configs = [_normalize_config(config) for config in dataset_configs]
+
+    per_dataset_entries = []
+    domain_sizes = defaultdict(int)
+    for config in parsed_configs:
+        dataset = _load_dataset(config)
+        train_split = _get_train_split(dataset)
+        split_length = len(train_split)
+        per_dataset_entries.append(
+            {
+                "config": config,
+                "train_split": train_split,
+                "length": split_length,
+            }
+        )
+        domain_sizes[config.domain] += split_length
+
+    if not domain_sizes:
+        raise ValueError("No datasets were loaded for training.")
+
+    target_per_domain = min(domain_sizes.values())
+    logger.info("Domain sizes before balancing: %s", dict(domain_sizes))
+    logger.info("Balanced domain budget: %s example(s) per domain", target_per_domain)
+
+    domain_entries = defaultdict(list)
+    for entry in per_dataset_entries:
+        domain_entries[entry["config"].domain].append(entry)
+
+    balanced_domain_splits = []
+    for domain, entries in domain_entries.items():
+        allocations = _allocate_counts(
+            [entry["length"] for entry in entries], target_per_domain
+        )
+        logger.info(
+            "Domain %s allocation: %s",
+            domain,
+            [
+                {
+                    "dataset": entry["config"].dataset_path or entry["config"].data_dir,
+                    "kept": kept,
+                    "available": entry["length"],
+                }
+                for entry, kept in zip(entries, allocations, strict=True)
+            ],
+        )
+        standardized_splits = []
+        for entry, kept_count in zip(entries, allocations, strict=True):
+            if kept_count <= 0:
+                continue
+            sampled_split = _subset_before_mapping(entry["train_split"], kept_count)
+            standardized_splits.append(
+                _standardize_split(sampled_split, entry["config"])
             )
-            dataset["train"] = dataset["train"].map(
-                lambda x: {"caption": x["caption"].replace("<attachment>", "")}
-            )
+        if not standardized_splits:
+            continue
+        domain_dataset = concatenate_datasets(standardized_splits).shuffle(seed=42)
+        if len(domain_dataset) > target_per_domain:
+            domain_dataset = domain_dataset.select(range(target_per_domain))
+        balanced_domain_splits.append(domain_dataset)
 
-        # Repeat dataset according to epochs weight
-        probabilities.append(config.weight)
-        datasets.append(dataset["train"])
+    if not balanced_domain_splits:
+        raise ValueError("No balanced domain datasets could be built.")
 
-    # Normalize weights
-    probabilities = np.array(probabilities)
-    probabilities = probabilities / np.sum(probabilities)
+    combined_dataset = interleave_datasets(
+        balanced_domain_splits,
+        probabilities=[1.0 / len(balanced_domain_splits)] * len(balanced_domain_splits),
+        seed=42,
+        stopping_strategy="all_exhausted",
+    )
+    return combined_dataset.train_test_split(test_size=0.1, seed=42)
 
-    # Combine all datasets
-    combined_dataset = interleave_datasets(datasets, probabilities=probabilities)
-    return combined_dataset.train_test_split(test_size=0.1)
 
-
-def main(config_path: str):
+def main(config_path):
     # 1. Parse input arguments
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
@@ -361,11 +533,16 @@ def main(config_path: str):
 
     logger.info(f"Training/evaluation parameters {training_args}")
 
+    # Append timestamp to output_dir to avoid conflicts between runs
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    training_args.output_dir = f"{training_args.output_dir}_{timestamp}"
+
     # Training args
     training_args.dataloader_drop_last = True
     training_args.dataloader_num_workers = 4
     training_args.logging_steps = 50
-    training_args.fp16 = True
+    training_args.fp16 = False
+    training_args.bf16 = True
     training_args.gradient_accumulation_steps = 2
     if not os.environ.get("WANDB_DISABLED", False):  # setup wandb
         training_args.report_to = ["wandb"]
@@ -480,11 +657,27 @@ def main(config_path: str):
     def transform_images(examples):
         images = []
         for image_file in examples[image_column]:
+            if isinstance(image_file, list):
+                if not image_file:
+                    raise TypeError("Empty image list")
+                image_file = image_file[0]
+
             if isinstance(image_file, str):
-                # If it's a file path
                 image = read_image(image_file, mode=ImageReadMode.RGB)
+            elif isinstance(image_file, dict):
+                if image_file.get("bytes") is not None:
+                    image = torch.from_numpy(
+                        np.array(
+                            Image.open(BytesIO(image_file["bytes"])).convert("RGB")
+                        )
+                    ).permute(2, 0, 1)
+                elif image_file.get("path"):
+                    image = read_image(image_file["path"], mode=ImageReadMode.RGB)
+                else:
+                    raise TypeError(
+                        f"Unsupported dict image format: {image_file.keys()}"
+                    )
             else:
-                # If it's already a PIL Image
                 image = torch.from_numpy(np.array(image_file)).permute(2, 0, 1)
 
             images.append(image)
@@ -493,20 +686,37 @@ def main(config_path: str):
         return examples
 
     def filter_corrupt_images(examples):
-        """remove problematic images"""
         valid_images = []
+
         for image_file in examples[image_column]:
-            if isinstance(image_file, str):
-                try:
-                    Image.open(image_file)
-                    valid_images.append(True)
-                except Exception as e:
-                    logger.warning(
-                        f"Corrupt image found: {image_file}, Error: {str(e)}"
-                    )
-                    valid_images.append(False)
-            else:  # already loaded image
+            try:
+                if isinstance(image_file, list):
+                    if not image_file:
+                        raise TypeError("Empty image list")
+                    image_file = image_file[0]
+
+                if isinstance(image_file, str):
+                    Image.open(image_file).verify()
+
+                elif isinstance(image_file, dict):
+                    if image_file.get("bytes") is not None:
+                        Image.open(BytesIO(image_file["bytes"])).verify()
+                    elif image_file.get("path"):
+                        Image.open(image_file["path"]).verify()
+                    else:
+                        raise TypeError(
+                            f"Unsupported dict image format: {image_file.keys()}"
+                        )
+
+                else:
+                    Image.fromarray(np.array(image_file)).verify()
+
                 valid_images.append(True)
+
+            except Exception as e:
+                logger.warning(f"Invalid image skipped: {e}")
+                valid_images.append(False)
+
         return valid_images
 
     if training_args.do_train:

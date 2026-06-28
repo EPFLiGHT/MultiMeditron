@@ -32,53 +32,45 @@ from transformers import (
     AutoModel,
     AutoProcessor,
 )
-from load_from_clip import load_model  
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from load_from_clip import load_model
 
 # =====================================
-# Config
+# Config — fill in before running
 # =====================================
-# For a clean experiment, start with just the enhanced skin10 JSONL.
 EVAL_DATASETS = [
-    "/mloscratch/users/turan/datasets/skin_expert_datasets/skin_diseases_10/skin10_val.jsonl",
-    # you can add more later:
-    # "/mloscratch/users/turan/datasets/dermnet_eval/dermnet_val.jsonl",
-    # "/mloscratch/users/turan/datasets/isic/isic_val.jsonl",
-    # "/mloscratch/users/turan/datasets/SCIN/scin_api_val.jsonl",
+    # "/path/to/skin10_val.jsonl",
 ]
-LINE_NUMBER  = None
-SEED         = 14
-IMG_BS       = 32
-TXT_BS       = 64
-TXT_MAX_LEN  = 128
-TIE_EPS      = 1e-7
-TIE_POLICY   = "count_incorrect"  # or "skip" / "argmax"
+LINE_NUMBER = None
+SEED = 14
+IMG_BS = 32
+TXT_BS = 64
+TXT_MAX_LEN = 128
+TIE_EPS = 1e-7
+TIE_POLICY = "count_incorrect"  # or "skip" / "argmax"
 
-# ---- Hard-negative protocol config ----
-# BiomedCLIP HF id used ONLY for building the hard protocol
 REF_MODEL_NAME = "openai/clip-vit-base-patch32"
-HARD_TOPK      = 3   # consider this many nearest neighbours as candidate negatives
-# --------------------------------------------
+HARD_TOPK = 3
 
-# Where to save results
-RESULTS_TXT = "/mloscratch/users/turan/evaluation_clip/skin_clip_hard_benchmark.txt"
+RESULTS_TXT = os.environ.get("HARD_NEG_RESULTS_TXT", "hard_negatives_results.txt")
 
-# List your 12 configs here (fill in with your real paths)
 CLIP_CONFIGS = [
-    ("skin_clip_config_10_after", "/mloscratch/users/turan/training/models/combined_dataset_skin_regularization_focused_config_1"),
-    ("skin_clip_config_10_before", "/mloscratch/users/turan/training/models_skin/combined_dataset_skin_regularization_focused_config_1"),
+    # ("my_model", "/path/to/model_checkpoint"),
 ]
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(message)s",
-    level=getattr(logging, LOG_LEVEL, logging.INFO)
+    level=getattr(logging, LOG_LEVEL, logging.INFO),
 )
 logger = logging.getLogger("clip-eval")
+
 
 # =====================================
 # BiomedCLIP loader (reference model)
 # =====================================
-def load_clip_like(model_name_or_path: str, device: str):
+def load_clip_like(model_name_or_path, device):
     """
     Load a CLIP-like model + processor.
 
@@ -89,10 +81,14 @@ def load_clip_like(model_name_or_path: str, device: str):
 
     if "biomedclip" in lower_name:
         # BiomedCLIP or similar custom model
-        model = AutoModel.from_pretrained(
-            model_name_or_path,
-            trust_remote_code=True,
-        ).to(device).eval()
+        model = (
+            AutoModel.from_pretrained(
+                model_name_or_path,
+                trust_remote_code=True,
+            )
+            .to(device)
+            .eval()
+        )
         processor = AutoProcessor.from_pretrained(
             model_name_or_path,
             trust_remote_code=True,
@@ -104,10 +100,11 @@ def load_clip_like(model_name_or_path: str, device: str):
 
     return model, processor
 
+
 # =====================================
 # Data utilities
 # =====================================
-def resolve_items(jsonl_path: str, line_number=None):
+def resolve_items(jsonl_path, line_number=None):
     with open(jsonl_path, "r", encoding="utf-8") as f:
         lines = f.readlines()
     if line_number:
@@ -122,14 +119,18 @@ def resolve_items(jsonl_path: str, line_number=None):
             it["modalities"][0]["value"] = str((base_dir / v).resolve())
     return items
 
+
 def resolve_many(paths, line_number=None):
     all_items = []
     for p in paths:
         cur = resolve_items(p, line_number)
         all_items.extend(cur)
     if len(all_items) < 4:
-        raise ValueError(f"Need at least 4 total items for 1+3 setup, got {len(all_items)}")
+        raise ValueError(
+            f"Need at least 4 total items for 1+3 setup, got {len(all_items)}"
+        )
     return all_items
+
 
 def get_disease_label(item):
     """
@@ -140,6 +141,7 @@ def get_disease_label(item):
     path_str = item["modalities"][0]["value"]
     path = Path(path_str)
     return path.parent.name
+
 
 def build_hard_protocol_from_embeds(items, img_embeds, seed=SEED, top_k=50):
     """
@@ -158,8 +160,8 @@ def build_hard_protocol_from_embeds(items, img_embeds, seed=SEED, top_k=50):
 
     triples = []
     for i in range(n):
-        img_vec = img_embeds_dev[i]                     # (D,)
-        sims = torch.matmul(img_embeds_dev, img_vec)    # (N,)
+        img_vec = img_embeds_dev[i]  # (D,)
+        sims = torch.matmul(img_embeds_dev, img_vec)  # (N,)
         sims[i] = -1.0  # exclude self
 
         # indices sorted by descending similarity
@@ -167,17 +169,15 @@ def build_hard_protocol_from_embeds(items, img_embeds, seed=SEED, top_k=50):
 
         # keep only visually-close *different-disease* neighbours
         hard_candidates = [
-            j for j in sorted_idx
-            if disease_labels[j] != disease_labels[i]
+            j for j in sorted_idx if disease_labels[j] != disease_labels[i]
         ]
         # restrict to top_k closest
-        hard_candidates = hard_candidates[:max(top_k, 3)]
+        hard_candidates = hard_candidates[: max(top_k, 3)]
 
         # fallbacks if dataset is weird / small
         if len(hard_candidates) < 3:
             hard_candidates = [
-                j for j in range(n)
-                if j != i and disease_labels[j] != disease_labels[i]
+                j for j in range(n) if j != i and disease_labels[j] != disease_labels[i]
             ]
             if len(hard_candidates) < 3:
                 hard_candidates = [j for j in range(n) if j != i]
@@ -187,14 +187,17 @@ def build_hard_protocol_from_embeds(items, img_embeds, seed=SEED, top_k=50):
 
     return items, triples
 
+
 # =====================================
 # Dataset / Embeddings
 # =====================================
 class ImageDataset(Dataset):
     def __init__(self, items):
         self.items = items
+
     def __len__(self):
         return len(self.items)
+
     def __getitem__(self, idx):
         path = self.items[idx]["modalities"][0]["value"]
         im = Image.open(path)
@@ -202,20 +205,26 @@ class ImageDataset(Dataset):
             im = im.convert("RGB")
         return im
 
-def _check_embeddings(name: str, embeds: torch.Tensor):
+
+def _check_embeddings(name, embeds):
     assert embeds.ndim == 2, f"{name} embeds must be 2D, got {embeds.shape}"
     finite = torch.isfinite(embeds).all().item()
     stdv = float(embeds.std().item())
-    logger.info(f"{name.capitalize()} embeds: shape={tuple(embeds.shape)}, finite={finite}, std={stdv:.6f}")
+    logger.info(
+        f"{name.capitalize()} embeds: shape={tuple(embeds.shape)}, finite={finite}, std={stdv:.6f}"
+    )
     if not finite:
         raise ValueError(f"{name} embeds contain non-finite values.")
     if stdv < 1e-6:
         logger.warning(f"{name.capitalize()} embeds nearly constant (std≈0).")
 
+
 @torch.no_grad()
 def compute_image_embeds(model, processor, device, items, batch_size=IMG_BS):
     dataset = ImageDataset(items)
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, collate_fn=lambda b: b)
+    dataloader = DataLoader(
+        dataset, batch_size=batch_size, shuffle=False, collate_fn=lambda b: b
+    )
 
     chunks = []
     for batch_images in tqdm(dataloader, desc="Computing image embeddings"):
@@ -229,7 +238,10 @@ def compute_image_embeds(model, processor, device, items, batch_size=IMG_BS):
             if hasattr(out, "image_embeds"):
                 emb = out.image_embeds
             else:
-                raise ValueError("Model has neither get_image_features nor image_embeds.")
+                raise ValueError(
+                    "Model has neither get_image_features nor image_embeds."
+                )
+        emb = emb.image_embeds if hasattr(emb, "image_embeds") else emb.pooler_output
         emb = torch.nn.functional.normalize(emb, dim=1)
         chunks.append(emb.cpu())
 
@@ -237,12 +249,16 @@ def compute_image_embeds(model, processor, device, items, batch_size=IMG_BS):
     _check_embeddings("image", img_embeds)
     return img_embeds
 
-def _filter_text_inputs(toks: dict):
+
+def _filter_text_inputs(toks):
     # Keep only what text towers universally accept
     return {k: v for k, v in toks.items() if k in ("input_ids", "attention_mask")}
 
+
 @torch.no_grad()
-def compute_label_embeds(model, processor, device, labels, txt_bs=TXT_BS, max_len=TXT_MAX_LEN):
+def compute_label_embeds(
+    model, processor, device, labels, txt_bs=TXT_BS, max_len=TXT_MAX_LEN
+):
     """
     Here, `labels` are the *text descriptions* (enhanced or raw),
     NOT the disease classes. We want one embedding per distinct text.
@@ -250,16 +266,18 @@ def compute_label_embeds(model, processor, device, labels, txt_bs=TXT_BS, max_le
     uniq = sorted(set(labels))
     chunks = []
     for i in range(0, len(uniq), txt_bs):
-        batch_labels = uniq[i:i+txt_bs]
+        batch_labels = uniq[i : i + txt_bs]
         toks = processor(
             text=batch_labels,
             padding=True,
             truncation=True,
             max_length=max_len,
-            return_tensors="pt"
+            return_tensors="pt",
         )
         toks = _filter_text_inputs(toks)
-        assert toks["attention_mask"].sum().item() > 0, "All-pad attention_mask for label batch!"
+        assert (
+            toks["attention_mask"].sum().item() > 0
+        ), "All-pad attention_mask for label batch!"
         toks = {k: v.to(device) for k, v in toks.items()}
         if hasattr(model, "get_text_features"):
             emb = model.get_text_features(**toks)
@@ -269,6 +287,7 @@ def compute_label_embeds(model, processor, device, labels, txt_bs=TXT_BS, max_le
                 emb = out.text_embeds
             else:
                 raise ValueError("Model has neither get_text_features nor text_embeds.")
+        emb = emb.image_embeds if hasattr(emb, "image_embeds") else emb.pooler_output
         emb = torch.nn.functional.normalize(emb, dim=1).cpu()
         chunks.append(emb)
         if torch.cuda.is_available():
@@ -279,16 +298,19 @@ def compute_label_embeds(model, processor, device, labels, txt_bs=TXT_BS, max_le
     uniq_vecs = txt_embeds.unique(dim=0).shape[0]
     logger.info(f"Text embeddings unique vectors: {uniq_vecs} / {txt_embeds.shape[0]}")
     if uniq_vecs <= 1:
-        logger.warning("All text embeddings are identical → degenerate retrieval expected.")
+        logger.warning(
+            "All text embeddings are identical → degenerate retrieval expected."
+        )
 
     label_to_idx = {lab: i for i, lab in enumerate(uniq)}
     return txt_embeds, label_to_idx
+
 
 # =====================================
 # Evaluation
 # =====================================
 @torch.no_grad()
-def evaluate_model(model_dir: str, items, triples):
+def evaluate_model(model_dir, items, triples):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     logger.info(f"Loading model from {model_dir} on device={device}")
 
@@ -298,13 +320,15 @@ def evaluate_model(model_dir: str, items, triples):
     # --- Embeddings & retrieval ---
     img_embeds = compute_image_embeds(model, processor, device, items)
     all_labels = [it["text"] for it in items]  # enhanced descriptions
-    txt_embeds, label_to_idx = compute_label_embeds(model, processor, device, all_labels)
+    txt_embeds, label_to_idx = compute_label_embeds(
+        model, processor, device, all_labels
+    )
 
     good = 0
     tie_count = 0
     nonfinite_sims = 0
 
-    for (i, a, b, c) in tqdm(triples, desc="Evaluating"):
+    for i, a, b, c in tqdm(triples, desc="Evaluating"):
         img = img_embeds[i]  # (D,)
 
         # candidates: text for correct + 3 negatives
@@ -315,7 +339,7 @@ def evaluate_model(model_dir: str, items, triples):
             items[c]["text"],
         ]
         idxs = [label_to_idx[lab] for lab in labs]
-        cand_txt = txt_embeds[idxs]         # (4, D)
+        cand_txt = txt_embeds[idxs]  # (4, D)
         sims = torch.matmul(cand_txt, img)  # (4,)
 
         if not torch.isfinite(sims).all():
@@ -346,22 +370,27 @@ def evaluate_model(model_dir: str, items, triples):
     )
     return acc, {"ties": tie_count, "nonfinite_sims": nonfinite_sims}
 
+
 @torch.no_grad()
-def evaluate_hf_clip(model_name: str, items, triples):
+def evaluate_hf_clip(model_name, items, triples):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     logger.info(f"Loading HF model {model_name} on device={device}")
 
-    model, processor = load_clip_like(model_name, device)  # returns CLIPModel+CLIPProcessor
+    model, processor = load_clip_like(
+        model_name, device
+    )  # returns CLIPModel+CLIPProcessor
 
     img_embeds = compute_image_embeds(model, processor, device, items)
     all_labels = [it["text"] for it in items]
-    txt_embeds, label_to_idx = compute_label_embeds(model, processor, device, all_labels)
+    txt_embeds, label_to_idx = compute_label_embeds(
+        model, processor, device, all_labels
+    )
 
     good = 0
     tie_count = 0
     nonfinite_sims = 0
 
-    for (i, a, b, c) in tqdm(triples, desc=f"Evaluating {model_name}"):
+    for i, a, b, c in tqdm(triples, desc=f"Evaluating {model_name}"):
         img = img_embeds[i]
         labs = [items[i]["text"], items[a]["text"], items[b]["text"], items[c]["text"]]
         idxs = [label_to_idx[lab] for lab in labs]
@@ -374,7 +403,11 @@ def evaluate_hf_clip(model_name: str, items, triples):
         else:
             if float(sims.max().item() - sims.min().item()) < TIE_EPS:
                 tie_count += 1
-                pred = -1 if TIE_POLICY in ("count_incorrect", "skip") else int(sims.argmax().item())
+                pred = (
+                    -1
+                    if TIE_POLICY in ("count_incorrect", "skip")
+                    else int(sims.argmax().item())
+                )
             else:
                 pred = int(sims.argmax().item())
 
@@ -383,6 +416,7 @@ def evaluate_hf_clip(model_name: str, items, triples):
 
     acc = good / len(items)
     return acc, {"ties": tie_count, "nonfinite_sims": nonfinite_sims}
+
 
 # =====================================
 # Main
@@ -408,7 +442,7 @@ def main():
         top_k=HARD_TOPK,
     )
     logger.info(f"Hard protocol built: {len(items)} items, {len(triples)} triples.")
- 
+
     # 3) Evaluate all configs on this fixed hard protocol and write to txt
     os.makedirs(os.path.dirname(RESULTS_TXT), exist_ok=True)
     with open(RESULTS_TXT, "w") as f:
@@ -422,6 +456,7 @@ def main():
             print(line, end="")
 
     logger.info(f"Saved results to {RESULTS_TXT}")
+
 
 if __name__ == "__main__":
     main()

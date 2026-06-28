@@ -1,11 +1,11 @@
 """
-This script performs qualitative image-to-image retrieval analysis using the vision tower of a CLIP-style vision–text 
-dual encoder. Given a JSONL evaluation dataset, it computes normalized image embeddings for all samples, selects a query 
-image (optionally constrained to specific labels) and retrieves the top-K most similar images based on cosine similarity 
-in embedding space. The results are visualized as a single figure showing the query alongside its nearest neighbors, 
-enabling manual inspection of semantic clustering, failure modes, and expert specialization behavior. 
+This script performs qualitative image-to-image retrieval analysis using the vision tower of a CLIP-style vision–text
+dual encoder. Given a JSONL evaluation dataset, it computes normalized image embeddings for all samples, selects a query
+image (optionally constrained to specific labels) and retrieves the top-K most similar images based on cosine similarity
+in embedding space. The results are visualized as a single figure showing the query alongside its nearest neighbors,
+enabling manual inspection of semantic clustering, failure modes, and expert specialization behavior.
 
-This tool is intended for qualitative evaluation and sanity checking of learned visual representations rather than 
+This tool is intended for qualitative evaluation and sanity checking of learned visual representations rather than
 quantitative benchmarking.
 """
 
@@ -14,12 +14,14 @@ import random
 from pathlib import Path
 import torch
 import matplotlib
+
 matplotlib.use("Agg")  # non-interactive backend
 import matplotlib.pyplot as plt
 from PIL import Image
 from transformers import VisionTextDualEncoderProcessor
 
-from load_from_clip import load_model  # your helper
+import sys, os; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from load_from_clip import load_model
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -104,6 +106,11 @@ def compute_image_embeds(model, processor, images, batch_size=32):
         pixel_values = inputs["pixel_values"].to(device)
 
         image_embs = model.get_image_features(pixel_values=pixel_values)
+        image_embs = (
+            image_embs.image_embeds
+            if hasattr(image_embs, "image_embeds")
+            else image_embs.pooler_output
+        )
         embs = torch.nn.functional.normalize(image_embs, dim=-1)
 
         all_embs.append(embs.cpu())
@@ -212,25 +219,20 @@ def visualize_retrieval(
 
 
 if __name__ == "__main__":
-    # Best ophthalmology expert model (from earlier results)
-    OPHTH_MODEL = (
-        "/mloscratch/users/turan/training/models_opthalmology/"
-        "combined_dataset_opthalmology_regularization_focused_config_1"
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Visualize top-k image retrievals.")
+    parser.add_argument("--model", required=True, help="Path to a fine-tuned model checkpoint.")
+    parser.add_argument("--dataset", required=True, help="Path to a JSONL eval dataset.")
+    parser.add_argument("--k", type=int, default=3, help="Number of neighbors to retrieve.")
+    parser.add_argument("--out", default="most_sim.png", help="Output image path.")
+    parser.add_argument("--query-label", nargs="*", help="Preferred query label(s).")
+    args = parser.parse_args()
+
+    visualize_retrieval(
+        model_name_or_path=args.model,
+        eval_dataset=args.dataset,
+        k=args.k,
+        preferred_query_labels=set(args.query_label) if args.query_label else None,
+        out_path=args.out,
     )
-
-    # Eye datasets – adjust paths if needed
-    configs = [
-        (
-            "messidor",
-            "/mloscratch/users/turan/datasets/messidor2_eval/messidor_val_raw.jsonl",
-        )
-    ]
-
-    for slug, ds_path in configs:
-        visualize_retrieval(
-            model_name_or_path=OPHTH_MODEL,
-            eval_dataset=ds_path,
-            k=3,
-            preferred_query_labels={"Moderate diabetic retinopathy without macular edema"},
-            out_path=f"/mloscratch/users/turan/evaluation_clip/most_sim_ophthal_{slug}.png",
-        )

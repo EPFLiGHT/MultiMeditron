@@ -1,142 +1,163 @@
-from Benchmark import Benchmark
-import torch.nn as nn
-import torch
-from torch.utils.data import Dataset, DataLoader, Subset
-from sklearn.model_selection import KFold
-from tqdm import tqdm
 import numpy as np
+from sklearn.metrics import (
+    accuracy_score,
+    balanced_accuracy_score,
+    f1_score,
+    hamming_loss,
+    make_scorer,
+)
+from sklearn.model_selection import GridSearchCV, KFold, StratifiedKFold
+from sklearn.neural_network import MLPClassifier
+from torch.utils.data import DataLoader
 
-# Simple MLP classifier used on top of precomputed embeddings
-class MLP_Classifier(torch.nn.Module):
+try:
+    from .Benchmark import Benchmark
+except ImportError:
+    from Benchmark import Benchmark
 
-    FIRST_DIM = 512
-    SECOND_DIM = 256
 
-    def __init__(self,  output_dim:int, input_dim=512):
-        super().__init__()
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.input_dim = input_dim
-        self.output_dim = output_dim
-        self.network = torch.nn.Sequential(
-            torch.nn.Linear(self.input_dim, self.FIRST_DIM),
-            nn.ReLU(),
-            torch.nn.Linear(self.FIRST_DIM, self.SECOND_DIM),
-            nn.ReLU(),
-            torch.nn.Linear(self.SECOND_DIM, self.output_dim)
+_PARAM_GRID = {
+    "learning_rate_init": [0.1, 0.001, 0.005, 0.0005],
+    "alpha": [0.1, 0.001, 0.01, 0.4],
+}
+
+
+def _dataset_to_numpy(dataset):
+    loader = DataLoader(dataset, batch_size=512, shuffle=False)
+    all_X, all_y = [], []
+    for X, y in loader:
+        all_X.append(X.float().numpy())
+        all_y.append(y.numpy())
+    return np.concatenate(all_X), np.concatenate(all_y)
+
+
+def _build_cv(y_train, requested_folds):
+    n_samples = len(y_train)
+    if n_samples < 2:
+        raise ValueError(
+            "MLP_eval needs at least 2 training examples for cross-validation"
         )
 
-    def forward(self, x):
-        return self.network(x)
+    requested_folds = min(requested_folds, n_samples)
+    multilabel = y_train.ndim > 1
 
-# Benchmark that evaluates an image encoder by training and evaluating a multi-layer perceptron on its embeddings
-#takes the training and testing sets of the embeddings as arguments
+    if multilabel:
+        actual_folds = max(2, requested_folds)
+        if actual_folds != requested_folds:
+            print(f"Adjusted MLP CV folds from {requested_folds} to {actual_folds}")
+        return KFold(n_splits=actual_folds, shuffle=True, random_state=42)
+
+    _, counts = np.unique(y_train, return_counts=True)
+    min_class_count = int(counts.min()) if len(counts) else 0
+    if min_class_count >= 2:
+        actual_folds = min(requested_folds, min_class_count)
+        if actual_folds != requested_folds:
+            print(
+                f"Adjusted MLP CV folds from {requested_folds} to {actual_folds} "
+                f"because the smallest class has {min_class_count} examples"
+            )
+        return StratifiedKFold(n_splits=actual_folds, shuffle=True, random_state=42)
+
+    actual_folds = min(requested_folds, n_samples)
+    print(
+        "Using non-stratified MLP CV because at least one class has fewer "
+        f"than 2 examples; folds={actual_folds}"
+    )
+    return KFold(n_splits=actual_folds, shuffle=True, random_state=42)
+
+
 class MLP_eval(Benchmark):
+    """Evaluates an image encoder by training an MLP classifier on frozen embeddings.
 
-    def __init__(self, 
-                output_dim: int, 
-                training_set: Dataset, 
-                test_set: Dataset,
-                k=10, 
-                embedding_dim=512,
-                iteration_number=30,
-                n_epoch=100,
-                loss=nn.CrossEntropyLoss(),
-                accuracy_function=lambda preds, labels: (preds == labels).float().mean().item(),
+    Uses sklearn MLPClassifier with GridSearchCV for hyperparameter selection via
+    k-fold cross-validation. Single-label tasks (1-D integer labels) are scored by
+    macro F1; multi-label tasks (2-D binary label tensors, e.g. X-ray) are scored
+    by micro F1.
+
+    Args:
+        output_dim: Number of output classes.
+        training_set: Dataset of precomputed embeddings + labels for training.
+        test_set: Dataset of precomputed embeddings + labels for evaluation.
+        k: Number of CV folds for hyperparameter search (default: 10).
+        n_epoch: Max training iterations for the MLP (default: 300).
+        embedding_dim, loss, accuracy_function, iteration_number: Kept for
+            backward compatibility, ignored.
+    """
+
+    def __init__(
+        self,
+        output_dim,
+        training_set,
+        test_set,
+        k=10,
+        embedding_dim=512,
+        iteration_number=30,
+        n_epoch=300,
+        loss=None,
+        accuracy_function=None,
     ):
-
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.training_set = training_set
         self.test_set = test_set
-        self.test_loader= DataLoader(dataset=test_set, batch_size=512)
-        self.train_loader= DataLoader(dataset=training_set, batch_size=512)
-
         self.k = k
-        self.embedding_dim = embedding_dim
+        self.n_epoch = n_epoch
         self.output_dim = output_dim
-        self.kfold = KFold(n_splits=self.k, shuffle=True, random_state=42)
-        self.n_epoch=n_epoch
-        self.iteration_number=iteration_number
-        self.loss = loss
-        self.accuracy_function = accuracy_function
-    
-    #evaluates the model on the test dataset
-    def evaluate_fold(self, model, test_loader):
-        model.eval()
-        total = 0
-        correct = 0
 
-        for x, label in test_loader:
-            x = x.to("cuda")
-            label = label.to("cuda")
-            output = torch.sigmoid(model(x))
-            preds = torch.argmax(output, dim=1)
+    def evaluate(self):
+        """Return a dict of metrics. The ``score`` key holds the primary optimization metric."""
+        X_train, y_train = _dataset_to_numpy(self.training_set)
+        X_test, y_test = _dataset_to_numpy(self.test_set)
 
-            batch_acc = self.accuracy_function(preds, label)
-            correct += batch_acc * len(label)
-            total += len(label)
+        multilabel = y_train.ndim > 1
 
-        return correct / total
+        clf = MLPClassifier(
+            hidden_layer_sizes=(512, 256),
+            max_iter=self.n_epoch,
+            random_state=42,
+        )
+        if multilabel:
+            scorer = make_scorer(f1_score, average="micro", zero_division=0)
+        else:
+            scorer = make_scorer(
+                f1_score,
+                average="macro",
+                labels=list(range(self.output_dim)),
+                zero_division=0,
+            )
 
-    #returns a MLP classifier trained on a train dataset
-    def training(self,data_loader, lr, wd):
-            model = MLP_Classifier(self.output_dim, input_dim=self.embedding_dim).to(self.device)
-            criterion = self.loss.to("cuda")
-            optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=wd)
-            losses = []
+        cv = _build_cv(y_train, self.k)
+        grid = GridSearchCV(clf, _PARAM_GRID, cv=cv, scoring=scorer, n_jobs=-1)
+        grid.fit(X_train, y_train)
 
-            model.train()
-            for epoch in tqdm(range(self.n_epoch)):
-                epoch_loss = 0.0
-                for i, data in enumerate(data_loader):
-                    inputs, lab = data
-                    inputs = inputs.to("cuda")
-                    lab = lab.to("cuda")
-                    optimizer.zero_grad()
-                    y = model(inputs).to("cuda")
+        print(f"Best params: {grid.best_params_}")
 
-                    l = criterion(y, lab.to("cuda"))
-                    l.backward()
-                
-                    optimizer.step()
-                    epoch_loss += l.item()
+        y_pred = grid.predict(X_test)
+        if multilabel:
+            micro_f1 = f1_score(y_test, y_pred, average="micro", zero_division=0)
+            macro_f1 = f1_score(y_test, y_pred, average="macro", zero_division=0)
+            hamming_acc = 1.0 - float(hamming_loss(y_test, y_pred))
+            metrics = {
+                "score": micro_f1,
+                "micro_f1": micro_f1,
+                "macro_f1": macro_f1,
+                "hamming_accuracy": hamming_acc,
+            }
+        else:
+            macro_f1 = f1_score(
+                y_test,
+                y_pred,
+                average="macro",
+                labels=list(range(self.output_dim)),
+                zero_division=0,
+            )
+            bal_acc = float(balanced_accuracy_score(y_test, y_pred))
+            acc = float(accuracy_score(y_test, y_pred))
+            metrics = {
+                "score": macro_f1,
+                "macro_f1": macro_f1,
+                "balanced_accuracy": bal_acc,
+                "accuracy": acc,
+            }
 
-                average_loss = epoch_loss / len(data_loader)
-                losses.append(average_loss)
-
-            return average_loss, model
-
-    #returns the accuracy of the k fold cross validation for a given lr and wd
-    def k_fold_training(self,lr, wd):
-        indices = np.arange(len(self.training_set))
-        accuracy = 0
-
-        for fold, (train_ids, val_ids) in enumerate(self.kfold.split(indices)):
-            train_subset = Subset(self.training_set, train_ids)
-            val_subset = Subset(self.training_set, val_ids)
-
-            train_loader = DataLoader(train_subset, batch_size=512)
-            val_loader = DataLoader(val_subset, batch_size=512)
-
-            _, classifier = self.training(train_loader, lr, wd)
-            accuracy += self.evaluate_fold(classifier, val_loader)
-        
-        return accuracy / self.k
-
-    def evaluate(self) -> float:
-        learning_rates = [0.1, 0.8, 0.001, 0.005, 0.0005]
-        weight_decays = [0.1, 0.001, 0.01, 0.4] 
-        best_result = -1
-        best_lr = 0
-        best_wd = 0
-        for lr in learning_rates:
-            for wd in weight_decays:
-                kfold_result = self.k_fold_training(lr, wd)
-                if kfold_result > best_result:
-                    best_lr = lr
-                    best_wd = wd
-                    best_result=kfold_result
-        print("best results with lr: " + str(best_lr)+ " and wd: " + str(best_wd))
-        _, best_classifier = self.training(self.train_loader, best_lr, best_wd)
-        final_result = self.evaluate_fold(best_classifier, self.test_loader)
-        print("test value : " + str(final_result))
-        return final_result
+        for k, v in metrics.items():
+            print(f"Test {k}: {v:.4f}")
+        return metrics

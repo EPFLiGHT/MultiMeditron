@@ -81,22 +81,20 @@ Arguments
     Force device: "cuda", "cuda:0", or "cpu". If omitted, auto-detect.
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import random
 from pathlib import Path
-from typing import List, Tuple, Optional
 
 import torch
 from PIL import Image
 from transformers import VisionTextDualEncoderProcessor, AutoTokenizer
 
+import sys, os; sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from load_from_clip import load_model
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args():
     p = argparse.ArgumentParser(
         description="Evaluate CLIP-style image-text alignment via 4-way forced-choice Recall@1."
     )
@@ -104,14 +102,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--eval-datasets",
         nargs="+",
-        default=[
-            "/mloscratch/users/turan/datasets/opthalmology_expert_datasets/eyepacs/eyepacs_val.jsonl",
-        ],
+        required=True,
         help="One or more JSONL eval dataset paths.",
     )
     p.add_argument(
         "--log-dir",
-        default="/mloscratch/users/turan/evaluation_clip/logs",
+        default="./logs",
         help="Directory to write log files.",
     )
 
@@ -121,9 +117,7 @@ def parse_args() -> argparse.Namespace:
         action="append",
         nargs=2,
         metavar=("NAME", "PATH"),
-        default=[
-            ["finetuned_clip_2", "/mloscratch/users/turan/training/models_opthalmology/combined_dataset_opthalmology_fine_tuning_config_2"]
-        ],
+        default=[],
         help="Add a model as: --model <name> <model_path>. Can be repeated.",
     )
 
@@ -144,7 +138,7 @@ def parse_args() -> argparse.Namespace:
 
 
 @torch.no_grad()
-def get_similarity(text: str, image_path: str, model, processor, device: str) -> float:
+def get_similarity(text, image_path, model, processor, device):
     """
     Return cosine similarity between an image and a text according to the given model.
     """
@@ -157,7 +151,7 @@ def get_similarity(text: str, image_path: str, model, processor, device: str) ->
 
     outputs = model(**inputs)
     image_embeds = outputs.image_embeds  # (1, D)
-    text_embeds = outputs.text_embeds    # (1, D)
+    text_embeds = outputs.text_embeds  # (1, D)
 
     a_norm = torch.nn.functional.normalize(image_embeds, dim=1)
     b_norm = torch.nn.functional.normalize(text_embeds, dim=1)
@@ -168,19 +162,20 @@ def get_similarity(text: str, image_path: str, model, processor, device: str) ->
 
 @torch.no_grad()
 def evaluate_model(
-    model_name_or_path: str,
-    eval_dataset: str,
+    model_name_or_path,
+    eval_dataset,
     *,
-    line_number: int,
-    device: str,
-    seed: int,
+    line_number,
+    device,
+    seed,
     log_fp=None,
-) -> float:
+):
     """
     Evaluate a given model on a JSONL dataset using 4-way forced choice Recall@1.
     """
+
     # small helper to log to both stdout and file
-    def log_print(msg: str):
+    def log_print(msg):
         print(msg)
         if log_fp is not None:
             log_fp.write(msg + "\n")
@@ -219,7 +214,7 @@ def evaluate_model(
 
     log_print(f"\n=== Text tower probe for {model_name_or_path} ===")
     log_print("pairwise cosine matrix:")
-    for row in pairwise.cpu().numpy():
+    for row in pairwise.float().cpu().numpy():
         log_print("   " + " ".join(f"{v:0.3f}" for v in row))
 
     unique = len(torch.unique(text_embs.cpu(), dim=0))
@@ -251,7 +246,7 @@ def evaluate_model(
 
     log_print(f"\n=== Image tower probe for {model_name_or_path} ===")
     log_print("pairwise cosine matrix:")
-    for row in image_pairwise.cpu().numpy():
+    for row in image_pairwise.float().cpu().numpy():
         log_print("   " + " ".join(f"{v:0.3f}" for v in row))
 
     image_unique = len(torch.unique(image_embs.cpu(), dim=0))
@@ -330,20 +325,24 @@ def evaluate_model(
     return acc
 
 
-def main() -> None:
+def main():
     args = parse_args()
 
     # seeds / device
     random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    device = args.device if args.device is not None else ("cuda" if torch.cuda.is_available() else "cpu")
+    device = (
+        args.device
+        if args.device is not None
+        else ("cuda" if torch.cuda.is_available() else "cpu")
+    )
 
     log_dir = Path(args.log_dir)
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    clips: List[Tuple[str, str]] = [(name, path) for (name, path) in args.model]
-    eval_datasets: List[str] = args.eval_datasets
+    clips = [(name, path) for (name, path) in args.model]
+    eval_datasets = args.eval_datasets
 
     for name, model_id in clips:
         model_slug = Path(model_id).name

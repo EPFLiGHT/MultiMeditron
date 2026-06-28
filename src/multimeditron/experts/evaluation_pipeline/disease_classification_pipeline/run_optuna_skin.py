@@ -13,7 +13,6 @@ Notes:
 - Saves a single Optuna study pickle to --output (default: study_skin.pkl).
 """
 
-from __future__ import annotations
 import argparse
 import pickle
 from pathlib import Path
@@ -22,15 +21,25 @@ from skin_benchmark import SkinDiseaseBenchmark
 from train_hp_opt import train
 
 
-def main() -> None:
+def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", required=True, help="YAML config for HP tuning (training setup)")
+    parser.add_argument(
+        "--config", required=True, help="YAML config for HP tuning (training setup)"
+    )
 
     parser.add_argument("--train-jsonl", required=True, help="Path to training jsonl")
-    parser.add_argument("--test-jsonl", required=True, help="Path to validation/test jsonl")
-    parser.add_argument("--image-root", required=True, help="Root directory for images referenced by jsonl")
+    parser.add_argument(
+        "--test-jsonl", required=True, help="Path to validation/test jsonl"
+    )
+    parser.add_argument(
+        "--image-root",
+        required=True,
+        help="Root directory for images referenced by jsonl",
+    )
 
-    parser.add_argument("--output", default="study_skin.pkl", help="Where to save the study pickle")
+    parser.add_argument(
+        "--output", default="study_skin.pkl", help="Where to save the study pickle"
+    )
 
     args = parser.parse_args()
 

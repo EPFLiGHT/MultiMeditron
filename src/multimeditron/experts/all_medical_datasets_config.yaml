@@ -1,0 +1,88 @@
+# Input config for config_maker_expert.
+# Generates one YAML per (datamix × base_config × param_grid) combination.
+# Output goes to src/multimeditron/experts/configurations/.
+
+output_dir: src/multimeditron/experts/configurations
+models_dir: src/multimeditron/experts/models
+
+# --- Datamixes ---
+# Each datamix lists the manifest splits to include during training.
+# Paths point to the benchmark_splits/multimediset/ JSONL manifests.
+
+datamixes:
+  all_domains:
+    dataset_configs:
+      - manifest_path: benchmark_splits/multimediset/ultrasound/train_model.jsonl
+        domain: ultrasound
+        weight: 1.0
+      - manifest_path: benchmark_splits/multimediset/ct/train_model.jsonl
+        domain: ct
+        weight: 1.0
+      - manifest_path: benchmark_splits/multimediset/xray/train_model.jsonl
+        domain: xray
+        weight: 1.0
+      - manifest_path: benchmark_splits/multimediset/skin/train_model.jsonl
+        domain: skin
+        weight: 1.0
+      - manifest_path: benchmark_splits/multimediset/eye/train_model.jsonl
+        domain: eye
+        weight: 1.0
+      - manifest_path: benchmark_splits/multimediset/mri/train_model.jsonl
+        domain: mri
+        weight: 1.0
+      - manifest_path: benchmark_splits/multimediset/histopathology/train_model.jsonl
+        domain: histopathology
+        weight: 1.0
+
+# --- Base hyperparameter configs ---
+# The param_ranges grid search will override fields listed under param_ranges.
+
+base_configs:
+  standard:
+    learning_rate: 5.0e-05
+    weight_decay: 0.05
+    warmup_steps: 2000
+    num_train_epochs: 1
+    lr_scheduler_type: cosine
+
+# --- Grid search ---
+# Each key must match a field in BaseConfig or CommonConfig.
+# One config is generated per combination of values.
+
+param_ranges:
+  learning_rate: [5.0e-05, 1.0e-04, 5.0e-04]
+  weight_decay: [0.05, 0.2]
+
+# --- Fixed settings shared across all generated configs ---
+
+common_config:
+  vision_model_name: openai/clip-vit-base-patch32
+  text_model_name: FacebookAI/roberta-base
+  cache_dir: cache
+  fp16: true
+  bf16: false
+  do_train: true
+  do_eval: false
+  adam_beta1: 0.9
+  adam_beta2: 0.98
+  adam_epsilon: 1.0e-06
+  per_device_eval_batch_size: 64
+  dataloader_drop_last: true
+  gradient_accumulation_steps: 2
+  logging_steps: 50
+  remove_unused_columns: false
+  overwrite_output_dir: true
+  save_steps: 150
+  max_examples_per_domain: 30000
+  target_per_domain: 16000
+
+# --- Benchmarks run after each Optuna trial ---
+
+benchmark_selection:
+- ct
+- histopathology
+- mri
+- skin
+- ophthalmology
+- ultrasound
+- xray
