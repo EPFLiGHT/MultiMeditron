@@ -1,0 +1,92 @@
+# MMIRAGE Configuration for COVID-US-2026 Dataset Processing
+# This config can be used to enhance descriptions using a Vision-Language Model
+
+processors:
+  - type: llm
+    server_args:
+      model_path: Qwen/Qwen3-VL-8B-Instruct
+      tp_size: 1
+      trust_remote_code: true
+      quantization: bfloat16
+    default_sampling_params:
+      temperature: 0.2
+      top_p: 0.95
+      max_new_tokens: 512
+
+loading_params:
+  datasets:
+    - path: ./covid_us_formatted_datasets/covid_us_llm
+      type: loadable
+      output_dir: ./covid_us_formatted_datasets/covid_us_llm_enhanced
+  batch_size: 8
+
+processing_params:
+  inputs:
+    - name: context
+      key: conversations[0].content
+    - name: modalities
+      key: modalities
+
+  outputs:
+    - name: enhanced_description
+      type: llm
+      output_type: plain
+      modality_inputs:
+        - name: image
+          source: modalities
+          modality_type: image
+      prompt: |
+        You are an expert sonographer and radiologist analyzing ultrasound images.
+        
+        Clinical Context:
+        {{ context }}
+        
+        Analyze the ultrasound image systematically and provide a comprehensive report structured as follows:
+        
+        1. VISIBLE ORGANS AND STRUCTURES
+           - Identify all anatomical regions visible in the image
+           - Describe their location and relationship to each other
+        
+        2. FEATURES OF EACH ORGAN/STRUCTURE
+           - Size and dimensions (if measurable)
+           - Shape and contour
+           - Echotexture (homogeneous, heterogeneous, etc.)
+           - Boundaries (well-defined, ill-defined, etc.)
+        
+        3. ADDITIONAL FINDINGS
+           - Focal lesions or abnormalities
+           - Collections of fluid or gas
+           - Architectural distortion
+           - Any incidental findings
+        
+        4. GRAY SCALE AND DOPPLER FEATURES
+           - Echogenicity (hyperechoic, hypoechoic, anechoic, isoechoic)
+           - Acoustic shadowing or enhancement
+           - Color Doppler findings (if applicable)
+           - Spectral Doppler findings (if applicable)
+        
+        5. DYNAMIC FEATURES
+           - Movement and mobility of structures
+           - Real-time behavior noted during scanning
+           - Changes with respiration or patient position (if noted)
+        
+        6. IMAGE QUALITY AND LIMITATIONS
+           - Technical adequacy of the examination
+           - Areas of limited visualization
+           - Factors affecting image quality
+        
+        7. IMPRESSION/CONCLUSION
+           - Concise summary of main findings
+           - Correlation with clinical context
+           - Clinical significance of findings
+        
+        Format your response as a professional ultrasound report. Be thorough but concise.
+      
+  remove_columns: false
+  output_schema:
+    conversations:
+      - role: user
+        content: "{{ context }}"
+      - role: assistant
+        content: "{{ enhanced_description }}"
+    modalities: "{{ modalities }}"

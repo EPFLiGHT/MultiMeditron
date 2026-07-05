@@ -1,0 +1,83 @@
+processors:
+  - type: llm
+    server_args:
+      model_path: Qwen/Qwen3-VL-8B-Instruct
+      tp_size: 1
+      trust_remote_code: true
+    chat_template: qwen3-vl
+    default_sampling_params:
+      temperature: 0.2
+      top_p: 0.95
+      max_new_tokens: 1024
+
+loading_params:
+  datasets:
+    - path: ../CovidUS-2026/covid_us_for_mmirage.jsonl
+      type: JSONL
+      output_dir: ../CovidUS-2026/covid_us_mmirage_output
+      image_base_path: /capstor/store/cscs/swissai/a127/meditron/multimediset/arrow/COVID-US-2026
+  batch_size: 4
+
+processing_params:
+  inputs:
+    - name: image
+      key: image_path
+      type: image
+    - name: context
+      key: context
+    - name: disease
+      key: disease
+    - name: class
+      key: class
+    - name: probe
+      key: probe
+    - name: findings
+      key: findings
+
+  outputs:
+    - name: description
+      type: llm
+      output_type: plain
+      prompt: |
+        You are an expert sonographer analyzing ultrasound images for clinical diagnosis.
+
+        Clinical Information:
+        - Disease: {{ disease }}
+        - Classification: {{ class }}
+        - Probe: {{ probe }}
+        - Additional Findings: {{ findings }}
+
+        Context: {{ context }}
+
+        Analyze this ultrasound image and provide a comprehensive structured report following the professional ultrasound analysis framework:
+
+        VISIBLE ORGANS AND STRUCTURES
+        [Describe all anatomical structures visible in the image]
+
+        FEATURES OF EACH ORGAN/STRUCTURE
+        [Detail the characteristics of each visible structure]
+
+        ADDITIONAL FINDINGS
+        [Note any pathological or incidental findings]
+
+        GRAY SCALE AND DOPPLER FEATURES
+        [Describe echogenicity patterns and any Doppler findings]
+
+        DYNAMIC FEATURES
+        [Comment on motion or dynamic aspects if applicable]
+
+        IMAGE QUALITY AND LIMITATIONS
+        [Assess image quality and any technical limitations]
+
+        IMPRESSION/CONCLUSION
+        [Provide clinical impression and conclusion]
+
+  remove_columns: false
+  output_schema:
+    image_path: "{{ image }}"
+    context: "{{ context }}"
+    disease: "{{ disease }}"
+    class: "{{ class }}"
+    probe: "{{ probe }}"
+    findings: "{{ findings }}"
+    generated_description: "{{ description }}"
