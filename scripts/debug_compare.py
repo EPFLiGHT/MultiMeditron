@@ -84,7 +84,7 @@ def main(out_dir):
         print(f"  MultiMeditron shape={shape_str(m)}")
         print(f"                {stat_str(m)}")
 
-        # ── Compare ──────────────────────────────────────────────────────────
+        # Compare
         # NanoVLM shifts its labels left by 1 manually before saving.
         # MultiMeditron saves unshifted labels (HuggingFace models shift internally).
         # We align MultiMeditron labels with NanoVLM for a fair comparison:

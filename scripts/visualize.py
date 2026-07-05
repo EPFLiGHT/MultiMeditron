@@ -6,9 +6,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import io
 
-# ─────────────────────────────────────────────────────────────────────────────
-# PATHS
-# ─────────────────────────────────────────────────────────────────────────────
+# Paths
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 MM_SRC = os.path.join(SCRIPT_DIR, "../src")
 sys.path.insert(0, MM_SRC)
@@ -33,9 +31,7 @@ NV_CHECKPOINT = (
 # Path to any Arrow dataset folder that has 'texts' and 'images' columns
 DATASET_PATH = "/iopsstor/scratch/cscs/haaissa/MultiMeditron_Clean_Arrow"
 
-# ─────────────────────────────────────────────────────────────────────────────
-# LOAD A REAL SAMPLE FROM THE DATASET
-# ─────────────────────────────────────────────────────────────────────────────
+# Load a real sample from the dataset
 def load_real_sample(dataset_path: str, idx: int = 0):
     """
     Load one sample from the Arrow dataset.
@@ -46,7 +42,7 @@ def load_real_sample(dataset_path: str, idx: int = 0):
     ds = load_from_disk(dataset_path)
     sample = ds[idx]
 
-    # ── image ──
+    # Image
     raw_img = sample["images"][0]  # could be PIL, bytes, or a dict
     if isinstance(raw_img, Image.Image):
         pil_img = raw_img.convert("RGB")
@@ -57,7 +53,7 @@ def load_real_sample(dataset_path: str, idx: int = 0):
     else:
         raise ValueError(f"Unknown image type: {type(raw_img)}")
 
-    # ── text ──
+    # Text
     turn = sample["texts"][0]  # first turn
     question = turn.get("user", "Describe this image.")
     answer   = turn.get("assistant", "")
@@ -68,9 +64,7 @@ def load_real_sample(dataset_path: str, idx: int = 0):
     return pil_img, question, answer
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # hf_m4_transform (embedded to avoid import issues on cluster)
-# ─────────────────────────────────────────────────────────────────────────────
 def hf_m4_transform(batch):
     new_examples = {"conversations": [], "modalities": []}
     for texts, images in zip(batch.get("texts", []), batch.get("images", [])):
@@ -98,9 +92,7 @@ def hf_m4_transform(batch):
     return new_examples
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ATTENTION EXTRACTION HELPERS
-# ─────────────────────────────────────────────────────────────────────────────
+# Attention extraction helpers
 def compute_attention_ratio(attn_matrix, img_token_positions, answer_token_positions):
     """
     Compute the fraction of attention that ANSWER tokens direct toward IMAGE tokens.
@@ -133,9 +125,7 @@ def compute_attention_ratio(attn_matrix, img_token_positions, answer_token_posit
     return attn_to_image, attn_to_text
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# MULTIMEDITRON
-# ─────────────────────────────────────────────────────────────────────────────
+# MultiMeditron
 def get_mm_attentions(pil_img, question, answer):
     from multimeditron.model.model import MultiModalModelForCausalLM, ChatTemplate
     from transformers import AutoTokenizer
@@ -176,7 +166,7 @@ def get_mm_attentions(pil_img, question, answer):
     ]
     collated = data_collator.torch_call(transformed_batch)
 
-    # ── GPU inputs ──
+    # GPU inputs
     inputs = {
         "input_ids":      collated["input_ids"].cuda(),
         "attention_mask": collated["attention_mask"].cuda(),
@@ -190,7 +180,7 @@ def get_mm_attentions(pil_img, question, answer):
         },
     }
 
-    # ── IMAGE TOKEN POSITIONS from token_range (ground truth from the collator) ──
+    # Image token positions from token_range (ground truth from the collator)
     tr = collated["processed_multimodal_inputs"]["token_range"]
     img_positions = []
     for modality_name, ranges in tr.items():
@@ -204,7 +194,7 @@ def get_mm_attentions(pil_img, question, answer):
 
     print(f"\nMultiMeditron – image spans: {img_positions[:5].tolist()}...{img_positions[-5:].tolist()} ({len(img_positions)} tokens)")
 
-    # ── ANSWER TOKEN POSITIONS ──
+    # Answer token positions
     # The assistant answer is everything after the last occurrence of the
     # assistant-start delimiter (we look for token IDs after the last <|im_start|>)
     input_ids_cpu = collated["input_ids"][0]
@@ -244,9 +234,7 @@ def get_mm_attentions(pil_img, question, answer):
     return attn_to_img, attn_to_txt, pil_img
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# NANOVLM
-# ─────────────────────────────────────────────────────────────────────────────
+# nanoVLM
 def get_nv_attentions(pil_img, question, answer):
     import math
     import types
@@ -274,14 +262,14 @@ def get_nv_attentions(pil_img, question, answer):
     input_ids        = input_ids_cpu.unsqueeze(0).cuda()
     images           = [img.cuda().to(torch.float16) for img in processed["images"]]
 
-    # ── IMAGE TOKEN POSITIONS ──
+    # Image token positions
     img_token_id  = tokenizer.convert_tokens_to_ids("<|image|>")
     img_positions = (input_ids_cpu == img_token_id).nonzero(as_tuple=True)[0]
     print(f"\nnanoVLM – image token id={img_token_id}, found {len(img_positions)} image tokens")
     if len(img_positions):
         print(f"  positions: {img_positions[:5].tolist()}...{img_positions[-5:].tolist()}")
 
-    # ── ANSWER TOKEN POSITIONS ──
+    # Answer token positions
     im_start_id = tokenizer.convert_tokens_to_ids("<|im_start|>")
     im_start_positions = (input_ids_cpu == im_start_id).nonzero(as_tuple=True)[0]
     if len(im_start_positions) >= 2:
@@ -295,7 +283,7 @@ def get_nv_attentions(pil_img, question, answer):
     decoded_nv = tokenizer.decode(input_ids_cpu)
     print(f"\n[DEBUG] nanoVLM Decoded Sequence:\n{repr(decoded_nv)}\n")
 
-    # ── MONKEY-PATCH last block to capture attention ──
+    # Monkey-patch last block to capture attention
     captured_attentions = []
     from models.language_model import apply_rotary_pos_embd
 
@@ -344,9 +332,7 @@ def get_nv_attentions(pil_img, question, answer):
     return attn_to_img, attn_to_txt
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# PLOT
-# ─────────────────────────────────────────────────────────────────────────────
+# Plot
 def plot_attentions():
     print("\n--- Starting Debug Visualization ---")
 
@@ -361,7 +347,7 @@ def plot_attentions():
     print(f"  nanoVLM       → image: {nv_img_attn*100:.2f}%  |  text: {nv_txt_attn*100:.2f}%")
     print(f"{'='*55}\n")
 
-    # ── Figure ──
+    # Figure
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
     # Left: the real image used

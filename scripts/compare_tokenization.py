@@ -19,13 +19,13 @@ import os
 import io
 import torch
 
-# ── Paths (adjust if needed) ───────────────────────────────────────────────────
+# Paths (adjust if needed)
 NANO_ROOT        = "/users/haaissa/nanoVLM"
 MULTI_ROOT       = "/users/haaissa/MultiMeditron/src"
 DATASET_PATH     = "/iopsstor/scratch/cscs/haaissa/MultiMeditron_Clean_Arrow"
 LLM_NAME         = "HuggingFaceTB/SmolLM2-360M-Instruct"
 EXAMPLE_IDX      = 0   # which example from the dataset to test
-# ───────────────────────────────────────────────────────────────────────────────
+
 
 sys.path.insert(0, NANO_ROOT)
 sys.path.insert(0, MULTI_ROOT)
@@ -45,9 +45,7 @@ print(f"Number of images  : {len(example['images'])}")
 print(f"First user turn   : {example['texts'][0]['user'][:120]!r}")
 print()
 
-# ══════════════════════════════════════════════════════════════════════════════
-# SECTION 1 — nanoVLM pipeline
-# ══════════════════════════════════════════════════════════════════════════════
+# Section 1 — nanoVLM pipeline
 print("=" * 70)
 print("NANO VLM PIPELINE")
 print("=" * 70)
@@ -114,9 +112,7 @@ print(f"Token IDs [0:20]      : {nano_input_ids[:20].tolist()}")
 print(f"Token IDs [-20:]      : {nano_input_ids[-20:].tolist()}")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# SECTION 2 — MultiMeditron pipeline (via hf_m4_transform + PromptTokenizer)
-# ══════════════════════════════════════════════════════════════════════════════
+# Section 2 — MultiMeditron pipeline (via hf_m4_transform + PromptTokenizer)
 print()
 print("=" * 70)
 print("MULTIMEDITRON PIPELINE")
@@ -202,9 +198,7 @@ print(f"Token IDs [0:20]         : {multi_input_ids[:20].tolist()}")
 print(f"Token IDs [-20:]         : {multi_input_ids[-20:].tolist()}")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# SECTION 3 — Diff summary
-# ══════════════════════════════════════════════════════════════════════════════
+# Section 3 — Diff summary
 print()
 print("=" * 70)
 print("DIFF SUMMARY")
