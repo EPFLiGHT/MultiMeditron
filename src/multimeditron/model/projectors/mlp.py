@@ -56,5 +56,19 @@ class MLPProjector(nn.Module):
         """
         projection = self.projection(hidden_state)
 
+        # --- DEBUG: Print MLP Projector Output Values ---
+        with torch.no_grad():
+            if not hasattr(self, "_debug_printed"):
+                self._debug_printed = 0
+            if self._debug_printed < 3:
+                self._debug_printed += 1
+                print(f"\n--- [DEBUG] MLP Projector Output Values ---", flush=True)
+                print(f"Mean: {projection.mean().item():.6f}", flush=True)
+                print(f"Std:  {projection.std().item():.6f}", flush=True)
+                print(f"First 5 values: {projection.view(-1)[:5].tolist()}", flush=True)
+                print("-" * 40, flush=True)
+        # ------------------------------------------------
+
         return projection
+
 

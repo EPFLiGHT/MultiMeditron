@@ -38,10 +38,40 @@ class PromptTokenizer:
         self.attachment_end = chat_template.special_tokens.get("image_end", None)
         self.ignore_index = ignore_index
 
+        self.attachment_token_str = attachment_token
+
+        # Prevent the tokenizer from splitting the attachment token during apply_chat_template
+        tokens_to_add = []
+        if attachment_token not in self.tokenizer.all_special_tokens:
+            tokens_to_add.append(attachment_token)
+        for _, v in chat_template.special_tokens.items():
+            if v is not None and v not in self.tokenizer.all_special_tokens:
+                tokens_to_add.append(v)
+        # Also add spatial tokens from nanoVLM for 1:1 compatibility
+        for i in range(1, 9):
+            for j in range(1, 9):
+                st = f"<row_{i}_col_{j}>"
+                if st not in self.tokenizer.all_special_tokens:
+                    tokens_to_add.append(st)
+                    
+        if len(tokens_to_add) > 0:
+            self.tokenizer.add_tokens(tokens_to_add, special_tokens=True)
+
         self.special_tokens = {k: self.tokenizer.convert_tokens_to_ids(v) for k, v in chat_template.special_tokens.items() if v is not None}
         self.attachment_token_idx = self.tokenizer.convert_tokens_to_ids(attachment_token)
 
         self.pad_token_idx = self.convert_tokens_to_ids(self.tokenizer.pad_token)
+
+        # Calculate prefix length for assistant turn (to mask it from the loss)
+        messages_before = [{"role": "user", "content": "hello"}]
+        messages_after = [{"role": "user", "content": "hello"}, {"role": "assistant", "content": "xzyvd"}]
+        txt_before = self.tokenizer.apply_chat_template(messages_before, tokenize=False, add_special_tokens=False)
+        txt_after = self.tokenizer.apply_chat_template(messages_after, tokenize=False, add_special_tokens=False)
+        loc = txt_after.find("xzyvd")
+        assistant_prefix = txt_after[len(txt_before):loc]
+        self.assistant_prefix_len = len(
+            self.tokenizer.encode(assistant_prefix, add_special_tokens=False)
+        )
 
     @property
     def vocab_size(self):
@@ -161,20 +191,61 @@ class PromptTokenizer:
         # Expand the attachments
         tokenized_results = []
         for conv, mod in zip(conversation, modalities):
-            outputs = self.tokenizer.apply_chat_template(
-                conv,
+            conv_copied = []
+            modality_idx = 0
+            for msg in conv:
+                if "content" in msg and isinstance(msg["content"], str):
+                    content = msg["content"]
+                    # Split directly on the attachment token instead of unifying to "<image>"
+                    # This prevents accidentally inserting image features at literal "<image>" text
+                    parts = content.split(self.attachment_token_str)
+                    
+                    new_content = ""
+                    for i, part in enumerate(parts):
+                        new_content += part
+                        if i < len(parts) - 1:
+                            if modality_idx < len(mod):
+                                m = mod[modality_idx]
+                                num_embeddings = self.get_num_embeddings(m)
+                                
+                                att_str = ""
+                                if m.get("type", None) == "image":
+                                    global_image = self.chat_template.special_tokens.get("global_image", None)
+                                    att_start = self.chat_template.special_tokens.get("image_start", None)
+                                    att_end = self.chat_template.special_tokens.get("image_end", None)
+                                    
+                                    if att_start and att_end:
+                                        att_str += att_start
+                                    if global_image:
+                                        att_str += global_image
+                                        
+                                    att_str += self.attachment_token_str * num_embeddings
+                                    
+                                    if att_start and att_end:
+                                        att_str += att_end
+                                else:
+                                    att_str += self.attachment_token_str * num_embeddings
+                                    
+                                new_content += att_str
+                                modality_idx += 1
+                            else:
+                                new_content += self.attachment_token_str
+                    
+                    conv_copied.append({**msg, "content": new_content})
+                else:
+                    conv_copied.append(msg)
+
+            # Tokenize all at once without breaking BPE boundaries
+            chat_str = self.tokenizer.apply_chat_template(
+                conv_copied,
                 add_eos_token=add_eos_token,
-                return_dict=True,
-                return_tensors="pt",
+                tokenize=False,
                 add_generation_prompt=add_generation_prompt,
-                enable_thinking=False,
             )
-            
-            input_ids, attention_mask = self.expand_attachment_input_tokens(
-                token_ids=outputs["input_ids"].flatten(),
-                attention_mask=outputs["attention_mask"].flatten(),
-                modalities_for_message=mod,
-            )
+
+            part_enc = self.tokenizer(chat_str, add_special_tokens=False, return_tensors="pt")
+            input_ids = part_enc["input_ids"][0]
+            attention_mask = part_enc["attention_mask"][0]
             
             # Don't want to predict pad tokens
             labels = torch.where(attention_mask == 0, IGNORE_TOKEN_INDEX, input_ids)
@@ -192,6 +263,16 @@ class PromptTokenizer:
                     labels = replace_between_tags_v2(
                         labels, left_tag=left_tag, right_tag=right_tag
                     )
+
+            # Mask out the assistant prompt prefix
+            assistant_start_tag = self.tokenizer.encode(
+                self.chat_template.delimiters["assistant"]["start"],
+                add_special_tokens=False,
+            )
+            assistant_start_positions = find_tag_pos(input_ids, assistant_start_tag)
+            for start in assistant_start_positions:
+                end_mask = min(start + self.assistant_prefix_len, labels.size(0))
+                labels[start : end_mask] = IGNORE_TOKEN_INDEX
 
             tokenized_results.append(
                 {
@@ -291,15 +372,21 @@ class PromptTokenizer:
         attachment_template_size = 0
 
         if modality.get("type", None) == "image":
+            global_image_idx = self.special_tokens.get("global_image", None)
             attachment_start_idx = self.special_tokens.get("image_start", None)
             attachment_end_idx = self.special_tokens.get("image_end", None)
         else:
+            global_image_idx = None
             attachment_start_idx = None
             attachment_end_idx = None
             
         if attachment_start_idx is not None and attachment_end_idx is not None:
             token_ids = [attachment_start_idx] + token_ids + [attachment_end_idx]
-            attachment_template_size = 2
+            attachment_template_size += 2
+
+        if global_image_idx is not None:
+            token_ids = [global_image_idx] + token_ids
+            attachment_template_size += 1
         
         attention_mask = torch.tensor([True] * (num_embeddings + attachment_template_size))
 
@@ -331,7 +418,9 @@ class PromptTokenizer:
         ).flatten()
         modalities_names = list(map(lambda x: x["type"], modalities_for_message))
 
-        assert len(modalities_names) == len(modalities_indices)
+        if len(modalities_names) != len(modalities_indices):
+            decoded_text = self.tokenizer.decode(token_ids)
+            raise AssertionError(f"Expected {len(modalities_names)} attachment tokens ({self.attachment_token_str}), found {len(modalities_indices)} in text: {decoded_text}")
         assert len(attention_mask) == len(token_ids)
 
         # First, take all the text until the first modality (excluded)
@@ -377,16 +466,39 @@ class PromptTokenizer:
         if isinstance(text, str):
             text = [text]
 
-        outputs = self.tokenizer(text, return_tensors="pt")
+        # Replace <image> placeholders with the actual attachment token
+        text_copied = [t.replace("<image>", self.attachment_token_str) for t in text]
 
         tokenized_results = []
 
         # Iterate on each sample of the batch
         for i in range(len(text)):
+            t = text_copied[i]
+            parts = t.split(self.attachment_token_str)
+            token_ids_list = []
+            attention_mask_list = []
+            
+            for j, part in enumerate(parts):
+                if len(part) > 0:
+                    part_enc = self.tokenizer(part, add_special_tokens=False, return_tensors="pt")
+                    token_ids_list.append(part_enc["input_ids"][0])
+                    attention_mask_list.append(part_enc["attention_mask"][0])
+                
+                if j < len(parts) - 1:
+                    token_ids_list.append(torch.tensor([self.attachment_token_idx], dtype=torch.long))
+                    attention_mask_list.append(torch.tensor([1], dtype=torch.long))
+            
+            if len(token_ids_list) > 0:
+                raw_token_ids = torch.cat(token_ids_list)
+                raw_attention_mask = torch.cat(attention_mask_list)
+            else:
+                raw_token_ids = torch.tensor([], dtype=torch.long)
+                raw_attention_mask = torch.tensor([], dtype=torch.long)
+
             # Expand attachment tokens
             input_ids, attention_mask = self.expand_attachment_input_tokens(
-                token_ids=outputs["input_ids"][i],
-                attention_mask=outputs["attention_mask"][i],
+                token_ids=raw_token_ids,
+                attention_mask=raw_attention_mask,
                 modalities_for_message=modalities[i],
             )
 
@@ -426,3 +538,4 @@ def replace_between_tags_v2(tensor, left_tag, right_tag, replace_value=-100):
         tensor[start : end + len(right_tag)] = replace_value
 
     return tensor
+

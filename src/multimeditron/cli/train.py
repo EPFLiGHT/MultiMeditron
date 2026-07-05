@@ -13,6 +13,7 @@ from PIL import PngImagePlugin
 from datasets import config as datasets_config
 from pathlib import Path
 
+import contextlib
 import deepspeed
 import torch
 import os
@@ -43,6 +44,36 @@ def is_main_process() -> bool:
         return True
     return torch.distributed.get_rank() == 0
 
+def hf_m4_transform(batch):
+    import io
+    new_examples = {"conversations": [], "modalities": []}
+    for texts, images in zip(batch.get("texts", []), batch.get("images", [])):
+        convs = []
+        for turn in texts:
+            convs.append({"role": "user", "content": turn["user"]})
+            convs.append({"role": "assistant", "content": turn["assistant"]})
+
+        mods = []
+        if images is not None:
+            for img in images:
+                if img.mode not in ("RGB", "RGBA", "L", "1"):
+                    img = img.convert("RGB")
+                img_byte_arr = io.BytesIO()
+                img.save(img_byte_arr, format='PNG')
+                mods.append({"type": "image", "value": {"bytes": img_byte_arr.getvalue()}})
+
+        # Strip ALL existing image tags (raw dataset uses <image>, some examples have none)
+        # then force-insert exactly len(mods) tags at the start — same logic as prepare_multimeditron_arrow.py
+        if mods and convs:
+            content = convs[0]["content"]
+            content = content.replace("<|image|>", "").replace("<image>", "").strip()
+            image_tags = "<|image|>\n" * len(mods)
+            convs[0]["content"] = image_tags + content
+
+        new_examples["conversations"].append(convs)
+        new_examples["modalities"].append(mods)
+    return new_examples
+
 def build_datasets(config):
     packed_datasets = []
 
@@ -60,12 +91,29 @@ def build_datasets(config):
         print(ds_config["packed_path"])
         if is_dataset_folder(ds_config["packed_path"]):
             dataset = load_from_disk(ds_config['packed_path'])
+        elif is_jsonl(ds_config["packed_path"]):
+            dataset = load_dataset("json", data_files=ds_config["packed_path"], num_proc=num_proc)["train"]
         else:
             dataset = load_dataset(ds_config["packed_path"], num_proc=num_proc)["train"]
+        
+        if "texts" in dataset.features:
+            dataset = dataset.with_transform(hf_m4_transform)
+            
         packed_datasets.append(dataset)
 
     ds = concatenate_datasets(packed_datasets).shuffle(seed=config.get("seed", 0))
-    return ds
+    
+    val_size = config.get("val_size", 0)
+    if val_size > 0:
+        # Prevent val_size from exceeding dataset length
+        if val_size >= len(ds):
+            logger.warning(f"val_size ({val_size}) is larger than dataset size ({len(ds)}). Using 10% for validation instead.")
+            val_size = max(1, len(ds) // 10)
+            
+        split_ds = ds.train_test_split(test_size=val_size, seed=config.get("seed", 0))
+        return split_ds["train"], split_ds["test"]
+        
+    return ds, None
 
 
 
@@ -96,12 +144,37 @@ def train(config: str,
 
     chat_template = ChatTemplate.from_name(config_dict["tokenizer_type"])
 
-    special_tokens_list = list(chat_template.special_tokens.values())
-
-    special_tokens_list.append(config_dict["attachment_token"])
-
+    # ── Register special tokens in the SAME ORDER as nanoVLM so token IDs match ──
+    # nanoVLM order: <|image|>=49152, <|global_image|>=49153, <row_X_col_Y>=49154+
+    # We must NOT use list(chat_template.special_tokens.values()) as the first item
+    # because that puts global_image first (→ 49152) and image second (→ 49153), swapped.
+    special_tokens_list = [config_dict["attachment_token"]]          # <|image|>       → 49152
+    _global = chat_template.special_tokens.get("global_image")
+    if _global and _global not in special_tokens_list:
+        special_tokens_list.append(_global)                          # <|global_image|>→ 49153
+    # Any remaining chat_template special tokens (image_start/end etc.)
+    for v in chat_template.special_tokens.values():
+        if v is not None and v not in special_tokens_list:
+            special_tokens_list.append(v)
+    # Spatial layout tokens matching nanoVLM's <row_X_col_Y> → 49154+
+    for i in range(1, 9):
+        for j in range(1, 9):
+            special_tokens_list.append(f"<row_{i}_col_{j}>")
     special_tokens = {'additional_special_tokens': special_tokens_list}
     tokenizer.add_special_tokens(special_tokens)
+
+    # ── Override tokenizer chat template to match nanoVLM exactly ──────────────
+    # SmolLM2's built-in template injects a default system message which nanoVLM
+    # does NOT include.  Overriding to the same simple ChatML loop removes the
+    # 21-token system-prompt overhead and makes both pipelines produce identical
+    # token sequences for the same input.
+    tokenizer.chat_template = (
+        "{% for message in messages %}"
+        "{{'<|im_start|>' + message['role'] + '\\n' + message['content'] + '<|im_end|>' + '\\n'}}"
+        "{% endfor %}"
+        "{% if add_generation_prompt %}{{ '<|im_start|>assistant\\n' }}{% endif %}"
+    )
+
     
     # Create a model
     torch.set_default_dtype(torch.bfloat16)
@@ -117,7 +190,10 @@ def train(config: str,
         modality_type = loader_copy.pop("modality_type")
         modalities_loader[modality_type] = AutoModalityLoader.from_name(loader_type, **loader_copy)
 
-    with deepspeed.zero.Init(dtype=torch.bfloat16):
+    # Only use ZeRO-3 initialization if a DeepSpeed config is provided
+    ds_init_context = deepspeed.zero.Init(dtype=torch.bfloat16) if training_args.deepspeed else contextlib.nullcontext()
+    
+    with ds_init_context:
         if config_dict.get("base_model", None) is None:
             model = bootstrap(config_dict, tokenizer, modalities_config)
         else:
@@ -132,13 +208,14 @@ def train(config: str,
     processors = model.processors()
 
     # === Dataset ===
-    dataset = build_datasets(config_dict)
+    train_dataset, eval_dataset = build_datasets(config_dict)
     
     trainer_callbacks = []
     if os.environ.get('ENABLE_NSYS') == '1' and not os.environ.get('ENABLE_BENCHY') == '1':
         trainer_callbacks.append(NvtxAnnotationCallback())
 
-    
+    custom_lr = config_dict.get("custom_lr", {})
+
     trainer = MultimodalTrainer(
             model=model,
             args=training_args,
@@ -150,10 +227,12 @@ def train(config: str,
                 attachment_token=config_dict["attachment_token"],
                 use_2d_position_ids=config_dict.get("use_2d_position_ids", False),
             ),
-            train_dataset=dataset,
+            train_dataset=train_dataset,
+            eval_dataset=eval_dataset,
             training_mode=TRAINING_MAPPING[config_dict["training_mode"]],
             pytorch_profiler_config=config_dict.get("pytorch_profiler", None),
             callbacks=trainer_callbacks,
+            custom_lr=custom_lr,
     )
 
     # === Weights & Biases ===
@@ -180,9 +259,11 @@ def train(config: str,
         wandb_run = wandb.init(**wandb_kwargs)
 
         # attach deepspeed config
-        with open(config_dict["training_args"]["deepspeed"], "r") as ds_file:
-            deepspeed_config = json.load(ds_file)
-        wandb_run.config.update({"deepspeed_config": deepspeed_config})
+        ds_path = config_dict["training_args"].get("deepspeed")
+        if ds_path:
+            with open(ds_path, "r") as ds_file:
+                deepspeed_config = json.load(ds_file)
+            wandb_run.config.update({"deepspeed_config": deepspeed_config})
 
     # === Train (resume or fresh) ===
     if resume_flag:
@@ -199,3 +280,4 @@ def train(config: str,
     
     if torch.distributed.is_available() and torch.distributed.is_initialized():
         torch.distributed.barrier()
+
