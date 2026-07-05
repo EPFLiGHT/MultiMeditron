@@ -18,13 +18,22 @@ import sys
 import os
 import io
 import torch
+import argparse
 
 # Paths (adjust if needed)
-NANO_ROOT        = "/users/haaissa/nanoVLM"
-MULTI_ROOT       = "/users/haaissa/MultiMeditron/src"
-DATASET_PATH     = "/iopsstor/scratch/cscs/haaissa/MultiMeditron_Clean_Arrow"
-LLM_NAME         = "HuggingFaceTB/SmolLM2-360M-Instruct"
-EXAMPLE_IDX      = 0   # which example from the dataset to test
+parser = argparse.ArgumentParser(description="Compare tokenization pipelines of nanoVLM and MultiMeditron")
+parser.add_argument("--nano_root", type=str, default="/users/haaissa/nanoVLM", help="Path to nanoVLM repo")
+parser.add_argument("--multi_root", type=str, default="/users/haaissa/MultiMeditron/src", help="Path to MultiMeditron src")
+parser.add_argument("--dataset_path", type=str, default="/iopsstor/scratch/cscs/haaissa/MultiMeditron_Clean_Arrow", help="Path to Arrow dataset")
+parser.add_argument("--llm_name", type=str, default="HuggingFaceTB/SmolLM2-360M-Instruct", help="LLM model name")
+parser.add_argument("--example_idx", type=int, default=0, help="Which example from the dataset to test")
+args = parser.parse_args()
+
+NANO_ROOT        = args.nano_root
+MULTI_ROOT       = args.multi_root
+DATASET_PATH     = args.dataset_path
+LLM_NAME         = args.llm_name
+EXAMPLE_IDX      = args.example_idx
 
 
 sys.path.insert(0, NANO_ROOT)

@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 import io
+import argparse
 
 # Paths
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -21,15 +22,22 @@ for p in [
 ]:
     sys.path.insert(0, os.path.abspath(p))
 
-MM_CHECKPOINT = "/iopsstor/scratch/cscs/haaissa/multimeditron/checkpoints/Dynamic_resize/checkpoint-11500"
-NV_CHECKPOINT = (
+parser = argparse.ArgumentParser(description="Visualize attention in nanoVLM vs MultiMeditron")
+parser.add_argument("--mm_checkpoint", type=str, default="/iopsstor/scratch/cscs/haaissa/multimeditron/checkpoints/Dynamic_resize/checkpoint-11500", help="Path to MultiMeditron checkpoint")
+parser.add_argument("--nv_checkpoint", type=str, default=(
     "/iopsstor/scratch/cscs/haaissa/nanovlm/checkpoints/"
     "nanoVLM_siglip2-base-patch16-512_512_mp4_SmolLM2-360M-Instruct_"
     "1xGPU_bs16_40000_lr_vision_5e-05-language_5e-05-0.00512_0602-231814/step_10000"
-)
+), help="Path to nanoVLM checkpoint")
+parser.add_argument("--dataset_path", type=str, default="/iopsstor/scratch/cscs/haaissa/MultiMeditron_Clean_Arrow", help="Path to Arrow dataset")
+
+args, _ = parser.parse_known_args()
+
+MM_CHECKPOINT = args.mm_checkpoint
+NV_CHECKPOINT = args.nv_checkpoint
 
 # Path to any Arrow dataset folder that has 'texts' and 'images' columns
-DATASET_PATH = "/iopsstor/scratch/cscs/haaissa/MultiMeditron_Clean_Arrow"
+DATASET_PATH = args.dataset_path
 
 # Load a real sample from the dataset
 def load_real_sample(dataset_path: str, idx: int = 0):
